@@ -69,8 +69,34 @@ Other rows: 1,656 rows with a blank or "0" ticker (rejected), plus warrants (225
 - Rejecting the rows would leave gaps that distort ATR20 and swing timing, so they stay in `prices_daily_raw` with `ohlc_outside_range = true`.
 - In the adjusted file, 98.7% of these cases are within 0.5% (rounding).
 
+## Finding 4: corporate actions and adjusted prices (2026-11-24)
+
+**Event detection** (`int_corporate_actions`).
+- Events are found as jumps in CafeF's adjusted/raw ratio, with a tolerance set by CafeF's rounding (adjusted prices to 0.1 VND).
+- **16,318 events across 1,556 stocks; 13,879 in the study period.**
+- The ratio = previous raw close / theoretical reference price. It covers cash dividends, stock dividends, bonus shares, splits and rights.
+- Two UPCoM events that follow long trading gaps (PTG after 695 days, VNX after 181 days) are flagged `after_long_gap` and treated as uncertain.
+
+**Our adjusted prices** (`prices_daily_adjusted`) are raw prices divided by the ratios of all later events (CLAUDE.md rule 7).
+- They reproduce CafeF's adjusted file up to one constant per stock. Only 17 of 2.72M study-period rows (one stock, VNX) differ by more than 0.5%, and the 99.99th-percentile difference is 0.04%.
+- The constant arises because, for 65 stocks, CafeF applies an event dated after the stock's last trade to the whole series. That changes no return.
+
+**Independent check against Yahoo Finance** (`qa_corporate_actions_vs_yahoo`).
+- Sample: 45 HOSE banks and large caps with Yahoo coverage, study period only.
+- Yahoo lacks the HNX/UPCoM banks and delisted stocks.
+
+| Status | Events | Meaning |
+| --- | ---: | --- |
+| match | 565 (87%) | same ex-date, ratio within 1% |
+| date_shift | 5 | same ratio, our date 1 day later (MWG, PNJ) |
+| ratio_mismatch | 33 | same date, different ratio (e.g. VIB 2020-11-19: Yahoo 1.44, ours 1.20) |
+| yahoo_only | 21 | mostly cash dividends with no CafeF adjustment (e.g. CII 2021-04-22, 1,400 VND, about 6.6%) |
+| ours_only | 25 | events Yahoo lacks (e.g. VIC 2012-06-04, 1.275) |
+
+Neither source is complete. An event missing from our series shows up as an artificial price jump on its ex-date. That matters for swing labelling, so disputed events need a rule before labelling (open decision).
+
 ## Next steps
 
-1. Infer corporate actions from the adjusted/raw ratio, then compute our own adjustments and reference prices.
+1. Reference prices and dated price limits (in progress); decide how disputed corporate actions are handled.
 2. Compile VN30 membership history from HOSE announcements; verify the launch date.
 3. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.

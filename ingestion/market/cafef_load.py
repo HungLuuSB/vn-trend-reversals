@@ -22,7 +22,7 @@ from datetime import UTC, datetime
 
 import pandas as pd
 
-from ingestion.clickhouse import client_from_env
+from ingestion.clickhouse import client_from_env, count_partition, replace_partition
 from ingestion.env import load_dotenv
 from ingestion.market.cafef_client import parse_archive
 from ingestion.raw_store import RawStore, S3RawStore, sha256_hex
@@ -100,11 +100,7 @@ def to_rows(
 
 
 def partition_rows(client, raw_key: str, table: str = TABLE) -> int:
-    return int(
-        client.query(
-            f"SELECT count() FROM {table} WHERE raw_key = {{k:String}}", parameters={"k": raw_key}
-        ).result_rows[0][0]
-    )
+    return count_partition(client, table, raw_key)
 
 
 def load_object(
@@ -127,23 +123,7 @@ def load_object(
 
     run_id = run_id or uuid.uuid4().hex
     rows = to_rows(df, raw_key, digest, run_id, now or datetime.now(UTC))
-    scratch = f"_load_{table}_{run_id}"
-    client.command(f"CREATE TABLE {scratch} AS {table}")
-    try:
-        client.insert_df(scratch, rows)
-        got = int(client.query(f"SELECT count() FROM {scratch}").result_rows[0][0])
-        if got != expected:
-            raise RuntimeError(f"{raw_key}: scratch table has {got} rows, expected {expected}")
-        client.command(
-            f"ALTER TABLE {table} REPLACE PARTITION {{k:String}} FROM {scratch}",
-            parameters={"k": raw_key},
-        )
-    finally:
-        client.command(f"DROP TABLE IF EXISTS {scratch}")
-
-    got = partition_rows(client, raw_key, table)
-    if got != expected:
-        raise RuntimeError(f"{raw_key}: table has {got} rows after load, expected {expected}")
+    replace_partition(client, table, raw_key, rows, run_id)
     return LoadResult(raw_key, expected, loaded=True)
 
 
