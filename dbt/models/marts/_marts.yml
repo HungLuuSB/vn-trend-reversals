@@ -95,6 +95,15 @@ models:
               arguments:
                 values: [match, date_shift, ratio_mismatch, yahoo_only, ours_only]
 
+  - name: qa_corporate_actions_final_vs_yahoo
+    description: Same comparison as qa_corporate_actions_vs_yahoo, on the adjudicated events.
+    columns:
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [match, date_shift, ratio_mismatch, yahoo_only, ours_only]
+
   - name: prices_daily_limits
     description: >
       Exchange reference price, ceiling/floor and limit hits per stock-day from raw prices and
@@ -127,7 +136,7 @@ unit_tests:
           - {ticker: AAA, trade_date: 2024-01-04, exchange: HSX, open_vnd: 10000, high_vnd: 10000, low_vnd: 10000, close_vnd: 10000, volume: 100, ohlc_outside_range: false}
           - {ticker: AAA, trade_date: 2024-01-05, exchange: HSX, open_vnd: 10000, high_vnd: 10000, low_vnd: 10000, close_vnd: 10000, volume: 100, ohlc_outside_range: false}
           - {ticker: AAA, trade_date: 2024-01-08, exchange: HSX, open_vnd: 8000, high_vnd: 8000, low_vnd: 8000, close_vnd: 8000, volume: 100, ohlc_outside_range: false}
-      - input: ref('int_corporate_actions')
+      - input: ref('int_corporate_actions_final')
         rows:
           - {ticker: AAA, ex_date: 2024-01-04, adj_ratio: 2.0}
           - {ticker: AAA, ex_date: 2024-01-08, adj_ratio: 1.25}
@@ -156,7 +165,7 @@ unit_tests:
           - {ticker: AAA, trade_date: 2016-09-13, exchange: HSX, open_vnd: 40000, high_vnd: 40000, low_vnd: 40000, close_vnd: 40000}
           - {ticker: BBB, trade_date: 2020-01-02, exchange: UPCOM, open_vnd: 10000, high_vnd: 10000, low_vnd: 10000, close_vnd: 10000}
           - {ticker: BBB, trade_date: 2020-01-03, exchange: UPCOM, open_vnd: 10000, high_vnd: 10000, low_vnd: 10000, close_vnd: 10000}
-      - input: ref('int_corporate_actions')
+      - input: ref('int_corporate_actions_final')
         rows:
           - {ticker: AAA, ex_date: 2016-09-13, adj_ratio: 1.25}
       # The model reads the real seed tables through macros; these fixtures only satisfy dbt.

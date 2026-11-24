@@ -195,3 +195,31 @@ How the bands are computed:
 
 - **Endpoint behaviour:** the per-ticker endpoint needs an exchange filter for some stocks. ACB's HNX years come back under the default (its current exchange); BVB's UPCoM years only with `ExchangeType=UPCOM`. `FETCH_PLAN` records the filter per range.
 - **Calendar:** a few per-ticker rows fall on dates that are not HOSE sessions (e.g. 2018-01-23/24 for ACB and BAB). The universe calendar is HOSE sessions, so those days are outside the universe.
+
+---
+
+## D-007 — How disputed corporate actions are adjudicated (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** data-cleaning procedure. The author chose option A, checking against official notices.
+- **State when decided:** no snapshot, no swing labels, no model. Written before any adjudication result is known.
+
+**Scope.** Corporate actions on universe stock-days (`research_universe_daily`) in the study period:
+1. **Disputed:** every event that `qa_corporate_actions_vs_yahoo` marks `ratio_mismatch`, `ours_only`, `yahoo_only` or `date_shift`. That is 83 events across 41 stocks as of this entry.
+2. **Unconfirmed:** events on stocks or periods Yahoo does not cover (68 events, 20 stocks). These are checked mechanically first: on the ex-date, the raw return implied after the adjustment, `raw_close / raw_prev_close * adj_ratio - 1`, must lie within the exchange's daily limit for that date (D-003). Events that fail join the disputed list.
+
+**Evidence rules**
+- For each event, research agents look up the official facts with a source per fact:
+  - the ex-date (ngày giao dịch không hưởng quyền);
+  - cash dividend per share;
+  - stock dividend / bonus ratio;
+  - rights ratio and rights price.
+- Source priority: exchange or depository notices (HOSE, HNX, VSD), then company disclosures, then reputable press or broker event calendars.
+- The ratio is never typed by hand. It is computed by one tested formula from the verified facts and the raw previous close P: reference = (P − cash + rights_ratio × rights_price) / (1 + stock_ratio + rights_ratio), and ratio = P / reference.
+- The verified facts go into seed `corporate_action_adjudications` with sources and confidence. `int_corporate_actions_final` applies them:
+  - corrected ratio or date;
+  - added missing event;
+  - removed false event.
+
+  An event without verified facts keeps its CafeF-inferred value and is flagged `unadjudicated`.
+- No adjudication may consider returns, swings or model results. The only inputs are corporate-action facts and raw prices around the ex-date.
