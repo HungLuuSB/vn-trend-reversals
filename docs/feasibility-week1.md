@@ -174,7 +174,7 @@ Neither source is complete. An event missing from our series shows up as an arti
 ## Finding 9: global series for feature block D (2026-11-24)
 
 **Series and coverage.**
-- Series follow `docs/proposal.md`, with the source changes in D-009: Brent `BZ=F`, USD/CNY `CNY=X`, and DGS10 timed by the Treasury's 18:00 ET publication.
+- Series follow `docs/proposals/paper1-trend-reversals.md`, with the source changes in D-009: Brent `BZ=F`, USD/CNY `CNY=X`, and DGS10 timed by the Treasury's 18:00 ET publication.
 - Everything is loaded from 2000 onward (Brent from 2007, USD/VND from 2003). Yahoo has no CSI 300 history, so the Shanghai Composite (`000001.SS`) replaces it (D-010).
 
 **Timing.**
@@ -278,6 +278,40 @@ Paired differences in 5-day td-AUC, pooled:
 - **But one feature carries almost all of it.** Used alone with no fitting (D-015 addendum), `swing_dist` reaches a 5-day td-AUC of 0.671; the full model reaches 0.686. `swing_dist` measures how far the price has already moved back from the swing's extreme, where −1 is the confirmation trigger. The other block-A features score 0.50–0.55 alone.
 - **Interpretation.** Much of the measured predictability is partly mechanical: a swing that has already retraced most of its threshold needs only a small further move to be confirmed as a reversal. It is a legitimate forecast (known at the 09:00 decision time) but not evidence of behavioural predictability. Stock technicals add a small, real amount; the local market adds nothing detectable in 2014–2016.
 - **Consequence for the paper (proposal, needs a decision).** Incremental claims (RQ2–RQ4) should be measured against a *mechanical baseline* (swing age + `swing_dist`), not only against Kaplan–Meier.
+
+## Finding 14: against the mechanical baseline, development only (2026-11-24)
+
+**Setup** (D-016, approved; run `20261124T114352Z-devdecompose-D-016`).
+- The mechanical baseline M is the logistic hazard on swing age + `swing_dist`.
+- All sets are tuned as in D-014; pooled bootstrap intervals.
+- **No test year was evaluated.**
+
+| Feature set | Uno C, pooled | IBS | 5-day td-AUC |
+| --- | ---: | ---: | ---: |
+| Kaplan–Meier | 0.501 | 0.2076 | 0.499 |
+| M (mechanical) | 0.593 | 0.1995 | 0.671 |
+| M + B (stock technicals) | 0.601 | 0.1986 | 0.683 |
+| M + B + C (local market) | 0.601 | 0.1987 | 0.683 |
+| M + D (global, additive) | 0.592 | 0.2003 | 0.668 |
+| A–C | 0.604 | 0.1984 | 0.686 |
+| A–D | 0.600 | 0.1991 | 0.680 |
+
+Paired differences, pooled [95% CI]:
+
+| Comparison | Uno C | IBS |
+| --- | --- | --- |
+| A–C − M | [+0.0004, +0.0198] | [−0.0024, +0.0004] |
+| M+B − M | [+0.0009, +0.0145] | [−0.0018, +0.0001] |
+| M+B+C − M+B | [−0.0031, +0.0037] | [−0.0004, +0.0006] |
+| M+D − M | [−0.0086, +0.0056] | [−0.0001, +0.0018] |
+| A–D − A–C | [−0.0079, +0.0011] | [−0.0000, +0.0014] |
+
+**Reading.**
+- **Predictability beyond the label mechanics is not established in development.** The full local model ranks slightly better than M (C interval excludes zero), but its probability accuracy (IBS) is not better. D-016 requires both, so the verdict is **no**. Per fold, only 2016 passes both.
+- What survives beyond the mechanics is a small ranking gain, mostly from stock technicals (block B).
+- The local market (C) adds nothing over B.
+- **Global features in additive form add nothing and slightly hurt** (2016: M+D − M, C [−0.014, −0.000]). D-017 tests whether this is the direction-cancellation problem.
+- **Implication for the paper.** If this holds in the final run, the main RQ1 statement becomes "reversal timing is largely determined by the swing's position relative to the threshold; feature-based predictability beyond that is small." That is reported as found.
 
 ## Next steps
 
