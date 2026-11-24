@@ -1,4 +1,5 @@
-"""Directional-change swing labeller (docs/proposal.md Methodology 1; research/DECISIONS.md D-011).
+"""Directional-change swing labeller (docs/proposals/paper1-trend-reversals.md Methodology 1;
+research/DECISIONS.md D-011).
 
 For one stock's daily adjusted prices, in order:
 

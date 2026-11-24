@@ -1,1 +1,2 @@
-"""Feature blocks A-D for the survival models (docs/proposal.md, Methodology 3)."""
+"""Feature blocks A-D for the survival models (docs/proposals/paper1-trend-reversals.md,
+Methodology 3)."""
