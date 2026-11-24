@@ -69,8 +69,51 @@ Other rows: 1,656 rows with a blank or "0" ticker (rejected), plus warrants (225
 - Rejecting the rows would leave gaps that distort ATR20 and swing timing, so they stay in `prices_daily_raw` with `ohlc_outside_range = true`.
 - In the adjusted file, 98.7% of these cases are within 0.5% (rounding).
 
+## Finding 4: corporate actions and adjusted prices (2026-11-24)
+
+**Event detection** (`int_corporate_actions`).
+- Events are found as jumps in CafeF's adjusted/raw ratio, with a tolerance set by CafeF's rounding (adjusted prices to 0.1 VND).
+- **16,318 events across 1,556 stocks; 13,879 in the study period.**
+- The ratio = previous raw close / theoretical reference price. It covers cash dividends, stock dividends, bonus shares, splits and rights.
+- Two UPCoM events that follow long trading gaps (PTG after 695 days, VNX after 181 days) are flagged `after_long_gap` and treated as uncertain.
+
+**Our adjusted prices** (`prices_daily_adjusted`) are raw prices divided by the ratios of all later events (CLAUDE.md rule 7).
+- They reproduce CafeF's adjusted file up to one constant per stock. Only 17 of 2.72M study-period rows (one stock, VNX) differ by more than 0.5%, and the 99.99th-percentile difference is 0.04%.
+- The constant arises because, for 65 stocks, CafeF applies an event dated after the stock's last trade to the whole series. That changes no return.
+
+**Independent check against Yahoo Finance** (`qa_corporate_actions_vs_yahoo`).
+- Sample: 45 HOSE banks and large caps with Yahoo coverage, study period only.
+- Yahoo lacks the HNX/UPCoM banks and delisted stocks.
+
+| Status | Events | Meaning |
+| --- | ---: | --- |
+| match | 565 (87%) | same ex-date, ratio within 1% |
+| date_shift | 5 | same ratio, our date 1 day later (MWG, PNJ) |
+| ratio_mismatch | 33 | same date, different ratio (e.g. VIB 2020-11-19: Yahoo 1.44, ours 1.20) |
+| yahoo_only | 21 | mostly cash dividends with no CafeF adjustment (e.g. CII 2021-04-22, 1,400 VND, about 6.6%) |
+| ours_only | 25 | events Yahoo lacks (e.g. VIC 2012-06-04, 1.275) |
+
+Neither source is complete. An event missing from our series shows up as an artificial price jump on its ex-date. That matters for swing labelling, so disputed events need a rule before labelling (open decision).
+
+## Finding 5: reference prices and dated price limits (2026-11-24)
+
+**Dated schedules.** Researched from exchange rules and decisions, each row sourced, in `dbt/seeds/` (`research/DECISIONS.md` D-003).
+- **Limits changed inside the sample:** HOSE ±5% to ±7% and HNX ±7% to ±10% on 2013-01-15; UPCoM ±10% to ±15% on 2015-07-01.
+- **HOSE ticks changed on 2016-09-12.**
+- **Reference price:** HOSE always used the previous close. HNX only from 2013-07-29; before that it used a VWAP. UPCoM always uses the previous session's VWAP, which CafeF does not publish.
+
+**`prices_daily_limits`** gives, per stock-day: reference price, ceiling, floor, `close_at_ceiling`, `close_at_floor`, `outside_band`, regime and rule confidence.
+- **Self-check:** on normal, non-event days, 0.09% (HOSE) and 0.07% (HNX) of stock-days trade outside the computed band. For HOSE it is 0.006–0.17% in most years and 0.6% in 2012, when the tick rule is partly unverified.
+- **Event days:** 2–4% fall outside the band, because the exchange does not adjust the reference for some event types.
+- **Coverage, study period:** HOSE 99.98% of stock-days computed; banks 85.7%. Not computed: the UPCoM banks KLB, SGB, ABB, PGB and VAB, plus NVB before 2013-07-29.
+
+**Open questions from the research** (details in D-003 and the seeds' confidence column):
+- the HOSE rules before 2012-03-05;
+- case-by-case limits for HOSE resumptions before 2016 and for exchange transfers;
+- whether the rounding rule applied before 2021.
+
 ## Next steps
 
-1. Infer corporate actions from the adjusted/raw ratio, then compute our own adjustments and reference prices.
+1. Decide how disputed corporate actions (Finding 4) and non-computable limits (UPCoM banks) are handled.
 2. Compile VN30 membership history from HOSE announcements; verify the launch date.
 3. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.

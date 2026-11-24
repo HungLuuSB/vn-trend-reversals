@@ -1,0 +1,13 @@
+exchange,valid_from,valid_to,price_from,price_to,tick_vnd,legal_basis,source_url,confidence
+HSX,2000-01-01,2012-03-04,0,50000,100,assumed same as QD 02/2012 (QD 124/2007 not read),,unverified
+HSX,2000-01-01,2012-03-04,50000,100000,500,assumed same as QD 02/2012 (QD 124/2007 not read),,unverified
+HSX,2000-01-01,2012-03-04,100000,1000000000,1000,assumed same as QD 02/2012 (QD 124/2007 not read),,unverified
+HSX,2012-03-05,2016-09-11,0,50000,100,QD 02/2012/QD-SGDHCM Art 8.2.1,https://caselaw.vn/van-ban-phap-luat/185176-quyet-dinh-02-2012-qd-sgdhcm-ve-quy-che-huong-dan-giao-dich-chung-khoan-tai-so-giao-dich-chung-khoang-thanh-pho-ho-chi-minh,verified-official
+HSX,2012-03-05,2016-09-11,50000,100000,500,QD 02/2012/QD-SGDHCM Art 8.2.1,https://caselaw.vn/van-ban-phap-luat/185176-quyet-dinh-02-2012-qd-sgdhcm-ve-quy-che-huong-dan-giao-dich-chung-khoan-tai-so-giao-dich-chung-khoang-thanh-pho-ho-chi-minh,verified-official
+HSX,2012-03-05,2016-09-11,100000,1000000000,1000,QD 02/2012/QD-SGDHCM Art 8.2.1,https://caselaw.vn/van-ban-phap-luat/185176-quyet-dinh-02-2012-qd-sgdhcm-ve-quy-che-huong-dan-giao-dich-chung-khoan-tai-so-giao-dich-chung-khoang-thanh-pho-ho-chi-minh,verified-official
+HSX,2016-09-12,2100-01-01,0,10000,10,QD 341/342/QD-SGDHCM; QD 352 Art 8.4; VNX 17 App III,https://mbs.com.vn/files/uploads/2025/04/352_qd-sgdhcm_quy-che-giao-dich-ck-tai-hsx.pdf,verified-official
+HSX,2016-09-12,2100-01-01,10000,50000,50,QD 341/342/QD-SGDHCM; QD 352 Art 8.4; VNX 17 App III,https://mbs.com.vn/files/uploads/2025/04/352_qd-sgdhcm_quy-che-giao-dich-ck-tai-hsx.pdf,verified-official
+HSX,2016-09-12,2100-01-01,50000,1000000000,100,QD 341/342/QD-SGDHCM; QD 352 Art 8.4; VNX 17 App III,https://mbs.com.vn/files/uploads/2025/04/352_qd-sgdhcm_quy-che-giao-dich-ck-tai-hsx.pdf,verified-official
+HNX,2000-01-01,2016-09-11,0,1000000000,100,no contrary evidence found before QD 529/2016,,unverified
+HNX,2016-09-12,2100-01-01,0,1000000000,100,QD 529/QD-SGDHN Art 23.1; VNX 17 App III 2.2,https://static1.vietstock.vn/vietstock/2016/Quychegiaodich2016_final.pdf,verified-official
+UPCOM,2000-01-01,2100-01-01,0,1000000000,100,QD 468/2010 Art 15.1; 236/2015 Art 18; 78/2016 Art 17; VNX 34 and 23 Art 17,https://mbs.com.vn/files/uploads/2025/04/34_qd-hdtv_quy-che-dang-ky-va-quan-ly-giao-dich-ck-chua-niem-yet.pdf,verified-official

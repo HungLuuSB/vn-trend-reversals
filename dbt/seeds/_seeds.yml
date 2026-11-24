@@ -1,0 +1,45 @@
+version: 2
+
+seeds:
+  - name: price_limit_schedule
+    description: >
+      Daily price limits (fraction of the reference price) per exchange and regime, with the
+      legal basis, source and confidence of every row (research/DECISIONS.md D-003).
+      Regimes: normal; resumption (first session after a long suspension). New listings and
+      exchange transfers have no reconstructable reference price and are not listed.
+    config:
+      column_types:
+        exchange: LowCardinality(String)
+        regime: LowCardinality(String)
+        limit_pct: Float64
+        valid_from: Date
+        valid_to: Date
+        legal_basis: String
+        source_url: String
+        confidence: LowCardinality(String)
+  - name: tick_size_schedule
+    description: Tick size by exchange, period and price band [price_from, price_to) in VND.
+    config:
+      column_types:
+        exchange: LowCardinality(String)
+        valid_from: Date
+        valid_to: Date
+        price_from: Float64
+        price_to: Float64
+        tick_vnd: Float64
+        legal_basis: String
+        source_url: String
+        confidence: LowCardinality(String)
+  - name: reference_price_rule
+    description: >
+      How each exchange set the reference price. Only prev_close can be rebuilt from CafeF
+      data; vwap_* methods need traded value, which CafeF does not publish.
+    config:
+      column_types:
+        exchange: LowCardinality(String)
+        valid_from: Date
+        valid_to: Date
+        method: LowCardinality(String)
+        legal_basis: String
+        source_url: String
+        confidence: LowCardinality(String)

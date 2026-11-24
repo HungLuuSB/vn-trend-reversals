@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 
-# --- Data (never commit; raw lives in MinIO) ---
+# --- Data (never commit; raw lives in the S3 raw layer) ---
 *.parquet
 *.csv
 *.tsv
@@ -19,6 +19,9 @@ raw/
 research/snapshots/*/
 research/runs/*/
 !research/runs/.gitkeep
+
+# --- Exception: curated reference seeds are code (sourced, hand-checked, small) ---
+!dbt/seeds/*.csv
 
 # --- Python ---
 __pycache__/
