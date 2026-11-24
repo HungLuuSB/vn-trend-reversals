@@ -360,7 +360,7 @@ Paired differences, pooled [95% CI]:
 | sse_ret | −0.00012 | [−0.00031, +0.00006] | 0.26 | −0.0005 |
 | vix_level | −0.00069 | [−0.00165, +0.00012] | 0.09 | −0.0030 |
 | gpr_level | −0.00091 | [−0.00241, +0.00026] | 0.16 | −0.0040 |
-| (the other 7) | between −0.00005 and +0.00001 | all include 0 | ≥ 0.25 | |
+| (the other 7) | between −0.00005 and 0.00000 | all include 0 | ≥ 0.25 | |
 
 All Holm-adjusted p-values are 1.0, so **no global feature is informative** in 2014–2016.
 
