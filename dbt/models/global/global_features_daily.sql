@@ -10,7 +10,7 @@
 -- available_at_max_utc is the latest availability time among the inputs of the row; the
 -- no_feature_after_decision_time test checks it against decision_time_utc.
 
-{% set price_series = ['spx', 'nasdaq', 'dxy', 'gold', 'brent', 'hsi', 'csi300', 'usdvnd', 'usdcny'] %}
+{% set price_series = ['spx', 'nasdaq', 'dxy', 'gold', 'brent', 'hsi', 'sse', 'usdvnd', 'usdcny'] %}
 {% set level_series = ['vix', 'ust10', 'gpr', 'gpr_act', 'gpr_threat'] %}
 
 with changes as (

@@ -7,7 +7,7 @@ dxy,yahoo,DX-Y.NYB,ICE US Dollar Index,price,close,17:00:00,America/New_York,glo
 gold,yahoo,GC=F,COMEX gold front-month futures (continuous),price,close,17:00:00,America/New_York,global table,roll days handled in features (D-009); settlement 13:30 ET; bar ends 17:00 ET,verified-secondary
 brent,yahoo,BZ=F,ICE Brent crude front-month futures,price,close,18:00:00,America/New_York,global table (FRED DCOILBRENTEU replaced; D-009),EIA spot reaches FRED with a lag; futures public at the close,verified-secondary
 hsi,yahoo,^HSI,Hang Seng index,price,close,16:10:00,Asia/Hong_Kong,global table,HKEX closing auction ends 16:10,verified-official
-csi300,yahoo,000300.SS,CSI 300 index,price,close,15:00:00,Asia/Shanghai,global table,SSE/SZSE close,verified-official
+sse,yahoo,000001.SS,Shanghai Composite index (replaces CSI 300; D-010),price,close,15:00:00,Asia/Shanghai,global table (CSI 300 replaced; D-010),Yahoo has no CSI 300 price history; SSE close,verified-official
 usdvnd,yahoo,VND=X,USD/VND exchange rate,price,next_day_midnight,00:00:00,Europe/London,global table,FX daily bar covers the London day; public at its end,verified-secondary
 usdcny,yahoo,CNY=X,USD/CNY exchange rate,price,next_day_midnight,00:00:00,Europe/London,global table (FRED DEXCHUS replaced; D-009),H.10 is weekly; Yahoo FX bar public at the end of the London day,verified-secondary
 gpr,gpr,GPRD,Caldara-Iacoviello daily geopolitical risk index,level,gpr_weekly,00:00:00,America/New_York,global table,updated every Monday (holiday: next business day); public from the Wednesday after (D-009),verified-official

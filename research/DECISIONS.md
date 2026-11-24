@@ -297,3 +297,20 @@ Availability rules:
 - Block C needs VN-Index history and foreign flows; if no free history of foreign flows exists, the series is dropped, as the proposal's risk table allows.
 
 **5. Price limits.** The proposal's text states today's limits (±7 / 10 / 15%). The dated schedule in D-003 (HOSE ±5% and HNX ±7% before 2013-01-15; UPCoM ±10% before 2015-07-01) governs, and the paper's text should state it.
+
+---
+
+## D-010 — Shanghai Composite replaces the CSI 300
+
+- **Date:** 2026-11-24
+- **Type:** data-source substitution (proposal, global data table); the author chose option A of three
+- **State when decided:** no snapshot, no labels, no model; no feature has been examined against outcomes.
+
+**Decision.** Feature block D uses the Shanghai Composite index (Yahoo `000001.SS`, series `sse`, close 15:00 Asia/Shanghai) as its mainland-China equity series, in place of the CSI 300 (`000300.SS`).
+
+**Reason.**
+- Yahoo returns no price history for the CSI 300 under either symbol (`000300.SS`, `399300.SZ`; checked 2026-11-24).
+- The Shanghai Composite is mainland China's other headline index, available from the same source with the same timing.
+- Rejected alternatives: a separate, untested CSI 300 source; dropping the mainland series and leaving the Hang Seng as the only China signal.
+
+**Consequence.** The paper's data section names the Shanghai Composite and states the reason.
