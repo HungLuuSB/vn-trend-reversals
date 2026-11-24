@@ -1,0 +1,10 @@
+exchange,regime,limit_pct,valid_from,valid_to,legal_basis,source_url,confidence
+HSX,normal,0.05,2008-08-18,2013-01-14,UBCK approval 2008 (number not found),https://vietstock.vn/2013/01/thay-doi-bien-do-giao-dich-va-tac-dong-den-ttck-830-254005.htm,verified-secondary
+HSX,normal,0.07,2013-01-15,2100-01-01,QD 01/2013/QD-SGDHCM; QD 352/QD-SGDHCM Art 9.6; VNX QD 17/QD-HDTV App III,https://mbs.com.vn/files/uploads/2025/04/352_qd-sgdhcm_quy-che-giao-dich-ck-tai-hsx.pdf,verified-official
+HNX,normal,0.07,2008-08-18,2013-01-14,UBCK approval 2008 (number not found),https://vietstock.vn/2013/01/thay-doi-bien-do-giao-dich-va-tac-dong-den-ttck-830-254005.htm,verified-secondary
+HNX,normal,0.10,2013-01-15,2100-01-01,QD 18/QD-SGDHN; VNX QD 17/QD-HDTV App III 2.3,https://mbs.com.vn/files/uploads/2025/04/17_qd-hdtv_quy-che-niem-yet-va-giao-dich-ck-niem-yet.pdf,verified-official
+UPCOM,normal,0.10,2010-07-09,2015-06-30,HNX QD 468/QD-SGDHN Art 17.1,https://caselaw.vn/van-ban-phap-luat/196223-quyet-dinh-so-468-qd-sgdhn-ngay-09-07-2010-ve-quy-che-quan-ly-thi-truong-dang-ky-giao-dich-tai-so-giao-dich-chung-khoan-ha-noi-van-ban-het-hieu-luc,verified-official
+UPCOM,normal,0.15,2015-07-01,2100-01-01,HNX TB 654/TB-SGDHN; VNX QD 34/QD-HDTV Art 18.1; VNX QD 23/QD-HDTV Art 18.1,https://mbs.com.vn/files/uploads/2025/04/34_qd-hdtv_quy-che-dang-ky-va-quan-ly-giao-dich-ck-chua-niem-yet.pdf,verified-official
+HSX,resumption,0.20,2016-09-12,2100-01-01,QD 341/342/QD-SGDHCM Art 12.1; QD 352 Art 12; VNX 17 Art 31.6(b) (trigger: suspension > 25 trading days),https://luatvietnam.vn/chung-khoan/quyet-dinh-341-qd-sgdhcm-221439-d2.html,verified-official
+HNX,resumption,0.30,2011-05-04,2100-01-01,HNX rule amendment May 2011; QD 529/QD-SGDHN Art 24.2; VNX 17 App III 2.4 (trigger: > 25 sessions),https://static1.vietstock.vn/vietstock/2016/Quychegiaodich2016_final.pdf,verified-official
+UPCOM,resumption,0.40,2011-04-01,2100-01-01,likely HNX QD 131/QD-SGDHN; VNX 34/2022 Art 18.2 (trigger: > 25 consecutive sessions without trades; start date unconfirmed),https://www.tinnhanhchungkhoan.vn/hnx-ap-dung-gia-tham-chieu-va-bien-do-cho-cp-chao-san-post46339.html,verified-secondary
