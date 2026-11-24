@@ -447,6 +447,27 @@ D-021 asks whether the hazard model is useful for trading (H5), under Vietnamese
 - In 2014–2016 every stock-day had a computable price limit, so there are no assumed fills.
 - This matches Findings 14–18: the model's skill is mostly mechanical and too small to trade on. The final run on 2017–2026 decides H5.
 
+## Finding 20: do banks react more to rates and the dollar? Development only (2026-11-25)
+
+D-020 tests H2's bank channel (run `20261124T174320Z-devdecompose-D-020`). It adds `is_bank` and its interactions with the US 10-year yield change, the dollar index return and the USD/VND return, also split by swing direction, to ABCDx.
+
+| | Pooled Uno C | Pooled IBS | 5-day td-AUC |
+|---|---|---|---|
+| ABCDx | 0.596 | 0.1998 | 0.674 |
+| ABCDx_bank | 0.597 | 0.1997 | 0.674 |
+
+- Difference: C [−0.002, +0.004], IBS [−0.0008, +0.0005], 5-day td-AUC [−0.004, +0.003].
+- By fold: 2014 and 2015 slightly better, 2016 slightly worse. None of it is significant.
+
+**Reading.** Development data (9 banks, about 24% of rows) show **no bank-specific sensitivity of reversal timing to rates or the dollar.** This closes the block-D specifications allowed on development data by the D-017 guard. In every form tried, the global block adds nothing in 2014–2016:
+- additive;
+- direction-specific;
+- trees;
+- per feature;
+- bank-specific.
+
+The final run decides RQ2.
+
 ## Next steps
 
 1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
