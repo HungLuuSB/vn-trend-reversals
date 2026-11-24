@@ -444,3 +444,8 @@ Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS 
 **Interpretation rule, fixed in advance.** If `AGE` reaches at least 80% of the ABC skill above chance at 5 days, i.e. td-AUC(AGE) − 0.5 ≥ 0.8 × (td-AUC(ABC) − 0.5), the short-horizon result is reported as mainly a swing-age (duration-dependence) effect, not a feature effect.
 
 **What does not change:** the main specification. This is descriptive only.
+
+**Addendum (2026-11-24, after the D-015 run, before this check).**
+- The run found that block A carries almost all the skill.
+- Descriptive follow-up: each block-A feature used alone as a raw risk score, with no fitting. Report the 5-day td-AUC on the pooled development validation rows (2014–2016); a feature scoring below 0.5 is flipped and its sign reported.
+- This only describes where the signal sits. It does not change the model or the feature sets.
