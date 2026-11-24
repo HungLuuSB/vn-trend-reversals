@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Point-in-time data for Vietnamese banks and VN30, and the trend-reversal survival-analysis paper"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "boto3==1.44.0",
+    "httpx==0.28.1",
+    "pandas==3.1.1",
     "vnstock==6.0.1",
     "vnstock-oapi==0.1.2",
 ]
@@ -23,6 +26,7 @@ pythonpath = ["."]
 addopts = "-ra --strict-markers"
 markers = [
     "network: test calls an external service (deselect with -m 'not network')",
+    "integration: test needs the local research stack (deselect with -m 'not integration')",
 ]
 
 [tool.ruff]
