@@ -139,9 +139,18 @@ Neither source is complete. An event missing from our series shows up as an arti
 
 **Universe** (`research_universe_daily`): 146,555 stock-days and 91 stocks; 91% have prices.
 
+## Finding 7: gaps filled from CafeF per-ticker history (2026-11-24)
+
+**Results** (`research/DECISIONS.md` D-006):
+- **Agreement:** the per-ticker history matches the bulk archive on 100% of 8,251 overlapping stock-days (OHLC and volume).
+- **Fills:** 13,055 rows fill the documented gaps.
+- **Coverage, study period:** banks 99.0% of bank-days (was 83%); VN30 99.93% of member-days (was 99.1%). Only Habubank (HBB, 2012) is missing.
+- **VWAP references:** UPCoM and early-HNX reference prices are rebuilt from VWAP where the rounded value pins them to one tick. That covers 5,395 bank-days, with 0.20% outside the band.
+- **Banks with computed limits:** 85.2% of bank-days.
+- **How to fetch:** `ingestion/market/cafef_history_ingest.py` (FETCH_PLAN), resumable. Raw zips are under `cafef_history/` in the raw layer.
+
 ## Next steps
 
-1. Decide how disputed corporate actions (Finding 4) and non-computable limits (UPCoM banks) are handled.
-2. Decide whether UPCoM-only bank spells count as listed banks; decide on filling gaps from CafeF per-ticker history.
-3. Step 4: adjudicate disputed corporate actions for the universe (D-004 universe, Yahoo check widened).
-4. Index levels (VN-Index, VN30) still needed.
+1. Step 4: adjudicate disputed corporate actions for the universe (option A, author-approved): widen the Yahoo check to every universe stock, then verify disagreements against official notices.
+2. Before the trading test: decide how stock-days without computable limits are treated.
+3. Index levels (VN-Index, VN30) still needed.

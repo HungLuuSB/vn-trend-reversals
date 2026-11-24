@@ -13,9 +13,12 @@
 -- Exchange reference price, daily ceiling/floor and limit hits per stock-day (CLAUDE.md rule 6,
 -- research/DECISIONS.md D-003). All levels use RAW prices.
 --
--- reference = previous close, divided by the corporate-action ratio on ex-dates
---             (only where the exchange's rule was prev_close: HOSE always, HNX from 2013-07-29;
---              HNX before that and UPCoM used a VWAP that CafeF does not publish)
+-- reference = previous close, divided by the corporate-action ratio on ex-dates, where the
+--             exchange's rule was prev_close (HOSE always, HNX from 2013-07-29); or the previous
+--             day's session VWAP (UPCoM; HNX before 2012-03-26) where the per-ticker history
+--             pins it to a single tick despite value rounding (ref_basis = prev_vwap,
+--             confidence unverified).
+--             HNX's last-15-minute VWAP (2012-03-26..2013-07-28) cannot be rebuilt.
 -- ceiling   = reference * (1 + limit), rounded DOWN to the tick of its price level
 -- floor     = reference * (1 - limit), rounded UP to the tick of its price level
 --             (rounding toward the reference: explicit in the rules from 2021, assumed before)
@@ -34,6 +37,8 @@ with base as (
         low_vnd,
         close_vnd,
         lagInFrame(close_vnd) over w as prev_close,
+        lagInFrame(vwap_vnd) over w as prev_vwap,
+        lagInFrame(vwap_uncertainty_vnd) over w as prev_vwap_uncertainty,
         lagInFrame(trade_date) over w as prev_trade_date,
         lagInFrame(exchange) over w as prev_exchange,
         row_number() over w as rn
@@ -51,6 +56,8 @@ with_context as (
         b.low_vnd as low_vnd,
         b.close_vnd as close_vnd,
         b.prev_close as prev_close,
+        b.prev_vwap as prev_vwap,
+        b.prev_vwap_uncertainty as prev_vwap_uncertainty,
         b.prev_trade_date as prev_trade_date,
         b.prev_exchange as prev_exchange,
         b.rn as rn,
@@ -80,14 +87,48 @@ regimed as (
     from with_context
 ),
 
+vwap_bounds as (
+    select
+        *,
+        -- Session-VWAP rule (UPCoM; HNX before 2012-03-26): previous day's VWAP, rounded to the
+        -- nearest tick (rounding rule unverified). The VWAP is only known to +/- its uncertainty
+        -- (matched value is published in 0.01 bn VND), so the reference counts as known only
+        -- when both ends of that interval round to the same tick.
+        if(ref_method = 'vwap_session' and rn > 1 and prev_vwap is not null,
+           (prev_vwap - prev_vwap_uncertainty) / event_ratio, null) as vwap_lo,
+        if(ref_method = 'vwap_session' and rn > 1 and prev_vwap is not null,
+           (prev_vwap + prev_vwap_uncertainty) / event_ratio, null) as vwap_hi
+    from regimed
+),
+
+vwap_ref as (
+    select
+        *,
+        if(vwap_lo is not null
+           and round(vwap_lo / {{ tick_size('exchange', 'trade_date', 'vwap_lo') }})
+               * {{ tick_size('exchange', 'trade_date', 'vwap_lo') }}
+             = round(vwap_hi / {{ tick_size('exchange', 'trade_date', 'vwap_hi') }})
+               * {{ tick_size('exchange', 'trade_date', 'vwap_hi') }},
+           (vwap_lo + vwap_hi) / 2, null) as vwap_ref_raw
+    from vwap_bounds
+),
+
 limited as (
     select
         *,
-        if(ref_method = 'prev_close' and rn > 1, toNullable(prev_close / event_ratio), null)
-            as ref_price,
+        multiIf(
+            rn = 1, null,
+            ref_method = 'prev_close', toNullable(prev_close / event_ratio),
+            vwap_ref_raw is not null,
+                toNullable(round(vwap_ref_raw / {{ tick_size('exchange', 'trade_date', 'vwap_ref_raw') }})
+                           * {{ tick_size('exchange', 'trade_date', 'vwap_ref_raw') }}),
+            null
+        ) as ref_price,
+        multiIf(rn = 1, '', ref_method = 'prev_close', 'prev_close',
+                vwap_ref_raw is not null, 'prev_vwap', '') as ref_basis,
         {{ price_limit('exchange', 'regime', 'trade_date') }} as limit_pct,
         {{ price_limit_confidence('exchange', 'regime', 'trade_date') }} as limit_confidence
-    from regimed
+    from vwap_ref
 ),
 
 banded as (
@@ -123,6 +164,7 @@ select
     exchange,
     regime,
     ref_method,
+    ref_basis,
     is_event_day,
     event_ratio,
     prev_close,
@@ -135,7 +177,7 @@ select
         floor_rounded
     ) as floor_price,
     multiIf(
-        ref_method != 'prev_close' or rn = 1, 'ref_not_reconstructable',
+        ref_price is null, 'ref_not_reconstructable',
         limit_pct is null or regime in ('new_listing', 'exchange_transfer'), 'special_regime_unknown',
         'computed'
     ) as limit_status,
@@ -148,6 +190,7 @@ select
     -- weakest evidence behind the rules used for this row
     multiIf(
         limit_status != 'computed', '',
+        ref_basis = 'prev_vwap', 'unverified',
         limit_confidence = 'unverified' or tick_confidence = 'unverified', 'unverified',
         limit_confidence = 'verified-secondary' or tick_confidence = 'verified-secondary',
             'verified-secondary',

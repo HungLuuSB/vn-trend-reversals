@@ -42,3 +42,16 @@ sources:
               - accepted_values:
                   arguments:
                     values: [split, dividend, none]
+
+  - name: cafef_history
+    schema: "{{ env_var('CLICKHOUSE_DB', 'vnbank') }}"
+    description: >
+      CafeF per-ticker price history fetched for documented gaps, UPCoM VWAP references and
+      overlap checks (ingestion/market/cafef_history_ingest.py, FETCH_PLAN).
+    tables:
+      - name: raw_cafef_history
+        columns:
+          - name: ticker
+            data_tests: [not_null]
+          - name: trade_date
+            data_tests: [not_null]

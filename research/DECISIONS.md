@@ -168,3 +168,30 @@ How the bands are computed:
 **Affected:** ABB, PGB and SGB (UPCoM for their whole study-period spell); KLB (to 2026-01-06); VAB (to 2025-07-09); and the UPCoM years of VIB, LPB, NAB, BAB, BVB and VBB once filled. PCB is UPCoM from 2026-08-12.
 
 **Revisit** before the final walk-forward run. The author said "for now".
+
+---
+
+## D-006 — Fill bulk-archive gaps from CafeF per-ticker history; VWAP-based reference prices
+
+- **Date:** 2026-11-24
+- **Type:** data-source extension (author approved "fill the gaps", 2026-11-24)
+- **State when decided:** no snapshot, no swing labels, no model.
+
+**Decision**
+
+1. **Gap fills.** Inside the gaps documented in seed `known_price_gaps`, `prices_daily_raw` uses CafeF's per-ticker history (`price_source = 'cafef_ticker'`) and the gap's true exchange. Elsewhere it keeps the bulk archive. Bulk rows inside a gap with no per-ticker row stay, relabelled with the true exchange.
+2. **VWAP references** (exchange rule `vwap_session`: UPCoM, and HNX before 2012-03-26). The reference price = previous session's matched value / matched volume, adjusted on ex-dates and rounded to the nearest tick. It is used only when both ends of the VWAP's rounding interval (± 0.005 bn VND / volume) round to the same tick; otherwise the reference stays `ref_not_reconstructable`. Rule confidence is "unverified": the exchange's VWAP rounding rule is undocumented (D-003).
+
+**Evidence**
+
+- **Overlap:** where both sources cover the same stock-day (8,251 days, 12 tickers, 2012–2026), open, high, low, close and volume agree on **100%** of days.
+- **Fills:** 13,055 rows kept, 2 rejected (high < low).
+- **Coverage, study period:** banks 83% → **99.0%** of bank-days; VN30 99.1% → **99.93%** of member-days.
+- **Still missing:** Habubank (HBB, 2012, 155 days), which appears in neither source.
+- **VWAP references:** 5,395 bank-days. 0.20% of normal, non-event days trade outside the band (HOSE prev-close rule: 0.09%).
+- **Banks with computed limits:** 85.2% of bank-days. Not computable: low-volume UPCoM days whose VWAP can't be pinned to one tick, and HNX's last-15-minute VWAP period (2012-03-26..2013-07-28).
+
+**Notes**
+
+- **Endpoint behaviour:** the per-ticker endpoint needs an exchange filter for some stocks. ACB's HNX years come back under the default (its current exchange); BVB's UPCoM years only with `ExchangeType=UPCOM`. `FETCH_PLAN` records the filter per range.
+- **Calendar:** a few per-ticker rows fall on dates that are not HOSE sessions (e.g. 2018-01-23/24 for ACB and BAB). The universe calendar is HOSE sessions, so those days are outside the universe.
