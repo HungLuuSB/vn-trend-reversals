@@ -469,3 +469,53 @@ Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS 
 **Development check, before any test year:** same folds, purge, embargo and bootstrap as D-014.
 - Feature sets: M, M+B, M+B+C, M+D, A–C, A–D.
 - Paired differences: (A–C) − M, (M+B) − M, (M+B+C) − (M+B), (M+D) − M, (A–D) − (A–C).
+
+## D-017 — Direction-specific effects for blocks B–D (specification correction, pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** correction to how features enter the linear models. Labels, θ, horizon, decision time, splits and test years are unchanged.
+- **Why.** Every return and change feature in blocks B, C and D (e.g. `ret_1`, `vnindex_ret`, `spx_ret`, `vix_chg`) enters with its raw sign, and `swing_dir` is a separate column. A linear hazard therefore gives a feature the *same* effect on up-swings and down-swings. H2 is directional: "US equity falls and VIX jumps raise the hazard that an *up*-swing ends", so the same fall should *lower* the hazard that a down-swing ends. Under the D-014 specification these opposite effects cancel. That specification cannot test H2 and may explain the null block-D ablation. Block A is already expressed relative to the swing (`swing_move`, `swing_dist`) and is unchanged.
+- **State when decided:**
+  - D-014, D-015 and D-016 (running) are development only; no test year evaluated.
+  - No direction-interacted model has been fitted.
+
+**Specification.**
+- Every feature x in blocks B, C and D enters both as x and as `swing_dir` × x (column `<x>_xdir`), giving direction-specific slopes.
+- Missing values stay missing and are median-imputed inside each training window, as before.
+- This becomes the specification of the linear models (logistic hazard, Cox) for the final run. The D-014 additive results stay reported.
+
+**Development check** (D-014 protocol, logistic hazard tuned on the D-014 grid).
+- Feature sets:
+  - `M` (D-016);
+  - `MBC`: M + B + C, additive;
+  - `MBCx`: M + B + C with interactions;
+  - `MBCDx`: MBCx + D with interactions;
+  - `ABCx`;
+  - `ABCDx`.
+- Paired differences:
+  - MBCx − MBC: does direction matter;
+  - ABCDx − ABCx: RQ2, primary from now on;
+  - MBCDx − MBCx: RQ2 over the mechanical baseline;
+  - ABCx − M: RQ1 beyond the mechanics, D-016.
+- **Tree check** (separate run, to keep each job under an hour): the gradient-boosted hazard on raw A–C vs raw A–D. Trees can form direction interactions themselves, so this tests RQ2 without the linear specification.
+
+**Guard against specification search.** This is the only change to the block-D specification made after seeing development results. It follows directly from the stated wording of H2. If D still adds nothing under it, the null stands and no further D specifications will be tried on development data, except the pre-specified bank × global interactions of RQ2.
+
+## D-018 — Per-feature attribution for block D, including gold vs. geopolitical risk (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** descriptive attribution, written before running. It does not select features.
+- **Why.** The user asked whether gold is noise or a genuine channel ("a geopolitical barometer").
+- **Data note.** Block D uses COMEX front-month gold futures (`GC=F`), not spot (LBMA). Their daily returns are almost identical. Spot benchmarks are licensed, and the FRED LBMA series is discontinued. Roll-day returns are already NaN (D-012). No source change.
+
+**Design.** Runs after D-017, on the D-017 specification (`ABCDx`), development folds as in D-014.
+1. **Leave one feature out.** For each of the 14 block-D features, drop x and `<x>_xdir`, refit with the hyperparameters chosen for `ABCDx` in that fold (no re-tuning), and compute the paired change in Uno C and IBS against `ABCDx`.
+   - Pooled moving-block bootstrap intervals (blocks of 20 sessions, 200 resamples).
+   - Holm correction across the 14 features.
+   - A feature is called informative only if its Holm-adjusted interval excludes zero for IBS.
+2. **Gold beyond geopolitical risk.** Compare:
+   - (`ABCDx` without gold) vs `ABCDx`;
+   - (`ABCDx` without gold and GPR) vs (`ABCDx` without gold).
+   - Read: does gold add anything when GPR is in, and does GPR add anything when gold is out?
+
+**Use of results.** Development results are descriptive only and do not drop features from the final specification. The confirmatory attribution is repeated once in the final run on 2017–2026.

@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 import time
 from datetime import UTC, datetime
@@ -26,6 +25,7 @@ from research.eval.bootstrap import paired_ci
 from research.eval.metrics import calibration, ibs, surv, td_auc, uno_c
 from research.features.assemble import BLOCKS
 from research.models.zoo import GRIDS, make_model
+from research.run_meta import code_version
 from research.walkforward import DEV_END, DEV_FOLDS, TAU, TOO_GOOD_C, split
 
 REPO = Path(__file__).resolve().parents[1]
@@ -97,6 +97,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     models = args.models.split(",")
 
+    commit = code_version()  # at the start: the code this run actually executes
     fr = Path(args.features_run)
     ds = pd.read_parquet(fr / "dataset.parquet")
     fcfg = json.loads((fr / "config.json").read_text())
@@ -182,8 +183,6 @@ def main(argv: list[str] | None = None) -> int:
             sm = f["shuffled_uno_c"]
             if abs(sm["mean"] - 0.5) > max(0.02, 3 * sm["sd"] / np.sqrt(len(sm["values"]))):
                 warnings.append(f"{y}: mean shuffled C {sm['mean']:.3f} is not ~0.5")
-    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True,
-                            text=True, check=True).stdout.strip()  # fmt: skip
     cfg = {"protocol": "D-014", "features_run": fr.name, "snapshot_id": fcfg["snapshot_id"],
            "git_commit": commit, "models": models, "grids": {m: GRIDS[m] for m in models},
            "folds": DEV_FOLDS, "bootstrap": args.bootstrap, "block": 20,

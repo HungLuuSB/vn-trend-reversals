@@ -1,4 +1,5 @@
-"""Walk-forward runner (CLAUDE.md research rules; docs/proposal.md, Evaluation design).
+"""Walk-forward runner (CLAUDE.md research rules; docs/proposals/paper1-trend-reversals.md,
+Evaluation design).
 
     uv run python -m research.walkforward --features-run <research/runs/...-features-...>
 
@@ -19,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -31,6 +31,7 @@ from research.eval.metrics import calibration, ibs, surv, td_auc, uno_c
 from research.features.assemble import BLOCKS
 from research.models.hazard import LogisticHazard
 from research.models.km import KaplanMeier
+from research.run_meta import code_version
 
 REPO = Path(__file__).resolve().parents[1]
 DEV_END = pd.Timestamp("2016-12-31")
@@ -119,6 +120,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.final:
         raise SystemExit("final mode is not enabled yet: it is reserved for the final run")
 
+    commit = code_version()  # at the start: the code this run actually executes
     fr = Path(args.features_run)
     ds = pd.read_parquet(fr / "dataset.parquet")
     fcfg = json.loads((fr / "config.json").read_text())
@@ -149,8 +151,6 @@ def main(argv: list[str] | None = None) -> int:
         if abs(sm["mean"] - 0.5) > max(0.02, 3 * se):
             warnings.append(f"{y}: mean shuffled-label C-index {sm['mean']:.3f} is not ~0.5: "
                             "investigate leakage")  # fmt: skip
-    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True,
-                            text=True, check=True).stdout.strip()  # fmt: skip
     run = (
         REPO
         / "research"
