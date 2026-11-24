@@ -386,6 +386,37 @@ The gradient-boosted hazard can form direction interactions on its own, so this 
 
 **Reading.** The global null in development holds across three model families: logistic additive, logistic direction-specific, and boosted trees. **Development conclusion for RQ2: no detectable overnight-global information about reversal timing in 2014–2016.** The final run on 2017–2026 decides RQ2 and RQ4.
 
+## Finding 18: swing age given distance, development only (2026-11-24)
+
+RQ3 asks whether trends "age": does the chance of a reversal change with how long the swing has lasted? D-019 tests this conditional on `swing_dist`, the mechanical distance from the swing's extreme (run `20261124T163259Z-devdecompose-D-019`).
+
+| Model | Pooled Uno C | Pooled IBS | 5-day td-AUC |
+|---|---|---|---|
+| KM | 0.501 | 0.2076 | 0.499 |
+| AGE (age only) | 0.529 | 0.2070 | 0.540 |
+| DIST (`swing_dist` only) | 0.594 | 0.1993 | 0.671 |
+| M (age + dist) | 0.593 | 0.1995 | 0.671 |
+
+- **M − DIST** (H3, primary): C [−0.004, +0.002], IBS [−0.0002, +0.0005]. **H3 is not supported in development.**
+- AGE − KM: C [+0.001, +0.056] but IBS [−0.0012, +0.0002]. Age on its own ranks slightly better than chance. None of that survives once distance is known.
+- DIST − KM: C [+0.067, +0.120], IBS [−0.0093, −0.0068]. Distance alone carries the mechanical skill.
+
+**Descriptive shape** (run `20261124T174350Z-aging-D-019`). This is the share of rows reversing within 5 days. Groups are clarified in D-019 because `swing_dist` = 0 on 35% of rows, so terciles tie.
+
+| Age (days) | at extreme | near | far |
+|---|---|---|---|
+| 1–5 | 0.183 | 0.216 | 0.443 |
+| 6–10 | 0.140 | 0.170 | 0.411 |
+| 11–20 | 0.166 | 0.207 | 0.441 |
+| 21–40 | 0.199 | 0.205 | 0.426 |
+| 41–80 | 0.221 | 0.226 | 0.419 |
+| > 80 | 0.187 | 0.279 | 0.442 |
+
+**Reading.**
+- Within each distance group, the reversal share is roughly flat in age. Far-from-extreme rows reverse about 42–44% of the time at any age; rows at a new extreme about 14–22%.
+- The fitted M curve rises gently, from 0.245 at age 3 to 0.286 at age 120 at median distance, but the test above says this slope adds nothing measurable.
+- **Development conclusion for RQ3: trends do not detectably "age" once their distance from the extreme is known.** The final run decides it.
+
 ## Next steps
 
 1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
