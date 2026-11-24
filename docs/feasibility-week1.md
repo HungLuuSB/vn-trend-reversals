@@ -468,6 +468,41 @@ D-020 tests H2's bank channel (run `20261124T174320Z-devdecompose-D-020`). It ad
 
 The final run decides RQ2.
 
+## Finding 21: neural hazard model, development only (2026-11-25)
+
+D-022 fits the proposal's fifth model family: a GRU over each stock's last 60 days (returns, range, body, volume), joined to the static features, with a logistic-hazard output. The runs are `20261124T211529Z-devdecompose-D-022` and the diagnostic `20261124T230203Z-diag-D-022-shuffle`.
+
+| Pooled 2014–2016 | Uno C | IBS | 5-day td-AUC |
+|---|---|---|---|
+| M (mechanical) | 0.594 | 0.1995 | 0.671 |
+| ABCDx (linear) | 0.596 | 0.1998 | 0.674 |
+| nn_static_ABCD | 0.592 | 0.1981 | 0.681 |
+| nn_seq_ABCD | 0.597 | 0.1963 | 0.690 |
+| nn_seq_ABC (no global block) | 0.603 | 0.1953 | 0.697 |
+
+Paired differences for nn_seq_ABCD:
+
+| Compared with | C | IBS | 5-day td-AUC |
+|---|---|---|---|
+| nn_static_ABCD (value of the 60-day path) | [−0.001, +0.013] | **[−0.0030, −0.0005]** | [−0.001, +0.019] |
+| ABCDx (neural vs linear) | [−0.008, +0.010] | **[−0.0051, −0.0016]** | [−0.003, +0.029] |
+| M (beyond the mechanics) | [−0.011, +0.018] | **[−0.0049, −0.0013]** | **[+0.008, +0.031]** |
+| nn_seq_ABC (the global block) | [−0.014, +0.002] | **[+0.0002, +0.0018] worse** | **[−0.014, −0.003] worse** |
+
+**Verdict under the pre-registered rule** (C above zero **and** IBS below zero): **no comparison counts as an improvement.**
+
+**Reading.**
+- The sequence model is the first model that is significantly more accurate in probability terms (IBS) than every reference model, including the mechanical baseline.
+- It also beats M on 5-day discrimination. Its gain over the static network shows the raw 60-day path carries some information that the hand-made features miss.
+- The gain is in calibration and short-horizon discrimination, not in overall ranking (Uno C). Under the D-016 rule it is therefore not a claim of predictability beyond the mechanics. It is a reason to keep the neural model in the final run, where the same rule decides.
+- **The global block is significantly harmful in the neural family too**, the sixth specification with that result (Findings 15–17, 20).
+- The best development model, nn_seq_ABC, was not a pre-registered comparison. It is reported only descriptively.
+
+**Shuffled-label control.**
+- The neural controls average C 0.484 over the three folds, and 0.492 (sd 0.010) over 12 extra seeds on 2016. The logistic hazard's controls average 0.500 (sd 0.023).
+- A value below 0.5 cannot come from leakage, which would raise C. The probable cause is label-free structure in the network's outputs (prediction spread depends on input scale). This is unproven, recorded and not acted on.
+- No model exceeded the C = 0.70 stop line.
+
 ## Next steps
 
 Status 2026-11-25:

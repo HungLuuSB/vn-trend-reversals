@@ -40,3 +40,14 @@ tuning_grids:                  # D-014
   gbm: {learning_rate: [0.03, 0.1], max_leaf_nodes: [15, 31]}
   cox: {alpha: [1.0, 10.0, 100.0]}
   rsf: {min_samples_leaf: [50, 200]}
+  nn: {hidden: [16, 32], weight_decay: [0.0001, 0.001], epochs: [5, 15]}   # D-022
+
+neural:                        # D-022 GRU sequence + logistic-hazard head
+  seq_len: 60                  # the stock's own last 60 trading days, ending with t
+  volume_window: 20
+  dropout: 0.2
+  learning_rate: 0.001
+  batch_size: 512
+  clip_sd: 10.0
+  outer_seeds: [0, 1, 2]       # outer refits average these seeds' survival curves
+  shuffle_controls: 3

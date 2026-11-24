@@ -18,6 +18,7 @@ def test_main_design_is_the_pre_registered_one():
     assert c["walkforward"]["dev_folds"] == [2014, 2015, 2016]
     assert c["walkforward"]["test_years"] == list(range(2017, 2027))
     assert c["risk_set"] == {"min_history_days": 250, "halt_gap_sessions": 5}
+    assert c["neural"]["seq_len"] == 60 and c["neural"]["outer_seeds"] == [0, 1, 2]  # D-022
 
 
 def test_grids_keep_the_d014_order():
@@ -26,4 +27,10 @@ def test_grids_keep_the_d014_order():
                             for lr in (0.03, 0.1) for m in (15, 31)]  # fmt: skip
     assert GRIDS["cox"] == [{"alpha": a} for a in (1.0, 10.0, 100.0)]
     assert GRIDS["rsf"] == [{"min_samples_leaf": m} for m in (50, 200)]
+    assert GRIDS["nn"] == [
+        {"hidden": h, "weight_decay": w, "epochs": e}
+        for h in (16, 32)
+        for w in (0.0001, 0.001)
+        for e in (5, 15)
+    ]  # D-022
     assert grid({"a": [1, 2], "b": [3]}) == [{"a": 1, "b": 3}, {"a": 2, "b": 3}]

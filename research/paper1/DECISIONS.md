@@ -627,3 +627,54 @@ The model-shape table and the test results do not change.
 - Paired moving-block bootstrap (20 sessions, 200 resamples) of Sharpe differences: model exit − DC exit, model exit − buy-and-hold, model exit − mechanical exit.
 
 **Development decision rule (H5, 2014–2016 only).** H5 is supported in development only if the pooled model-exit Sharpe exceeds both benchmarks (DC exit and buy-and-hold) with paired intervals above zero at 0.40% costs. The test years are evaluated once, in the final run.
+
+## D-022 — Neural hazard model on development data (pre-registered)
+
+- **Date:** 2026-11-25
+- **Type:** the proposal's fifth model family ("a GRU sequence encoder over the last 60 days with a logistic-hazard output layer"), specified before any neural model is fitted. The user approved the PyTorch dependency on 2026-11-25.
+- **State when decided:**
+  - D-014 to D-021 are done: linear, tree and forest models, and the trading test. The skill is mostly mechanical (D-016, D-019), and the global block adds nothing in any form tried (D-016 to D-020).
+  - No neural model has been fitted.
+  - No test year evaluated.
+
+**Model.**
+- **Sequence input** for row (stock, t): the stock's own last 60 trading days, ending with t. Four channels per day, all scale-free, computed from `prices_adjusted` (rule 9) and known at the close of that day:
+  1. log close-to-close return;
+  2. log(high / low);
+  3. log(close / open);
+  4. log(volume / mean volume of the previous 20 days).
+- **Encoder:** one GRU layer (hidden size h) over the 60 days. Its last hidden state is concatenated with the row's static features at t.
+- **Head:** one hidden layer (size h, ReLU, dropout 0.2), then 20 logits: the hazard at steps s = 1 … 20 after t. This is the D-013 landmark target, so S(h | x_t) = ∏_{s ≤ h} (1 − hazard_s).
+- **Loss:** the discrete-time negative log-likelihood (Kvamme et al. 2019), i.e. binary cross-entropy over each row's at-risk steps (s ≤ min(duration, 20)). Durations are capped at 21 for fitting, as in D-014.
+- **Preprocessing,** fitted on training rows only:
+  - static features: median imputation and standardisation, as for every model;
+  - sequence channels: per-channel mean and sd from the training rows' sequences, values clipped at ±10 sd, missing values set to 0 after standardisation.
+- **Training:**
+  - Adam, learning rate 1e-3, batch 512, training rows shuffled within each epoch (rows only; the split stays chronological);
+  - CPU, a fixed seed and deterministic algorithms.
+  - **Added before any run (2026-11-25):** the output layer's bias starts at the logit of the training rows' empirical hazard at each step, a Kaplan–Meier-like starting point. Reason: a unit test with a planted signal showed that from a zero bias (hazard 0.5 per step, a 97% predicted 5-day reversal) the few gradient steps in 5–15 epochs leave the network far from the data, and its ranking was even reversed.
+  - CPU instead of the proposal's GPU because the model is tiny (4 × 60 inputs, ~30k training rows). This changes nothing in the model.
+
+**Tuning** (D-014 nested protocol, chosen by inner IBS):
+- h ∈ {16, 32}, weight decay ∈ {1e-4, 1e-3}, epochs ∈ {5, 15};
+- tuning fits use seed 0;
+- the outer refit averages the survival curves of seeds 0, 1 and 2, so a single seed's noise does not decide the result.
+
+**Specifications** (same validation rows as D-014):
+- `nn_seq_ABCD`: sequence + blocks A–D static (raw; the network forms interactions itself, as in D-017-gbm);
+- `nn_seq_ABC`: sequence + blocks A–C;
+- `nn_static_ABCD`: the same head on blocks A–D, no sequence;
+- `ABCDx`: the D-017 logistic hazard, re-tuned here as the linear reference;
+- `M`: the D-016 mechanical baseline.
+
+**Paired differences** (pooled moving-block bootstrap, 20 sessions, 200 resamples):
+1. `nn_seq_ABCD − nn_static_ABCD`: does the raw 60-day path add information beyond the hand-made features? This is the purpose of the sequence model.
+2. `nn_seq_ABCD − ABCDx`: neural vs linear.
+3. `nn_seq_ABCD − M`: beyond the mechanics (D-016 rule).
+4. `nn_seq_ABCD − nn_seq_ABC`: RQ2 inside the neural family.
+
+**Decision rule, fixed in advance.** A difference counts as an improvement only if the pooled C interval lies above zero **and** the pooled IBS interval lies below zero. The shuffled-label control is run for `nn_seq_ABCD` with its chosen parameters: 3 permutations, one seed each; the mean C should be ≈ 0.5. A C-index above 0.70 stops the run for a leakage audit (`too_good_c`).
+
+**Point-in-time check.** A unit test confirms that a row's sequence is unchanged when every price after t is altered.
+
+**What does not change:** labels, folds, purge, embargo and metrics.
