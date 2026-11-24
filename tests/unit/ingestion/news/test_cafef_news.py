@@ -62,13 +62,18 @@ def test_crawl_stores_one_zip_per_window_and_resumes():
 
 
 def test_concurrency_increases_when_clean_and_halves_on_pushback():
+    def st(lat, n429=0, n5xx=0, conn=0, pages=1000):
+        return {"pages": pages, "n429": n429, "n5xx": n5xx, "ntransport": conn,
+                "median_latency": lat}  # fmt: skip
+
     c = nc.Concurrency(start=3, cap=5)
-    assert c.update({"pages": 10, "throttled": 0, "median_latency": 0.2}) == "up" and c.n == 4
-    assert c.update({"pages": 10, "throttled": 0, "median_latency": 0.3}) == "up" and c.n == 5
-    assert c.update({"pages": 10, "throttled": 0, "median_latency": 0.3}) == "hold" and c.n == 5
-    assert c.update({"pages": 10, "throttled": 2, "median_latency": 0.3}) == "down" and c.n == 2
-    assert c.update({"pages": 10, "throttled": 0, "median_latency": 0.5}) == "down" and c.n == 1
-    assert c.update({"pages": 10, "throttled": 1, "median_latency": 0.1}) == "down" and c.n == 1
+    assert c.update(st(0.2)) == "up" and c.n == 4
+    assert c.update(st(0.3, conn=1)) == "up" and c.n == 5  # one blip in 1000 is noise
+    assert c.update(st(0.3)) == "hold" and c.n == 5
+    assert c.update(st(0.3, n429=1)) == "down" and c.n == 2  # any 429 is pushback
+    assert c.update(st(0.3)) == "up" and c.n == 3
+    assert c.update(st(0.3, n5xx=4, conn=2)) == "down" and c.n == 1  # 6 > 0.5% of 1000
+    assert c.update(st(0.5)) == "down" and c.n == 1  # latency more than doubled
 
 
 def test_parallel_fetch_keeps_sitemap_order():

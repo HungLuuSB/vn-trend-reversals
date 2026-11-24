@@ -4,8 +4,9 @@
 
 Resumable: windows already in the raw layer are skipped. Adaptive politeness: 3 parallel
 connections to start, one more after each clean window, halved (and a 60 s pause) on any
-429/5xx/connection error or a doubling of latency, never above 16; each connection waits one
-second after each request. Parsing and mention counts come later (D-023).
+429, on 5xx/connection errors above 0.5% of requests, or on a doubling of latency; never
+above 16. Each connection waits one second after each request. Parsing and mention counts
+come later (D-023).
 """
 
 from __future__ import annotations
@@ -59,7 +60,8 @@ def crawl(client: CafefNewsClient, store: RawStore, start: date, end: date, log=
         cs = b.stats
         log(f"{w.stem}: {len(b.pages)} pages ({bad} failed), {len(body) / 1e6:.1f} MB, "
             f"{time.time() - t0:.0f}s, conc {cs.get('concurrency')} "
-            f"lat {cs.get('median_latency', 0):.2f}s throttled {cs.get('throttled')} "
+            f"lat {cs.get('median_latency', 0):.2f}s 429 {cs.get('n429')} "
+            f"5xx {cs.get('n5xx')} conn {cs.get('ntransport')} "
             f"-> {cs.get('action')} | {key}")  # fmt: skip
     return stats
 
