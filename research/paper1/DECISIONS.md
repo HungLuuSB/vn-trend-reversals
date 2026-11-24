@@ -571,3 +571,53 @@ Paired differences (pooled moving-block bootstrap, blocks of 20 sessions, 200 re
 - Descriptive: per-fold results.
 
 **Guard.** After D-020, no further block-D specification is examined on development data. Everything else about RQ2 is decided by the final run.
+
+## D-021 — Trading test (RQ5): rules the proposal leaves open (pre-registered before any backtest code)
+
+- **Date:** 2026-11-24
+- **Type:** clarification of the proposal's economic test (Methodology, "Economic test"), written before any backtest code or result exists.
+- **Why:** each open detail below could be chosen after the fact to flatter results.
+
+**Settlement (correction to the proposal's "T+2").**
+- Vietnam settled equities **T+3 until trades of 2015-12-31** and **T+2 for trades from 2016-01-04** (VSD decision of December 2015; broker notices from HSC, KIS and VNDIRECT, and Vietstock 2015-12-29).
+- The cycle in force on each trade date comes from a sourced seed `dbt/seeds/settlement_cycle.csv`.
+- Shares arrive on the settlement day (T+3 at 09:00; T+2 in the afternoon). Orders execute at the open, so **the earliest sell is the open of the session after the settlement day**: buy-day index + cycle + 1 sessions.
+
+**Timing and prices.**
+- Signals use information up to the close of t; orders execute at the **open of t+1** (the 09:00 decision time).
+- Returns use adjusted opens (open-to-open). Fill checks use raw prices against that day's ceiling and floor (data rules 6 and 9).
+
+**Fills.**
+- A buy does not fill if the raw open is at or above the ceiling. A sell does not fill if the raw open is at or below the floor (the proposal's "no fill at limit-down"). An unfilled order is retried at the next open while its signal still holds.
+- Where the limit is unknown (`limit_status != 'computed'`) the order is assumed to fill and the day is flagged. Sensitivity: no trading on such stock-days.
+- Second sensitivity: a sell also fails if the day closes at the floor.
+- A stock with no price on a day cannot be traded that day; the position is carried.
+
+**Strategies** (one position at most per stock):
+1. **Model exit (H5):** enter at the open after an up-swing is confirmed (`swing_dir` turns +1 at the close of t). Exit at the open after the first day on which the predicted 5-day reversal probability exceeds τ, or after the down-reversal is confirmed, whichever comes first. No re-entry within the same up-swing.
+   - Model: the main linear specification, logistic hazard `ABCDx` (D-017), with that fold's chosen hyperparameters.
+2. **Mechanical exit (D-016 benchmark):** the same rule with M's predictions.
+3. **Directional-change exit (proposal benchmark):** same entry; exit at the open after the down-reversal is confirmed.
+4. **Buy-and-hold (proposal benchmark):** hold every universe stock while it is in the universe.
+   - **Universe:** point-in-time research universe stock-days that satisfy the 250-day history rule.
+   - On leaving the universe, any strategy's position is closed at the next open.
+
+**Portfolio.**
+- Each day the portfolio return is the equal-weighted mean, over that day's universe stocks, of each stock's slot return: the stock's open-to-open return if held, 0 if in cash.
+- Re-weighting costs are not charged, for all strategies alike. Only entries and exits pay costs.
+- At the end of each evaluation year, open positions are closed at the last open, paying costs.
+
+**Costs.** Main 0.40% round trip: 0.15% brokerage per side plus 0.10% tax on sales, so buy 0.15% and sell 0.25%. Sensitivities, with the tax kept at 0.10%:
+- 0.20% total: buy 0.05%, sell 0.15%;
+- 0.80% total: buy 0.35%, sell 0.45%.
+
+**Threshold τ.**
+- Grid {0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60}.
+- Chosen per outer fold on the inner validation year (as in D-014 tuning), by the net Sharpe ratio at 0.40% costs. Ties go to the larger τ.
+- The same procedure applies to the mechanical exit.
+
+**Metrics.** Annualised return (252 sessions), annualised Sharpe ratio (risk-free rate 0; also reported in excess of buy-and-hold), maximum drawdown, turnover, number of trades, share of fills assumed under unknown limits.
+- **Deflated Sharpe ratio** (Bailey and López de Prado 2014) with N = 16 trials: 8 τ values × 2 hazard-driven strategies.
+- Paired moving-block bootstrap (20 sessions, 200 resamples) of Sharpe differences: model exit − DC exit, model exit − buy-and-hold, model exit − mechanical exit.
+
+**Development decision rule (H5, 2014–2016 only).** H5 is supported in development only if the pooled model-exit Sharpe exceeds both benchmarks (DC exit and buy-and-hold) with paired intervals above zero at 0.40% costs. The test years are evaluated once, in the final run.

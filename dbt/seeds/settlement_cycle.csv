@@ -1,0 +1,3 @@
+valid_from,valid_to,cycle_days,settlement_note,source_url,confidence
+2011-10-01,2016-01-03,3,"T+3: payment and securities at 09:00 on T+3 (trades up to 2015-12-31 settle T+3); start = snapshot warm-up, earlier history not checked",https://en.vietstock.vn/2015/12/settlement-of-stock-trades-cut-one-day-36-223461.htm,verified-secondary
+2016-01-04,9999-12-31,2,"T+2 from trades of 2016-01-04 (VSD decision, December 2015); securities arrive in the afternoon of T+2",https://www.hsc.com.vn/en/thong-bao-ap-dung-chu-ky-thanh-toan-t2,verified-secondary
