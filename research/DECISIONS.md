@@ -449,3 +449,23 @@ Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS 
 - The run found that block A carries almost all the skill.
 - Descriptive follow-up: each block-A feature used alone as a raw risk score, with no fitting. Report the 5-day td-AUC on the pooled development validation rows (2014–2016); a feature scoring below 0.5 is flipped and its sign reported.
 - This only describes where the signal sits. It does not change the model or the feature sets.
+
+## D-016 — Mechanical baseline for incremental claims (approved by the user 2026-11-24)
+
+- **Date:** 2026-11-24
+- **Type:** change to how the pre-specified design is evaluated. Labels, features, splits, test years and the main model are unchanged.
+- **Why:** D-015 found that `swing_dist` alone reaches a 5-day td-AUC of 0.671 against 0.686 for the full local model. It measures how far the price has already retraced toward the confirmation trigger, so part of the measured predictability follows from the label definition itself. Comparing only with Kaplan–Meier would overstate behavioural predictability.
+- **State when decided:** development runs only (D-014, D-015); no test year evaluated.
+
+**Mechanical baseline (M).** The landmark logistic hazard (D-013) on `swing_age`, `log_age` and `swing_dist`, tuned on the D-014 grid the same way as every other model.
+
+**How each question is judged:**
+- **RQ1:** H1 is still tested against Kaplan–Meier, as proposed. Predictability *beyond the label mechanics* is claimed only if the full local model (A–C) beats M: paired bootstrap intervals for the C-index and IBS differences that exclude zero. Both comparisons are reported.
+- **RQ2 (primary, unchanged):** A–D against A–C. Secondary: M + D against M.
+- **RQ3:** the swing-age hazard shape is reported unconditionally and conditional on `swing_dist` (within M). An age effect is claimed only if it survives the conditioning.
+- **RQ5:** an exit rule driven by M's predicted hazard is added as a benchmark strategy, next to buy-and-hold and the fixed directional-change rule.
+- Kaplan–Meier stays in every table.
+
+**Development check, before any test year:** same folds, purge, embargo and bootstrap as D-014.
+- Feature sets: M, M+B, M+B+C, M+D, A–C, A–D.
+- Paired differences: (A–C) − M, (M+B) − M, (M+B+C) − (M+B), (M+D) − M, (A–D) − (A–C).

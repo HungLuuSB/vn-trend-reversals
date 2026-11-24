@@ -41,6 +41,7 @@ FEATURES_C_ROBUST = ["foreign_net_share"]  # D-012: robustness only
 FEATURES_D = ["spx_ret", "nasdaq_ret", "vix_chg", "vix_level", "ust10_chg", "dxy_ret", "gold_ret",
               "brent_ret", "hsi_ret", "sse_ret", "usdvnd_ret", "usdcny_ret", "gpr_level",
               "gpr_chg"]  # fmt: skip
+FEATURES_MECH = ["swing_age", "log_age", "swing_dist"]  # D-016 mechanical baseline
 BLOCKS = {"A": FEATURES_A, "B": FEATURES_B, "C": FEATURES_C, "D": FEATURES_D}
 
 
