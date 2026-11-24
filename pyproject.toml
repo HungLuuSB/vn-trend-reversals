@@ -3,7 +3,10 @@ name = "vn-bank-data-platform"
 version = "0.1.0"
 description = "Point-in-time data for Vietnamese banks and VN30, and the trend-reversal survival-analysis paper"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "vnstock==6.0.1",
+    "vnstock-oapi==0.1.2",
+]
 
 [dependency-groups]
 dev = [
@@ -29,3 +32,14 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "DTZ", "PD", "NPY"]
 # DTZ: flag naive datetimes (all timestamps must be timezone-aware; see CLAUDE.md).
+
+# vnstock generation 6 is distributed only from its own PEP 503 index.
+# explicit = true: only the packages mapped below may come from it; everything else stays on PyPI.
+[[tool.uv.index]]
+name = "vnstock"
+url = "https://vnstocks.com/api/packages"
+explicit = true
+
+[tool.uv.sources]
+vnstock = { index = "vnstock" }
+vnstock-oapi = { index = "vnstock" }
