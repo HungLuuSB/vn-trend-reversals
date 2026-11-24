@@ -375,6 +375,17 @@ All Holm-adjusted p-values are 1.0, so **no global feature is informative** in 2
 - Per the D-017 guard this is recorded and **not acted on** with development data: no re-specification of the levels. In the final run the levels stay as pre-specified. A standardised-level variant may be reported only as a robustness check labelled as motivated by development results.
 - **Limitation (from the Paper 2 data scout):** GPR history is revised, and the snapshot uses the current vintage. Vintages exist only from 2022-02-24, so first-release values cannot be rebuilt for 2012–2021.
 
+## Finding 17: tree-model check of the global block, development only (2026-11-24)
+
+The gradient-boosted hazard can form direction interactions on its own, so this checks RQ2 without relying on the linear specification (D-017; run `20261124T153636Z-devdecompose-D-017-gbm`).
+- Pooled Uno C: A–C 0.585, A–D 0.577.
+- IBS: 0.1984 vs 0.2000.
+- A–D − A–C: C [−0.021, +0.007], IBS [−0.0014, +0.0039], 5-day td-AUC [−0.024, −0.005].
+- In 2015 and 2016 the global block is significantly harmful on C (and on IBS in 2016).
+- Only 2014 shows a small, non-significant gain.
+
+**Reading.** The global null in development holds across three model families: logistic additive, logistic direction-specific, and boosted trees. **Development conclusion for RQ2: no detectable overnight-global information about reversal timing in 2014–2016.** The final run on 2017–2026 decides RQ2 and RQ4.
+
 ## Next steps
 
 1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
