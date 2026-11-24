@@ -21,6 +21,9 @@ FORBIDDEN_SUFFIXES = {
     ".gz",
 }
 ALLOWED_ENV_FILES = {".env.example"}
+# Curated reference seeds (sourced, hand-checked, small) are code, not data (CLAUDE.md rule 2).
+ALLOWED_DATA_DIRS = {Path("dbt/seeds")}
+MAX_SEED_BYTES = 500_000
 
 
 def tracked_files() -> list[Path]:
@@ -31,8 +34,19 @@ def tracked_files() -> list[Path]:
 
 
 def test_no_data_files_tracked():
-    bad = [p for p in tracked_files() if p.suffix.lower() in FORBIDDEN_SUFFIXES]
+    bad = [
+        p
+        for p in tracked_files()
+        if p.suffix.lower() in FORBIDDEN_SUFFIXES
+        and not (p.parent in ALLOWED_DATA_DIRS and p.suffix.lower() == ".csv")
+    ]
     assert not bad, f"data files must not be committed: {bad}"
+
+
+def test_seed_csvs_stay_small():
+    seeds = [p for p in tracked_files() if p.parent in ALLOWED_DATA_DIRS and p.suffix == ".csv"]
+    big = [p for p in seeds if (REPO / p).stat().st_size > MAX_SEED_BYTES]
+    assert not big, f"seed files too large to be reference data: {big}"
 
 
 def test_no_env_files_tracked():
@@ -46,7 +60,16 @@ def test_no_env_files_tracked():
 
 def test_gitignore_blocks_env_and_data():
     ignored = subprocess.run(
-        ["git", "check-ignore", "--no-index", ".env", "x.parquet", "x.csv", "raw/a.json"],
+        [
+            "git",
+            "check-ignore",
+            "--no-index",
+            ".env",
+            "x.parquet",
+            "x.csv",
+            "raw/a.json",
+            "dbt/seeds/a.csv",
+        ],
         cwd=REPO,
         capture_output=True,
         text=True,
