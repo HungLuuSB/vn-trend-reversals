@@ -205,8 +205,28 @@ Neither source is complete. An event missing from our series shows up as an arti
 
 Stocks with no rows: HBB (no data), MCH and PCB (fewer than 250 days of history).
 
+## Finding 11: first development evaluation, inside 2012–2016 only (2026-11-24)
+
+**Setup.**
+- Features (blocks A–D) are assembled from snapshot dev-v1; the look-ahead rule is re-checked in Python.
+- Runner: purged, embargoed inner cross-validation with folds 2014, 2015 and 2016 (expanding training from 2012). Validation labels are censored at 2016-12-31. **No test year (2017–2026) was evaluated** (D-012).
+
+**Two problems found and fixed before trusting any result.**
+- The hazard was badly calibrated: chaining one-day hazards with features held fixed exaggerated risk in both directions. It is now fitted by landmarking (D-013).
+- A single shuffled-label draw is noisy, because rows of one swing are correlated. The control now uses 10 seeds and checks the mean.
+
+**Current development results** (logistic hazard on blocks A–D; `research/runs/RUNS.md`):
+
+| Fold | Uno C (KM) | Uno C (hazard) | Shuffled C (mean of 10) | IBS KM / hazard | td-AUC 5 / 10 / 20 days |
+| --- | ---: | ---: | ---: | --- | --- |
+| 2014 | 0.500 | 0.595 | 0.505 | 0.209 / 0.201 | 0.670 / 0.607 / 0.588 |
+| 2015 | 0.500 | 0.591 | 0.497 | 0.210 / 0.204 | 0.668 / 0.614 / 0.569 |
+| 2016 | 0.500 | 0.608 | 0.500 | 0.204 / 0.194 | 0.689 / 0.625 / 0.599 |
+
+A modest, stable signal, well below the "too good" alarm (C > 0.70). Calibration at 5 days is slightly too narrow (predicted 0.17–0.44 against 0.11–0.56 observed).
+
 ## Next steps
 
-1. Feature blocks A (swing state) and B (stock technicals) from the snapshot; Kaplan-Meier baseline and shuffled-label control; walk-forward runner.
+1. Tune the hazard by inner CV (penalty strength); block ablation for RQ2 (with and without D) inside the training window; Cox and tree models; block-bootstrap CIs.
 2. Before the trading test: decide how stock-days without computable limits are treated.
 3. Index levels (VN-Index, VN30) still needed.

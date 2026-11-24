@@ -338,3 +338,44 @@ Availability rules:
    - **Universe exit:** censored at the last day the stock is in `research_universe_daily`.
    - **Halt:** a gap of ≥ 5 consecutive HOSE sessions without a price; censored at the last day before the gap. Shorter gaps are days without trades, and the swing continues across them.
 6. **Exclusions:** rows need ≥ 250 prior trading days of the stock's own price history (D-009).
+
+---
+
+## D-012 — Foreign flows, gold rolls, D-011 review; development stays inside the training window
+
+- **Date:** 2026-11-24
+- **Type:** data and feature choices. The author replied "proceed" to recommendations and had earlier delegated ("do what you think is best"); each item is reversible by a new entry.
+- **State when decided:** snapshot dev-v1 and labels exist. No feature has been computed against outcomes and no model fitted.
+
+1. **Foreign net flows (block C).**
+   - CafeF lacks them on 570 sessions, mostly 2019-04 to 2021-07.
+   - Excluded from the main specification. A robustness run adds them with a missing indicator.
+   - Reason: the gap coincides with the COVID period, so an indicator could act as a period dummy.
+2. **Gold roll days.** Gold's return is set to missing in `gold_roll_window`. A continuous front-month series can jump when the contract rolls; the model's missing-value handling (fitted inside the training window) applies.
+3. **D-011:** kept unchanged.
+4. **Where development is evaluated.**
+   - Until the final walk-forward run, every evaluation (Kaplan–Meier baseline, shuffled-label control, model checks, tuning) uses only purged, embargoed inner cross-validation inside the first training window, sessions up to 2016-12-31.
+   - Test years 2017–2026 are not evaluated until the final run (CLAUDE.md research rules). The runner refuses test years unless run as the final run.
+
+---
+
+## D-013 — Logistic hazard fitted by landmarking (implementation correction)
+
+- **Date:** 2026-11-24
+- **Type:** correction of how the proposal's discrete-time logistic hazard is implemented. The model class and features are unchanged.
+- **State when decided:**
+  - One development run exists: `20261124T081907Z-walkforward-dev-ABCD`, inner folds 2014–2016 inside the training window only.
+  - Its hazard model ranked reasonably (Uno C ≈ 0.60) but was badly calibrated: predicted P(reversal within 5 days) by decile ran 0.02–0.81 against 0.15–0.58 observed, and its integrated Brier score was worse than Kaplan–Meier's.
+  - No test year has been evaluated.
+
+**Problem.** The first implementation predicted h-day survival by chaining the one-day hazard while holding all features at their day-t values and advancing only the age. The strongest features describe the current position, e.g. the distance to the reversal threshold, so holding them fixed for h days exaggerates both high and low risk.
+
+**Decision: landmarking.**
+- Each row (stock, t) is expanded into steps s = 1 … min(duration, 20). The target at step s is 1 if the reversal is confirmed exactly s trading days after t. Features are fixed at their day-t values, and the step s enters as a covariate (one indicator per step).
+- The model then estimates the hazard s days after a prediction made on day t, which is how it is used: S(h | x_t) = ∏_{s ≤ h} (1 − h(s | x_t)).
+- Each day remains a new prediction, as the proposal states.
+- Censored rows contribute their steps up to censoring.
+
+**Shuffled-label control.** The outcome pairs (duration, event) are permuted across training rows before expansion, so the outcome distribution is kept and its link to the features is broken.
+
+**Not changed:** features, folds, purging, embargo, metrics. The earlier run stays in the run log as superseded.
