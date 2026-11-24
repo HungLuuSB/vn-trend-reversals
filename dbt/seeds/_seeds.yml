@@ -150,3 +150,24 @@ seeds:
         data_tests: [not_null]
       - name: source_url
         data_tests: [not_null]
+  - name: bank_aliases
+    description: >
+      Names used to count news mentions of each bank (research/paper1/DECISIONS.md D-023):
+      the ticker (matched as a whole word, case-sensitive), the short names and former names
+      in bank_spells.bank_name_en, the full Vietnamese name and "Ngân hàng <name>". Every alias
+      comes from bank_spells.csv, which carries the sources. `ambiguous` marks aliases that are
+      also ordinary words (counts are reported with and without them).
+    config:
+      column_types:
+        ticker: LowCardinality(String)
+        alias: String
+        kind: LowCardinality(String)
+        ambiguous: Bool
+        source: String
+    columns:
+      - name: ticker
+        data_tests: [not_null]
+      - name: alias
+        data_tests: [not_null]
+      - name: source
+        data_tests: [not_null]
