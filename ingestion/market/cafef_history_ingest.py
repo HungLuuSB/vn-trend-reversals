@@ -24,6 +24,7 @@ from ingestion.market.cafef_history_client import (
     HistoryBundle,
     bundle_stem,
     parse_bundle,
+    parse_foreign_bundle,
 )
 from ingestion.raw_store import RawStore, S3RawStore, raw_key, sha256_hex
 
@@ -39,6 +40,7 @@ class Fetch:
     end: date
     purpose: str  # gap_fill | vwap_reference | overlap_check
     exchange_type: str = ""  # CafeF filter; "" = endpoint default (works for today's HOSE stocks)
+    endpoint: str = "PriceHistory"  # or GDKhoiNgoai (daily foreign trading)
 
 
 D = date.fromisoformat
@@ -67,6 +69,11 @@ FETCH_PLAN: list[Fetch] = [
     Fetch("VCB", D("2015-01-01"), D("2015-12-31"), "overlap_check"),
     Fetch("ACB", D("2021-01-01"), D("2021-12-31"), "overlap_check"),
     Fetch("HPG", D("2020-01-01"), D("2020-12-31"), "overlap_check"),
+    # Feature block C (local market, D-009): index levels from the warm-up start, and the
+    # market's daily foreign net trading.
+    Fetch("VNINDEX", D("2011-10-03"), STUDY_END, "index_level"),
+    Fetch("VN30INDEX", D("2012-02-06"), STUDY_END, "index_level"),
+    Fetch("VNINDEX", D("2011-10-03"), STUDY_END, "foreign_flow", endpoint="GDKhoiNgoai"),
 ]
 
 DDL = f"""
@@ -107,9 +114,14 @@ def year_chunks(start: date, end: date) -> list[tuple[date, date]]:
 
 
 def already_fetched(
-    keys: list[str], ticker: str, start: date, end: date, exchange_type: str = ""
+    keys: list[str],
+    ticker: str,
+    start: date,
+    end: date,
+    exchange_type: str = "",
+    endpoint: str = "PriceHistory",
 ) -> bool:
-    stem = bundle_stem(ticker, exchange_type, start, end)
+    stem = bundle_stem(ticker, exchange_type, start, end, endpoint)
     return any(k.rsplit("/", 1)[-1].startswith(stem) for k in keys)
 
 
@@ -132,6 +144,51 @@ def store_bundle(store: RawStore, bundle: HistoryBundle, purpose: str) -> str:
         },
     )
     return key
+
+
+FOREIGN_TABLE = "raw_cafef_foreign"
+FOREIGN_DDL = f"""
+CREATE TABLE IF NOT EXISTS {FOREIGN_TABLE}
+(
+    raw_key        String COMMENT 'object key in the S3 raw layer (zip of all pages)',
+    raw_sha256     String,
+    ticker         LowCardinality(String) COMMENT 'stock, or VNINDEX for the whole HOSE market',
+    trade_date     Date,
+    net_volume     Int64 COMMENT 'foreign buy - sell volume (matched + put-through, as published)',
+    net_value_vnd  Float64,
+    buy_volume     Int64,
+    buy_value_vnd  Float64,
+    sell_volume    Int64,
+    sell_value_vnd Float64,
+    room_remaining Float64,
+    ownership_pct  Float64,
+    page           LowCardinality(String),
+    row_in_page    UInt16,
+    fetched_at_utc DateTime64(3, 'UTC'),
+    load_run_id    String
+)
+ENGINE = MergeTree
+PARTITION BY raw_key
+ORDER BY (ticker, trade_date)
+COMMENT 'CafeF daily foreign trading (GDKhoiNgoai); feature block C'
+"""
+
+
+def load_foreign_bundle(client, store: RawStore, key: str, fetched_at, run_id: str) -> int:
+    content = store.get(key)
+    rows = parse_foreign_bundle(content)
+    client.command(FOREIGN_DDL)
+    if rows.empty:
+        return 0
+    if count_partition(client, FOREIGN_TABLE, key) == len(rows):
+        return len(rows)
+    rows.insert(0, "raw_key", key)
+    rows.insert(1, "raw_sha256", sha256_hex(content))
+    rows["trade_date"] = rows["trade_date"].dt.date
+    rows["fetched_at_utc"] = pd.Timestamp(fetched_at).tz_convert("UTC")
+    rows["load_run_id"] = run_id
+    replace_partition(client, FOREIGN_TABLE, key, rows, run_id)
+    return len(rows)
 
 
 def load_bundle(client, store: RawStore, key: str, purpose: str, fetched_at, run_id: str) -> int:
@@ -166,11 +223,14 @@ def main(argv: list[str] | None = None) -> int:
     stored = store.list_keys(f"{SOURCE}/")
     for f in plan:
         for start, end in year_chunks(f.start, f.end):
-            if already_fetched(stored, f.ticker, start, end, f.exchange_type):
+            if already_fetched(stored, f.ticker, start, end, f.exchange_type, f.endpoint):
                 continue  # resumable: this chunk is already in the raw layer
-            bundle = cafef.fetch_range(f.ticker, start, end, f.exchange_type)
+            bundle = cafef.fetch_range(f.ticker, start, end, f.exchange_type, f.endpoint)
             key = store_bundle(store, bundle, f.purpose)
-            n = load_bundle(client, store, key, f.purpose, bundle.fetched_at_utc, run_id)
+            if f.endpoint == "GDKhoiNgoai":
+                n = load_foreign_bundle(client, store, key, bundle.fetched_at_utc, run_id)
+            else:
+                n = load_bundle(client, store, key, f.purpose, bundle.fetched_at_utc, run_id)
             print(
                 json.dumps(
                     {

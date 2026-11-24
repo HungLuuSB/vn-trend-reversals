@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: local_market_daily
+    description: >
+      Feature block C, one row per HOSE session: the previous session's VN-Index and VN30 close
+      and return, HOSE breadth on adjusted returns, matched value and foreign net buying.
+    data_tests:
+      - no_feature_after_decision_time:
+          arguments:
+            available_at_column: available_at_utc
+            decision_time_column: decision_time_utc
+    columns:
+      - name: trade_date
+        data_tests: [not_null, unique]

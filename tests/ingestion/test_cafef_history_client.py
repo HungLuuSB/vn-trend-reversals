@@ -117,3 +117,29 @@ def test_exchange_type_is_sent_and_named():
     keys = ["cafef_history/2026-11-24/ABB_20220101_20220131.00000000.zip"]  # old default fetch
     assert not already_fetched(keys, "ABB", date(2022, 1, 1), date(2022, 1, 31), "UPCOM")
     assert already_fetched(keys, "ABB", date(2022, 1, 1), date(2022, 1, 31))
+
+
+def test_foreign_endpoint_url_name_and_parser():
+    from ingestion.market.cafef_history_client import parse_foreign_bundle
+
+    seen = []
+    row_f = {"Symbol": "VNINDEX", "Ngay": "30/01/2015", "KLGDRong": 619170,
+             "GTDGRong": 45350450000, "ThayDoi": "x", "KLMua": 6904170, "GtMua": 207327980000,
+             "KLBan": 6285000, "GtBan": 161977530000, "RoomConLai": 0, "DangSoHuu": 0}  # fmt: skip
+
+    def handler(req):
+        seen.append(req.url.path)
+        return httpx.Response(200, content=page([row_f], total=1))
+
+    bundle = client_for(handler).fetch_range(
+        "VNINDEX", date(2015, 1, 1), date(2015, 1, 31), endpoint="GDKhoiNgoai"
+    )
+    assert seen[0].endswith("/GDKhoiNgoai.ashx")
+    assert bundle.filename == "VNINDEX_FOREIGN_20150101_20150131.zip"
+    df = parse_foreign_bundle(bundle.to_zip())
+    assert df.iloc[0].net_value_vnd == 45350450000 and df.iloc[0].trade_date.date() == date(
+        2015, 1, 30
+    )
+    assert not already_fetched(
+        ["cafef_history/x/VNINDEX_20150101_20150131.1.zip"], "VNINDEX", date(2015, 1, 1),
+        date(2015, 1, 31), endpoint="GDKhoiNgoai")  # fmt: skip

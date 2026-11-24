@@ -30,7 +30,10 @@ from datetime import UTC, date, datetime
 import httpx
 import pandas as pd
 
-URL = "https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx"
+BASE_URL = "https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory"
+# PriceHistory: daily prices (stocks and indices). GDKhoiNgoai: daily foreign buy/sell/net.
+ENDPOINTS = ("PriceHistory", "GDKhoiNgoai")
+URL = f"{BASE_URL}/PriceHistory.ashx"
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) vn-bank-data-platform/0.1 research"
 PAGE_SIZE = 30  # the endpoint never returns more
 ZIP_TIME = (2000, 1, 1, 0, 0, 0)  # fixed member timestamps: same pages -> same zip bytes
@@ -66,10 +69,14 @@ class HistoryBundle:
     total_count: int
     fetched_at_utc: datetime
     exchange_type: str = ""  # "" = endpoint default; else HOSE, HNX or UPCOM
+    endpoint: str = "PriceHistory"
 
     @property
     def filename(self) -> str:
-        return bundle_stem(self.ticker, self.exchange_type, self.start, self.end) + "zip"
+        return (
+            bundle_stem(self.ticker, self.exchange_type, self.start, self.end, self.endpoint)
+            + "zip"
+        )
 
     def to_zip(self) -> bytes:
         buf = io.BytesIO()
@@ -81,10 +88,14 @@ class HistoryBundle:
         return buf.getvalue()
 
 
-def bundle_stem(ticker: str, exchange_type: str, start: date, end: date) -> str:
-    """File-name stem (ends with '.'); the default exchange keeps the original naming."""
+def bundle_stem(
+    ticker: str, exchange_type: str, start: date, end: date, endpoint: str = "PriceHistory"
+) -> str:
+    """File-name stem (ends with '.'); price history with the default exchange keeps the
+    original naming, other endpoints are tagged (e.g. VNINDEX_FOREIGN_...)."""
+    tag = "" if endpoint == "PriceHistory" else "FOREIGN_"
     ex = f"{exchange_type}_" if exchange_type else ""
-    return f"{ticker}_{ex}{start:%Y%m%d}_{end:%Y%m%d}."
+    return f"{ticker}_{tag}{ex}{start:%Y%m%d}_{end:%Y%m%d}."
 
 
 def _us(d: date) -> str:
@@ -129,7 +140,7 @@ class CafefHistoryClient:
         self._monotonic = monotonic
         self._last: float | None = None
 
-    def _get(self, params: dict) -> httpx.Response:
+    def _get(self, params: dict, url: str = URL) -> httpx.Response:
         for attempt in range(self._retries + 1):
             if self._last is not None:
                 wait = self._interval - (self._monotonic() - self._last)
@@ -137,7 +148,7 @@ class CafefHistoryClient:
                     self._sleep(wait)
             self._last = self._monotonic()
             try:
-                resp = self._http.get(URL, params=params)
+                resp = self._http.get(url, params=params)
             except httpx.TransportError:
                 if attempt == self._retries:
                     raise
@@ -151,7 +162,12 @@ class CafefHistoryClient:
         raise AssertionError("unreachable")
 
     def fetch_range(
-        self, ticker: str, start: date, end: date, exchange_type: str = ""
+        self,
+        ticker: str,
+        start: date,
+        end: date,
+        exchange_type: str = "",
+        endpoint: str = "PriceHistory",
     ) -> HistoryBundle:
         """All pages for ticker between start and end (inclusive).
 
@@ -159,6 +175,9 @@ class CafefHistoryClient:
         stock's history varies: ACB's HNX years come back under the default (its current
         exchange), BVB's UPCoM years only with UPCOM.
         """
+        if endpoint not in ENDPOINTS:
+            raise ValueError(f"unknown endpoint {endpoint!r}")
+        url = f"{BASE_URL}/{endpoint}.ashx"
         pages, urls, total = [], [], None
         for page in range(1, self._max_pages + 1):
             params = {
@@ -170,7 +189,7 @@ class CafefHistoryClient:
             }
             if exchange_type:
                 params["ExchangeType"] = exchange_type
-            resp = self._get(params)
+            resp = self._get(params, url)
             data = _payload(resp.content)
             count = int(data["TotalCount"])
             if total is None:
@@ -184,7 +203,7 @@ class CafefHistoryClient:
         else:
             raise CafefHistoryFormatError(f"{ticker}: more than {self._max_pages} pages")
         return HistoryBundle(
-            ticker, start, end, pages, urls, total or 0, self._now(), exchange_type
+            ticker, start, end, pages, urls, total or 0, self._now(), exchange_type, endpoint
         )
 
 
@@ -226,3 +245,57 @@ def parse_bundle(content: bytes) -> pd.DataFrame:
     if not frames:
         return pd.DataFrame(columns=COLUMNS)
     return pd.concat(frames, ignore_index=True)[COLUMNS]
+
+
+FOREIGN_COLUMNS = [
+    "ticker",
+    "trade_date",
+    "net_volume",
+    "net_value_vnd",
+    "buy_volume",
+    "buy_value_vnd",
+    "sell_volume",
+    "sell_value_vnd",
+    "room_remaining",
+    "ownership_pct",
+    "page",
+    "row_in_page",
+]
+
+
+def parse_foreign_bundle(content: bytes) -> pd.DataFrame:
+    """Rows of a stored GDKhoiNgoai bundle: daily foreign trading per (ticker, trade_date).
+    Values are in VND (not billions, unlike PriceHistory); net = buy - sell as published."""
+    frames = []
+    need = {"Symbol", "Ngay", "KLGDRong", "GTDGRong", "KLMua", "GtMua", "KLBan", "GtBan",
+            "RoomConLai", "DangSoHuu"}  # fmt: skip
+    with zipfile.ZipFile(io.BytesIO(content)) as zf:
+        for name in sorted(n for n in zf.namelist() if n.endswith(".json")):
+            rows = _payload(zf.read(name))["Data"] or []
+            if not rows:
+                continue
+            df = pd.DataFrame(rows)
+            missing = need - set(df.columns)
+            if missing:
+                raise CafefHistoryFormatError(f"{name}: missing fields {sorted(missing)}")
+            frames.append(
+                pd.DataFrame(
+                    {
+                        "ticker": df["Symbol"].astype(str).str.strip(),
+                        "trade_date": pd.to_datetime(df["Ngay"], format="%d/%m/%Y"),
+                        "net_volume": df["KLGDRong"].astype("int64"),
+                        "net_value_vnd": df["GTDGRong"].astype("float64"),
+                        "buy_volume": df["KLMua"].astype("int64"),
+                        "buy_value_vnd": df["GtMua"].astype("float64"),
+                        "sell_volume": df["KLBan"].astype("int64"),
+                        "sell_value_vnd": df["GtBan"].astype("float64"),
+                        "room_remaining": df["RoomConLai"].astype("float64"),
+                        "ownership_pct": df["DangSoHuu"].astype("float64"),
+                        "page": name,
+                        "row_in_page": range(1, len(df) + 1),
+                    }
+                )
+            )
+    if not frames:
+        return pd.DataFrame(columns=FOREIGN_COLUMNS)
+    return pd.concat(frames, ignore_index=True)[FOREIGN_COLUMNS]

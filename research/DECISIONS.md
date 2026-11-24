@@ -314,3 +314,27 @@ Availability rules:
 - Rejected alternatives: a separate, untested CSI 300 source; dropping the mainland series and leaving the Hang Seng as the only China signal.
 
 **Consequence.** The paper's data section names the Shanghai Composite and states the reason.
+
+---
+
+## D-011 — Swing-labeller details the proposal leaves open (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** clarification of `docs/proposal.md` Methodology 1–2, made before the labeller runs on any real data. The author delegated these choices ("do what you think is best") and can revisit them; any change gets a new entry before the main run.
+
+1. **ATR20:** the simple average of the last 20 true ranges, TR_t = max(H_t, C_{t−1}) − min(L_t, C_{t−1}), on adjusted prices. Wilder's smoothing is not used; the proposal says "trailing 20-day average true range". θ(t) uses ATR20 and the close of day t−1, so the first threshold exists on a stock's 22nd trading day.
+2. **Start and extremes.**
+   - Before the first confirmed reversal, the running maximum and minimum are both tracked from the first day with a threshold, and the first confirmation in either direction starts the first swing.
+   - After a confirmed down-reversal, the new down-swing's running minimum is tracked from the peak (the date of the up-swing's maximum) onward. Up-swings mirror this from the trough.
+3. **Swing age (time scale).**
+   - Main: trading days since the swing's starting extreme (true age; H3).
+   - A swing becomes known only at its confirmation, so its survival rows start at that age: delayed entry / left truncation, handled by the models.
+   - Age since confirmation is also stored, for a robustness check.
+4. **Rows and event timing.**
+   - A row (stock, t) describes the state after the close of day t and is used at the 09:00 decision on the next session.
+   - Rows run from the confirmation day of the swing's start to the day before its reversal is confirmed. The event is the confirmation, at the close of a later day.
+   - "Reversal within h days" means confirmation within the next h trading days of that stock.
+5. **Censoring** (besides the end of sample, D-001):
+   - **Universe exit:** censored at the last day the stock is in `research_universe_daily`.
+   - **Halt:** a gap of ≥ 5 consecutive HOSE sessions without a price; censored at the last day before the gap. Shorter gaps are days without trades, and the swing continues across them.
+6. **Exclusions:** rows need ≥ 250 prior trading days of the stock's own price history (D-009).
