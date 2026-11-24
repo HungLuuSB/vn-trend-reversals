@@ -11,3 +11,4 @@ under `snapshots/<id>/`.
 
 | Snapshot id | Date | Label | Git commit | Rows |
 | --- | --- | --- | --- | --- |
+| `b536ec69488162e0` | 2026-11-24 | dev-v1 | `cf458cb7c4` | universe_daily 146,555, prices_raw 257,233, prices_adjusted 257,233, price_limits 257,233, corporate_actions 1,356, sessions_hose 3,771, vn30_membership 91, bank_spells 39, global_features 3,771, local_market 3,771 |

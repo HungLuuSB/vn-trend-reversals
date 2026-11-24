@@ -78,3 +78,16 @@ def test_only_targets_use_the_future():
     assert lab_cut.direction[t] == full.direction
     assert t - lab_cut.swing_start_index[t] == full.age
     assert lab_cut.running_extreme[t] == full.running_extreme
+
+
+def test_reaching_sample_end_is_end_of_sample_and_early_data_stop_is_data_end():
+    # sample end == last trading day: censoring there is end_of_sample, not data_end
+    df = rows(labels=label_series(*unit_steps(PATH[:PEAK + 1]), k=2.0),
+              session_no=np.arange(PEAK + 1), in_universe=np.ones(PEAK + 1, dtype=bool),
+              end_index=PEAK)  # fmt: skip
+    assert set(df[df.event == 0].censor_reason) == {"end_of_sample"}
+    # a stock whose data stops before the sample end (e.g. delisted): data_end
+    lab = label_series(*unit_steps(PATH[: PEAK + 1]), k=2.0)
+    df2 = survival_rows(lab, np.arange(PEAK + 1), np.ones(PEAK + 1, dtype=bool),
+                        end_index=PEAK + 100, min_history=0)  # fmt: skip
+    assert set(df2[df2.event == 0].censor_reason) == {"data_end"}

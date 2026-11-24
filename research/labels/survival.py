@@ -71,7 +71,9 @@ def survival_rows(
             continue
         cens = run_end[t]
         reason = run_reason[t]
-        if cens > end_index:
+        if cens >= end_index:
+            # reaching the sample end is "end_of_sample" even when the stock's data also ends
+            # there; "data_end" is kept for stocks whose price history stops earlier
             cens, reason = end_index, "end_of_sample"
         ev = labels.next_confirm_index[t]
         if ev != -1 and ev <= cens:
