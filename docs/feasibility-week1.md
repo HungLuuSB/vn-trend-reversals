@@ -313,6 +313,37 @@ Paired differences, pooled [95% CI]:
 - **Global features in additive form add nothing and slightly hurt** (2016: M+D − M, C [−0.014, −0.000]). D-017 tests whether this is the direction-cancellation problem.
 - **Implication for the paper.** If this holds in the final run, the main RQ1 statement becomes "reversal timing is largely determined by the swing's position relative to the threshold; feature-based predictability beyond that is small." That is reported as found.
 
+## Finding 15: direction-specific effects; the global block still adds nothing, development only (2026-11-24)
+
+**Setup** (D-017, pre-registered; run `20261124T133305Z-devdecompose-D-017`).
+- Every feature in blocks B–D also enters as `swing_dir` × feature, so, for example, a US fall can raise the hazard of an up-swing ending and lower it for a down-swing.
+- Logistic hazard tuned as in D-014; pooled bootstrap intervals.
+- **No test year was evaluated.**
+
+| Feature set | Uno C, pooled | IBS |
+| --- | ---: | ---: |
+| M (mechanical) | 0.593 | 0.1995 |
+| M + B + C, additive | 0.601 | 0.1987 |
+| M + B + C, direction-specific | 0.606 | 0.1978 |
+| M + B + C + D, direction-specific | 0.599 | 0.1994 |
+| A–C, direction-specific | 0.604 | 0.1982 |
+| A–D, direction-specific | 0.596 | 0.1998 |
+
+Paired differences, pooled [95% CI]:
+
+| Comparison | Uno C | IBS |
+| --- | --- | --- |
+| Direction-specific − additive (M+B+C) | [−0.004, +0.013] | [−0.0024, +0.0009] |
+| **A–D − A–C, direction-specific (RQ2)** | [−0.015, +0.001] | [−0.0001, +0.0033] |
+| M+B+C+D − M+B+C, direction-specific | [−0.016, +0.001] | [−0.0002, +0.0032] |
+| A–C (direction-specific) − M | [−0.001, +0.023] | [−0.0033, +0.0007] |
+
+**Reading.**
+- **The global null is not an artefact of the additive specification.** Even when global shocks can act in opposite directions on up- and down-swings (the form H2 states), adding them does not help. In 2014 and 2016 they make the model worse (2016 A–D − A–C: C [−0.014, −0.001], IBS [+0.0004, +0.0037]). The 14 global series and their interactions add 28 noisy columns that the model partly fits as noise.
+- **Direction-specific slopes help the local blocks a little,** significantly in 2016 only, not pooled.
+- **Beyond the mechanics** the verdict is unchanged from Finding 14: a small ranking gain at most, not significant on both metrics.
+- **Per the D-017 guard, no further block-D specifications will be tried on development data,** except the pre-specified bank × global interactions of RQ2. RQ2 and RQ4 are decided by the final run on 2017–2026. H4 (global effects grow after market upgrading) remains open, since 2014–2016 is pre-upgrade.
+
 ## Next steps
 
 1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
