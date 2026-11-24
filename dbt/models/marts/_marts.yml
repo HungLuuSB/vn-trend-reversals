@@ -3,8 +3,9 @@ version: 2
 models:
   - name: prices_daily_raw
     description: >
-      Clean raw (unadjusted) daily prices of ordinary shares on HOSE, HNX and UPCoM from the
-      pinned CafeF raw archive. One row per ticker and trading date. Covers all available
+      Clean raw (unadjusted) daily prices of ordinary shares on HOSE, HNX and UPCoM: the pinned
+      CafeF raw archive, plus CafeF per-ticker history inside documented gaps of that archive.
+      One row per ticker and trading date. Covers all available
       history; the study period (research/DECISIONS.md D-001) is applied when the research
       snapshot is built, not here.
     config:
@@ -40,6 +41,19 @@ models:
       - name: available_at_utc
         data_type: DateTime64(3, 'UTC')
         data_tests: [not_null]
+      - name: price_source
+        data_type: LowCardinality(String)
+        description: cafef_bulk, or cafef_ticker inside a documented bulk-archive gap.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [cafef_bulk, cafef_ticker]
+      - name: vwap_vnd
+        data_type: Nullable(Float64)
+        description: Matched value / matched volume from the per-ticker history, where fetched.
+      - name: vwap_uncertainty_vnd
+        data_type: Nullable(Float64)
+        description: Max VWAP error from the 2-decimal value rounding (0.005e9 / volume).
       - name: raw_key
         data_type: LowCardinality(String)
         data_tests: [not_null]
