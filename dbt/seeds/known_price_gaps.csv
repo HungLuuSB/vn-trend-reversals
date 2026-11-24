@@ -1,0 +1,12 @@
+ticker,gap_from,gap_to,exchange,reason,found_by
+HVG,2012-02-06,2018-02-07,HSX,CafeF bulk archive keeps only 6 HOSE rows; stock later moved to UPCoM (VN30 member 2012-02-06..2012-07-22 and 2015-01-26..2016-07-24),assert_vn30_members_trade_on_hose
+PVF,2012-02-06,2013-09-23,HSX,no rows at all in CafeF bulk archive; delisted 2013-09-23 on merger into PVcomBank (VN30 member until then),assert_vn30_members_trade_on_hose
+ACB,2012-01-03,2020-12-01,HNX,CafeF bulk archive drops history before the move to HOSE; per-ticker CafeF history has it,qa_bank_coverage
+SHB,2012-01-03,2021-10-05,HNX,CafeF bulk archive drops history before the move to HOSE; per-ticker CafeF history has it,qa_bank_coverage
+HBB,2012-01-03,2012-08-16,HNX,no rows in CafeF bulk archive or per-ticker history; merged into SHB 2012,qa_bank_coverage
+VIB,2017-01-09,2020-10-29,UPCOM,CafeF bulk archive drops UPCoM history before the move to HOSE; per-ticker CafeF history has it,qa_bank_coverage
+LPB,2017-10-05,2020-10-23,UPCOM,CafeF bulk archive drops UPCoM history (28 days left and mislabelled HSX),qa_bank_coverage
+NAB,2020-10-09,2024-02-28,UPCOM,CafeF bulk archive drops UPCoM history before the move to HOSE,qa_bank_coverage
+BAB,2017-12-28,2021-02-24,UPCOM,CafeF bulk archive drops UPCoM history before the move to HNX,qa_bank_coverage
+BVB,2020-07-09,2026-07-08,UPCOM,CafeF bulk archive and per-ticker history both lack the UPCoM years,qa_bank_coverage
+VBB,2019-07-30,2026-06-29,UPCOM,CafeF bulk archive drops UPCoM history before the move to HOSE,qa_bank_coverage

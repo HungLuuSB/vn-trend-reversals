@@ -22,6 +22,9 @@ models:
         data_tests: [not_null]
       - name: ticker
         data_tests: [not_null]
+      - name: bank_on_upcom
+        description: Bank-day on UPCoM (registered, not listed); kept and flagged (D-005).
+        data_tests: [not_null]
 
   - name: qa_bank_coverage
     description: >

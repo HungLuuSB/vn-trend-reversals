@@ -56,6 +56,9 @@ select
     toBool(m.is_bank) as is_bank,
     -- exchange of the bank's listing spell that day (true exchange, from bank_spells)
     if(m.bank_exchange = '', null, toNullable(m.bank_exchange)) as bank_exchange,
+    -- D-005: banks registered on UPCoM (not listed on HOSE/HNX) are kept but flagged so the
+    -- main results can be checked without them.
+    toBool(m.is_bank = 1 and m.bank_exchange = 'UPCOM') as bank_on_upcom,
     p.ticker != '' as has_price,
     -- exchange label in the CafeF row (can be wrong for pre-transfer days, e.g. LPB in 2017)
     if(p.ticker = '', null, toNullable(p.exchange)) as cafef_exchange

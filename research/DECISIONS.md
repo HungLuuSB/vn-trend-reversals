@@ -144,3 +144,27 @@ How the bands are computed:
 
 - Whether banks that traded only on UPCoM count as "listed banks" (author's decision pending).
 - Whether to fill the gaps from CafeF's per-ticker history (proposed).
+
+---
+
+## D-005 — UPCoM banks: kept in the universe, flagged
+
+- **Date:** 2026-11-24
+- **Type:** clarification of "all listed banks" (CLAUDE.md, Paper 1)
+- **Decided by:** the author (option C of three: exclude / include / include and flag), "for now"
+- **State when decided:** no snapshot, no swing labels, no model.
+
+**Decision**
+
+- Bank-days on UPCoM, where a bank is registered for trading rather than listed, stay in `research_universe_daily` with `bank_on_upcom = true`.
+- Main results use the whole universe. A robustness check repeats them without UPCoM bank-days.
+
+**Reason**
+
+- UPCoM is formally the market for unlisted public companies, so "listed" is ambiguous for these banks.
+- Their data is also weaker: UPCoM reference prices are VWAPs that CafeF's bulk archive lacks (D-003).
+- Flagging keeps both readings available without choosing one in advance.
+
+**Affected:** ABB, PGB and SGB (UPCoM for their whole study-period spell); KLB (to 2026-01-06); VAB (to 2025-07-09); and the UPCoM years of VIB, LPB, NAB, BAB, BVB and VBB once filled. PCB is UPCoM from 2026-08-12.
+
+**Revisit** before the final walk-forward run. The author said "for now".
