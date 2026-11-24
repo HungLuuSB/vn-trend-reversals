@@ -32,7 +32,8 @@ from vnbank.research.survival.features.assemble import (
     bank_features,
     xdir,
 )
-from vnbank.research.survival.models.zoo import make_model
+from vnbank.research.survival.features.sequence import SEQ, add_sequences
+from vnbank.research.survival.models.zoo import CFG, make_model
 from vnbank.research.survival.walkforward import DEV_END, DEV_FOLDS, TAU, TOO_GOOD_C, split
 
 REPO = paths.REPO
@@ -81,6 +82,19 @@ DIFFS_D019 = [("M", "DIST"), ("AGE", "km"), ("DIST", "km")]
 # D-020: RQ2 bank x rate/dollar channels on top of the D-017 specification
 SPECS_D020 = {"ABCDx": SPECS_D017["ABCDx"], "ABCDx_bank": [*SPECS_D017["ABCDx"], *bank_features()]}
 DIFFS_D020 = [("ABCDx_bank", "ABCDx")]
+# D-022: neural hazard (GRU over the last 60 days + logistic-hazard head)
+_ABCD = [*_A, *_B, *_C, *_D]
+SPECS_D022 = {
+    "nn_seq_ABCD": ("nn", [*_ABCD, SEQ]),
+    "nn_seq_ABC": ("nn", [*_A, *_B, *_C, SEQ]),
+    "nn_static_ABCD": ("nn", _ABCD),
+    "ABCDx": SPECS_D017["ABCDx"],
+    "M": list(FEATURES_MECH),
+}
+DIFFS_D022 = [("nn_seq_ABCD", "nn_static_ABCD"), ("nn_seq_ABCD", "ABCDx"), ("nn_seq_ABCD", "M"),
+              ("nn_seq_ABCD", "nn_seq_ABC")]  # fmt: skip
+OUTER_EXTRA = {"nn": {"seeds": CFG["neural"]["outer_seeds"]}}  # D-022: seed-averaged outer refit
+SHUFFLED = {"D-022": "nn_seq_ABCD"}  # spec that gets the shuffled-label control
 PROTOCOLS = {
     "D-015": (SPECS, DIFFS),
     "D-016": (SPECS_D016, DIFFS_D016),
@@ -88,6 +102,7 @@ PROTOCOLS = {
     "D-017-gbm": (SPECS_D017_GBM, DIFFS_D017_GBM),
     "D-019": (SPECS_D019, DIFFS_D019),
     "D-020": (SPECS_D020, DIFFS_D020),
+    "D-022": (SPECS_D022, DIFFS_D022),
 }
 
 
@@ -117,6 +132,20 @@ def boot(y_train, val, preds: dict[str, np.ndarray], n: int, seed: int, diffs=DI
     return paired_ci(val.trade_date.to_numpy(), stats, block=20, n=n, seed=seed)
 
 
+def shuffled_control(mname, feats, params, train, val, y_train, log) -> dict:
+    """Outcomes permuted across training rows (D-013); one seed per permutation (D-022)."""
+    cs = []
+    for k in range(CFG["neural"]["shuffle_controls"]):
+        perm = np.random.default_rng(k).permutation(len(train))
+        shuf = train.copy()
+        shuf["duration"] = train.duration.to_numpy()[perm]
+        shuf["event"] = train.event.to_numpy()[perm]
+        s = make_model(mname, feats, **params, seed=k).fit(shuf).survival(val, np.array([TAU]))
+        cs.append(uno_c(y_train, surv(val.event, val.duration), 1 - s[:, 0], TAU))
+    log(f"  shuffled C mean {np.mean(cs):.3f} values {np.round(cs, 3).tolist()}")
+    return {"values": np.round(cs, 4).tolist(), "mean": float(np.mean(cs))}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--features-run", required=True)
@@ -133,8 +162,13 @@ def main(argv: list[str] | None = None) -> int:
     sessions = np.sort(pd.to_datetime(
         pd.read_parquet(snap / "sessions_hose.parquet").trade_date).to_numpy())  # fmt: skip
     ds = ds[ds.trade_date <= DEV_END]
-    if args.protocol.startswith(("D-017", "D-020")):
+    if args.protocol.startswith(("D-017", "D-020", "D-022")):
         ds = add_direction_interactions(ds)
+    if args.protocol == "D-022":
+        cols = ["ticker", "trade_date", "open_adj", "high_adj", "low_adj", "close_adj", "volume"]
+        prices = pd.read_parquet(snap / "prices_adjusted.parquet", columns=cols)
+        prices["trade_date"] = pd.to_datetime(prices.trade_date)
+        ds = add_sequences(ds.reset_index(drop=True), prices[prices.trade_date <= DEV_END])
     if args.protocol == "D-020":
         ds = add_bank_interactions(ds)
 
@@ -161,10 +195,14 @@ def main(argv: list[str] | None = None) -> int:
             mname, feats = model_and_features(entry)
             params = tune(mname, feats, inner_train, inner_val, log)
             fold["chosen"][spec] = params
-            preds[spec] = make_model(mname, feats, **params).fit(train).survival(val, TIMES)
+            fit_params = {**params, **OUTER_EXTRA.get(mname, {})}
+            preds[spec] = make_model(mname, feats, **fit_params).fit(train).survival(val, TIMES)
             fold["metrics"][spec] = metrics(y_train, val, preds[spec])
             m = fold["metrics"][spec]
             log(f"  {spec} {params}: C {m['uno_c']:.3f} IBS {m['ibs']:.4f} td-AUC {m['td_auc']}")
+            if SHUFFLED.get(args.protocol) == spec:
+                fold["shuffled_uno_c"] = shuffled_control(mname, feats, params, train, val,
+                                                          y_train, log)  # fmt: skip
         fold["bootstrap"] = boot(y_train, val, preds, args.bootstrap, seed=year, diffs=diffs)
         results[str(year)] = fold
         for k, v in preds.items():

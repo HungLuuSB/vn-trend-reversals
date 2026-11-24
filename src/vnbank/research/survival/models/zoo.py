@@ -129,8 +129,14 @@ class RSFModel(_SksurvModel):
         ))  # fmt: skip
 
 
+def _nn(features, **params):  # torch is imported only when a neural model is used (D-022)
+    from vnbank.research.survival.models.neural import NNHazard
+
+    return NNHazard(features, **params)
+
+
 MODELS = {"km": KMModel, "logit": LogitHazard, "gbm": GBMHazard, "cox": CoxModel,
-          "rsf": RSFModel}  # fmt: skip
+          "rsf": RSFModel, "nn": _nn}  # fmt: skip
 
 GRIDS = {"km": [{}], **{m: grid(g) for m, g in CFG["tuning_grids"].items()}}  # D-014
 

@@ -15,6 +15,7 @@ dependencies = [
     "scikit-learn==1.9.1",
     "scikit-survival==0.28.0",
     "scipy==1.18.1",  # imported directly (deflated Sharpe ratio); already locked via scikit-learn
+    "torch==2.14.1",  # D-022 neural hazard (GRU); CPU build from the PyTorch CPU index
     "vnstock==6.0.1",
     "vnstock-oapi==0.1.2",
 ]
@@ -58,6 +59,13 @@ name = "vnstock"
 url = "https://vnstocks.com/api/packages"
 explicit = true
 
+# PyTorch CPU wheels (no CUDA payload; the D-022 model is small enough for the CPU)
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
 [tool.uv.sources]
 vnstock = { index = "vnstock" }
+torch = { index = "pytorch-cpu" }
 vnstock-oapi = { index = "vnstock" }
