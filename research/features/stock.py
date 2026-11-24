@@ -1,4 +1,5 @@
-"""Stock-level features: block A (swing state) and block B (technicals) (docs/proposal.md,
+"""Stock-level features: block A (swing state) and block B (technicals)
+(docs/proposals/paper1-trend-reversals.md,
 Methodology 3). Every value on day t uses only data up to the close of t; tests check this
 by truncation. Prices are adjusted (scale-free ratios only; CLAUDE.md rule 9).
 """

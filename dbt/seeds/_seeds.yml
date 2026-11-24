@@ -114,7 +114,7 @@ seeds:
         notes: String
   - name: global_series
     description: >
-      Global overnight series of feature block D (docs/proposal.md, research/DECISIONS.md
+      Global overnight series of feature block D (docs/proposals/paper1-trend-reversals.md, research/DECISIONS.md
       D-009): source, symbol and the rule that sets each value's available_at_utc. Read by
       both ingestion (what to fetch) and dbt (when each value became public).
     config:

@@ -1,6 +1,6 @@
-"""Where does the short-horizon signal come from? (research/DECISIONS.md D-015)
+"""Nested feature-set comparisons (research/DECISIONS.md D-015, D-016).
 
-    uv run python -m research.dev_decompose --features-run <research/runs/...-features-...>
+    uv run python -m research.dev_decompose --features-run <...> [--protocol D-016]
 
 Development only (inside 2012-2016, folds 2014/15/16, same protocol as D-014). The tuned
 logistic hazard is fitted on nested feature sets AGE < A < AB < ABC and compared with KM and
@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 import sys
 import time
 from datetime import UTC, datetime
@@ -23,8 +22,9 @@ import pandas as pd
 from research.dev_compare import HORIZONS, TIMES, metrics, tune
 from research.eval.bootstrap import paired_ci
 from research.eval.metrics import ibs, surv, td_auc, uno_c
-from research.features.assemble import BLOCKS
+from research.features.assemble import BLOCKS, FEATURES_MECH, add_direction_interactions, xdir
 from research.models.zoo import make_model
+from research.run_meta import code_version
 from research.walkforward import DEV_END, DEV_FOLDS, TAU, TOO_GOOD_C, split
 
 REPO = Path(__file__).resolve().parents[1]
@@ -36,8 +36,45 @@ SPECS = {
 }
 DIFFS = [("A", "AGE"), ("AB", "A"), ("ABC", "AB"), ("ABC", "AGE")]
 
+# D-016: incremental value over the mechanical baseline M (swing age + swing_dist)
+SPECS_D016 = {
+    "M": list(FEATURES_MECH),
+    "MB": [*FEATURES_MECH, *BLOCKS["B"]],
+    "MBC": [*FEATURES_MECH, *BLOCKS["B"], *BLOCKS["C"]],
+    "MD": [*FEATURES_MECH, *BLOCKS["D"]],
+    "ABC": [*BLOCKS["A"], *BLOCKS["B"], *BLOCKS["C"]],
+    "ABCD": [*BLOCKS["A"], *BLOCKS["B"], *BLOCKS["C"], *BLOCKS["D"]],
+}
+DIFFS_D016 = [("ABC", "M"), ("MB", "M"), ("MBC", "MB"), ("MD", "M"), ("ABCD", "ABC")]
+# D-017: direction-specific slopes for blocks B-D; a spec is a feature list (logistic hazard)
+# or a (model, features) pair
+_A, _B, _C, _D = (list(BLOCKS[b]) for b in "ABCD")
+_BCx = [*_B, *xdir(_B), *_C, *xdir(_C)]
+_Dx = [*_D, *xdir(_D)]
+SPECS_D017 = {
+    "M": list(FEATURES_MECH),
+    "MBC": [*FEATURES_MECH, *_B, *_C],
+    "MBCx": [*FEATURES_MECH, *_BCx],
+    "MBCDx": [*FEATURES_MECH, *_BCx, *_Dx],
+    "ABCx": [*_A, *_BCx],
+    "ABCDx": [*_A, *_BCx, *_Dx],
+}
+DIFFS_D017 = [("MBCx", "MBC"), ("ABCDx", "ABCx"), ("MBCDx", "MBCx"), ("ABCx", "M")]
+SPECS_D017_GBM = {"gbm_ABC": ("gbm", [*_A, *_B, *_C]), "gbm_ABCD": ("gbm", [*_A, *_B, *_C, *_D])}
+DIFFS_D017_GBM = [("gbm_ABCD", "gbm_ABC")]
+PROTOCOLS = {
+    "D-015": (SPECS, DIFFS),
+    "D-016": (SPECS_D016, DIFFS_D016),
+    "D-017": (SPECS_D017, DIFFS_D017),
+    "D-017-gbm": (SPECS_D017_GBM, DIFFS_D017_GBM),
+}
 
-def boot(y_train, val, preds: dict[str, np.ndarray], n: int, seed: int) -> dict:
+
+def model_and_features(spec) -> tuple[str, list[str]]:
+    return spec if isinstance(spec, tuple) else ("logit", spec)
+
+
+def boot(y_train, val, preds: dict[str, np.ndarray], n: int, seed: int, diffs=DIFFS) -> dict:
     ev, du = val.event.to_numpy(), val.duration.to_numpy()
 
     def c(m):
@@ -53,7 +90,7 @@ def boot(y_train, val, preds: dict[str, np.ndarray], n: int, seed: int) -> dict:
     stats = {}
     for m in preds:
         stats[f"{m}:uno_c"], stats[f"{m}:ibs"], stats[f"{m}:auc5"] = c(m), b(m), a5(m)
-    for hi, lo in DIFFS:
+    for hi, lo in diffs:
         for key, f in (("uno_c", c), ("ibs", b), ("auc5", a5)):
             stats[f"{hi}-{lo}:{key}"] = lambda i, f=f, hi=hi, lo=lo: f(hi)(i) - f(lo)(i)
     return paired_ci(val.trade_date.to_numpy(), stats, block=20, n=n, seed=seed)
@@ -63,8 +100,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--features-run", required=True)
     parser.add_argument("--bootstrap", type=int, default=200)
+    parser.add_argument("--protocol", choices=sorted(PROTOCOLS), default="D-015")
     args = parser.parse_args(argv)
+    specs, diffs = PROTOCOLS[args.protocol]
 
+    commit = code_version()  # at the start: the code this run actually executes
     fr = Path(args.features_run)
     ds = pd.read_parquet(fr / "dataset.parquet")
     fcfg = json.loads((fr / "config.json").read_text())
@@ -72,8 +112,15 @@ def main(argv: list[str] | None = None) -> int:
     sessions = np.sort(pd.to_datetime(
         pd.read_parquet(snap / "sessions_hose.parquet").trade_date).to_numpy())  # fmt: skip
     ds = ds[ds.trade_date <= DEV_END]
+    if args.protocol.startswith("D-017"):
+        ds = add_direction_interactions(ds)
 
-    run = REPO / "research" / "runs" / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-devdecompose"
+    run = (
+        REPO
+        / "research"
+        / "runs"
+        / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-devdecompose-{args.protocol}"
+    )
     run.mkdir(parents=True)
     logf = open(run / "log.txt", "w")
 
@@ -92,14 +139,15 @@ def main(argv: list[str] | None = None) -> int:
         preds, fold = {}, {"chosen": {}, "metrics": {}}
         preds["km"] = make_model("km", []).fit(train).survival(val, TIMES)
         fold["metrics"]["km"] = metrics(y_train, val, preds["km"])
-        for spec, feats in SPECS.items():
-            params = tune("logit", feats, inner_train, inner_val, log)
+        for spec, entry in specs.items():
+            mname, feats = model_and_features(entry)
+            params = tune(mname, feats, inner_train, inner_val, log)
             fold["chosen"][spec] = params
-            preds[spec] = make_model("logit", feats, **params).fit(train).survival(val, TIMES)
+            preds[spec] = make_model(mname, feats, **params).fit(train).survival(val, TIMES)
             fold["metrics"][spec] = metrics(y_train, val, preds[spec])
             m = fold["metrics"][spec]
             log(f"  {spec} {params}: C {m['uno_c']:.3f} IBS {m['ibs']:.4f} td-AUC {m['td_auc']}")
-        fold["bootstrap"] = boot(y_train, val, preds, args.bootstrap, seed=year)
+        fold["bootstrap"] = boot(y_train, val, preds, args.bootstrap, seed=year, diffs=diffs)
         results[str(year)] = fold
         for k, v in preds.items():
             pooled_preds.setdefault(k, []).append(v)
@@ -111,36 +159,36 @@ def main(argv: list[str] | None = None) -> int:
     pp = {k: np.vstack(v) for k, v in pooled_preds.items()}
     results["pooled"] = {
         "metrics": {k: metrics(last_y_train, pv, v) for k, v in pp.items()},
-        "bootstrap": boot(last_y_train, pv, pp, args.bootstrap, seed=0),
+        "bootstrap": boot(last_y_train, pv, pp, args.bootstrap, seed=0, diffs=diffs),
     }
 
-    # D-015 interpretation rule (pooled, 5-day td-AUC)
     pm = results["pooled"]["metrics"]
-    age, full = pm["AGE"]["td_auc"]["5"] - 0.5, pm["ABC"]["td_auc"]["5"] - 0.5
-    results["age_share_auc5"] = age / full if full > 0 else float("nan")
-    results["mainly_age_effect"] = bool(full > 0 and age >= 0.8 * full)
+    if args.protocol == "D-015":  # interpretation rule (pooled, 5-day td-AUC)
+        age, full = pm["AGE"]["td_auc"]["5"] - 0.5, pm["ABC"]["td_auc"]["5"] - 0.5
+        results["age_share_auc5"] = age / full if full > 0 else float("nan")
+        results["mainly_age_effect"] = bool(full > 0 and age >= 0.8 * full)
+    else:  # an improvement counts only if both pooled intervals exclude zero (D-016, D-017)
+        b = results["pooled"]["bootstrap"]
+
+        def better(hi, lo):
+            return bool(b[f"{hi}-{lo}:uno_c"]["lo"] > 0 and b[f"{hi}-{lo}:ibs"]["hi"] < 0)
+
+        results["improves"] = {f"{hi}-{lo}": better(hi, lo) for hi, lo in diffs}
+        if args.protocol == "D-016":
+            results["beats_mechanical"] = results["improves"]["ABC-M"]
 
     warnings = [f"{y} {s}: C {m['uno_c']:.3f} > {TOO_GOOD_C}: STOP, run the leakage-audit skill"
                 for y in map(str, DEV_FOLDS) for s, m in results[y]["metrics"].items()
                 if m["uno_c"] > TOO_GOOD_C]  # fmt: skip
-    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True,
-                            text=True, check=True).stdout.strip()  # fmt: skip
-    cfg = {"protocol": "D-015", "features_run": fr.name, "snapshot_id": fcfg["snapshot_id"],
-           "git_commit": commit, "specs": SPECS, "diffs": DIFFS, "folds": DEV_FOLDS,
+    cfg = {"protocol": args.protocol, "features_run": fr.name, "snapshot_id": fcfg["snapshot_id"],
+           "git_commit": commit, "specs": specs, "diffs": diffs, "folds": DEV_FOLDS,
            "horizons": HORIZONS.tolist(), "bootstrap": args.bootstrap, "block": 20}  # fmt: skip
     (run / "config.json").write_text(json.dumps(cfg, indent=2))
     (run / "metrics.json").write_text(json.dumps({"results": results, "warnings": warnings},
                                                  indent=2, default=float))  # fmt: skip
-    log(
-        json.dumps(
-            {
-                "run_dir": str(run),
-                "age_share_auc5": results["age_share_auc5"],
-                "mainly_age_effect": results["mainly_age_effect"],
-                "warnings": warnings,
-            }
-        )
-    )
+    keys = ("age_share_auc5", "mainly_age_effect", "beats_mechanical", "improves")
+    summary = {k: results[k] for k in keys if k in results}
+    log(json.dumps({"run_dir": str(run), **summary, "warnings": warnings}))
     return 0
 
 

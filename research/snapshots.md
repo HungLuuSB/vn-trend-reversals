@@ -6,7 +6,7 @@ row counts). The files live in `research/snapshots/<id>/` (not in git) and in th
 under `snapshots/<id>/`.
 
 - **Dev snapshots** are for building and testing code.
-- **The final snapshot** for the paper is frozen mid-February 2027 (`docs/proposal.md`,
+- **The final snapshot** for the paper is frozen mid-February 2027 (`docs/proposals/paper1-trend-reversals.md`,
   timeline). Its id is cited in the paper.
 
 | Snapshot id | Date | Label | Git commit | Rows |

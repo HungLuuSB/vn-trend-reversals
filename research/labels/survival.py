@@ -1,4 +1,5 @@
-"""Survival rows from swing labels (docs/proposal.md Methodology 2; research/DECISIONS.md D-011).
+"""Survival rows from swing labels (docs/proposals/paper1-trend-reversals.md Methodology 2;
+research/DECISIONS.md D-011).
 
 One row per (stock, trading day t) inside a swing not yet confirmed as reversed. The row's
 state is as of the close of t (used at the 09:00 decision on the next session). Its target:

@@ -1,1 +1,2 @@
-"""Global market data for feature block D (docs/proposal.md; research/DECISIONS.md D-009)."""
+"""Global market data for feature block D (docs/proposals/paper1-trend-reversals.md;
+research/DECISIONS.md D-009)."""

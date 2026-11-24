@@ -41,6 +41,22 @@ FEATURES_C_ROBUST = ["foreign_net_share"]  # D-012: robustness only
 FEATURES_D = ["spx_ret", "nasdaq_ret", "vix_chg", "vix_level", "ust10_chg", "dxy_ret", "gold_ret",
               "brent_ret", "hsi_ret", "sse_ret", "usdvnd_ret", "usdcny_ret", "gpr_level",
               "gpr_chg"]  # fmt: skip
+FEATURES_MECH = ["swing_age", "log_age", "swing_dist"]  # D-016 mechanical baseline
+XDIR_BLOCKS = "BCD"  # D-017: these blocks also enter as swing_dir x feature
+
+
+def xdir(cols: list[str]) -> list[str]:
+    return [f"{c}_xdir" for c in cols]
+
+
+def add_direction_interactions(ds: pd.DataFrame) -> pd.DataFrame:
+    """D-017: direction-specific slopes. `<x>_xdir` = swing_dir * x (NaN stays NaN)."""
+    cols = [c for b in XDIR_BLOCKS for c in BLOCKS[b]]
+    inter = ds[cols].mul(ds["swing_dir"].astype("float64"), axis=0)
+    inter.columns = xdir(cols)
+    return pd.concat([ds, inter], axis=1)
+
+
 BLOCKS = {"A": FEATURES_A, "B": FEATURES_B, "C": FEATURES_C, "D": FEATURES_D}
 
 

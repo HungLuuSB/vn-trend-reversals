@@ -1,1 +1,1 @@
-"""Survival models (docs/proposal.md, Methodology 4)."""
+"""Survival models (docs/proposals/paper1-trend-reversals.md, Methodology 4)."""

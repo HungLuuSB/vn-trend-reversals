@@ -1,4 +1,5 @@
-"""Discrete-time logistic hazard fitted by landmarking (docs/proposal.md, model 3;
+"""Discrete-time logistic hazard fitted by landmarking (docs/proposals/paper1-trend-reversals.md,
+model 3;
 research/DECISIONS.md D-013).
 
 Each survival row (stock, t) is a landmark: a prediction made after the close of t. For
