@@ -81,6 +81,25 @@ models:
               arguments:
                 values: [match, date_shift, ratio_mismatch, yahoo_only, ours_only]
 
+  - name: prices_daily_limits
+    description: >
+      Exchange reference price, ceiling/floor and limit hits per stock-day from raw prices and
+      the dated seeds (research/DECISIONS.md D-003). limit_status is computed only where the
+      exchange's reference was the previous close (HOSE always; HNX from 2013-07-29). UPCoM and
+      earlier HNX used a VWAP that CafeF does not publish: ref_not_reconstructable.
+    columns:
+      - name: limit_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [computed, ref_not_reconstructable, special_regime_unknown]
+      - name: regime
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [normal, resumption, new_listing, exchange_transfer]
+
+
 unit_tests:
   - name: back_adjusts_only_by_later_events
     description: >
@@ -104,3 +123,52 @@ unit_tests:
         - {ticker: AAA, trade_date: 2024-01-04, adj_factor: 0.8, close_adj: 8000, close_raw: 10000}
         - {ticker: AAA, trade_date: 2024-01-05, adj_factor: 0.8, close_adj: 8000, close_raw: 10000}
         - {ticker: AAA, trade_date: 2024-01-08, adj_factor: 1.0, close_adj: 8000, close_raw: 8000}
+
+  - name: limits_follow_dated_rules
+    description: >
+      HOSE limit ±5% on 2013-01-14 and ±7% from 2013-01-15; old ticks (100 VND) before
+      2016-09-12 and new ticks (50 / 100 VND) after, with the ceiling rounded down and the floor
+      rounded up to the tick of their own price level; an ex-date reference of
+      previous close / ratio; UPCoM reference not reconstructable.
+    model: prices_daily_limits
+    given:
+      - input: ref('prices_daily_raw')
+        rows:
+          - {ticker: AAA, trade_date: 2013-01-11, exchange: HSX, open_vnd: 20000, high_vnd: 20000, low_vnd: 20000, close_vnd: 20000}
+          - {ticker: AAA, trade_date: 2013-01-14, exchange: HSX, open_vnd: 20000, high_vnd: 20000, low_vnd: 20000, close_vnd: 20000}
+          - {ticker: AAA, trade_date: 2013-01-15, exchange: HSX, open_vnd: 20000, high_vnd: 21400, low_vnd: 20000, close_vnd: 21400}
+          - {ticker: AAA, trade_date: 2016-09-09, exchange: HSX, open_vnd: 48000, high_vnd: 48000, low_vnd: 48000, close_vnd: 48000}
+          - {ticker: AAA, trade_date: 2016-09-12, exchange: HSX, open_vnd: 50000, high_vnd: 50000, low_vnd: 50000, close_vnd: 50000}
+          - {ticker: AAA, trade_date: 2016-09-13, exchange: HSX, open_vnd: 40000, high_vnd: 40000, low_vnd: 40000, close_vnd: 40000}
+          - {ticker: BBB, trade_date: 2020-01-02, exchange: UPCOM, open_vnd: 10000, high_vnd: 10000, low_vnd: 10000, close_vnd: 10000}
+          - {ticker: BBB, trade_date: 2020-01-03, exchange: UPCOM, open_vnd: 10000, high_vnd: 10000, low_vnd: 10000, close_vnd: 10000}
+      - input: ref('int_corporate_actions')
+        rows:
+          - {ticker: AAA, ex_date: 2016-09-13, adj_ratio: 1.25}
+      # The model reads the real seed tables through macros; these fixtures only satisfy dbt.
+      - input: ref('price_limit_schedule')
+        rows: [{exchange: HSX}]
+      - input: ref('tick_size_schedule')
+        rows: [{exchange: HSX}]
+      - input: ref('reference_price_rule')
+        rows: [{exchange: HSX}]
+      - input: ref('int_trading_sessions')
+        rows:
+          - {exchange: HSX, trade_date: 2013-01-11, session_no: 1}
+          - {exchange: HSX, trade_date: 2013-01-14, session_no: 2}
+          - {exchange: HSX, trade_date: 2013-01-15, session_no: 3}
+          - {exchange: HSX, trade_date: 2016-09-09, session_no: 4}
+          - {exchange: HSX, trade_date: 2016-09-12, session_no: 5}
+          - {exchange: HSX, trade_date: 2016-09-13, session_no: 6}
+          - {exchange: UPCOM, trade_date: 2020-01-02, session_no: 1}
+          - {exchange: UPCOM, trade_date: 2020-01-03, session_no: 2}
+    expect:
+      rows:
+        - {ticker: AAA, trade_date: 2013-01-11, regime: new_listing, limit_status: ref_not_reconstructable, ref_price: null, limit_pct: null, ceiling_price: null, floor_price: null, close_at_ceiling: false}
+        - {ticker: AAA, trade_date: 2013-01-14, regime: normal, limit_status: computed, ref_price: 20000, limit_pct: 0.05, ceiling_price: 21000, floor_price: 19000, close_at_ceiling: false}
+        - {ticker: AAA, trade_date: 2013-01-15, regime: normal, limit_status: computed, ref_price: 20000, limit_pct: 0.07, ceiling_price: 21400, floor_price: 18600, close_at_ceiling: true}
+        - {ticker: AAA, trade_date: 2016-09-09, regime: normal, limit_status: computed, ref_price: 21400, limit_pct: 0.07, ceiling_price: 22800, floor_price: 20000, close_at_ceiling: false}
+        - {ticker: AAA, trade_date: 2016-09-12, regime: normal, limit_status: computed, ref_price: 48000, limit_pct: 0.07, ceiling_price: 51300, floor_price: 44650, close_at_ceiling: false}
+        - {ticker: AAA, trade_date: 2016-09-13, regime: normal, limit_status: computed, ref_price: 40000, limit_pct: 0.07, ceiling_price: 42800, floor_price: 37200, close_at_ceiling: false}
+        - {ticker: BBB, trade_date: 2020-01-02, regime: new_listing, limit_status: ref_not_reconstructable, ref_price: null, limit_pct: null, ceiling_price: null, floor_price: null, close_at_ceiling: false}
+        - {ticker: BBB, trade_date: 2020-01-03, regime: normal, limit_status: ref_not_reconstructable, ref_price: null, limit_pct: 0.15, ceiling_price: null, floor_price: null, close_at_ceiling: false}

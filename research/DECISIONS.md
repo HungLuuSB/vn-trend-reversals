@@ -74,3 +74,43 @@ Every clarification of, or change to, the pre-specified design (CLAUDE.md, "Rese
 
 - ATR20 keeps its standard definition (true range from high, low and previous close). Any change to it would be a separate decision.
 - The flag stays available, so a robustness check can drop flagged days and compare results.
+
+---
+
+## D-003 — Price limits follow the rules in force on each date; reference prices only where reconstructable
+
+- **Date:** 2026-11-24
+- **Type:** clarification of CLAUDE.md data rule 6, which listed only today's limits (±7% / ±10% / ±15%)
+- **Decided by:** approved by the author as part of the step-2 plan; details set from sourced research
+- **State when decided:** no snapshot, no swing labels, no model. Decided before any limit-hit statistic was used for anything but data-quality checks.
+
+**Decision**
+
+Limits, tick sizes and the reference-price rule are dated schedules in `dbt/seeds/`, one row per rule, each with its legal basis, source URL and confidence (`verified-official`, `verified-secondary`, `unverified`).
+
+| Exchange | Normal limit | Reference price |
+| --- | --- | --- |
+| HOSE | ±5% to 2013-01-14; ±7% from 2013-01-15 | previous close (always) |
+| HNX | ±7% to 2013-01-14; ±10% from 2013-01-15 | session VWAP to 2012-03-25; last-15-minute VWAP to 2013-07-28; previous close from 2013-07-29 |
+| UPCoM | ±10% to 2015-06-30; ±15% from 2015-07-01 | previous session's VWAP (always) |
+
+Tick sizes:
+- **HOSE:** 100 / 500 / 1,000 VND before 2016-09-12; 10 / 50 / 100 VND from 2016-09-12.
+- **HNX and UPCoM:** 100 VND.
+
+How the bands are computed:
+- The ceiling is rounded down and the floor rounded up, to the tick of their own price level. This rounding is explicit in the rules from 2021 and assumed for earlier years.
+- On ex-dates, the reference = previous close / corporate-action ratio.
+
+**Where limits are not computed** (`limit_status != 'computed'`):
+- **The reference was a VWAP** (UPCoM always; HNX before 2013-07-29). CafeF does not publish traded value, so it cannot be reconstructed. Status: `ref_not_reconstructable`.
+- **Special regimes:** new listings, exchange transfers (decided case by case: ACB got ±20%, SHB ±7%), and HOSE resumptions before 2016-09-12 (also case by case).
+
+**Evidence that the schedule is right**
+- On normal, non-event days, only 0.09% of HOSE and 0.07% of HNX stock-days trade outside the computed band (study period).
+- The remaining cases are mostly data errors or missed corporate actions; the `outside_band` flag keeps them visible.
+
+**Consequences for the research**
+- HOSE (all VN30 members) has computed limits on 99.98% of stock-days.
+- Banks: 85.7% of stock-days. Not covered: the UPCoM banks (KLB 2017–2026, SGB, ABB, PGB, VAB) and NVB before 2013-07-29.
+- For those stock-days, the trading test's "no fill at limit-down" rule cannot be applied exactly. How to treat them must be decided before the trading test is run.

@@ -95,8 +95,25 @@ Other rows: 1,656 rows with a blank or "0" ticker (rejected), plus warrants (225
 
 Neither source is complete. An event missing from our series shows up as an artificial price jump on its ex-date. That matters for swing labelling, so disputed events need a rule before labelling (open decision).
 
+## Finding 5: reference prices and dated price limits (2026-11-24)
+
+**Dated schedules.** Researched from exchange rules and decisions, each row sourced, in `dbt/seeds/` (`research/DECISIONS.md` D-003).
+- **Limits changed inside the sample:** HOSE ±5% to ±7% and HNX ±7% to ±10% on 2013-01-15; UPCoM ±10% to ±15% on 2015-07-01.
+- **HOSE ticks changed on 2016-09-12.**
+- **Reference price:** HOSE always used the previous close. HNX only from 2013-07-29; before that it used a VWAP. UPCoM always uses the previous session's VWAP, which CafeF does not publish.
+
+**`prices_daily_limits`** gives, per stock-day: reference price, ceiling, floor, `close_at_ceiling`, `close_at_floor`, `outside_band`, regime and rule confidence.
+- **Self-check:** on normal, non-event days, 0.09% (HOSE) and 0.07% (HNX) of stock-days trade outside the computed band. For HOSE it is 0.006–0.17% in most years and 0.6% in 2012, when the tick rule is partly unverified.
+- **Event days:** 2–4% fall outside the band, because the exchange does not adjust the reference for some event types.
+- **Coverage, study period:** HOSE 99.98% of stock-days computed; banks 85.7%. Not computed: the UPCoM banks KLB, SGB, ABB, PGB and VAB, plus NVB before 2013-07-29.
+
+**Open questions from the research** (details in D-003 and the seeds' confidence column):
+- the HOSE rules before 2012-03-05;
+- case-by-case limits for HOSE resumptions before 2016 and for exchange transfers;
+- whether the rounding rule applied before 2021.
+
 ## Next steps
 
-1. Reference prices and dated price limits (in progress); decide how disputed corporate actions are handled.
+1. Decide how disputed corporate actions (Finding 4) and non-computable limits (UPCoM banks) are handled.
 2. Compile VN30 membership history from HOSE announcements; verify the launch date.
 3. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.

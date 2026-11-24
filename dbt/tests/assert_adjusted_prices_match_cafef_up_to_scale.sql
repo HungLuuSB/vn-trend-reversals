@@ -23,3 +23,5 @@ select count() as n_off
 from n
 where dn > 0.005
 having n_off > 100
+-- grace_hash spills the 3M-row join to disk instead of exceeding the 2 GB container limit
+settings join_algorithm = 'grace_hash', max_threads = 2
