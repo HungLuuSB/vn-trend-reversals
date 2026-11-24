@@ -55,6 +55,11 @@ sources:
             data_tests: [not_null]
           - name: trade_date
             data_tests: [not_null]
+      - name: raw_cafef_foreign
+        description: CafeF daily foreign trading (GDKhoiNgoai); VNINDEX rows are the HOSE market.
+        columns:
+          - name: trade_date
+            data_tests: [not_null]
 
   - name: global
     schema: "{{ env_var('CLICKHOUSE_DB', 'vnbank') }}"
