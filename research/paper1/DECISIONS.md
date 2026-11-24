@@ -678,3 +678,54 @@ The model-shape table and the test results do not change.
 **Point-in-time check.** A unit test confirms that a row's sequence is unchanged when every price after t is altered.
 
 **What does not change:** labels, folds, purge, embargo and metrics.
+
+## D-023 — Block E (bank fundamentals, news) on development data (pre-registered)
+
+- **Date:** 2026-11-25
+- **Type:** specification of the proposal's block E ("first-released quarterly ratios, news mention counts; bank subsample"). It is written before any block E value has been joined to an outcome. The owner approved the full CafeF news crawl and the OCR route on 2026-11-25.
+- **State when decided:**
+  - D-014 to D-022 are done; no test year has been evaluated.
+  - Sources and their limits are in `docs/blockE-data-feasibility.md`.
+  - The OCR extractor passes its sum check on every sampled 2012–2013 ACB statement. The full dev extraction (9 banks, 252 consolidated documents) is running, and its coverage is not yet known.
+
+**Fundamentals.**
+- **Document per bank-quarter (first release):**
+  - the consolidated quarterly statement (`HN`);
+  - for Q2 without an `HN`, the reviewed half-year statement (`HNSX`);
+  - for Q4 without an `HN`, the audited annual statement (`HNKT`).
+  - The parent-only statement (`M`) is used only for a bank with no consolidated statement in that quarter.
+  - Later versions (reviewed, audited, restated comparison columns) are never used for features.
+- **Values:** the current-period column only. NPL ratio = groups 3–5 / total customer loans (SBV classification), accepted only when the five groups sum to the printed total in both columns.
+- **Features** (bank rows; NaN when missing, then median-imputed like every feature):
+  - `npl_ratio`: the latest available first-released value;
+  - `npl_change`: the latest value minus the previous quarter's first-released value.
+- **Conditional additions:** balance-sheet ratios (loan growth y/y, deposit growth y/y, loans/deposits, ROA, ROE) are added only if their extraction passes an accounting check, chosen before extraction, on at least 90% of first-release documents. The check: total assets = total liabilities + equity, to the printed precision. Otherwise they are dropped and reported as not extractable.
+- **CAR is dropped:** it is not disclosed quarterly before 2020 (feasibility scout).
+
+**Publication time** (HOSE's disclosure API is not available to this project; see the scout).
+- `available_at` = the 09:00 decision time of the **5th trading session after the later of**:
+  - (a) the filing deadline: quarter end + 45 days for quarterly statements, the half-year end + 45 days for `HNSX`, the year end + 90 days for `HNKT`;
+  - (b) the PDF's own creation date (Asia/Ho_Chi_Minh), where present.
+- The deadlines are deliberately conservative:
+  - consolidated quarterly statements were due within 45 days under Circular 52/2012 (HOSE, as reported by Báo Đầu tư on 2015-02-26: https://baodautu.vn/hose-thuc-doanh-nghiep-cong-bo-thong-tin-d8443.html);
+  - from 2016, Circular 155/2015 sets 20 days, extendable on request.
+- The 5-session margin covers late filing after the PDF was created.
+- **Robustness:** margins of 0 and 20 sessions.
+- **Validation:** for each statement, the earliest CafeF article mentioning the bank and its quarterly result (from the news crawl) is compared with `available_at`. The share of statements with news earlier than `available_at` is reported. It measures how conservative the rule is; it is not used as a feature.
+
+**News.**
+- **Articles:** CafeF archive pages; publication time from the page's `pdate` timestamp (+07:00).
+- **Bank aliases:** a seed (`dbt/seeds/bank_aliases.csv`) with the ticker as a whole word plus the bank's common short names, each row sourced to the bank's own name in `bank_spells.csv` or its website.
+- **Mention:** an alias in the title, sapo or body.
+- **Features for row (stock, t):**
+  - `news_count`: articles mentioning the bank published in [decision time of t, decision time of t + 1), i.e. 09:00 on t to 09:00 on t + 1;
+  - `news_rel_20`: log((1 + news_count) / (1 + mean news_count over the previous 20 sessions)).
+
+**Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
+- `ABCDx` vs `ABCDx + E`: the primary block E test;
+- `M` vs `M + E`: block E beyond the mechanics.
+- Paired pooled block bootstrap (20 sessions, 200 resamples).
+- **Decision rule:** an improvement only if the pooled C interval is above zero **and** the IBS interval is below zero.
+- **Power:** development has 9 banks (about 9,600 rows). A null result is reported as "not detected with this sample", not as "no effect".
+
+**What does not change:** labels, folds, metrics, and blocks A–D.
