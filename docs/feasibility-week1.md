@@ -112,8 +112,36 @@ Neither source is complete. An event missing from our series shows up as an arti
 - case-by-case limits for HOSE resumptions before 2016 and for exchange transfers;
 - whether the rounding rule applied before 2021.
 
+## Finding 6: VN30 membership, bank list and coverage (2026-11-24)
+
+**VN30.**
+- Rebuilt from HOSE review results and ad-hoc replacements: 152 changes, 77 stocks, 2012-02-06 to 2026-08-03 (`research/DECISIONS.md` D-004).
+- 30 members on every session; all 32 printed baskets match.
+- Price coverage: 99.1% of member-days. Missing: HVG and PVF.
+
+**Banks.**
+- 29 banks with exchange spells, including HBB (merged 2012) and PCB (UPCoM 2026).
+- CafeF's bulk archive keeps only a stock's history on its current exchange. Missing (`qa_bank_coverage`):
+
+| Bank | Missing spell | Bank-days |
+| --- | --- | ---: |
+| ACB | HNX 2012 to 2020-12 | 2,224 |
+| SHB | HNX 2012 to 2021-10 | 2,433 |
+| VBB | UPCoM 2019 to 2026-06 | 1,721 |
+| BVB | UPCoM 2020 to 2026-07 | 1,491 |
+| VIB | UPCoM 2017 to 2020-10 | 951 |
+| NAB | UPCoM 2020 to 2024-02 | 840 |
+| BAB | UPCoM 2017 to 2021-02 | 785 |
+| LPB | UPCoM 2017 to 2020-10 (28 days left, mislabelled HSX) | 763 |
+| HBB | HNX 2012 to 2012-08 | 155 |
+
+**CafeF per-ticker history** (`cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx`, US date format, 30 rows per page) has ACB, SHB and VIB for these periods; BVB and HBB are not there. It also returns matched trade value, which could give the VWAP that UPCoM and early HNX reference prices need.
+
+**Universe** (`research_universe_daily`): 146,555 stock-days and 91 stocks; 91% have prices.
+
 ## Next steps
 
 1. Decide how disputed corporate actions (Finding 4) and non-computable limits (UPCoM banks) are handled.
-2. Compile VN30 membership history from HOSE announcements; verify the launch date.
-3. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.
+2. Decide whether UPCoM-only bank spells count as listed banks; decide on filling gaps from CafeF per-ticker history.
+3. Step 4: adjudicate disputed corporate actions for the universe (D-004 universe, Yahoo check widened).
+4. Index levels (VN-Index, VN30) still needed.

@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: dim_vn30_membership
+    description: >
+      VN30 membership spells rebuilt from seed vn30_changes (152 changes, 77 stocks,
+      2012-02-06 to 2026-08-03). A stock is a member on date d iff
+      valid_from <= d <= coalesce(valid_to, d). Cross-checked against 32 printed baskets.
+    columns:
+      - name: ticker
+        data_tests: [not_null]
+      - name: valid_from
+        data_tests: [not_null]
+
+  - name: research_universe_daily
+    description: >
+      Paper 1 universe: VN30 members as of each date plus all banks with a listing or
+      registration spell, on every HOSE session from 2012-01-03 to 2026-11-20 (D-001).
+      One row per (session, ticker) whether or not the stock traded (has_price).
+    columns:
+      - name: trade_date
+        data_tests: [not_null]
+      - name: ticker
+        data_tests: [not_null]
+
+  - name: qa_bank_coverage
+    description: >
+      Clean CafeF price rows per bank exchange spell vs HOSE sessions in that spell (study
+      period). Pre-transfer spells are largely missing from the CafeF bulk archive.
