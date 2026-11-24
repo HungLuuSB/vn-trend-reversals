@@ -35,6 +35,7 @@ PAUSE_S = 1.0  # per connection: each worker waits this long after each request
 START_CONCURRENCY = 3
 MAX_CONCURRENCY = 16  # hard cap (owner raised 8 -> 16 on 2026-11-25); backoff still applies
 LATENCY_FACTOR = 2.0  # median latency above 2x the first window's counts as pushback
+ERROR_SHARE = 0.005  # 5xx + connection errors above 0.5% of a window's requests count as pushback
 ZIP_TIME = (2000, 1, 1, 0, 0, 0)
 _LOC = re.compile(rb"<loc>\s*([^<\s]+)\s*</loc>")
 _PDATE = re.compile(rb'data-role="publishdate"[^>]*datetime="([^"]+)"')
@@ -122,12 +123,15 @@ class Concurrency:
         self.base_latency: float | None = None
 
     def update(self, stats: dict) -> str:
-        """stats: pages, throttled (429/5xx/transport errors), median_latency (s)."""
+        """stats: pages, n429, n5xx, ntransport, median_latency (s). Any 429 is explicit
+        pushback; isolated 5xx/connection errors are noise unless above ERROR_SHARE."""
         lat = stats["median_latency"]
         if self.base_latency is None and stats["pages"]:
             self.base_latency = lat
         slow = self.base_latency is not None and lat > LATENCY_FACTOR * self.base_latency
-        if stats["throttled"] or slow:
+        errors = stats.get("n5xx", 0) + stats.get("ntransport", 0)
+        too_many = errors > ERROR_SHARE * max(stats["pages"], 1)
+        if stats.get("n429", 0) or too_many or slow:
             self.n = max(1, self.n // 2)
             return "down"
         if self.n < self.cap:
@@ -146,7 +150,11 @@ class CafefNewsClient:
         self.pause_s, self.sleep = pause_s, sleep
         self.conc = concurrency or Concurrency()
         self._lock = threading.Lock()
-        self._stats = {"throttled": 0, "lat": []}
+        self._stats = self._fresh()
+
+    @staticmethod
+    def _fresh() -> dict:
+        return {"n429": 0, "n5xx": 0, "ntransport": 0, "lat": []}
 
     def get(self, url: str) -> tuple[int, bytes]:
         for attempt in range(3):
@@ -158,14 +166,14 @@ class CafefNewsClient:
                 self.sleep(self.pause_s)
                 if r.status_code in (429, 500, 502, 503, 504):
                     with self._lock:
-                        self._stats["throttled"] += 1
+                        self._stats["n429" if r.status_code == 429 else "n5xx"] += 1
                     if attempt < 2:
                         self.sleep(30.0 * (attempt + 1))  # back off, then retry
                         continue
                 return r.status_code, r.content
             except httpx.TransportError:
                 with self._lock:
-                    self._stats["throttled"] += 1
+                    self._stats["ntransport"] += 1
                 self.sleep(30.0 * (attempt + 1))
         return -1, b""
 
@@ -175,13 +183,14 @@ class CafefNewsClient:
             return None
         b = Bundle(w, xml)
         urls = [u for u in sitemap_urls(xml) if u.startswith(BASE + "/")]  # CafeF's own pages
-        self._stats = {"throttled": 0, "lat": []}
+        self._stats = self._fresh()
         n = self.conc.n
         with ThreadPoolExecutor(max_workers=n) as ex:
             for url, (status, body) in zip(urls, ex.map(self.get, urls), strict=True):
                 b.pages.append((url, status, body))
         lat = sorted(self._stats["lat"])
-        b.stats = {"concurrency": n, "pages": len(urls), "throttled": self._stats["throttled"],
+        b.stats = {"concurrency": n, "pages": len(urls),
+                   **{k: self._stats[k] for k in ("n429", "n5xx", "ntransport")},
                    "median_latency": lat[len(lat) // 2] if lat else 0.0}  # fmt: skip
         b.stats["action"] = self.conc.update(b.stats)
         if b.stats["action"] == "down":
