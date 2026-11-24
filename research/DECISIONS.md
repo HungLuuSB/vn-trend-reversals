@@ -414,3 +414,33 @@ Availability rules:
 - 95% percentile intervals are reported for each metric and for each paired difference, per fold and pooled over the three folds.
 
 **What will not be done in development:** choosing the main specification by test-year performance, or reporting test years.
+
+## D-015 — Decomposing the short-horizon signal: nested feature sets (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** development analysis, written before running it.
+- **State when decided:**
+  - D-014 is done (run `20261124T083349Z-devcompare`).
+  - Logistic hazard A–C: pooled Uno C 0.604; td-AUC 0.686 at 5 days and 0.591 at 20 days.
+  - No test year evaluated.
+
+**Question.** How much of the short-horizon skill comes from swing age alone, and how much do the other swing-state, stock and local-market features add?
+
+**Design.** Same folds, purge, embargo, dev censoring and nested tuning as D-014. The model is the logistic hazard only, with its D-014 grid. Four nested feature sets:
+
+1. `AGE`: `swing_age`, `log_age`;
+2. `A`: block A (swing state);
+3. `AB`: blocks A and B (stock technicals);
+4. `ABC`: blocks A, B and C (local market). Block D is left out, given D-014.
+
+Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS and td-AUC at 5, 10 and 20 days.
+
+**Paired differences** use the D-014 bootstrap (blocks of 20 sessions, 200 resamples), per fold and pooled:
+- A − AGE;
+- AB − A;
+- ABC − AB;
+- ABC − AGE.
+
+**Interpretation rule, fixed in advance.** If `AGE` reaches at least 80% of the ABC skill above chance at 5 days, i.e. td-AUC(AGE) − 0.5 ≥ 0.8 × (td-AUC(ABC) − 0.5), the short-horizon result is reported as mainly a swing-age (duration-dependence) effect, not a feature effect.
+
+**What does not change:** the main specification. This is descriptive only.
