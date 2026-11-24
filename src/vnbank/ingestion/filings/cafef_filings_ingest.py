@@ -1,0 +1,84 @@
+"""Download banks' financial-statement PDFs (CafeF mirror) into the raw layer (block E).
+
+    uv run python -m vnbank.ingestion.filings.cafef_filings_ingest --symbols ACB --years 2011-2017
+
+Stores each list reply and each PDF unchanged. Resumable: PDFs already stored (by file name,
+any download date) are skipped. Bank tickers default to dbt/seeds/bank_spells.csv.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+
+import pandas as pd
+
+from vnbank.common import paths
+from vnbank.common.env import load_dotenv
+from vnbank.common.raw_store import RawStore, S3RawStore, raw_key, sha256_hex
+from vnbank.ingestion.filings.cafef_filings_client import CafefFilingsClient
+
+SOURCE = "cafef_filings"
+
+
+def stored_pdfs(store: RawStore) -> set[str]:
+    keys = store.list_keys(f"{SOURCE}/") if hasattr(store, "list_keys") else store.keys()
+    out = set()
+    for k in keys:
+        name = k.rsplit("/", 1)[-1]
+        m = re.match(r"^(.*)\.[0-9a-f]{8}\.pdf$", name)
+        if k.startswith(f"{SOURCE}/") and m:
+            out.add(m[1] + ".pdf")
+    return out
+
+
+def ingest(client: CafefFilingsClient, store: RawStore, symbols: list[str], years: list[int],
+           log=print) -> dict:  # fmt: skip
+    have = stored_pdfs(store)
+    st = {"lists": 0, "pdfs": 0, "skipped": 0, "failed": []}
+    for sym in (s.upper() for s in symbols):
+        for y in years:
+            body, filings, fetched = client.list_filings(sym, y)
+            store.put_immutable(raw_key(SOURCE, fetched, f"list_{sym}_{y}.json", sha256_hex(body)),
+                                body, {"symbol": sym, "year": str(y)})  # fmt: skip
+            st["lists"] += 1
+            for f in filings:
+                if f.filename in have:
+                    st["skipped"] += 1
+                    continue
+                status, pdf, fetched = client.pdf(f)
+                if status != 200:
+                    st["failed"].append(f"{f.filename} ({status})")
+                    log(f"{sym} {y} {f.period} {f.filename}: FAILED {status}")
+                    continue
+                meta = {"symbol": sym, "year": str(y), "quarter": str(f.quarter),
+                        "period": f.period, "listed_link": f.link, "source_url": f.pdf_url,
+                        "fetched_at_utc": fetched.isoformat()}  # fmt: skip
+                store.put_immutable(raw_key(SOURCE, fetched, f.filename, sha256_hex(pdf)), pdf,
+                                    meta)  # fmt: skip
+                have.add(f.filename)
+                st["pdfs"] += 1
+                log(f"{sym} {y} {f.period} {f.filename}: {len(pdf) / 1e6:.1f} MB")
+    return st
+
+
+def bank_tickers() -> list[str]:
+    return sorted(pd.read_csv(paths.SEEDS / "bank_spells.csv").ticker.unique())
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("--symbols", default="", help="comma-separated; default: all bank tickers")
+    p.add_argument("--years", required=True, help="e.g. 2011-2017")
+    a = p.parse_args(argv)
+    y0, y1 = map(int, a.years.split("-"))
+    syms = a.symbols.split(",") if a.symbols else bank_tickers()
+    load_dotenv(["S3_"])
+    print(ingest(CafefFilingsClient(), S3RawStore.from_env(), syms, list(range(y0, y1 + 1)),
+                 log=lambda m: print(m, flush=True)))  # fmt: skip
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
