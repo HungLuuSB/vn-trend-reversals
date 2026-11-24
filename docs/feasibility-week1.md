@@ -470,6 +470,14 @@ The final run decides RQ2.
 
 ## Next steps
 
-1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
-2. Before the trading test: decide how stock-days without computable limits are treated.
-3. Index levels (VN-Index, VN30) still needed.
+Status 2026-11-25:
+- Every development analysis pre-registered so far is done: D-014 to D-021, Findings 12–20.
+- The earlier items are closed:
+  - the 5-day td-AUC decomposition (Findings 14 and 18);
+  - the treatment of unknown limits (D-021: fill assumed, skip as a sensitivity check);
+  - index levels (VN-Index closes feed block C).
+
+Open, in priority order:
+1. **Neural hazard model** (proposal's fourth model family). It needs a deep-learning dependency (PyTorch), so it waits for the owner's OK.
+2. **Block E**: bank fundamentals (first-released, on `published_at`) and news. This needs the filings and news ingestion.
+4. **Final snapshot freeze** after the 2026-11-20 close data settle (mid-February 2027), then the single final walk-forward run on 2017–2026. Both need the owner.
