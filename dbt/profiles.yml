@@ -12,7 +12,7 @@ vnbank:
       password: "{{ env_var('CLICKHOUSE_PASSWORD') }}"
       schema: "{{ env_var('CLICKHOUSE_DB', 'vnbank') }}"
       secure: false
-      threads: 1  # sequential: heavy models share ClickHouse's 2 GB container limit
+      threads: 1  # sequential: heavy models share ClickHouse's 3 GB container limit
       send_receive_timeout: 600
       custom_settings:
         session_timezone: UTC

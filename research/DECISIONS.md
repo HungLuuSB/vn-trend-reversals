@@ -114,3 +114,57 @@ How the bands are computed:
 - HOSE (all VN30 members) has computed limits on 99.98% of stock-days.
 - Banks: 85.7% of stock-days. Not covered: the UPCoM banks (KLB 2017–2026, SGB, ABB, PGB, VAB) and NVB before 2013-07-29.
 - For those stock-days, the trading test's "no fill at limit-down" rule cannot be applied exactly. How to treat them must be decided before the trading test is run.
+
+---
+
+## D-004 — VN30 membership and the bank list (point-in-time universe)
+
+- **Date:** 2026-11-24
+- **Type:** clarification (completes D-001, which left the VN30 launch date to be verified)
+- **State when decided:** no snapshot, no swing labels, no model.
+
+**Decision**
+
+- **VN30 launch:** 2012-02-06, with the 30-stock basket announced by HOSE on 2012-01-30. Confirmed by two independent texts (hanoimoi.vn 2012-02-02; baochinhphu.vn 2012-02-07). No HOSE original was found, so confidence is verified-secondary.
+- **Membership is point in time** (`dim_vn30_membership`, seed `vn30_changes`).
+  - A stock is a member from the effective date of its addition (the first trading day the new basket applies) to the day before the effective date of its removal.
+  - Announcement dates are kept for look-ahead audits.
+  - The history has 152 changes and 77 stocks: 28 periodic reviews and 3 ad-hoc replacements (PVF 2013, OGC 2015, DGC 2026).
+  - It has 30 members on every session from the launch on.
+  - It matches all 32 full baskets printed in sources (seed `vn30_baskets`; 9 of them are HOSE's own lists).
+  - Weakest link: the 2013-H2 removal of PNJ and DIG is unverified, though implied by the baskets on either side.
+- **Banks:** seed `bank_spells` lists 29 banks with every exchange spell in the study period, including Habubank (HBB, merged into SHB 2012) and PVcomBank (PCB, UPCoM from 2026-08-12). Excluded as never listed: Southern Bank, MHB, BaoViet Bank. PVF (a finance company) is not a bank.
+- **Universe** (`research_universe_daily`): VN30 members as of each date, plus every bank during its listing/registration spells, on each HOSE session 2012-01-03..2026-11-20.
+
+**Known gaps** (seed `known_price_gaps`; tests exclude only these):
+- VN30: HVG and PVF have no usable CafeF history (0.9% of 110,610 member-days).
+- Banks: CafeF's bulk archive drops history from before an exchange move. ACB and SHB on HNX, the UPCoM years of VIB, LPB, NAB, BAB, BVB and VBB, and all of HBB are missing (about 11,000 bank-days).
+
+**Open**
+
+- Whether banks that traded only on UPCoM count as "listed banks" (author's decision pending).
+- Whether to fill the gaps from CafeF's per-ticker history (proposed).
+
+---
+
+## D-005 — UPCoM banks: kept in the universe, flagged
+
+- **Date:** 2026-11-24
+- **Type:** clarification of "all listed banks" (CLAUDE.md, Paper 1)
+- **Decided by:** the author (option C of three: exclude / include / include and flag), "for now"
+- **State when decided:** no snapshot, no swing labels, no model.
+
+**Decision**
+
+- Bank-days on UPCoM, where a bank is registered for trading rather than listed, stay in `research_universe_daily` with `bank_on_upcom = true`.
+- Main results use the whole universe. A robustness check repeats them without UPCoM bank-days.
+
+**Reason**
+
+- UPCoM is formally the market for unlisted public companies, so "listed" is ambiguous for these banks.
+- Their data is also weaker: UPCoM reference prices are VWAPs that CafeF's bulk archive lacks (D-003).
+- Flagging keeps both readings available without choosing one in advance.
+
+**Affected:** ABB, PGB and SGB (UPCoM for their whole study-period spell); KLB (to 2026-01-06); VAB (to 2025-07-09); and the UPCoM years of VIB, LPB, NAB, BAB, BVB and VBB once filled. PCB is UPCoM from 2026-08-12.
+
+**Revisit** before the final walk-forward run. The author said "for now".

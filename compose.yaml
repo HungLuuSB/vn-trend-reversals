@@ -41,7 +41,7 @@ services:
       - ./docker/clickhouse/config.d/laptop.xml:/etc/clickhouse-server/config.d/laptop.xml:ro
     ulimits:
       nofile: { soft: 262144, hard: 262144 }
-    mem_limit: 2g
+    mem_limit: 3g  # raised from 2g (2026-11-24): idle RSS grew to ~1.3 GB with the research tables
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8123/ping | grep -q Ok"]
       interval: 10s

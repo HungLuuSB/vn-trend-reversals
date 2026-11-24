@@ -43,3 +43,53 @@ seeds:
         legal_basis: String
         source_url: String
         confidence: LowCardinality(String)
+
+  - name: vn30_changes
+    description: >
+      VN30 basket changes: initial basket at launch, then additions and removals at each
+      periodic review and ad-hoc replacement. effective_date = first trading day the change
+      applies. Compiled from HOSE announcements and press; one source per row.
+    config:
+      column_types:
+        effective_date: Date
+        announcement_date: Nullable(Date)
+        ticker: LowCardinality(String)
+        action: LowCardinality(String)
+        review: LowCardinality(String)
+        source_url: String
+        confidence: LowCardinality(String)
+  - name: vn30_baskets
+    description: Full 30-stock baskets as printed in a source, used to cross-check vn30_changes.
+    config:
+      column_types:
+        effective_date: Date
+        ticker: LowCardinality(String)
+        source_url: String
+        confidence: LowCardinality(String)
+  - name: bank_spells
+    description: >
+      Every commercial bank listed or registered on HOSE, HNX or UPCoM at any time in the
+      study period, one row per exchange spell (including delisted and merged banks).
+    config:
+      column_types:
+        ticker: LowCardinality(String)
+        bank_name_en: String
+        bank_name_vi: String
+        exchange: LowCardinality(String)
+        first_trade_date: Date
+        last_trade_date: Nullable(Date)
+        end_reason: String
+        source_url: String
+        confidence: LowCardinality(String)
+  - name: known_price_gaps
+    description: >
+      Documented holes in the CafeF bulk price history for universe stocks, with the reason and
+      the check that found them. Tests exclude only these; any new gap still fails.
+    config:
+      column_types:
+        ticker: LowCardinality(String)
+        gap_from: Date
+        gap_to: Date
+        exchange: LowCardinality(String)
+        reason: String
+        found_by: String
