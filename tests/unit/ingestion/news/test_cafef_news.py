@@ -59,3 +59,22 @@ def test_crawl_stores_one_zip_per_window_and_resumes():
     assert zf.read("sitemap.xml") == SITEMAP
     again = crawl(c, store, date(2012, 1, 1), date(2012, 1, 5), log=lambda m: None)
     assert again["skipped"] == 1 and again["stored"] == 0
+
+
+def test_concurrency_increases_when_clean_and_halves_on_pushback():
+    c = nc.Concurrency(start=3, cap=5)
+    assert c.update({"pages": 10, "throttled": 0, "median_latency": 0.2}) == "up" and c.n == 4
+    assert c.update({"pages": 10, "throttled": 0, "median_latency": 0.3}) == "up" and c.n == 5
+    assert c.update({"pages": 10, "throttled": 0, "median_latency": 0.3}) == "hold" and c.n == 5
+    assert c.update({"pages": 10, "throttled": 2, "median_latency": 0.3}) == "down" and c.n == 2
+    assert c.update({"pages": 10, "throttled": 0, "median_latency": 0.5}) == "down" and c.n == 1
+    assert c.update({"pages": 10, "throttled": 1, "median_latency": 0.1}) == "down" and c.n == 1
+
+
+def test_parallel_fetch_keeps_sitemap_order():
+    http = FakeHttp()
+    c = nc.CafefNewsClient(http=http, pause_s=0, sleep=lambda s: None,
+                           concurrency=nc.Concurrency(start=3))  # fmt: skip
+    b = c.fetch_window(nc.Window(2012, 1, 1, 5))
+    assert [u for u, _, _ in b.pages] == ["https://cafef.vn/a-1.chn", "https://cafef.vn/b-2.chn"]
+    assert b.stats["concurrency"] == 3 and b.stats["pages"] == 2
