@@ -1,0 +1,61 @@
+"""CafeF news crawler: windows, sitemap parsing, timestamps, raw bundles, resume (hand-built)."""
+
+import io
+import json
+import zipfile
+from datetime import date
+
+from vnbank.common.raw_store import InMemoryRawStore
+from vnbank.ingestion.news import cafef_news_client as nc
+from vnbank.ingestion.news.cafef_news_ingest import crawl
+
+
+def test_windows_follow_the_sitemap_day_ranges():
+    w = list(nc.windows(date(2012, 2, 24), date(2012, 3, 7)))
+    assert [(x.month, x.d1, x.d2) for x in w] == [(2, 21, 25), (2, 26, 29), (3, 1, 5), (3, 6, 10)]
+    assert w[1].sitemap_url == "https://cafef.vn/sitemaps/sitemaps-2012-2-26-29.xml"
+
+
+def test_published_at_reads_the_offset_timestamp():
+    html = (b'<span class="pdate" data-role="publishdate" itemprop="datePublished" '
+            b'datetime="2014-06-10T23:11:12+07:00">10-06-2014</span>')  # fmt: skip
+    assert nc.published_at(html) == "2014-06-10T23:11:12+07:00"
+    assert nc.published_at(b"<html></html>") is None
+
+
+SITEMAP = (b'<?xml version="1.0"?><urlset><url><loc>https://cafef.vn/a-1.chn</loc></url>'
+           b"<url><loc>https://other.site/x</loc></url>"
+           b"<url><loc> https://cafef.vn/b-2.chn </loc></url></urlset>")  # fmt: skip
+
+
+class FakeHttp:
+    def __init__(self):
+        self.urls = []
+
+    def get(self, url):
+        self.urls.append(url)
+
+        class R:
+            status_code = 200 if not url.endswith("b-2.chn") else 404
+            content = SITEMAP if url.endswith(".xml") else b"<html>page</html>"
+
+        if "2012-1-6-10" in url:
+            R.status_code, R.content = 404, b""
+        return R()
+
+
+def test_crawl_stores_one_zip_per_window_and_resumes():
+    http = FakeHttp()
+    c = nc.CafefNewsClient(http=http, pause_s=0, sleep=lambda s: None)
+    store = InMemoryRawStore()
+    st = crawl(c, store, date(2012, 1, 1), date(2012, 1, 10), log=lambda m: None)
+    assert st["stored"] == 1 and st["missing_sitemaps"] == ["cafef_news_20120106_10"]
+    assert st["pages"] == 2 and st["failed_pages"] == 1
+    assert "https://other.site/x" not in http.urls  # only CafeF's own pages
+    (key,) = store.keys()
+    zf = zipfile.ZipFile(io.BytesIO(store.get(key)))
+    idx = json.loads(zf.read("index.json"))
+    assert [p["status"] for p in idx["pages"]] == [200, 404]
+    assert zf.read("sitemap.xml") == SITEMAP
+    again = crawl(c, store, date(2012, 1, 1), date(2012, 1, 5), log=lambda m: None)
+    assert again["skipped"] == 1 and again["stored"] == 0
