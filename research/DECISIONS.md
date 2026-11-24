@@ -356,3 +356,26 @@ Availability rules:
 4. **Where development is evaluated.**
    - Until the final walk-forward run, every evaluation (Kaplan–Meier baseline, shuffled-label control, model checks, tuning) uses only purged, embargoed inner cross-validation inside the first training window, sessions up to 2016-12-31.
    - Test years 2017–2026 are not evaluated until the final run (CLAUDE.md research rules). The runner refuses test years unless run as the final run.
+
+---
+
+## D-013 — Logistic hazard fitted by landmarking (implementation correction)
+
+- **Date:** 2026-11-24
+- **Type:** correction of how the proposal's discrete-time logistic hazard is implemented. The model class and features are unchanged.
+- **State when decided:**
+  - One development run exists: `20261124T081907Z-walkforward-dev-ABCD`, inner folds 2014–2016 inside the training window only.
+  - Its hazard model ranked reasonably (Uno C ≈ 0.60) but was badly calibrated: predicted P(reversal within 5 days) by decile ran 0.02–0.81 against 0.15–0.58 observed, and its integrated Brier score was worse than Kaplan–Meier's.
+  - No test year has been evaluated.
+
+**Problem.** The first implementation predicted h-day survival by chaining the one-day hazard while holding all features at their day-t values and advancing only the age. The strongest features describe the current position, e.g. the distance to the reversal threshold, so holding them fixed for h days exaggerates both high and low risk.
+
+**Decision: landmarking.**
+- Each row (stock, t) is expanded into steps s = 1 … min(duration, 20). The target at step s is 1 if the reversal is confirmed exactly s trading days after t. Features are fixed at their day-t values, and the step s enters as a covariate (one indicator per step).
+- The model then estimates the hazard s days after a prediction made on day t, which is how it is used: S(h | x_t) = ∏_{s ≤ h} (1 − h(s | x_t)).
+- Each day remains a new prediction, as the proposal states.
+- Censored rows contribute their steps up to censoring.
+
+**Shuffled-label control.** The outcome pairs (duration, event) are permuted across training rows before expansion, so the outcome distribution is kept and its link to the features is broken.
+
+**Not changed:** features, folds, purging, embargo, metrics. The earlier run stays in the run log as superseded.

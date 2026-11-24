@@ -1,10 +1,12 @@
-"""Discrete-time logistic hazard (docs/proposal.md, model 3: "the main interpretable model").
+"""Discrete-time logistic hazard fitted by landmarking (docs/proposal.md, model 3;
+research/DECISIONS.md D-013).
 
-Each survival row (stock, t) is one at-risk day; the target is whether the swing's reversal is
-confirmed on the next trading day (event and duration == 1). Survival over h days is the
-product of one-day survival probabilities with the swing age advanced day by day and the other
-features held at their value on t. Imputation and scaling are fitted on the training rows
-only (CLAUDE.md research rules).
+Each survival row (stock, t) is a landmark: a prediction made after the close of t. For
+steps s = 1 .. min(duration, H) the row contributes one at-risk period with target 1 if the
+reversal is confirmed exactly s trading days after t (event and s == duration). Features stay at
+their day-t values; the step s enters as indicator columns, so the model learns h(s | x_t), the
+hazard s days after the prediction. Then S(h | x_t) = prod_{s <= h} (1 - h(s | x_t)).
+Imputation and scaling are fitted on training rows only (CLAUDE.md research rules).
 """
 
 from __future__ import annotations
@@ -16,7 +18,18 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-AGE_COLUMNS = ("swing_age", "log_age")
+MAX_STEP = 20
+
+
+def expand(duration, event, max_step: int = MAX_STEP) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Landmark expansion: (row index, step s, target) for every at-risk step."""
+    d = np.asarray(duration, dtype="int64")
+    e = np.asarray(event, dtype="int64")
+    n_steps = np.minimum(d, max_step)
+    rows = np.repeat(np.arange(len(d)), n_steps)
+    steps = np.concatenate([np.arange(1, k + 1) for k in n_steps]) if len(d) else np.array([])
+    target = ((steps == d[rows]) & (e[rows] == 1)).astype("int8")
+    return rows, steps.astype("int64"), target
 
 
 def one_day_target(event, duration) -> np.ndarray:
@@ -24,38 +37,44 @@ def one_day_target(event, duration) -> np.ndarray:
 
 
 class LogisticHazard:
-    def __init__(self, features: list[str], C: float = 1.0, l1_ratio: float = 0.5, seed: int = 0):
+    def __init__(self, features: list[str], C: float = 1.0, l1_ratio: float = 0.5,
+                 max_step: int = MAX_STEP, seed: int = 0):  # fmt: skip
         self.features = list(features)
+        self.max_step = max_step
         self.model = make_pipeline(
             SimpleImputer(strategy="median"),
             StandardScaler(),
             LogisticRegression(
-                l1_ratio=l1_ratio, C=C, solver="saga", max_iter=2000, random_state=seed
+                l1_ratio=l1_ratio, C=C, solver="saga", max_iter=3000, random_state=seed
             ),  # fmt: skip
         )
 
-    def fit(self, X: pd.DataFrame, y1: np.ndarray) -> LogisticHazard:
-        self.model.fit(X[self.features], y1)
+    def _design(self, X: pd.DataFrame, rows: np.ndarray, steps: np.ndarray) -> np.ndarray:
+        base = X[self.features].to_numpy(dtype="float64")[rows]
+        step_dummies = (steps[:, None] == np.arange(1, self.max_step + 1)[None, :]).astype(float)
+        return np.hstack([base, step_dummies])
+
+    def fit(self, X: pd.DataFrame, duration, event) -> LogisticHazard:
+        rows, steps, target = expand(duration, event, self.max_step)
+        self.model.fit(self._design(X, rows, steps), target)
         return self
 
-    def hazard(self, X: pd.DataFrame) -> np.ndarray:
-        return self.model.predict_proba(X[self.features])[:, 1]
+    def hazard(self, X: pd.DataFrame, step: int) -> np.ndarray:
+        rows = np.arange(len(X))
+        steps = np.full(len(X), step, dtype="int64")
+        return self.model.predict_proba(self._design(X, rows, steps))[:, 1]
 
     def survival(self, X: pd.DataFrame, horizons: np.ndarray) -> np.ndarray:
-        """S(h | x_t) for each h in horizons (increasing), shape (n_rows, len(horizons))."""
+        """S(h | x_t) for each h in horizons (increasing, <= max_step): (n_rows, len)."""
         horizons = np.asarray(horizons, dtype="int64")
+        if horizons.max() > self.max_step:
+            raise ValueError("horizon beyond the fitted steps")
         surv = np.ones(len(X))
         out = np.empty((len(X), len(horizons)))
-        Xs = X.copy()
         j = 0
         for step in range(1, horizons.max() + 1):
-            surv = surv * (1 - self.hazard(Xs))
-            if step == horizons[j]:
+            surv = surv * (1 - self.hazard(X, step))
+            while j < len(horizons) and horizons[j] == step:
                 out[:, j] = surv
                 j += 1
-            # advance the swing age by one day for the next step
-            if "swing_age" in Xs:
-                Xs["swing_age"] = Xs["swing_age"] + 1
-            if "log_age" in Xs:
-                Xs["log_age"] = np.log1p(Xs["swing_age"])
         return out

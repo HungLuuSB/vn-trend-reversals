@@ -29,7 +29,7 @@ import pandas as pd
 
 from research.eval.metrics import calibration, ibs, surv, td_auc, uno_c
 from research.features.assemble import BLOCKS
-from research.models.hazard import LogisticHazard, one_day_target
+from research.models.hazard import LogisticHazard
 from research.models.km import KaplanMeier
 
 REPO = Path(__file__).resolve().parents[1]
@@ -68,9 +68,14 @@ def evaluate(train: pd.DataFrame, val: pd.DataFrame, features: list[str], seed: 
                  "ibs": ibs(ytr, yva, s_km, IBS_TIMES),
                  "p_event_5d": float(1 - km.survival(5))}  # fmt: skip
 
-    y1 = one_day_target(train.event, train.duration)
-    for name, target in (("hazard", y1), ("shuffled", np.random.default_rng(seed).permutation(y1))):
-        m = LogisticHazard(features, seed=seed).fit(train, target)
+    perm = np.random.default_rng(seed).permutation(len(train))
+    outcomes = {
+        "hazard": (train.duration.to_numpy(), train.event.to_numpy()),
+        # D-013: permute the (duration, event) pairs across rows, then expand
+        "shuffled": (train.duration.to_numpy()[perm], train.event.to_numpy()[perm]),
+    }
+    for name, (dur, ev) in outcomes.items():
+        m = LogisticHazard(features, seed=seed).fit(train, dur, ev)
         s = m.survival(val, IBS_TIMES)
         risk = 1 - s[:, TAU - 1]
         res = {"uno_c": uno_c(ytr, yva, risk, TAU), "ibs": ibs(ytr, yva, s, IBS_TIMES)}

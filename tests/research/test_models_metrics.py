@@ -43,17 +43,30 @@ def test_calibration_of_a_perfect_constant():
     assert np.allclose(cal.observed, 1 - 0.8**5, atol=0.03)
 
 
-def test_logistic_hazard_learns_signal_and_chains_survival():
-    rng = np.random.default_rng(2)
-    n = 6000
+def test_landmark_expansion():
+    from research.models.hazard import expand
+
+    rows, steps, target = expand([3, 2, 25], [1, 0, 1], max_step=20)
+    assert rows.tolist() == [0, 0, 0, 1, 1] + [2] * 20
+    assert steps[:5].tolist() == [1, 2, 3, 1, 2]
+    assert target[:5].tolist() == [0, 0, 1, 0, 0]  # event at step 3; row 1 censored at 2
+    assert target[5:].sum() == 0  # event at 25 lies beyond the 20 expanded steps
+
+
+def test_landmark_hazard_is_calibrated_on_a_known_process():
+    # geometric durations with a covariate-dependent constant hazard p(x)
+    rng = np.random.default_rng(3)
+    n = 4000
     x = rng.normal(size=n)
-    h = 1 / (1 + np.exp(-(-2.0 + 1.5 * x)))
-    y = (rng.random(n) < h).astype(int)
-    X = pd.DataFrame({"x": x, "swing_age": rng.integers(1, 50, n).astype(float)})
-    X["log_age"] = np.log1p(X.swing_age)
-    m = LogisticHazard(["x", "log_age"]).fit(X, y)
-    coef = m.model[-1].coef_[0]
-    assert coef[0] > 0.5  # recovers the positive effect of x (scaled)
-    s = m.survival(X.head(3), np.array([1, 5]))
-    assert np.all(s[:, 1] <= s[:, 0]) and np.all((s > 0) & (s < 1))
+    p = 1 / (1 + np.exp(-(-2.0 + 1.0 * x)))
+    d = rng.geometric(p)
+    cens = rng.integers(5, 40, n)
+    e = (d <= cens).astype(int)
+    dur = np.minimum(d, cens)
+    X = pd.DataFrame({"x": x})
+    m = LogisticHazard(["x"]).fit(X, dur, e)
+    s5 = m.survival(X, np.array([1, 5]))[:, 1]
+    truth = (1 - p) ** 5
+    assert np.corrcoef(s5, truth)[0, 1] > 0.98
+    assert abs(s5.mean() - truth.mean()) < 0.03  # calibrated on average
     assert one_day_target([1, 1, 0], [1, 2, 1]).tolist() == [1, 0, 0]
