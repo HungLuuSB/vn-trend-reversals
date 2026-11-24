@@ -31,7 +31,7 @@ import httpx
 
 BASE = "https://cafef.vn"
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) vn-bank-data-platform/0.1 research"
-PAUSE_S = 1.0  # per connection: each worker waits this long after each request
+PAUSE_S = 0.25  # per connection, after each request (owner set 1.0 -> 0.25 on 2026-11-25)
 START_CONCURRENCY = 3
 MAX_CONCURRENCY = 16  # hard cap (owner raised 8 -> 16 on 2026-11-25); backoff still applies
 LATENCY_FACTOR = 2.0  # median latency above 2x the first window's counts as pushback
