@@ -195,3 +195,59 @@ How the bands are computed:
 
 - **Endpoint behaviour:** the per-ticker endpoint needs an exchange filter for some stocks. ACB's HNX years come back under the default (its current exchange); BVB's UPCoM years only with `ExchangeType=UPCOM`. `FETCH_PLAN` records the filter per range.
 - **Calendar:** a few per-ticker rows fall on dates that are not HOSE sessions (e.g. 2018-01-23/24 for ACB and BAB). The universe calendar is HOSE sessions, so those days are outside the universe.
+
+---
+
+## D-007 — How disputed corporate actions are adjudicated (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** data-cleaning procedure. The author chose option A, checking against official notices.
+- **State when decided:** no snapshot, no swing labels, no model. Written before any adjudication result is known.
+
+**Scope.** Corporate actions on universe stock-days (`research_universe_daily`) in the study period:
+1. **Disputed:** every event that `qa_corporate_actions_vs_yahoo` marks `ratio_mismatch`, `ours_only`, `yahoo_only` or `date_shift`. That is 83 events across 41 stocks as of this entry.
+2. **Unconfirmed:** events on stocks or periods Yahoo does not cover (68 events, 20 stocks). These are checked mechanically first: on the ex-date, the raw return implied after the adjustment, `raw_close / raw_prev_close * adj_ratio - 1`, must lie within the exchange's daily limit for that date (D-003). Events that fail join the disputed list.
+
+**Evidence rules**
+- For each event, research agents look up the official facts with a source per fact:
+  - the ex-date (ngày giao dịch không hưởng quyền);
+  - cash dividend per share;
+  - stock dividend / bonus ratio;
+  - rights ratio and rights price.
+- Source priority: exchange or depository notices (HOSE, HNX, VSD), then company disclosures, then reputable press or broker event calendars.
+- The ratio is never typed by hand. It is computed by one tested formula from the verified facts and the raw previous close P: reference = (P − cash + rights_ratio × rights_price) / (1 + stock_ratio + rights_ratio), and ratio = P / reference.
+- The verified facts go into seed `corporate_action_adjudications` with sources and confidence. `int_corporate_actions_final` applies them:
+  - corrected ratio or date;
+  - added missing event;
+  - removed false event.
+
+  An event without verified facts keeps its CafeF-inferred value and is flagged `unadjudicated`.
+- No adjudication may consider returns, swings or model results. The only inputs are corporate-action facts and raw prices around the ex-date.
+
+---
+
+## D-008 — Two judgement calls from adjudication
+
+- **Date:** 2026-11-24
+- **Type:** data-cleaning clarifications, made while applying D-007 and before any outcome is examined.
+
+1. **Economic adjustment even where the exchange did not adjust.**
+   - MBB 2016-03-09 distributed 0.25% extra shares from a merger swap, and HOSE did not adjust the reference price.
+   - Adjusted prices (`prices_daily_adjusted`) apply every distribution that changes value per share, so the ratio here is 1.0025.
+   - The same ratio also enters `prices_daily_limits`, which makes that day's computed reference 0.25% lower than HOSE's. The difference is below one tick for MBB's price level then and has no practical effect.
+2. **Exchange-transfer artifacts.**
+   - CafeF's adjusted series can jump on the day a stock moves exchange, because the pre-transfer segment is not re-adjusted for later events. KLB (2026-01-15) and VAB (2025-07-22) were confirmed as no-event days and removed.
+   - No other bank has an event left on its transfer day.
+   - Rule for the future: an inferred event on a transfer day is presumed to be an artifact and is queued for adjudication.
+
+**Results of D-007**
+
+- **Queue and sources:** all 88 queued events answered; 56 from exchange/depository notices, 32 from secondary sources.
+- **Spot checks:** 3 of 3 passed against the original HOSE PDFs (TPB 2018, VIB 2020, MWG 2025).
+- **Who was right:**
+  - CafeF-inferred event right, Yahoo wrong: 64.
+  - Yahoo right, ours wrong: 17.
+  - Both wrong: 7.
+- **Final universe events:** 82 adjudicated, 558 inferred.
+- **Agreement with Yahoo:** 85.7% → 88.6%. Most remaining differences are known Yahoo errors (rights issues not recorded, wrong splits).
+- **Open anomaly:** VBB 2021-06-10. The verified event is a 14% stock dividend, but the price fell by more, so that week of price data is suspicious. It is left as is and flagged here.

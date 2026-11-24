@@ -66,7 +66,7 @@ with_context as (
         if(s1.exchange = '' or s0.exchange = '', null,
            toNullable(toInt64(s1.session_no) - toInt64(s0.session_no) - 1)) as sessions_missed
     from base as b
-    left join {{ ref('int_corporate_actions') }} as ca
+    left join {{ ref('int_corporate_actions_final') }} as ca
         on b.ticker = ca.ticker and b.trade_date = ca.ex_date
     left join {{ ref('int_trading_sessions') }} as s1
         on b.exchange = s1.exchange and b.trade_date = s1.trade_date

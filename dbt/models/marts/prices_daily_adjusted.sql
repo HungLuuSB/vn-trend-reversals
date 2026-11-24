@@ -19,7 +19,7 @@ with marked as (
         p.*,
         if(ca.ticker = '', 0, log(ca.adj_ratio)) as log_ratio
     from {{ ref('prices_daily_raw') }} as p
-    left join {{ ref('int_corporate_actions') }} as ca
+    left join {{ ref('int_corporate_actions_final') }} as ca
         on p.ticker = ca.ticker and p.trade_date = ca.ex_date
 ),
 

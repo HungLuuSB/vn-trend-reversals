@@ -93,3 +93,22 @@ seeds:
         exchange: LowCardinality(String)
         reason: String
         found_by: String
+  - name: corporate_action_adjudications
+    description: >
+      Verified facts for disputed or implausible corporate actions in the universe
+      (research/DECISIONS.md D-007): one row per component (cash, stock, rights) of an event,
+      with source and confidence. queue_date links back to the disputed event.
+    config:
+      column_types:
+        ticker: LowCardinality(String)
+        queue_date: Date
+        ex_date: Nullable(Date)
+        record_date: Nullable(Date)
+        cash_vnd: Float64
+        stock_ratio: Float64
+        rights_ratio: Float64
+        rights_price_vnd: Float64
+        verdict: LowCardinality(String)
+        source_url: String
+        confidence: LowCardinality(String)
+        notes: String

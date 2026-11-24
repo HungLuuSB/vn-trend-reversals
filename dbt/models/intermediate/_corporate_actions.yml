@@ -14,6 +14,19 @@ models:
       - name: ex_date
         data_tests: [not_null]
 
+  - name: int_corporate_actions_final
+    description: >
+      Corporate actions used downstream: inferred events, with verified facts (seed
+      corporate_action_adjudications, D-007) replacing inferred events near adjudicated items.
+    columns:
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [inferred, unadjudicated, adjudicated]
+      - name: adj_ratio
+        data_tests: [not_null]
+
 unit_tests:
   - name: detects_stock_and_cash_dividends_and_ignores_rounding
     description: >
@@ -25,14 +38,64 @@ unit_tests:
     given:
       - input: ref('int_cafef__raw_adj_pairs')
         rows:
-          - {ticker: AAA, trade_date: 2024-01-02, exchange: HSX, raw_close: 10000, raw_low: 10000, adj_close: 7506.2, adj_low: 7506.2}
-          - {ticker: AAA, trade_date: 2024-01-03, exchange: HSX, raw_close: 10000, raw_low: 10000, adj_close: 7506.2, adj_low: 7506.2}
-          - {ticker: AAA, trade_date: 2024-01-04, exchange: HSX, raw_close: 8000, raw_low: 8000, adj_close: 7506.2, adj_low: 7506.2}
-          - {ticker: AAA, trade_date: 2024-01-05, exchange: HSX, raw_close: 8100, raw_low: 8100, adj_close: 7600.0, adj_low: 7600.0}
-          - {ticker: AAA, trade_date: 2024-01-08, exchange: HSX, raw_close: 7600, raw_low: 7600, adj_close: 7600.0, adj_low: 7600.0}
-          - {ticker: BBB, trade_date: 2024-01-02, exchange: HNX, raw_close: 5000, raw_low: 5000, adj_close: 5000, adj_low: 5000}
-          - {ticker: BBB, trade_date: 2024-01-03, exchange: HNX, raw_close: 5100, raw_low: 5100, adj_close: 5100, adj_low: 5100}
+          - {ticker: AAA, trade_date: 2024-01-02, exchange: HSX, raw_close: 10000, raw_low: 10000, adj_close: 7506.2, adj_low: 7506.2, adj_rounding_vnd: 0.05, pair_source: cafef_bulk}
+          - {ticker: AAA, trade_date: 2024-01-03, exchange: HSX, raw_close: 10000, raw_low: 10000, adj_close: 7506.2, adj_low: 7506.2, adj_rounding_vnd: 0.05, pair_source: cafef_bulk}
+          - {ticker: AAA, trade_date: 2024-01-04, exchange: HSX, raw_close: 8000, raw_low: 8000, adj_close: 7506.2, adj_low: 7506.2, adj_rounding_vnd: 0.05, pair_source: cafef_bulk}
+          - {ticker: AAA, trade_date: 2024-01-05, exchange: HSX, raw_close: 8100, raw_low: 8100, adj_close: 7600.0, adj_low: 7600.0, adj_rounding_vnd: 0.05, pair_source: cafef_bulk}
+          - {ticker: AAA, trade_date: 2024-01-08, exchange: HSX, raw_close: 7600, raw_low: 7600, adj_close: 7600.0, adj_low: 7600.0, adj_rounding_vnd: 0.05, pair_source: cafef_bulk}
+          - {ticker: BBB, trade_date: 2024-01-02, exchange: HNX, raw_close: 5000, raw_low: 5000, adj_close: 5000, adj_low: 5000, adj_rounding_vnd: 0.05, pair_source: cafef_bulk}
+          - {ticker: BBB, trade_date: 2024-01-03, exchange: HNX, raw_close: 5100, raw_low: 5100, adj_close: 5100, adj_low: 5100, adj_rounding_vnd: 0.05, pair_source: cafef_bulk}
     expect:
       rows:
         - {ticker: AAA, ex_date: 2024-01-04, prev_trade_date: 2024-01-03, low_close_agree: true}
         - {ticker: AAA, ex_date: 2024-01-08, prev_trade_date: 2024-01-05, low_close_agree: true}
+
+  - name: adjudicated_facts_replace_inferred_events
+    description: >
+      AAA: inferred 1.30 is replaced by a verified 25% stock dividend (ratio 1.25).
+      BBB: inferred event, verified as no event -> dropped.
+      CCC: untouched inferred event stays.
+      DDD: official ex-date on a Saturday -> placed on the next trading day.
+      EEE: rights 0.5 at 8,000 with P = 10,000 -> reference 9,333.33, ratio 1.07142857;
+           a second rights issue priced above P is ignored (ratio 1.0).
+      FFF: verdict unclear -> inferred event kept, status unadjudicated.
+      GGG: the same 10% stock dividend reported for two queue items -> counted once (1.1).
+    model: int_corporate_actions_final
+    given:
+      - input: ref('int_corporate_actions')
+        rows:
+          - {ticker: AAA, ex_date: 2024-01-04, adj_ratio: 1.30}
+          - {ticker: BBB, ex_date: 2024-02-01, adj_ratio: 1.10}
+          - {ticker: CCC, ex_date: 2024-02-01, adj_ratio: 1.05}
+          - {ticker: FFF, ex_date: 2024-05-02, adj_ratio: 1.02}
+      - input: ref('corporate_action_adjudications')
+        rows:
+          - {ticker: AAA, queue_date: 2024-01-04, ex_date: 2024-01-04, cash_vnd: 0, stock_ratio: 0.25, rights_ratio: 0, rights_price_vnd: 0, verdict: event_found, source_url: s1, confidence: verified-official}
+          - {ticker: BBB, queue_date: 2024-02-01, ex_date: null, cash_vnd: 0, stock_ratio: 0, rights_ratio: 0, rights_price_vnd: 0, verdict: no_event_found, source_url: s2, confidence: verified-secondary}
+          - {ticker: DDD, queue_date: 2024-03-04, ex_date: 2024-03-02, cash_vnd: 500, stock_ratio: 0, rights_ratio: 0, rights_price_vnd: 0, verdict: event_found, source_url: s3, confidence: verified-secondary}
+          - {ticker: EEE, queue_date: 2024-04-02, ex_date: 2024-04-02, cash_vnd: 0, stock_ratio: 0, rights_ratio: 0.5, rights_price_vnd: 8000, verdict: event_found, source_url: s4, confidence: verified-official}
+          - {ticker: EEE, queue_date: 2024-04-10, ex_date: 2024-04-10, cash_vnd: 0, stock_ratio: 0, rights_ratio: 0.5, rights_price_vnd: 12000, verdict: event_found, source_url: s5, confidence: verified-official}
+          - {ticker: FFF, queue_date: 2024-05-02, ex_date: null, cash_vnd: 0, stock_ratio: 0, rights_ratio: 0, rights_price_vnd: 0, verdict: unclear, source_url: s6, confidence: unverified}
+          - {ticker: GGG, queue_date: 2024-06-03, ex_date: 2024-06-10, cash_vnd: 0, stock_ratio: 0.1, rights_ratio: 0, rights_price_vnd: 0, verdict: event_found, source_url: s7, confidence: verified-secondary}
+          - {ticker: GGG, queue_date: 2024-06-10, ex_date: 2024-06-10, cash_vnd: 0, stock_ratio: 0.1, rights_ratio: 0, rights_price_vnd: 0, verdict: event_found, source_url: s7b, confidence: verified-secondary}
+      - input: ref('prices_daily_raw')
+        rows:
+          - {ticker: AAA, trade_date: 2024-01-03, close_vnd: 10000}
+          - {ticker: AAA, trade_date: 2024-01-04, close_vnd: 8000}
+          - {ticker: DDD, trade_date: 2024-03-01, close_vnd: 10000}
+          - {ticker: DDD, trade_date: 2024-03-04, close_vnd: 9500}
+          - {ticker: EEE, trade_date: 2024-04-01, close_vnd: 10000}
+          - {ticker: EEE, trade_date: 2024-04-02, close_vnd: 9300}
+          - {ticker: EEE, trade_date: 2024-04-09, close_vnd: 10000}
+          - {ticker: EEE, trade_date: 2024-04-10, close_vnd: 10000}
+          - {ticker: GGG, trade_date: 2024-06-07, close_vnd: 11000}
+          - {ticker: GGG, trade_date: 2024-06-10, close_vnd: 10000}
+    expect:
+      rows:
+        - {ticker: AAA, ex_date: 2024-01-04, adj_ratio: 1.25, status: adjudicated}
+        - {ticker: CCC, ex_date: 2024-02-01, adj_ratio: 1.05, status: inferred}
+        - {ticker: DDD, ex_date: 2024-03-04, adj_ratio: 1.05263158, status: adjudicated}
+        - {ticker: EEE, ex_date: 2024-04-02, adj_ratio: 1.07142857, status: adjudicated}
+        - {ticker: EEE, ex_date: 2024-04-10, adj_ratio: 1.0, status: adjudicated}
+        - {ticker: FFF, ex_date: 2024-05-02, adj_ratio: 1.02, status: unadjudicated}
+        - {ticker: GGG, ex_date: 2024-06-10, adj_ratio: 1.1, status: adjudicated}

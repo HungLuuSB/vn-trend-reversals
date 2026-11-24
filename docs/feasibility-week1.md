@@ -149,8 +149,30 @@ Neither source is complete. An event missing from our series shows up as an arti
 - **Banks with computed limits:** 85.2% of bank-days.
 - **How to fetch:** `ingestion/market/cafef_history_ingest.py` (FETCH_PLAN), resumable. Raw zips are under `cafef_history/` in the raw layer.
 
+## Finding 8: disputed corporate actions adjudicated (2026-11-24)
+
+**How it was done** (`research/DECISIONS.md` D-007, D-008):
+- **Event detection** now also covers the gap-filled periods (e.g. ACB's 7 events during its HNX years).
+- **The Yahoo cross-check** covers all 91 universe stocks.
+- **Queue:** 83 disputed events plus 5 that failed the price-limit check.
+- **Checking:** research agents established the facts from official notices (56 from exchange/depository notices, 32 secondary). The ratio is computed by one tested formula (`corporate_action_ratio` macro).
+- **Spot checks:** 3 of 3 passed against the original HOSE PDFs.
+
+**Who was right** on the 88 events:
+- CafeF-based inference right, Yahoo wrong: 64.
+- Yahoo right, ours wrong: 17.
+- Both wrong: 7.
+
+**What each source gets wrong:**
+- **Yahoo:** omits rights issues entirely; sometimes compounds stock dividend and bonus (HDB 2020: 1.3225 vs 1.30) or applies a split twice (VIB 2020: 1.44 vs 1.20); lists non-existent dividends (VIB 2022, MBB 2019); some dates are one day early (2018–19).
+- **CafeF:** some wrong adjustments (TPB 2018, MWG 2025: an 11% phantom move); missing dividends (TPB 2025, GMD 2018, HSG 2018); and phantom events on exchange-transfer days (KLB, VAB).
+
+**Result:**
+- `int_corporate_actions_final`: 82 adjudicated and 558 inferred events on universe stock-days.
+- Agreement with Yahoo: 85.7% → 88.6%. The remainder is mostly known Yahoo errors.
+
 ## Next steps
 
-1. Step 4: adjudicate disputed corporate actions for the universe (option A, author-approved): widen the Yahoo check to every universe stock, then verify disagreements against official notices.
+1. Freeze the first research snapshot (prices, adjusted prices, limits, universe) and record its hash in `research/snapshots.md`.
 2. Before the trading test: decide how stock-days without computable limits are treated.
 3. Index levels (VN-Index, VN30) still needed.
