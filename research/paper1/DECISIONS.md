@@ -553,6 +553,12 @@ Paired differences (pooled moving-block bootstrap, blocks of 20 sessions, 200 re
 
 **What does not change:** the main specification. This is descriptive and decides only what RQ3 may claim from development data. The confirmatory version is in the final run.
 
+**Clarification (2026-11-25), descriptive table only, made before any descriptive output was seen.** `swing_dist` is exactly 0 on 34.8% of development rows: the close is the swing's new extreme. So tercile edges tie at 0 and `pd.qcut` cannot form three groups. The groups become:
+- `at_extreme`: `swing_dist` = 0;
+- `near` and `far`: rows with `swing_dist` < 0, split at their median (−0.41 θ).
+
+The model-shape table and the test results do not change.
+
 ## D-020 — RQ2 bank × global interactions on development data (pre-registered)
 
 - **Date:** 2026-11-24

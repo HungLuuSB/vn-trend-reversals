@@ -3,7 +3,7 @@
     uv run python -m vnbank.research.survival.aging --features-run <dir> --from-run <D-019 run>
 
 Development rows only (trade_date <= dev_end; labels reaching later are censored there).
-1. Empirical share of rows reversing within 5 days, by age bucket x swing_dist tercile.
+1. Empirical share of rows reversing within 5 days, by age bucket x swing_dist group.
 2. The mechanical model M (swing age + swing_dist), fitted on all development rows with the
    2016 fold's chosen hyperparameters: predicted 5-day reversal probability by age bucket at
    the median swing_dist.
@@ -44,13 +44,24 @@ def dev_censor(ds: pd.DataFrame) -> pd.DataFrame:
     return ds[ds.duration > 0]
 
 
+def dist_groups(dist: pd.Series) -> pd.Series:
+    """D-019 clarification: terciles tie at 0 (the close is the new extreme on ~35% of rows),
+    so: at_extreme (= 0), then rows below the extreme split at their median into near / far."""
+    below = dist < 0
+    med = dist[below].median()
+    out = pd.Series("at_extreme", index=dist.index)
+    out[below & (dist >= med)] = "near"
+    out[below & (dist < med)] = "far"
+    return pd.Categorical(out, categories=["at_extreme", "near", "far"], ordered=True)
+
+
 def empirical(ds: pd.DataFrame) -> pd.DataFrame:
     """Share reversing within H days among rows whose outcome by H is known."""
     known = (ds.event == 1) | (ds.duration >= H)
     d = ds[known].assign(rev=lambda x: ((x.event == 1) & (x.duration <= H)).astype(float))
     d["age_bucket"] = pd.cut(d.swing_age, AGE_EDGES, labels=AGE_LABELS)
-    d["dist_tercile"] = pd.qcut(d.swing_dist, 3, labels=["far", "mid", "near"])
-    g = d.groupby(["dist_tercile", "age_bucket"], observed=True).rev
+    d["dist_group"] = dist_groups(d.swing_dist)
+    g = d.groupby(["dist_group", "age_bucket"], observed=True).rev
     return g.agg(share="mean", n="size").reset_index()
 
 
@@ -75,7 +86,7 @@ def main(argv: list[str] | None = None) -> int:
     emp, shape = empirical(ds), model_shape(ds, params)
     print(
         emp.pivot_table(
-            index="age_bucket", columns="dist_tercile", values="share", observed=True
+            index="age_bucket", columns="dist_group", values="share", observed=True
         ).round(3)
     )
     print(shape.round(3).to_string(index=False))
