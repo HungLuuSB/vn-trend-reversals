@@ -417,6 +417,36 @@ RQ3 asks whether trends "age": does the chance of a reversal change with how lon
 - The fitted M curve rises gently, from 0.245 at age 3 to 0.286 at age 120 at median distance, but the test above says this slope adds nothing measurable.
 - **Development conclusion for RQ3: trends do not detectably "age" once their distance from the extreme is known.** The final run decides it.
 
+## Finding 19: trading test, development only (2026-11-25)
+
+D-021 asks whether the hazard model is useful for trading (H5), under Vietnamese settlement, price-limit and cost rules (run `20261124T174426Z-devbacktest-D-021`).
+
+**Setup.**
+- Long-only. Enter at the open after an up-swing is confirmed.
+- Exit at the open after the predicted 5-day reversal probability exceeds τ, or after the down-reversal is confirmed.
+- Settlement: T+3 until 2015, T+2 from 2016. No fill at the ceiling (buy) or floor (sell). Costs 0.40% round trip.
+- Equal-weighted across eligible stocks; a slot not in a position earns 0.
+- τ is chosen on the inner year per fold.
+
+| Strategy (2014–2016 pooled) | Ann. return | Net Sharpe | Max drawdown |
+|---|---|---|---|
+| Model exit (ABCDx) | 2.2% | 0.28 | −15.1% |
+| Mechanical exit (M) | 2.1% | 0.26 | −15.4% |
+| DC exit only | 2.1% | 0.26 | −15.4% |
+| Buy-and-hold | 4.7% | 0.34 | −24.2% |
+
+- Paired Sharpe differences: model − DC [−0.10, +0.17]; model − B&H [−0.59, +0.45]; mechanical − DC [−0.02, +0.03].
+- Deflated Sharpe ratio for the model: 0.09 (N = 16 trials). This is far from the 0.95 needed to call it non-spurious.
+- **H5 is not supported in development.**
+- By year (model Sharpe): 2014 0.70, 2015 −0.41, 2016 0.44. B&H: 0.64, −0.01, 0.38.
+
+**Reading.**
+- The model exit changes the return on 44% of days, but on average it adds nothing over the plain DC exit.
+- The swing strategies roughly halve the drawdown of buy-and-hold, at the price of half the return. That is a property of trend-following with a 2·ATR threshold, not of the hazard model.
+- At 0.8% costs the swing strategies earn Sharpe about 0. At 0.2% they reach 0.43 against 0.35 for B&H.
+- In 2014–2016 every stock-day had a computable price limit, so there are no assumed fills.
+- This matches Findings 14–18: the model's skill is mostly mechanical and too small to trade on. The final run on 2017–2026 decides H5.
+
 ## Next steps
 
 1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
