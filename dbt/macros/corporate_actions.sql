@@ -1,5 +1,5 @@
 {#
-  Adjustment ratio of a corporate action from verified facts (research/DECISIONS.md D-007):
+  Adjustment ratio of a corporate action from verified facts (research/paper1/DECISIONS.md D-007):
       reference = (P - cash + rights_ratio * rights_price) / (1 + stock_ratio + rights_ratio)
       ratio     = P / reference
   P is the raw close on the last trading day before the ex-date. A rights issue priced at or

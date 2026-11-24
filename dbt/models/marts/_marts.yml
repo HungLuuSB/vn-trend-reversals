@@ -6,7 +6,7 @@ models:
       Clean raw (unadjusted) daily prices of ordinary shares on HOSE, HNX and UPCoM: the pinned
       CafeF raw archive, plus CafeF per-ticker history inside documented gaps of that archive.
       One row per ticker and trading date. Covers all available
-      history; the study period (research/DECISIONS.md D-001) is applied when the research
+      history; the study period (research/paper1/DECISIONS.md D-001) is applied when the research
       snapshot is built, not here.
     config:
       contract:
@@ -36,7 +36,7 @@ models:
         data_type: Int64
       - name: ohlc_outside_range
         data_type: Bool
-        description: Open or close lies outside low..high (research/DECISIONS.md D-002).
+        description: Open or close lies outside low..high (research/paper1/DECISIONS.md D-002).
         data_tests: [not_null]
       - name: available_at_utc
         data_type: DateTime64(3, 'UTC')
@@ -107,7 +107,7 @@ models:
   - name: prices_daily_limits
     description: >
       Exchange reference price, ceiling/floor and limit hits per stock-day from raw prices and
-      the dated seeds (research/DECISIONS.md D-003). limit_status is computed only where the
+      the dated seeds (research/paper1/DECISIONS.md D-003). limit_status is computed only where the
       exchange's reference was the previous close (HOSE always; HNX from 2013-07-29). UPCoM and
       earlier HNX used a VWAP that CafeF does not publish: ref_not_reconstructable.
     columns:

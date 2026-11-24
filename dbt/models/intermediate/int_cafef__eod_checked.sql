@@ -42,7 +42,7 @@ flagged as (
             toDayOfWeek(trade_date) >= 6, 'weekend',
             ''
         ) as reject_reason,
-        -- Warning only (research/DECISIONS.md D-002): open or close outside the day's high-low,
+        -- Warning only (research/paper1/DECISIONS.md D-002): open or close outside the day's high-low,
         -- most likely auction prices outside the continuous session. The row is kept.
         if(
             open_vnd > high_vnd or open_vnd < low_vnd

@@ -11,7 +11,7 @@
 ) }}
 
 -- Exchange reference price, daily ceiling/floor and limit hits per stock-day (CLAUDE.md rule 6,
--- research/DECISIONS.md D-003). All levels use RAW prices.
+-- research/paper1/DECISIONS.md D-003). All levels use RAW prices.
 --
 -- reference = previous close, divided by the corporate-action ratio on ex-dates, where the
 --             exchange's rule was prev_close (HOSE always, HNX from 2013-07-29); or the previous

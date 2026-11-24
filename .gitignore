@@ -16,9 +16,8 @@
 *.gz
 data/
 raw/
-research/snapshots/*/
-research/runs/*/
-!research/runs/.gitkeep
+research/paper*/runs/*/
+!research/paper*/runs/.gitkeep
 
 # --- Exception: curated reference seeds are code (sourced, hand-checked, small) ---
 !dbt/seeds/*.csv

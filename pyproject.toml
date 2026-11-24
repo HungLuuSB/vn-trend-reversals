@@ -1,7 +1,7 @@
 [project]
 name = "vn-bank-data-platform"
 version = "0.1.0"
-description = "Point-in-time data for Vietnamese banks and VN30, and the trend-reversal survival-analysis paper"
+description = "Point-in-time data for Vietnamese banks and VN30, and research"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "boto3==1.44.0",
@@ -11,6 +11,7 @@ dependencies = [
     "httpx==0.28.1",
     "pandas==3.1.1",
     "pyarrow==26.0.1",
+    "pyyaml==6.0.4",
     "scikit-learn==1.9.1",
     "scikit-survival==0.28.0",
     "vnstock==6.0.1",
@@ -23,12 +24,17 @@ dev = [
     "ruff>=0.17.6",
 ]
 
-[tool.uv]
-package = false
+[build-system]
+# uv's own build backend: makes src/vnbank an installable package (CLAUDE.md, Repo layout)
+requires = ["uv_build>=0.13.7,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "vnbank"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = ["."]  # tests share small hand-built fixtures via tests.*
 addopts = "-ra --strict-markers"
 markers = [
     "network: test calls an external service (deselect with -m 'not network')",

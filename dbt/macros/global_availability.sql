@@ -1,5 +1,5 @@
 {#
-  available_at_utc for a global observation, from seed global_series (research/DECISIONS.md D-009).
+  available_at_utc for a global observation, from seed global_series (research/paper1/DECISIONS.md D-009).
   ClickHouse needs a constant time zone per toDateTime64 call, so one branch is generated per
   series from the seed at build time.
     close             : obs_date + close_time_local in close_tz

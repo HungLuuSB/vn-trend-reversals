@@ -25,7 +25,7 @@ vnstock left PyPI. Generation 6 only connects to a broker's Open API using the u
 
 - **Main price source:** CafeF's raw archive (`CafeF.SolieuGD.Raw.UptoDDMMYYYY.zip`).
 - **Adjusted archive:** downloaded too, used only for cross-checks and to infer corporate-action dates and ratios.
-- **Storage:** both are stored unchanged in the raw layer by `ingestion/market/cafef_ingest.py`. Downloading every trading day keeps a dated vintage of each file.
+- **Storage:** both are stored unchanged in the raw layer by `src/vnbank/ingestion/market/cafef_ingest.py`. Downloading every trading day keeps a dated vintage of each file.
 - **Yahoo Finance:** an independent cross-check for HOSE prices.
 - **vnstock gen 6:** stays installed, unused, as a fallback.
 
