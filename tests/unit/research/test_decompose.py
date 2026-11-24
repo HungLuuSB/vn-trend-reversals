@@ -83,3 +83,19 @@ def test_runner_end_to_end_on_a_tiny_dataset(tmp_path, monkeypatch):
     for protocol in ("D-016", "D-017"):
         assert dd.main(["--features-run", str(fr), "--bootstrap", "2",
                         "--protocol", protocol]) == 0  # fmt: skip
+
+
+def test_d019_specs_and_aging_helpers():
+    import numpy as np
+    import pandas as pd
+
+    from vnbank.research.survival.aging import H, empirical
+    from vnbank.research.survival.dev_decompose import DIFFS_D019, SPECS_D019
+
+    assert set(SPECS_D019["DIST"]) < set(SPECS_D019["M"])
+    assert ("M", "DIST") in DIFFS_D019
+    # hand-built rows: 2 reversals within H among 3 known rows in one bucket; 1 unknown row
+    ds = pd.DataFrame({"swing_age": [3, 3, 3, 3], "swing_dist": [-0.1, -0.2, -0.3, -0.4],
+                       "event": [1, 1, 0, 0], "duration": [2, H, H + 3, 1]})  # fmt: skip
+    out = empirical(ds)
+    assert out.n.sum() == 3 and np.isclose((out.share * out.n).sum(), 2)

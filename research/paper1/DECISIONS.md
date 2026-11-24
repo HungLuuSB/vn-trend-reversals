@@ -525,3 +525,30 @@ Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS 
 - **Change:** the D-018 IBS test uses **2,000** paired moving-block resamples (blocks of 20 sessions), pooled over the dev folds. The p-value is two-sided, 2 × min(P(Δ ≤ 0), P(Δ ≥ 0)), Holm-adjusted across the 14 features. Δ = IBS without the feature − IBS of `ABCDx`, so a positive Δ means the feature helps.
 - **Unchanged:** C-index differences are reported with unadjusted 95% intervals and are descriptive only. Hyperparameters per fold are those chosen for `ABCDx` in the D-017 run.
 - **Compute budget (same date, before running):** Uno's C costs about 0.7 s per evaluation against 0.016 s for IBS, so C on 2,000 resamples × 16 variants would take about 6 hours. The leave-one-out table therefore reports C as point estimates only. C intervals (200 resamples) are computed only for the three gold/GPR models. The IBS test is unaffected.
+
+## D-019 — RQ3 (do trends age?) on development data, conditional on the mechanics (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** development analysis written before running, under the D-016 rule for RQ3: an age effect is claimed only if it survives conditioning on `swing_dist`.
+- **State when decided:**
+  - D-015 found that age alone has some skill: 5-day td-AUC 0.540 [0.514, 0.565].
+  - Whether age adds anything once `swing_dist` is known has not been tested.
+  - No test year evaluated.
+
+**Design.** D-014 protocol (folds 2014–2016, purge, embargo, dev censoring, nested tuning), logistic hazard. Feature sets:
+- `DIST`: `swing_dist` only;
+- `M`: `swing_age`, `log_age`, `swing_dist`, the D-016 baseline;
+- `AGE`: `swing_age`, `log_age`.
+
+Paired differences (pooled moving-block bootstrap, blocks of 20 sessions, 200 resamples):
+- **M − DIST: age given the mechanics (H3, primary);**
+- AGE − KM: age unconditionally;
+- DIST − KM: the mechanics alone.
+
+**Decision rule, fixed in advance.** H3 is supported in development only if, for M − DIST, the pooled C interval lies above zero **and** the pooled IBS interval lies below zero.
+
+**Descriptive shape** (no test, development rows only):
+- the empirical share of rows reversing within 5 days, by swing-age bucket (1–5, 6–10, 11–20, 21–40, 41–80, > 80 days) within `swing_dist` terciles;
+- the 5-day reversal probability predicted by M, fitted on all development rows up to 2016-12-31 with the 2016 fold's chosen hyperparameters, across the same age buckets at the median `swing_dist`.
+
+**What does not change:** the main specification. This is descriptive and decides only what RQ3 may claim from development data. The confirmatory version is in the final run.

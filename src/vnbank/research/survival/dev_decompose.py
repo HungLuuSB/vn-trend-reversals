@@ -69,11 +69,19 @@ SPECS_D017 = {
 DIFFS_D017 = [("MBCx", "MBC"), ("ABCDx", "ABCx"), ("MBCDx", "MBCx"), ("ABCx", "M")]
 SPECS_D017_GBM = {"gbm_ABC": ("gbm", [*_A, *_B, *_C]), "gbm_ABCD": ("gbm", [*_A, *_B, *_C, *_D])}
 DIFFS_D017_GBM = [("gbm_ABCD", "gbm_ABC")]
+# D-019: RQ3, does swing age matter once swing_dist is known? ("km" is always fitted)
+SPECS_D019 = {
+    "DIST": ["swing_dist"],
+    "M": list(FEATURES_MECH),
+    "AGE": ["swing_age", "log_age"],
+}
+DIFFS_D019 = [("M", "DIST"), ("AGE", "km"), ("DIST", "km")]
 PROTOCOLS = {
     "D-015": (SPECS, DIFFS),
     "D-016": (SPECS_D016, DIFFS_D016),
     "D-017": (SPECS_D017, DIFFS_D017),
     "D-017-gbm": (SPECS_D017_GBM, DIFFS_D017_GBM),
+    "D-019": (SPECS_D019, DIFFS_D019),
 }
 
 
