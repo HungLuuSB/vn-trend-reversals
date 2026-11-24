@@ -11,6 +11,8 @@ dependencies = [
     "httpx==0.28.1",
     "pandas==3.1.1",
     "pyarrow==26.0.1",
+    "scikit-learn==1.9.1",
+    "scikit-survival==0.28.0",
     "vnstock==6.0.1",
     "vnstock-oapi==0.1.2",
 ]
@@ -39,6 +41,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "DTZ", "PD", "NPY"]
+ignore = ["PD009"]  # .iat is a fine scalar accessor
 # DTZ: flag naive datetimes (all timestamps must be timezone-aware; see CLAUDE.md).
 
 # vnstock generation 6 is distributed only from its own PEP 503 index.

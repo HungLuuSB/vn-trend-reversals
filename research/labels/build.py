@@ -51,6 +51,9 @@ def label_stock(px: pd.DataFrame, sessions: pd.Series, universe: set, k: float):
     rows = survival_rows(lab, session_no.astype("int64"), in_uni & in_study.to_numpy(),
                          end_index, min_history=0)  # fmt: skip
     rows = rows.merge(px[["trade_date", "n_prior_days"]], left_on="index", right_index=True)
+    # date of the event or censoring (needed to purge training rows whose label overlaps a
+    # validation or test window)
+    rows["end_date"] = px["trade_date"].to_numpy()[(rows["index"] + rows["duration"]).to_numpy()]
     rows = rows[rows["n_prior_days"] >= MIN_HISTORY_DAYS]  # D-009: point in time
     rows.insert(0, "ticker", ticker)
     rev = pd.DataFrame([r.__dict__ for r in lab.reversals])

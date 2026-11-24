@@ -338,3 +338,21 @@ Availability rules:
    - **Universe exit:** censored at the last day the stock is in `research_universe_daily`.
    - **Halt:** a gap of ≥ 5 consecutive HOSE sessions without a price; censored at the last day before the gap. Shorter gaps are days without trades, and the swing continues across them.
 6. **Exclusions:** rows need ≥ 250 prior trading days of the stock's own price history (D-009).
+
+---
+
+## D-012 — Foreign flows, gold rolls, D-011 review; development stays inside the training window
+
+- **Date:** 2026-11-24
+- **Type:** data and feature choices. The author replied "proceed" to recommendations and had earlier delegated ("do what you think is best"); each item is reversible by a new entry.
+- **State when decided:** snapshot dev-v1 and labels exist. No feature has been computed against outcomes and no model fitted.
+
+1. **Foreign net flows (block C).**
+   - CafeF lacks them on 570 sessions, mostly 2019-04 to 2021-07.
+   - Excluded from the main specification. A robustness run adds them with a missing indicator.
+   - Reason: the gap coincides with the COVID period, so an indicator could act as a period dummy.
+2. **Gold roll days.** Gold's return is set to missing in `gold_roll_window`. A continuous front-month series can jump when the contract rolls; the model's missing-value handling (fitted inside the training window) applies.
+3. **D-011:** kept unchanged.
+4. **Where development is evaluated.**
+   - Until the final walk-forward run, every evaluation (Kaplan–Meier baseline, shuffled-label control, model checks, tuning) uses only purged, embargoed inner cross-validation inside the first training window, sessions up to 2016-12-31.
+   - Test years 2017–2026 are not evaluated until the final run (CLAUDE.md research rules). The runner refuses test years unless run as the final run.
