@@ -1436,6 +1436,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "scikit-learn" },
     { name = "scikit-survival" },
+    { name = "scipy" },
     { name = "vnstock" },
     { name = "vnstock-oapi" },
 ]
@@ -1458,6 +1459,7 @@ requires-dist = [
     { name = "pyyaml", specifier = "==6.0.4" },
     { name = "scikit-learn", specifier = "==1.9.1" },
     { name = "scikit-survival", specifier = "==0.28.0" },
+    { name = "scipy", specifier = "==1.18.1" },
     { name = "vnstock", specifier = "==6.0.1", index = "https://vnstocks.com/api/packages" },
     { name = "vnstock-oapi", specifier = "==0.1.2", index = "https://vnstocks.com/api/packages" },
 ]
