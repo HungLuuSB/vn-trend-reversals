@@ -51,3 +51,26 @@ def test_ingest_stores_list_and_pdf_then_resumes():
     assert any("list_VCB_2013." in k for k in keys) and any("VCB_13Q3_BCTC_HN." in k for k in keys)
     st2 = ingest(c, store, ["VCB"], [2013], log=lambda m: None)
     assert st2["pdfs"] == 0 and st2["skipped"] == 1
+
+
+def test_archives_are_accepted_and_other_bodies_rejected():
+    f = fc.Filing("EIB", 2012, 1, "Q1/2012", "x", LINK.replace("VCB_13Q3_BCTC_HN.pdf",
+                                                              "EIB_12Q1_BCTC_HN.rar"))  # fmt: skip
+
+    class H:
+        def __init__(self, body):
+            self.body = body
+
+        def get(self, url, params=None):
+            body = self.body
+
+            class R:
+                status_code = 200
+                content = body
+
+            return R()
+
+    for body, ok in ((b"Rar!\x1a\x07\x00x", True), (b"PK\x03\x04x", True),
+                     (b"<html>404</html>", False)):  # fmt: skip
+        c = fc.CafefFilingsClient(http=H(body), pause_s=0, sleep=lambda s: None)
+        assert (c.pdf(f)[0] == 200) is ok

@@ -26,6 +26,8 @@ LIST_URL = "https://cafef.vn/du-lieu/Ajax/PageNew/FileBCTC.ashx"
 USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) vn-bank-data-platform/0.1 research"
 PDF_HOST_FROM, PDF_HOST_TO = "cafefnew.mediacdn.vn", "cafef1.mediacdn.vn"
 PAUSE_S = 1.0
+# Some filings are served as archives (.zip/.rar/.7z) holding the PDF; they are stored as is
+SIGNATURES = (b"%PDF", b"PK\x03\x04", b"Rar!\x1a\x07", b"7z\xbc\xaf\x27\x1c")
 
 
 class FilingsFormatError(ValueError):
@@ -86,6 +88,6 @@ class CafefFilingsClient:
 
     def pdf(self, f: Filing) -> tuple[int, bytes, datetime]:
         status, body, fetched = self._get(f.pdf_url)
-        if status == 200 and not body.startswith(b"%PDF"):
-            status = -2  # not a PDF
+        if status == 200 and not body.startswith(SIGNATURES):
+            status = -2  # neither a PDF nor a known archive
         return status, body, fetched

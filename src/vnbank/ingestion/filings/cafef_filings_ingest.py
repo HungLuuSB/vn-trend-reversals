@@ -27,9 +27,9 @@ def stored_pdfs(store: RawStore) -> set[str]:
     out = set()
     for k in keys:
         name = k.rsplit("/", 1)[-1]
-        m = re.match(r"^(.*)\.[0-9a-f]{8}\.pdf$", name)
+        m = re.match(r"^(.*)\.[0-9a-f]{8}(\.(?:pdf|zip|rar|7z))$", name)
         if k.startswith(f"{SOURCE}/") and m:
-            out.add(m[1] + ".pdf")
+            out.add(m[1] + m[2])
     return out
 
 
