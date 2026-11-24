@@ -186,8 +186,27 @@ Neither source is complete. An event missing from our series shows up as an arti
 - `global_asof_daily` and `global_features_daily` pass `no_feature_after_decision_time`, the CLAUDE.md rule-4 test, now implemented.
 - Check case: the first session after Tết 2024 carries the S&P 500's cumulative move since the last pre-Tết decision (+0.93%).
 
+## Finding 10: block C, snapshot dev-v1 and the first labels (2026-11-24)
+
+**Block C** (`local_market_daily`).
+- Previous session's VN-Index and VN30 close and return, HOSE breadth on adjusted returns, matched value and foreign net buying.
+- Look-ahead test and a NaN/Inf guard pass.
+- **Foreign flows are missing on 570 sessions, mostly 2019-04 to 2021-07** (CafeF has 59, 22 and 128 days for 2019, 2020 and 2021). Decision pending.
+
+**Snapshot dev-v1** `b536ec69488162e0` (`research/snapshots.md`): universe, raw and adjusted prices from the 2011-10-01 warm-up, limits, corporate actions, sessions, membership and features.
+
+**First labels** (`research/runs/RUNS.md`; descriptive only, no model):
+
+| k | Survival rows | Reversals (study) | Median swing age at reversal | Rows reversing within 5 days |
+| --- | ---: | ---: | ---: | ---: |
+| 2 (main) | 139,241 | 13,980 | 26 | 26.3% |
+| 1.5 | 139,241 | 20,288 | 20 | 36.2% |
+| 3 | 139,241 | 7,862 | 42.5 | 15.3% |
+
+Stocks with no rows: HBB (no data), MCH and PCB (fewer than 250 days of history).
+
 ## Next steps
 
-1. Freeze the first research snapshot (prices, adjusted prices, limits, universe) and record its hash in `research/snapshots.md`.
+1. Feature blocks A (swing state) and B (stock technicals) from the snapshot; Kaplan-Meier baseline and shuffled-label control; walk-forward runner.
 2. Before the trading test: decide how stock-days without computable limits are treated.
 3. Index levels (VN-Index, VN30) still needed.
