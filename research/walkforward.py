@@ -58,6 +58,22 @@ def split(ds: pd.DataFrame, sessions: np.ndarray, val_year: int, dev: bool):
     return train, val
 
 
+def shuffled_controls(train, val, features, seeds) -> dict:
+    """Shuffled-label control over several seeds. A single shuffle is noisy because validation
+    rows of one swing are strongly correlated; the check uses the mean over seeds."""
+    ytr, yva = surv(train.event, train.duration), surv(val.event, val.duration)
+    cs = []
+    for seed in seeds:
+        perm = np.random.default_rng(seed).permutation(len(train))
+        m = LogisticHazard(features, seed=seed).fit(
+            train, train.duration.to_numpy()[perm], train.event.to_numpy()[perm]
+        )
+        cs.append(uno_c(ytr, yva, 1 - m.survival(val, np.array([TAU]))[:, 0], TAU))
+    cs = np.array(cs)
+    return {"seeds": list(seeds), "uno_c": cs.round(4).tolist(), "mean": float(cs.mean()),
+            "sd": float(cs.std(ddof=1)) if len(cs) > 1 else float("nan")}  # fmt: skip
+
+
 def evaluate(train: pd.DataFrame, val: pd.DataFrame, features: list[str], seed: int) -> dict:
     ytr, yva = surv(train.event, train.duration), surv(val.event, val.duration)
     out = {"n_train": len(train), "n_val": len(val), "val_event_share": float(val.event.mean())}
@@ -95,6 +111,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--final", action="store_true")
     parser.add_argument("--i-confirm-final-run", action="store_true")
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--shuffle-seeds", type=int, default=10,
+                        help="number of shuffled-label controls per fold")  # fmt: skip
     args = parser.parse_args(argv)
     if args.final and not args.i_confirm_final_run:
         raise SystemExit("final mode touches test years 2017-2026; it needs --i-confirm-final-run")
@@ -115,8 +133,10 @@ def main(argv: list[str] | None = None) -> int:
         train, val = split(ds, sessions, year, dev=True)
         folds[str(year)] = evaluate(train, val, features, args.seed)
         f = folds[str(year)]
+        f["shuffled_multi"] = shuffled_controls(train, val, features, range(args.shuffle_seeds))
         print(f"{year}: train {f['n_train']:,} val {f['n_val']:,} | C km {f['km']['uno_c']:.3f} "
-              f"hazard {f['hazard']['uno_c']:.3f} shuffled {f['shuffled']['uno_c']:.3f} | IBS km "
+              f"hazard {f['hazard']['uno_c']:.3f} shuffled {f['shuffled_multi']['mean']:.3f}"
+              f"±{f['shuffled_multi']['sd']:.3f} | IBS km "
               f"{f['km']['ibs']:.4f} hazard {f['hazard']['ibs']:.4f}", flush=True)  # fmt: skip
 
     warnings = []
@@ -124,9 +144,11 @@ def main(argv: list[str] | None = None) -> int:
         if f["hazard"]["uno_c"] > TOO_GOOD_C:
             warnings.append(f"{y}: C-index {f['hazard']['uno_c']:.3f} > {TOO_GOOD_C}: STOP, run "
                             "the leakage-audit skill before using this result")  # fmt: skip
-        if abs(f["shuffled"]["uno_c"] - 0.5) > 0.03:
-            warnings.append(f"{y}: shuffled-label C-index {f['shuffled']['uno_c']:.3f} is not "
-                            "~0.5: investigate leakage")  # fmt: skip
+        sm = f["shuffled_multi"]
+        se = sm["sd"] / np.sqrt(len(sm["seeds"]))
+        if abs(sm["mean"] - 0.5) > max(0.02, 3 * se):
+            warnings.append(f"{y}: mean shuffled-label C-index {sm['mean']:.3f} is not ~0.5: "
+                            "investigate leakage")  # fmt: skip
     commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True,
                             text=True, check=True).stdout.strip()  # fmt: skip
     run = (
