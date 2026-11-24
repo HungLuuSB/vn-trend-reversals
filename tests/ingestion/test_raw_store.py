@@ -53,9 +53,9 @@ def test_in_memory_store_is_idempotent_and_immutable():
 @pytest.mark.integration
 def test_s3_store_against_local_seaweedfs():
     """Needs `docker compose --profile research up -d` and S3_* settings in the environment."""
-    from ingestion.market.cafef_ingest import _load_dotenv
+    from ingestion.env import load_dotenv
 
-    _load_dotenv()
+    load_dotenv(["S3_"])
     if not os.environ.get("S3_SECRET_KEY"):
         pytest.skip("S3 settings not available")
     store = S3RawStore.from_env()

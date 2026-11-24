@@ -15,6 +15,7 @@ import json
 import sys
 from datetime import date
 
+from ingestion.env import load_dotenv
 from ingestion.market.cafef_client import USER_AGENT, CafefArchive, CafefClient, Variant
 from ingestion.raw_store import RawObject, RawStore, S3RawStore, raw_key, sha256_hex
 
@@ -65,7 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     variants = (
         [Variant.RAW, Variant.ADJUSTED] if args.variant == "both" else [Variant(args.variant)]
     )
-    _load_dotenv()
+    load_dotenv(["S3_"])
     results = ingest(CafefClient(), S3RawStore.from_env(), variants, args.date)
     for obj in results:
         print(
@@ -74,20 +75,6 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
     return 0
-
-
-def _load_dotenv(path: str = ".env") -> None:
-    """Load S3_* settings from .env without printing anything. Existing env vars win."""
-    import os
-
-    try:
-        with open(path, encoding="utf-8") as fh:
-            for line in fh:
-                k, sep, v = line.strip().partition("=")
-                if sep and k.startswith("S3_") and k not in os.environ:
-                    os.environ[k] = v.strip().strip('"')
-    except FileNotFoundError:
-        pass
 
 
 if __name__ == "__main__":

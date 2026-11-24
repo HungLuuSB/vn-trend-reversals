@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: prices_daily_raw
+    description: >
+      Clean raw (unadjusted) daily prices of ordinary shares on HOSE, HNX and UPCoM from the
+      pinned CafeF raw archive. One row per ticker and trading date. Covers all available
+      history; the study period (research/DECISIONS.md D-001) is applied when the research
+      snapshot is built, not here.
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: ticker
+        data_type: String
+        data_tests: [not_null]
+      - name: trade_date
+        data_type: Date
+        data_tests: [not_null]
+      - name: exchange
+        data_type: LowCardinality(String)
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [HSX, HNX, UPCOM]
+      - name: open_vnd
+        data_type: Float64
+      - name: high_vnd
+        data_type: Float64
+      - name: low_vnd
+        data_type: Float64
+      - name: close_vnd
+        data_type: Float64
+      - name: volume
+        data_type: Int64
+      - name: available_at_utc
+        data_type: DateTime64(3, 'UTC')
+        data_tests: [not_null]
+      - name: raw_key
+        data_type: LowCardinality(String)
+        data_tests: [not_null]
+      - name: raw_sha256
+        data_type: LowCardinality(String)
+      - name: source_file
+        data_type: LowCardinality(String)
+      - name: row_num
+        data_type: UInt32
+
+  - name: qa_cafef_rejects
+    description: Quarantined rows with the check they failed. Reviewed, never silently deleted.
+    columns:
+      - name: reject_reason
+        data_tests: [not_null]
+
+  - name: qa_cafef_summary
+    description: Row counts by variant, instrument type, outcome and reason.

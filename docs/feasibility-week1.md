@@ -41,10 +41,37 @@ Started 2026-11-24. This tracks whether the data the paper needs can be obtained
 
 Not yet investigated. No free source with history was found. Plan: compile it from HOSE's semi-annual review announcements, with source URLs, announcement dates and effective dates.
 
+## Finding 3: CafeF archive stability and quality checks (2026-11-24)
+
+**Raw history is not revised.** Comparing the 2026-11-20 and 2026-11-23 archives:
+- Raw: 0 of 3,380,055 shared rows changed.
+- Adjusted: rewrote 7,311 rows for 3 tickers (new corporate actions re-adjust history). We use raw and compute adjustments ourselves.
+
+Daily downloads are therefore **not needed for the research**. They are deferred to the platform phase.
+
+**Pinned archives.** `dbt/dbt_project.yml` pins both archives up to 2026-11-23. They are loaded into ClickHouse `raw_cafef_eod` (`ingestion/market/cafef_load.py`), then checked by dbt (`int_cafef__eod_checked`). Raw variant, ordinary shares:
+
+| Outcome | Rows | Tickers | Notes |
+| --- | ---: | ---: | --- |
+| kept (`prices_daily_raw`) | 3,121,272 | 1,874 | 2,716,213 rows in the study period (D-001) |
+| exact duplicate copy | 76 | 19 | merged into the kept row |
+| `ohlc_outside_range` | 12,366 | 1,307 | 6,148 in the study period; see below |
+| `nonpositive_price` | 489 | 415 | mostly a missing "high" (0), e.g. 2025-05-05 on HNX/UPCoM |
+| `weekend` | 247 | 246 | 245 on Sat 2023-08-26, most likely the KRX system test, not a trading day |
+| `high_below_low` | 73 | 73 | |
+| `exchange_conflict` | 4 | 2 | same ticker and date on two exchanges |
+
+Other rows: 1,656 rows with a blank or "0" ticker (rejected), plus warrants (225k), funds/ETFs (21k) and 3 index-like tickers, all out of scope.
+
+**Open question: `ohlc_outside_range`.**
+- The open or close is outside high–low by a median of 1.8–2.4%, clustered in 2019 and 2023–24. This looks like auction prices (ATO/ATC) recorded outside continuous-session high/low, not corruption.
+- Rejecting the rows leaves gaps in price series; keeping them with a warning flag would not.
+- In the adjusted file, 98.7% of these cases are within 0.5% (rounding).
+- Decision pending; see `research/DECISIONS.md` once made.
+
 ## Next steps
 
-1. Schedule daily CafeF downloads to build a dated vintage of each file.
-2. Stage CafeF data in ClickHouse with quality checks: duplicates, non-positive prices, high < low, warrant/ETF filtering.
-3. Infer corporate actions from the adjusted/raw ratio, then compute our own adjustments and reference prices.
-4. Compile VN30 membership history from HOSE announcements.
-5. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.
+1. Decide whether `ohlc_outside_range` rows are rejected or kept with a flag.
+2. Infer corporate actions from the adjusted/raw ratio, then compute our own adjustments and reference prices.
+3. Compile VN30 membership history from HOSE announcements; verify the launch date.
+4. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.
