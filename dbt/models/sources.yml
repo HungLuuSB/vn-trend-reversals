@@ -55,3 +55,17 @@ sources:
             data_tests: [not_null]
           - name: trade_date
             data_tests: [not_null]
+
+  - name: global
+    schema: "{{ env_var('CLICKHOUSE_DB', 'vnbank') }}"
+    description: >
+      Global series for feature block D (D-009), loaded from the raw layer by
+      ingestion/global_markets/ingest.py. What each symbol is, and when it became public, is
+      defined in seed global_series.
+    tables:
+      - name: raw_global_obs
+        columns:
+          - name: symbol
+            data_tests: [not_null]
+          - name: obs_date
+            data_tests: [not_null]

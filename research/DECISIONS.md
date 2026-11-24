@@ -251,3 +251,66 @@ How the bands are computed:
 - **Final universe events:** 82 adjudicated, 558 inferred.
 - **Agreement with Yahoo:** 85.7% → 88.6%. Most remaining differences are known Yahoo errors (rights issues not recorded, wrong splits).
 - **Open anomaly:** VBB 2021-06-10. The verified event is a 14% stock dividend, but the price fell by more, so that week of price data is suspicious. It is left as is and flagged here.
+
+---
+
+## D-009 — Proposal alignment: survival setup, global series, exclusions, scope
+
+- **Date:** 2026-11-24
+- **Type:** clarification of the pre-specified design against `docs/proposal.md` (now in the repo), approved by the author
+- **State when decided:** no snapshot, no swing labels, no features, no model.
+
+**1. Swing and survival definition** (proposal, Methodology 1–2; adopted exactly)
+
+- **Threshold:** θ(i,t) = k · ATR20(i, t−1) / P(t−1), using yesterday's ATR and price. k = 2 is the main setting; 1.5 and 3 are robustness checks. Prices are adjusted closes, and days that close at the price limit are flagged (`prices_daily_limits`).
+- **Up-swing reversal:** the first day t with P_t ≤ M_t (1 − θ), where M_t is the running maximum close since the last confirmed trough. Down-swings mirror this.
+- **Survival rows:** one row per stock and trading day inside a swing not yet confirmed as reversed.
+  - Time scale: swing age in trading days.
+  - Event: the next confirmed reversal.
+  - Right-censoring: end of sample (D-001), the stock leaving the universe, or a trading halt.
+- **Reporting:** a discrete-time hazard, giving P(reversal within 5 / 10 / 20 trading days) and the median remaining life.
+
+**2. Global series** (proposal, global data table), with three source changes for point-in-time correctness
+
+| Series | Proposal source | Used | Why |
+| --- | --- | --- | --- |
+| Brent | FRED `DCOILBRENTEU` | Yahoo `BZ=F` (ICE Brent futures) | EIA spot assessments reach FRED with a lag of days; futures are public at the close |
+| USD/CNY | FRED `DEXCHUS` | Yahoo `CNY=X` | Fed H.10 is released weekly |
+| US 10-year | FRED `DGS10` | FRED `DGS10`, with availability set to when the value is actually first published | Fed H.15 posts it the next afternoon; the time to use is verified and recorded in the series seed |
+
+All other series as in the proposal:
+- Yahoo: `^GSPC`, `^IXIC`, `DX-Y.NYB`, `GC=F` (roll handling recorded in the seed), `^HSI`, `000300.SS`, `VND=X`.
+- FRED: `VIXCLS`.
+- The Caldara–Iacoviello daily GPR file, with a fixed, conservative publication lag recorded in the seed.
+
+Availability rules:
+- Each series' `available_at_utc` follows its market's close (or its release time) in its own time zone, with daylight saving handled by the time-zone database (CLAUDE.md rule 3).
+- When HOSE is closed, global features use the cumulative change since the last Vietnamese session (rule 8).
+
+**3. "Stocks with fewer than 250 trading days" (proposal, exclusions):** read point in time.
+- A stock-day enters the sample only if the stock has at least 250 trading days of price history before that date.
+- The reading "fewer than 250 days in total" is rejected: it depends on whether the stock later survives.
+
+**4. Scope.**
+- Feature blocks A–D are built first.
+- Block E (bank fundamentals, news counts) is deferred until models run on A–D. It needs the platform's PDF pipeline, and the proposal uses it only for the bank subsample.
+- Block C needs VN-Index history and foreign flows; if no free history of foreign flows exists, the series is dropped, as the proposal's risk table allows.
+
+**5. Price limits.** The proposal's text states today's limits (±7 / 10 / 15%). The dated schedule in D-003 (HOSE ±5% and HNX ±7% before 2013-01-15; UPCoM ±10% before 2015-07-01) governs, and the paper's text should state it.
+
+---
+
+## D-010 — Shanghai Composite replaces the CSI 300
+
+- **Date:** 2026-11-24
+- **Type:** data-source substitution (proposal, global data table); the author chose option A of three
+- **State when decided:** no snapshot, no labels, no model; no feature has been examined against outcomes.
+
+**Decision.** Feature block D uses the Shanghai Composite index (Yahoo `000001.SS`, series `sse`, close 15:00 Asia/Shanghai) as its mainland-China equity series, in place of the CSI 300 (`000300.SS`).
+
+**Reason.**
+- Yahoo returns no price history for the CSI 300 under either symbol (`000300.SS`, `399300.SZ`; checked 2026-11-24).
+- The Shanghai Composite is mainland China's other headline index, available from the same source with the same timing.
+- Rejected alternatives: a separate, untested CSI 300 source; dropping the mainland series and leaving the Hang Seng as the only China signal.
+
+**Consequence.** The paper's data section names the Shanghai Composite and states the reason.
