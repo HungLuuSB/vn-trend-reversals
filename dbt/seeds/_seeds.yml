@@ -130,3 +130,23 @@ seeds:
         proposal_ref: String
         note: String
         confidence: LowCardinality(String)
+  - name: settlement_cycle
+    description: >
+      Equity settlement cycle in force for each trade date (research/paper1/DECISIONS.md D-021):
+      T+3 until trades of 2015-12-31, T+2 from trades of 2016-01-04. Read by the trading test
+      (earliest sell = open of the session after the settlement day).
+    config:
+      column_types:
+        valid_from: Date
+        valid_to: Date
+        cycle_days: UInt8
+        settlement_note: String
+        source_url: String
+        confidence: LowCardinality(String)
+    columns:
+      - name: valid_from
+        data_tests: [not_null, unique]
+      - name: cycle_days
+        data_tests: [not_null]
+      - name: source_url
+        data_tests: [not_null]

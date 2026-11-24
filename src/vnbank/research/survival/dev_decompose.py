@@ -27,7 +27,9 @@ from vnbank.research.survival.evaluation.metrics import ibs, surv, td_auc, uno_c
 from vnbank.research.survival.features.assemble import (
     BLOCKS,
     FEATURES_MECH,
+    add_bank_interactions,
     add_direction_interactions,
+    bank_features,
     xdir,
 )
 from vnbank.research.survival.models.zoo import make_model
@@ -69,11 +71,23 @@ SPECS_D017 = {
 DIFFS_D017 = [("MBCx", "MBC"), ("ABCDx", "ABCx"), ("MBCDx", "MBCx"), ("ABCx", "M")]
 SPECS_D017_GBM = {"gbm_ABC": ("gbm", [*_A, *_B, *_C]), "gbm_ABCD": ("gbm", [*_A, *_B, *_C, *_D])}
 DIFFS_D017_GBM = [("gbm_ABCD", "gbm_ABC")]
+# D-019: RQ3, does swing age matter once swing_dist is known? ("km" is always fitted)
+SPECS_D019 = {
+    "DIST": ["swing_dist"],
+    "M": list(FEATURES_MECH),
+    "AGE": ["swing_age", "log_age"],
+}
+DIFFS_D019 = [("M", "DIST"), ("AGE", "km"), ("DIST", "km")]
+# D-020: RQ2 bank x rate/dollar channels on top of the D-017 specification
+SPECS_D020 = {"ABCDx": SPECS_D017["ABCDx"], "ABCDx_bank": [*SPECS_D017["ABCDx"], *bank_features()]}
+DIFFS_D020 = [("ABCDx_bank", "ABCDx")]
 PROTOCOLS = {
     "D-015": (SPECS, DIFFS),
     "D-016": (SPECS_D016, DIFFS_D016),
     "D-017": (SPECS_D017, DIFFS_D017),
     "D-017-gbm": (SPECS_D017_GBM, DIFFS_D017_GBM),
+    "D-019": (SPECS_D019, DIFFS_D019),
+    "D-020": (SPECS_D020, DIFFS_D020),
 }
 
 
@@ -119,8 +133,10 @@ def main(argv: list[str] | None = None) -> int:
     sessions = np.sort(pd.to_datetime(
         pd.read_parquet(snap / "sessions_hose.parquet").trade_date).to_numpy())  # fmt: skip
     ds = ds[ds.trade_date <= DEV_END]
-    if args.protocol.startswith("D-017"):
+    if args.protocol.startswith(("D-017", "D-020")):
         ds = add_direction_interactions(ds)
+    if args.protocol == "D-020":
+        ds = add_bank_interactions(ds)
 
     run = RUNS / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-devdecompose-{args.protocol}"
     run.mkdir(parents=True)

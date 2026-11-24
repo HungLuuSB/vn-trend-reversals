@@ -525,3 +525,105 @@ Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS 
 - **Change:** the D-018 IBS test uses **2,000** paired moving-block resamples (blocks of 20 sessions), pooled over the dev folds. The p-value is two-sided, 2 × min(P(Δ ≤ 0), P(Δ ≥ 0)), Holm-adjusted across the 14 features. Δ = IBS without the feature − IBS of `ABCDx`, so a positive Δ means the feature helps.
 - **Unchanged:** C-index differences are reported with unadjusted 95% intervals and are descriptive only. Hyperparameters per fold are those chosen for `ABCDx` in the D-017 run.
 - **Compute budget (same date, before running):** Uno's C costs about 0.7 s per evaluation against 0.016 s for IBS, so C on 2,000 resamples × 16 variants would take about 6 hours. The leave-one-out table therefore reports C as point estimates only. C intervals (200 resamples) are computed only for the three gold/GPR models. The IBS test is unaffected.
+
+## D-019 — RQ3 (do trends age?) on development data, conditional on the mechanics (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** development analysis written before running, under the D-016 rule for RQ3: an age effect is claimed only if it survives conditioning on `swing_dist`.
+- **State when decided:**
+  - D-015 found that age alone has some skill: 5-day td-AUC 0.540 [0.514, 0.565].
+  - Whether age adds anything once `swing_dist` is known has not been tested.
+  - No test year evaluated.
+
+**Design.** D-014 protocol (folds 2014–2016, purge, embargo, dev censoring, nested tuning), logistic hazard. Feature sets:
+- `DIST`: `swing_dist` only;
+- `M`: `swing_age`, `log_age`, `swing_dist`, the D-016 baseline;
+- `AGE`: `swing_age`, `log_age`.
+
+Paired differences (pooled moving-block bootstrap, blocks of 20 sessions, 200 resamples):
+- **M − DIST: age given the mechanics (H3, primary);**
+- AGE − KM: age unconditionally;
+- DIST − KM: the mechanics alone.
+
+**Decision rule, fixed in advance.** H3 is supported in development only if, for M − DIST, the pooled C interval lies above zero **and** the pooled IBS interval lies below zero.
+
+**Descriptive shape** (no test, development rows only):
+- the empirical share of rows reversing within 5 days, by swing-age bucket (1–5, 6–10, 11–20, 21–40, 41–80, > 80 days) within `swing_dist` terciles;
+- the 5-day reversal probability predicted by M, fitted on all development rows up to 2016-12-31 with the 2016 fold's chosen hyperparameters, across the same age buckets at the median `swing_dist`.
+
+**What does not change:** the main specification. This is descriptive and decides only what RQ3 may claim from development data. The confirmatory version is in the final run.
+
+**Clarification (2026-11-25), descriptive table only, made before any descriptive output was seen.** `swing_dist` is exactly 0 on 34.8% of development rows: the close is the swing's new extreme. So tercile edges tie at 0 and `pd.qcut` cannot form three groups. The groups become:
+- `at_extreme`: `swing_dist` = 0;
+- `near` and `far`: rows with `swing_dist` < 0, split at their median (−0.41 θ).
+
+The model-shape table and the test results do not change.
+
+## D-020 — RQ2 bank × global interactions on development data (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** the last block-D specification allowed on development data by the D-017 guard. The proposal (RQ2, H2) pre-specifies it: "Banks react more to rates and the dollar than other VN30 stocks".
+- **State when decided:**
+  - D-017, D-018 and the tree check found no detectable block-D information in 2014–2016.
+  - Development data hold 9 banks (ACB, BID, CTG, EIB, MBB, NVB, SHB, STB, VCB), about 24% of rows.
+  - No test year evaluated.
+
+**Specification.**
+- Rate and dollar channels, chosen in advance from H2: `ust10_chg`, `dxy_ret`, `usdvnd_ret`.
+- `ABCDx_bank` = `ABCDx` + `is_bank` + `is_bank` × each channel + `is_bank` × each channel × `swing_dir`. The direction-specific form follows D-017.
+
+**Comparison.** D-014 protocol, logistic hazard tuned on the D-014 grid. Paired difference `ABCDx_bank` − `ABCDx` (pooled block bootstrap, blocks of 20, 200 resamples).
+- **Decision rule:** H2's bank part is supported in development only if the pooled C interval lies above zero **and** the IBS interval lies below zero.
+- Descriptive: per-fold results.
+
+**Guard.** After D-020, no further block-D specification is examined on development data. Everything else about RQ2 is decided by the final run.
+
+## D-021 — Trading test (RQ5): rules the proposal leaves open (pre-registered before any backtest code)
+
+- **Date:** 2026-11-24
+- **Type:** clarification of the proposal's economic test (Methodology, "Economic test"), written before any backtest code or result exists.
+- **Why:** each open detail below could be chosen after the fact to flatter results.
+
+**Settlement (correction to the proposal's "T+2").**
+- Vietnam settled equities **T+3 until trades of 2015-12-31** and **T+2 for trades from 2016-01-04** (VSD decision of December 2015; broker notices from HSC, KIS and VNDIRECT, and Vietstock 2015-12-29).
+- The cycle in force on each trade date comes from a sourced seed `dbt/seeds/settlement_cycle.csv`.
+- Shares arrive on the settlement day (T+3 at 09:00; T+2 in the afternoon). Orders execute at the open, so **the earliest sell is the open of the session after the settlement day**: buy-day index + cycle + 1 sessions.
+
+**Timing and prices.**
+- Signals use information up to the close of t; orders execute at the **open of t+1** (the 09:00 decision time).
+- Returns use adjusted opens (open-to-open). Fill checks use raw prices against that day's ceiling and floor (data rules 6 and 9).
+
+**Fills.**
+- A buy does not fill if the raw open is at or above the ceiling. A sell does not fill if the raw open is at or below the floor (the proposal's "no fill at limit-down"). An unfilled order is retried at the next open while its signal still holds.
+- Where the limit is unknown (`limit_status != 'computed'`) the order is assumed to fill and the day is flagged. Sensitivity: no trading on such stock-days.
+- Second sensitivity: a sell also fails if the day closes at the floor.
+- A stock with no price on a day cannot be traded that day; the position is carried.
+
+**Strategies** (one position at most per stock):
+1. **Model exit (H5):** enter at the open after an up-swing is confirmed (`swing_dir` turns +1 at the close of t). Exit at the open after the first day on which the predicted 5-day reversal probability exceeds τ, or after the down-reversal is confirmed, whichever comes first. No re-entry within the same up-swing.
+   - Model: the main linear specification, logistic hazard `ABCDx` (D-017), with that fold's chosen hyperparameters.
+2. **Mechanical exit (D-016 benchmark):** the same rule with M's predictions.
+3. **Directional-change exit (proposal benchmark):** same entry; exit at the open after the down-reversal is confirmed.
+4. **Buy-and-hold (proposal benchmark):** hold every universe stock while it is in the universe.
+   - **Universe:** point-in-time research universe stock-days that satisfy the 250-day history rule.
+   - On leaving the universe, any strategy's position is closed at the next open.
+
+**Portfolio.**
+- Each day the portfolio return is the equal-weighted mean, over that day's universe stocks, of each stock's slot return: the stock's open-to-open return if held, 0 if in cash.
+- Re-weighting costs are not charged, for all strategies alike. Only entries and exits pay costs.
+- At the end of each evaluation year, open positions are closed at the last open, paying costs.
+
+**Costs.** Main 0.40% round trip: 0.15% brokerage per side plus 0.10% tax on sales, so buy 0.15% and sell 0.25%. Sensitivities, with the tax kept at 0.10%:
+- 0.20% total: buy 0.05%, sell 0.15%;
+- 0.80% total: buy 0.35%, sell 0.45%.
+
+**Threshold τ.**
+- Grid {0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60}.
+- Chosen per outer fold on the inner validation year (as in D-014 tuning), by the net Sharpe ratio at 0.40% costs. Ties go to the larger τ.
+- The same procedure applies to the mechanical exit.
+
+**Metrics.** Annualised return (252 sessions), annualised Sharpe ratio (risk-free rate 0; also reported in excess of buy-and-hold), maximum drawdown, turnover, number of trades, share of fills assumed under unknown limits.
+- **Deflated Sharpe ratio** (Bailey and López de Prado 2014) with N = 16 trials: 8 τ values × 2 hazard-driven strategies.
+- Paired moving-block bootstrap (20 sessions, 200 resamples) of Sharpe differences: model exit − DC exit, model exit − buy-and-hold, model exit − mechanical exit.
+
+**Development decision rule (H5, 2014–2016 only).** H5 is supported in development only if the pooled model-exit Sharpe exceeds both benchmarks (DC exit and buy-and-hold) with paired intervals above zero at 0.40% costs. The test years are evaluated once, in the final run.

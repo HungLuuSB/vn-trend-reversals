@@ -386,6 +386,88 @@ The gradient-boosted hazard can form direction interactions on its own, so this 
 
 **Reading.** The global null in development holds across three model families: logistic additive, logistic direction-specific, and boosted trees. **Development conclusion for RQ2: no detectable overnight-global information about reversal timing in 2014–2016.** The final run on 2017–2026 decides RQ2 and RQ4.
 
+## Finding 18: swing age given distance, development only (2026-11-24)
+
+RQ3 asks whether trends "age": does the chance of a reversal change with how long the swing has lasted? D-019 tests this conditional on `swing_dist`, the mechanical distance from the swing's extreme (run `20261124T163259Z-devdecompose-D-019`).
+
+| Model | Pooled Uno C | Pooled IBS | 5-day td-AUC |
+|---|---|---|---|
+| KM | 0.501 | 0.2076 | 0.499 |
+| AGE (age only) | 0.529 | 0.2070 | 0.540 |
+| DIST (`swing_dist` only) | 0.594 | 0.1993 | 0.671 |
+| M (age + dist) | 0.593 | 0.1995 | 0.671 |
+
+- **M − DIST** (H3, primary): C [−0.004, +0.002], IBS [−0.0002, +0.0005]. **H3 is not supported in development.**
+- AGE − KM: C [+0.001, +0.056] but IBS [−0.0012, +0.0002]. Age on its own ranks slightly better than chance. None of that survives once distance is known.
+- DIST − KM: C [+0.067, +0.120], IBS [−0.0093, −0.0068]. Distance alone carries the mechanical skill.
+
+**Descriptive shape** (run `20261124T174350Z-aging-D-019`). This is the share of rows reversing within 5 days. Groups are clarified in D-019 because `swing_dist` = 0 on 35% of rows, so terciles tie.
+
+| Age (days) | at extreme | near | far |
+|---|---|---|---|
+| 1–5 | 0.183 | 0.216 | 0.443 |
+| 6–10 | 0.140 | 0.170 | 0.411 |
+| 11–20 | 0.166 | 0.207 | 0.441 |
+| 21–40 | 0.199 | 0.205 | 0.426 |
+| 41–80 | 0.221 | 0.226 | 0.419 |
+| > 80 | 0.187 | 0.279 | 0.442 |
+
+**Reading.**
+- Within each distance group, the reversal share is roughly flat in age. Far-from-extreme rows reverse about 42–44% of the time at any age; rows at a new extreme about 14–22%.
+- The fitted M curve rises gently, from 0.245 at age 3 to 0.286 at age 120 at median distance, but the test above says this slope adds nothing measurable.
+- **Development conclusion for RQ3: trends do not detectably "age" once their distance from the extreme is known.** The final run decides it.
+
+## Finding 19: trading test, development only (2026-11-25)
+
+D-021 asks whether the hazard model is useful for trading (H5), under Vietnamese settlement, price-limit and cost rules (run `20261124T174426Z-devbacktest-D-021`).
+
+**Setup.**
+- Long-only. Enter at the open after an up-swing is confirmed.
+- Exit at the open after the predicted 5-day reversal probability exceeds τ, or after the down-reversal is confirmed.
+- Settlement: T+3 until 2015, T+2 from 2016. No fill at the ceiling (buy) or floor (sell). Costs 0.40% round trip.
+- Equal-weighted across eligible stocks; a slot not in a position earns 0.
+- τ is chosen on the inner year per fold.
+
+| Strategy (2014–2016 pooled) | Ann. return | Net Sharpe | Max drawdown |
+|---|---|---|---|
+| Model exit (ABCDx) | 2.2% | 0.28 | −15.1% |
+| Mechanical exit (M) | 2.1% | 0.26 | −15.4% |
+| DC exit only | 2.1% | 0.26 | −15.4% |
+| Buy-and-hold | 4.7% | 0.34 | −24.2% |
+
+- Paired Sharpe differences: model − DC [−0.10, +0.17]; model − B&H [−0.59, +0.45]; mechanical − DC [−0.02, +0.03].
+- Deflated Sharpe ratio for the model: 0.09 (N = 16 trials). This is far from the 0.95 needed to call it non-spurious.
+- **H5 is not supported in development.**
+- By year (model Sharpe): 2014 0.70, 2015 −0.41, 2016 0.44. B&H: 0.64, −0.01, 0.38.
+
+**Reading.**
+- The model exit changes the return on 44% of days, but on average it adds nothing over the plain DC exit.
+- The swing strategies roughly halve the drawdown of buy-and-hold, at the price of half the return. That is a property of trend-following with a 2·ATR threshold, not of the hazard model.
+- At 0.8% costs the swing strategies earn Sharpe about 0. At 0.2% they reach 0.43 against 0.35 for B&H.
+- In 2014–2016 every stock-day had a computable price limit, so there are no assumed fills.
+- This matches Findings 14–18: the model's skill is mostly mechanical and too small to trade on. The final run on 2017–2026 decides H5.
+
+## Finding 20: do banks react more to rates and the dollar? Development only (2026-11-25)
+
+D-020 tests H2's bank channel (run `20261124T174320Z-devdecompose-D-020`). It adds `is_bank` and its interactions with the US 10-year yield change, the dollar index return and the USD/VND return, also split by swing direction, to ABCDx.
+
+| | Pooled Uno C | Pooled IBS | 5-day td-AUC |
+|---|---|---|---|
+| ABCDx | 0.596 | 0.1998 | 0.674 |
+| ABCDx_bank | 0.597 | 0.1997 | 0.674 |
+
+- Difference: C [−0.002, +0.004], IBS [−0.0008, +0.0005], 5-day td-AUC [−0.004, +0.003].
+- By fold: 2014 and 2015 slightly better, 2016 slightly worse. None of it is significant.
+
+**Reading.** Development data (9 banks, about 24% of rows) show **no bank-specific sensitivity of reversal timing to rates or the dollar.** This closes the block-D specifications allowed on development data by the D-017 guard. In every form tried, the global block adds nothing in 2014–2016:
+- additive;
+- direction-specific;
+- trees;
+- per feature;
+- bank-specific.
+
+The final run decides RQ2.
+
 ## Next steps
 
 1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).

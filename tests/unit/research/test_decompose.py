@@ -83,3 +83,35 @@ def test_runner_end_to_end_on_a_tiny_dataset(tmp_path, monkeypatch):
     for protocol in ("D-016", "D-017"):
         assert dd.main(["--features-run", str(fr), "--bootstrap", "2",
                         "--protocol", protocol]) == 0  # fmt: skip
+
+
+def test_d019_specs_and_aging_helpers():
+    import numpy as np
+    import pandas as pd
+
+    from vnbank.research.survival.aging import H, empirical
+    from vnbank.research.survival.dev_decompose import DIFFS_D019, SPECS_D019
+
+    assert set(SPECS_D019["DIST"]) < set(SPECS_D019["M"])
+    assert ("M", "DIST") in DIFFS_D019
+    # hand-built rows: 2 reversals within H among 3 known rows in one bucket; 1 unknown row
+    ds = pd.DataFrame({"swing_age": [3, 3, 3, 3], "swing_dist": [-0.1, -0.2, -0.3, -0.4],
+                       "event": [1, 1, 0, 0], "duration": [2, H, H + 3, 1]})  # fmt: skip
+    out = empirical(ds)
+    assert out.n.sum() == 3 and np.isclose((out.share * out.n).sum(), 2)
+
+
+def test_d020_bank_interactions():
+    import numpy as np
+    import pandas as pd
+
+    from vnbank.research.survival.dev_decompose import SPECS_D020
+    from vnbank.research.survival.features.assemble import BANK_CHANNELS, add_bank_interactions
+
+    ds = pd.DataFrame({"is_bank": [True, False, True], "swing_dir": [1, 1, -1],
+                       **{c: [0.01, 0.01, 0.02] for c in BANK_CHANNELS}})  # fmt: skip
+    out = add_bank_interactions(ds)
+    assert out["bank_x_dxy_ret"].tolist() == [0.01, 0.0, 0.02]
+    assert np.allclose(out["bank_x_dxy_ret_xdir"], [0.01, 0.0, -0.02])
+    assert set(SPECS_D020["ABCDx"]) < set(SPECS_D020["ABCDx_bank"])
+    assert "bank_x_ust10_chg_xdir" in SPECS_D020["ABCDx_bank"]
