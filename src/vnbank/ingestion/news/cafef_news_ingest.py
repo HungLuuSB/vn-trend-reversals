@@ -4,7 +4,7 @@
 
 Resumable: windows already in the raw layer are skipped. Adaptive politeness: 3 parallel
 connections to start, one more after each clean window, halved (and a 60 s pause) on any
-429/5xx/connection error or a doubling of latency, never above 8; each connection waits one
+429/5xx/connection error or a doubling of latency, never above 16; each connection waits one
 second after each request. Parsing and mention counts come later (D-023).
 """
 
