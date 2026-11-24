@@ -33,6 +33,10 @@ models:
         data_type: Float64
       - name: volume
         data_type: Int64
+      - name: ohlc_outside_range
+        data_type: Bool
+        description: Open or close lies outside low..high (research/DECISIONS.md D-002).
+        data_tests: [not_null]
       - name: available_at_utc
         data_type: DateTime64(3, 'UTC')
         data_tests: [not_null]

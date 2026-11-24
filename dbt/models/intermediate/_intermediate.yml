@@ -7,8 +7,9 @@ models:
       copy of a kept row) or rejected. The first failing check sets reject_reason:
       invalid_ticker (blank or "0"); conflicting_duplicate (same variant, ticker and date with
       different values; all copies rejected); exchange_conflict (same values on two
-      exchanges); nonpositive_price; high_below_low; ohlc_outside_range (open or close outside
-      low..high); negative_volume; weekend. Price-limit checks need the exchange reference
+      exchanges); nonpositive_price; high_below_low; negative_volume; weekend.
+      warn_reason flags without rejecting: ohlc_outside_range (open or close outside
+      low..high; research/DECISIONS.md D-002). Price-limit checks need the exchange reference
       price and come with corporate actions (CLAUDE.md rule 6).
     columns:
       - name: dq_outcome
@@ -28,6 +29,10 @@ models:
                   - exchange_conflict
                   - nonpositive_price
                   - high_below_low
-                  - ohlc_outside_range
                   - negative_volume
                   - weekend
+      - name: warn_reason
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["", ohlc_outside_range]

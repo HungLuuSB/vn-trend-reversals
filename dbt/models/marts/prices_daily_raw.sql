@@ -12,6 +12,8 @@ select
     low_vnd,
     close_vnd,
     volume,
+    -- D-002: open or close outside high-low; kept, flagged for robustness checks.
+    toBool(warn_reason = 'ohlc_outside_range') as ohlc_outside_range,
     available_at_utc,
     raw_key,
     raw_sha256,

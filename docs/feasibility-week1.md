@@ -53,9 +53,9 @@ Daily downloads are therefore **not needed for the research**. They are deferred
 
 | Outcome | Rows | Tickers | Notes |
 | --- | ---: | ---: | --- |
-| kept (`prices_daily_raw`) | 3,121,272 | 1,874 | 2,716,213 rows in the study period (D-001) |
+| kept (`prices_daily_raw`) | 3,133,638 | 1,874 | 2,722,361 rows in the study period (D-001) |
+| of which flagged `ohlc_outside_range` | 12,366 | 1,307 | kept with a flag (D-002); 6,148 in the study period |
 | exact duplicate copy | 76 | 19 | merged into the kept row |
-| `ohlc_outside_range` | 12,366 | 1,307 | 6,148 in the study period; see below |
 | `nonpositive_price` | 489 | 415 | mostly a missing "high" (0), e.g. 2025-05-05 on HNX/UPCoM |
 | `weekend` | 247 | 246 | 245 on Sat 2023-08-26, most likely the KRX system test, not a trading day |
 | `high_below_low` | 73 | 73 | |
@@ -63,15 +63,14 @@ Daily downloads are therefore **not needed for the research**. They are deferred
 
 Other rows: 1,656 rows with a blank or "0" ticker (rejected), plus warrants (225k), funds/ETFs (21k) and 3 index-like tickers, all out of scope.
 
-**Open question: `ohlc_outside_range`.**
-- The open or close is outside high–low by a median of 1.8–2.4%, clustered in 2019 and 2023–24. This looks like auction prices (ATO/ATC) recorded outside continuous-session high/low, not corruption.
-- Rejecting the rows leaves gaps in price series; keeping them with a warning flag would not.
+**`ohlc_outside_range`: kept with a flag** (`research/DECISIONS.md` D-002).
+- The open or close is outside high–low by a median of 1.8–2.4%, clustered in 2019 and 2023–24.
+- This looks like auction prices (ATO/ATC) recorded outside continuous-session high/low, not corruption.
+- Rejecting the rows would leave gaps that distort ATR20 and swing timing, so they stay in `prices_daily_raw` with `ohlc_outside_range = true`.
 - In the adjusted file, 98.7% of these cases are within 0.5% (rounding).
-- Decision pending; see `research/DECISIONS.md` once made.
 
 ## Next steps
 
-1. Decide whether `ohlc_outside_range` rows are rejected or kept with a flag.
-2. Infer corporate actions from the adjusted/raw ratio, then compute our own adjustments and reference prices.
-3. Compile VN30 membership history from HOSE announcements; verify the launch date.
-4. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.
+1. Infer corporate actions from the adjusted/raw ratio, then compute our own adjustments and reference prices.
+2. Compile VN30 membership history from HOSE announcements; verify the launch date.
+3. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.
