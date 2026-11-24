@@ -254,6 +254,31 @@ Shuffled-label control (mean of 10 seeds): 0.502 / 0.496 / 0.498. No warnings.
 - **Short horizons are more predictable:** td-AUC is about 0.68 at 5 days against about 0.59 at 20. This is below the alarm level, but its source (swing age vs. features) should be decomposed before writing it up.
 - **Caveat on pooled metrics:** the pooled metrics use the last fold's training data for the censoring weights. Per-fold numbers are the primary ones.
 
+## Finding 13: where the short-horizon signal comes from, development only (2026-11-24)
+
+**Setup** (D-015; run `20261124T100544Z-devdecompose`).
+- The tuned logistic hazard is fitted on nested feature sets. Intervals use the D-014 bootstrap.
+- **No test year was evaluated.**
+
+| Feature set | Uno C, pooled | 5-day td-AUC [95% CI] | IBS |
+| --- | ---: | --- | ---: |
+| Kaplan–Meier | 0.501 | 0.499 | 0.2076 |
+| Swing age only | 0.529 | 0.540 [0.514, 0.565] | 0.2070 |
+| Block A (swing state) | 0.600 | 0.679 [0.661, 0.692] | 0.1989 |
+| A + B (stock technicals) | 0.604 | 0.685 [0.667, 0.697] | 0.1983 |
+| A + B + C (local market) | 0.604 | 0.686 [0.670, 0.699] | 0.1984 |
+
+Paired differences in 5-day td-AUC, pooled:
+- A − age: [+0.115, +0.162];
+- AB − A: [+0.002, +0.009];
+- ABC − AB: [−0.004, +0.007].
+
+**Reading.**
+- **Not mainly a swing-age effect.** Age reaches 22% of the skill above chance at 5 days, below the 80% rule fixed in D-015.
+- **But one feature carries almost all of it.** Used alone with no fitting (D-015 addendum), `swing_dist` reaches a 5-day td-AUC of 0.671; the full model reaches 0.686. `swing_dist` measures how far the price has already moved back from the swing's extreme, where −1 is the confirmation trigger. The other block-A features score 0.50–0.55 alone.
+- **Interpretation.** Much of the measured predictability is partly mechanical: a swing that has already retraced most of its threshold needs only a small further move to be confirmed as a reversal. It is a legitimate forecast (known at the 09:00 decision time) but not evidence of behavioural predictability. Stock technicals add a small, real amount; the local market adds nothing detectable in 2014–2016.
+- **Consequence for the paper (proposal, needs a decision).** Incremental claims (RQ2–RQ4) should be measured against a *mechanical baseline* (swing age + `swing_dist`), not only against Kaplan–Meier.
+
 ## Next steps
 
 1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
