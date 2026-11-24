@@ -519,3 +519,9 @@ Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS 
    - Read: does gold add anything when GPR is in, and does GPR add anything when gold is out?
 
 **Use of results.** Development results are descriptive only and do not drop features from the final specification. The confirmatory attribution is repeated once in the final run on 2017–2026.
+
+**D-018 amendment (2026-11-24, before any D-018 run).**
+- **Problem:** with 200 resamples the smallest attainable bootstrap p-value is 1/200 = 0.005. Holm across 14 features needs p < 0.05/14 ≈ 0.0036 for the first step, so no feature could ever pass. As written, the test was unable to detect anything.
+- **Change:** the D-018 IBS test uses **2,000** paired moving-block resamples (blocks of 20 sessions), pooled over the dev folds. The p-value is two-sided, 2 × min(P(Δ ≤ 0), P(Δ ≥ 0)), Holm-adjusted across the 14 features. Δ = IBS without the feature − IBS of `ABCDx`, so a positive Δ means the feature helps.
+- **Unchanged:** C-index differences are reported with unadjusted 95% intervals and are descriptive only. Hyperparameters per fold are those chosen for `ABCDx` in the D-017 run.
+- **Compute budget (same date, before running):** Uno's C costs about 0.7 s per evaluation against 0.016 s for IBS, so C on 2,000 resamples × 16 variants would take about 6 hours. The leave-one-out table therefore reports C as point estimates only. C intervals (200 resamples) are computed only for the three gold/GPR models. The IBS test is unaffected.
