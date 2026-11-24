@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_cafef__eod
+    description: >
+      Lines of the pinned CafeF archives (vars.cafef_archives): prices in VND, an instrument
+      type from the ticker pattern, and available_at_utc = 15:00 Asia/Ho_Chi_Minh on the trade
+      date. No rows are removed.
+    columns:
+      - name: raw_key
+        data_tests: [not_null]
+      - name: instrument_type
+        description: share, warrant, fund (ETF or fund certificate), index, invalid, other.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [share, warrant, fund, index, invalid, other]
+      - name: trade_date
+        data_tests: [not_null]
+      - name: available_at_utc
+        data_tests: [not_null]

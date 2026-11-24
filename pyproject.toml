@@ -5,6 +5,9 @@ description = "Point-in-time data for Vietnamese banks and VN30, and the trend-r
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "boto3==1.44.0",
+    "clickhouse-connect==1.12.0",
+    "dbt-clickhouse==1.10.3",
+    "dbt-core==1.11.17",
     "httpx==0.28.1",
     "pandas==3.1.1",
     "vnstock==6.0.1",

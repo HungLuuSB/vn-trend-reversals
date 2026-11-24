@@ -147,8 +147,9 @@ def parse_archive(content: bytes) -> pd.DataFrame:
 
     Columns: ``exchange`` (HSX/HNX/UPCOM), ``ticker``, ``trade_date`` (datetime64, no time zone:
     a Vietnamese trading date), ``open``/``high``/``low``/``close`` (float, thousand VND),
-    ``volume`` (int64), ``variant`` (raw/adjusted), ``upto`` (the archive's "Upto" date) and
-    ``source_file``. Values are passed through as published; cleaning happens downstream.
+    ``volume`` (int64), ``variant`` (raw/adjusted), ``upto`` (the archive's "Upto" date),
+    ``source_file`` and ``row_num`` (1-based data line within ``source_file``, for lineage).
+    Values are passed through as published; cleaning happens downstream.
     """
     frames = []
     with zipfile.ZipFile(io.BytesIO(content)) as zf:
@@ -176,6 +177,7 @@ def parse_archive(content: bytes) -> pd.DataFrame:
             df["variant"] = str(variant)
             df["upto"] = datetime.strptime(m["d"], "%d.%m.%Y").date()  # noqa: DTZ007 (a date)
             df["source_file"] = member.filename
+            df["row_num"] = pd.RangeIndex(1, len(df) + 1, dtype="int64")
             frames.append(df)
     if not frames:
         raise CafefFormatError("archive contains no CSV files")

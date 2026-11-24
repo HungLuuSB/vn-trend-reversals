@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: int_cafef__eod_checked
+    description: >
+      Every staged row with a quality verdict. dq_outcome is kept, duplicate_copy (an exact
+      copy of a kept row) or rejected. The first failing check sets reject_reason:
+      invalid_ticker (blank or "0"); conflicting_duplicate (same variant, ticker and date with
+      different values; all copies rejected); exchange_conflict (same values on two
+      exchanges); nonpositive_price; high_below_low; negative_volume; weekend.
+      warn_reason flags without rejecting: ohlc_outside_range (open or close outside
+      low..high; research/DECISIONS.md D-002). Price-limit checks need the exchange reference
+      price and come with corporate actions (CLAUDE.md rule 6).
+    columns:
+      - name: dq_outcome
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [kept, duplicate_copy, rejected]
+      - name: reject_reason
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - ""
+                  - invalid_ticker
+                  - conflicting_duplicate
+                  - exchange_conflict
+                  - nonpositive_price
+                  - high_below_low
+                  - negative_volume
+                  - weekend
+      - name: warn_reason
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["", ohlc_outside_range]

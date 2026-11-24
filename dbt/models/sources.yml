@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: cafef
+    schema: "{{ env_var('CLICKHOUSE_DB', 'vnbank') }}"
+    description: >
+      CafeF end-of-day archives loaded unchanged from the raw layer by
+      ingestion/market/cafef_load.py (ADR 0002). One partition per raw object.
+    tables:
+      - name: raw_cafef_eod
+        columns:
+          - name: raw_key
+            data_tests: [not_null]
+          - name: raw_sha256
+            data_tests: [not_null]
+          - name: variant
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: [raw, adjusted]
+          - name: exchange
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: [HSX, HNX, UPCOM]
+          - name: trade_date
+            data_tests: [not_null]
