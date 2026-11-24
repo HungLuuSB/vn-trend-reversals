@@ -225,8 +225,37 @@ Stocks with no rows: HBB (no data), MCH and PCB (fewer than 250 days of history)
 
 A modest, stable signal, well below the "too good" alarm (C > 0.70). Calibration at 5 days is slightly too narrow (predicted 0.17–0.44 against 0.11–0.56 observed).
 
+## Finding 12: model comparison and the global-block ablation, development only (2026-11-24)
+
+**Setup** (D-014; run `20261124T083349Z-devcompare`).
+- Same folds as Finding 11 (2014, 2015, 2016 inside 2012–2016).
+- Each model is tuned on the last training year by integrated Brier score (IBS), then refitted.
+- Intervals: paired moving-block bootstrap (blocks of 20 sessions, 200 resamples), pooled over the three folds.
+- **No test year was evaluated.**
+
+| Model (blocks A–D unless noted) | Uno C, pooled [95% CI] | IBS, pooled | IBS minus KM [95% CI] | td-AUC 5 / 10 / 20 days |
+| --- | --- | ---: | --- | --- |
+| Kaplan–Meier | 0.501 | 0.2076 | — | 0.499 / 0.503 / 0.504 |
+| Logistic hazard (C = 0.01, l1 0.5) | 0.600 [0.588, 0.610] | 0.1991 | [−0.0101, −0.0064] | 0.680 / 0.619 / 0.587 |
+| Cox (ridge α = 100) | 0.598 [0.586, 0.608] | 0.1995 | [−0.0101, −0.0058] | 0.676 / 0.615 / 0.585 |
+| Random survival forest | 0.586 [0.572, 0.599] | 0.1980 | [−0.0111, −0.0078] | 0.679 / 0.614 / 0.576 |
+| Gradient-boosted hazard | 0.577 [0.563, 0.590] | 0.2000 | [−0.0104, −0.0043] | 0.670 / 0.608 / 0.567 |
+| Logistic hazard, blocks A–C | 0.604 [0.593, 0.613] | 0.1984 | [−0.0106, −0.0073] | 0.686 / 0.623 / 0.591 |
+
+Shuffled-label control (mean of 10 seeds): 0.502 / 0.496 / 0.498. No warnings.
+
+**Reading.**
+- **RQ1:** every model beats KM on IBS, and every interval excludes zero (one exception: GBM in 2014, upper bound +0.0002). The signal is modest and stable across folds.
+- **Model choice:** the penalised linear models (logistic hazard, Cox) rank best. The forest is level on IBS and boosting is weakest. With a weak signal this favours the interpretable main model in the proposal.
+- **RQ2 (global block D), development years:** adding D does not help.
+  - Pooled A–D minus A–C: C [−0.008, 0.001], IBS [−0.0000, 0.0014].
+  - In 2016 alone D is slightly *harmful*: C [−0.009, −0.001], IBS [+0.0002, +0.0023].
+  - This is 2014–2016, before the market upgrade. H4 predicts global effects grow later, so the question is settled only by the final run on 2017–2026. A null result there is still reported.
+- **Short horizons are more predictable:** td-AUC is about 0.68 at 5 days against about 0.59 at 20. This is below the alarm level, but its source (swing age vs. features) should be decomposed before writing it up.
+- **Caveat on pooled metrics:** the pooled metrics use the last fold's training data for the censoring weights. Per-fold numbers are the primary ones.
+
 ## Next steps
 
-1. Tune the hazard by inner CV (penalty strength); block ablation for RQ2 (with and without D) inside the training window; Cox and tree models; block-bootstrap CIs.
+1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
 2. Before the trading test: decide how stock-days without computable limits are treated.
 3. Index levels (VN-Index, VN30) still needed.

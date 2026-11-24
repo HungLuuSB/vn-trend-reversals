@@ -379,3 +379,38 @@ Availability rules:
 **Shuffled-label control.** The outcome pairs (duration, event) are permuted across training rows before expansion, so the outcome distribution is kept and its link to the features is broken.
 
 **Not changed:** features, folds, purging, embargo, metrics. The earlier run stays in the run log as superseded.
+
+---
+
+## D-014 — Development model comparison: tuning, models, ablation, bootstrap (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** evaluation protocol for the development phase, written before these runs.
+- **State when decided:**
+  - Current dev results: landmark logistic hazard with fixed settings, C ≈ 0.59–0.61 (D-013).
+  - No tuning has been done and no other model fitted.
+  - No test year evaluated.
+
+**Scope:** inside the first training window only, as in D-012. Outer folds validate 2014, 2015 and 2016, each with an expanding training window from 2012, purge, 20-session embargo, and validation labels censored at 2016-12-31.
+
+**Tuning.**
+- Nested: inside each outer fold's training data, the last full year before the fold is the inner validation year, with the same purge and embargo; the rest is inner training.
+- Hyperparameters are chosen by the lowest inner integrated Brier score (IPCW, times 1–20) and the model is refitted on the full outer training data.
+- Grids:
+  - Logistic hazard (landmark, D-013): C ∈ {0.01, 0.1, 1}, l1_ratio ∈ {0, 0.5}.
+  - Gradient-boosted discrete-time hazard (same landmark expansion, histogram gradient boosting): learning rate ∈ {0.03, 0.1}, max leaf nodes ∈ {15, 31}, 300 iterations, L2 = 1.
+  - Cox proportional hazards on time since the prediction day (ridge): alpha ∈ {1, 10, 100}.
+  - Random survival forest: min samples per leaf ∈ {50, 200}, 100 trees, sqrt features.
+- For fitting only (not for metrics), durations beyond 21 days are censored at 21; horizons of interest are ≤ 20.
+- Every model uses median imputation and standardisation fitted on its training rows.
+
+**Comparisons reported**, all on the same validation rows:
+1. Each model against Kaplan–Meier (Uno C at τ = 20, integrated Brier score).
+2. **Ablation for RQ2:** the tuned logistic hazard on blocks A–C against A–D, as paired differences.
+3. Shuffled-label control for the logistic hazard (mean of 10 seeds).
+
+**Uncertainty.**
+- Paired moving-block bootstrap over validation trading dates: blocks of 20 sessions, 200 resamples, the same resamples for every model.
+- 95% percentile intervals are reported for each metric and for each paired difference, per fold and pooled over the three folds.
+
+**What will not be done in development:** choosing the main specification by test-year performance, or reporting test years.
