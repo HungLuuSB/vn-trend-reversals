@@ -5,7 +5,7 @@
 ) }}
 
 -- The research universe (CLAUDE.md, Paper 1): VN30 members as of each date plus all listed
--- banks, on every HOSE session of the study period (research/DECISIONS.md D-001).
+-- banks, on every HOSE session of the study period (research/paper1/DECISIONS.md D-001).
 -- One row per (session, ticker) in the universe, whether or not the stock traded that day,
 -- so suspensions stay visible (has_price = false).
 

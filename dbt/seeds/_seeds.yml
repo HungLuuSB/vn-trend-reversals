@@ -4,7 +4,7 @@ seeds:
   - name: price_limit_schedule
     description: >
       Daily price limits (fraction of the reference price) per exchange and regime, with the
-      legal basis, source and confidence of every row (research/DECISIONS.md D-003).
+      legal basis, source and confidence of every row (research/paper1/DECISIONS.md D-003).
       Regimes: normal; resumption (first session after a long suspension). New listings and
       exchange transfers have no reconstructable reference price and are not listed.
     config:
@@ -96,7 +96,7 @@ seeds:
   - name: corporate_action_adjudications
     description: >
       Verified facts for disputed or implausible corporate actions in the universe
-      (research/DECISIONS.md D-007): one row per component (cash, stock, rights) of an event,
+      (research/paper1/DECISIONS.md D-007): one row per component (cash, stock, rights) of an event,
       with source and confidence. queue_date links back to the disputed event.
     config:
       column_types:
@@ -114,7 +114,7 @@ seeds:
         notes: String
   - name: global_series
     description: >
-      Global overnight series of feature block D (docs/proposals/paper1-trend-reversals.md, research/DECISIONS.md
+      Global overnight series of feature block D (docs/proposals/paper1-trend-reversals.md, research/paper1/DECISIONS.md
       D-009): source, symbol and the rule that sets each value's available_at_utc. Read by
       both ingestion (what to fetch) and dbt (when each value became public).
     config:

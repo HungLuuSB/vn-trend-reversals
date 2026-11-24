@@ -15,7 +15,7 @@ flags:
 
 vars:
   # The exact raw-layer objects the models read. Pinned (not "latest") so every build of the
-  # research tables is reproducible. Change only together with an entry in research/DECISIONS.md
+  # research tables is reproducible. Change only together with an entry in research/paper1/DECISIONS.md
   # or docs/feasibility-week1.md explaining why.
   cafef_archives:
     raw: "cafef/2026-11-24/CafeF.SolieuGD.Raw.Upto23112026.c5541a57.zip"

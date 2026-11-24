@@ -1,8 +1,8 @@
 # Research snapshots
 
-Every snapshot that models read, frozen by `research/snapshot.py`. The id is derived from the
+Every snapshot that models read, frozen by `src/vnbank/research/shared/snapshot.py`. The id is derived from the
 content (file hashes plus the manifest: git commit, pinned raw archives, seed hashes, SQL and
-row counts). The files live in `research/snapshots/<id>/` (not in git) and in the raw layer
+row counts). The files live in `data/snapshots/<id>/` (not in git) and in the raw layer
 under `snapshots/<id>/`.
 
 - **Dev snapshots** are for building and testing code.

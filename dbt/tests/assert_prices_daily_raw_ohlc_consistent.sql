@@ -1,5 +1,5 @@
 -- Every clean row: positive prices, low <= high, volume >= 0, weekday.
--- Open or close outside low..high is allowed only when flagged (research/DECISIONS.md D-002),
+-- Open or close outside low..high is allowed only when flagged (research/paper1/DECISIONS.md D-002),
 -- and the flag must be set exactly on those rows.
 select *
 from {{ ref('prices_daily_raw') }}

@@ -1,7 +1,7 @@
 -- depends_on: {{ ref('global_series') }}
 {{ config(materialized='table', order_by='(trade_date)') }}
 
--- Feature block D (docs/proposals/paper1-trend-reversals.md; research/DECISIONS.md D-009): one row per HOSE session.
+-- Feature block D (docs/proposals/paper1-trend-reversals.md; research/paper1/DECISIONS.md D-009): one row per HOSE session.
 -- Each change is measured between the values public at this session's 09:00 decision time and
 -- at the previous HOSE session's, so across Vietnamese holidays (e.g. Tet) it is the
 -- cumulative change since the last Vietnamese session (CLAUDE.md rule 8).

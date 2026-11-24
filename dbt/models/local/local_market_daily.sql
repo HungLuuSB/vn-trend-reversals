@@ -1,6 +1,6 @@
 {{ config(materialized='table', order_by='(trade_date)') }}
 
--- Feature block C (docs/proposals/paper1-trend-reversals.md; research/DECISIONS.md D-009): local market state, one row
+-- Feature block C (docs/proposals/paper1-trend-reversals.md; research/paper1/DECISIONS.md D-009): local market state, one row
 -- per HOSE session d. Every value describes the PREVIOUS HOSE session (its close, public at
 -- 15:00 Asia/Ho_Chi_Minh) so it is known before the 09:00 decision on d (CLAUDE.md rule 4).
 --   VN-Index / VN30 index: close and log return (CafeF per-ticker history)

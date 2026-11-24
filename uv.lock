@@ -1424,7 +1424,7 @@ wheels = [
 [[package]]
 name = "vn-bank-data-platform"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "boto3" },
     { name = "clickhouse-connect" },
@@ -1433,6 +1433,7 @@ dependencies = [
     { name = "httpx" },
     { name = "pandas" },
     { name = "pyarrow" },
+    { name = "pyyaml" },
     { name = "scikit-learn" },
     { name = "scikit-survival" },
     { name = "vnstock" },
@@ -1454,6 +1455,7 @@ requires-dist = [
     { name = "httpx", specifier = "==0.28.1" },
     { name = "pandas", specifier = "==3.1.1" },
     { name = "pyarrow", specifier = "==26.0.1" },
+    { name = "pyyaml", specifier = "==6.0.4" },
     { name = "scikit-learn", specifier = "==1.9.1" },
     { name = "scikit-survival", specifier = "==0.28.0" },
     { name = "vnstock", specifier = "==6.0.1", index = "https://vnstocks.com/api/packages" },

@@ -63,7 +63,7 @@ Daily downloads are therefore **not needed for the research**. They are deferred
 
 Other rows: 1,656 rows with a blank or "0" ticker (rejected), plus warrants (225k), funds/ETFs (21k) and 3 index-like tickers, all out of scope.
 
-**`ohlc_outside_range`: kept with a flag** (`research/DECISIONS.md` D-002).
+**`ohlc_outside_range`: kept with a flag** (`research/paper1/DECISIONS.md` D-002).
 - The open or close is outside high–low by a median of 1.8–2.4%, clustered in 2019 and 2023–24.
 - This looks like auction prices (ATO/ATC) recorded outside continuous-session high/low, not corruption.
 - Rejecting the rows would leave gaps that distort ATR20 and swing timing, so they stay in `prices_daily_raw` with `ohlc_outside_range = true`.
@@ -97,7 +97,7 @@ Neither source is complete. An event missing from our series shows up as an arti
 
 ## Finding 5: reference prices and dated price limits (2026-11-24)
 
-**Dated schedules.** Researched from exchange rules and decisions, each row sourced, in `dbt/seeds/` (`research/DECISIONS.md` D-003).
+**Dated schedules.** Researched from exchange rules and decisions, each row sourced, in `dbt/seeds/` (`research/paper1/DECISIONS.md` D-003).
 - **Limits changed inside the sample:** HOSE ±5% to ±7% and HNX ±7% to ±10% on 2013-01-15; UPCoM ±10% to ±15% on 2015-07-01.
 - **HOSE ticks changed on 2016-09-12.**
 - **Reference price:** HOSE always used the previous close. HNX only from 2013-07-29; before that it used a VWAP. UPCoM always uses the previous session's VWAP, which CafeF does not publish.
@@ -115,7 +115,7 @@ Neither source is complete. An event missing from our series shows up as an arti
 ## Finding 6: VN30 membership, bank list and coverage (2026-11-24)
 
 **VN30.**
-- Rebuilt from HOSE review results and ad-hoc replacements: 152 changes, 77 stocks, 2012-02-06 to 2026-08-03 (`research/DECISIONS.md` D-004).
+- Rebuilt from HOSE review results and ad-hoc replacements: 152 changes, 77 stocks, 2012-02-06 to 2026-08-03 (`research/paper1/DECISIONS.md` D-004).
 - 30 members on every session; all 32 printed baskets match.
 - Price coverage: 99.1% of member-days. Missing: HVG and PVF.
 
@@ -141,17 +141,17 @@ Neither source is complete. An event missing from our series shows up as an arti
 
 ## Finding 7: gaps filled from CafeF per-ticker history (2026-11-24)
 
-**Results** (`research/DECISIONS.md` D-006):
+**Results** (`research/paper1/DECISIONS.md` D-006):
 - **Agreement:** the per-ticker history matches the bulk archive on 100% of 8,251 overlapping stock-days (OHLC and volume).
 - **Fills:** 13,055 rows fill the documented gaps.
 - **Coverage, study period:** banks 99.0% of bank-days (was 83%); VN30 99.93% of member-days (was 99.1%). Only Habubank (HBB, 2012) is missing.
 - **VWAP references:** UPCoM and early-HNX reference prices are rebuilt from VWAP where the rounded value pins them to one tick. That covers 5,395 bank-days, with 0.20% outside the band.
 - **Banks with computed limits:** 85.2% of bank-days.
-- **How to fetch:** `ingestion/market/cafef_history_ingest.py` (FETCH_PLAN), resumable. Raw zips are under `cafef_history/` in the raw layer.
+- **How to fetch:** `src/vnbank/ingestion/market/cafef_history_ingest.py` (FETCH_PLAN), resumable. Raw zips are under `cafef_history/` in the raw layer.
 
 ## Finding 8: disputed corporate actions adjudicated (2026-11-24)
 
-**How it was done** (`research/DECISIONS.md` D-007, D-008):
+**How it was done** (`research/paper1/DECISIONS.md` D-007, D-008):
 - **Event detection** now also covers the gap-filled periods (e.g. ACB's 7 events during its HNX years).
 - **The Yahoo cross-check** covers all 91 universe stocks.
 - **Queue:** 83 disputed events plus 5 that failed the price-limit check.
@@ -195,7 +195,7 @@ Neither source is complete. An event missing from our series shows up as an arti
 
 **Snapshot dev-v1** `b536ec69488162e0` (`research/snapshots.md`): universe, raw and adjusted prices from the 2011-10-01 warm-up, limits, corporate actions, sessions, membership and features.
 
-**First labels** (`research/runs/RUNS.md`; descriptive only, no model):
+**First labels** (`research/paper1/runs/RUNS.md`; descriptive only, no model):
 
 | k | Survival rows | Reversals (study) | Median swing age at reversal | Rows reversing within 5 days |
 | --- | ---: | ---: | ---: | ---: |
@@ -215,7 +215,7 @@ Stocks with no rows: HBB (no data), MCH and PCB (fewer than 250 days of history)
 - The hazard was badly calibrated: chaining one-day hazards with features held fixed exaggerated risk in both directions. It is now fitted by landmarking (D-013).
 - A single shuffled-label draw is noisy, because rows of one swing are correlated. The control now uses 10 seeds and checks the mean.
 
-**Current development results** (logistic hazard on blocks A–D; `research/runs/RUNS.md`):
+**Current development results** (logistic hazard on blocks A–D; `research/paper1/runs/RUNS.md`):
 
 | Fold | Uno C (KM) | Uno C (hazard) | Shuffled C (mean of 10) | IBS KM / hazard | td-AUC 5 / 10 / 20 days |
 | --- | ---: | ---: | ---: | --- | --- |

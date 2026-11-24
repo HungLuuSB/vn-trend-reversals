@@ -5,7 +5,7 @@
 
 -- Raw and CafeF-adjusted prices side by side for ordinary shares, following the same source
 -- choice as prices_daily_raw: the bulk archive, except inside documented gaps where the
--- per-ticker history fills in (research/DECISIONS.md D-006). adj_rounding_vnd is the maximum
+-- per-ticker history fills in (research/paper1/DECISIONS.md D-006). adj_rounding_vnd is the maximum
 -- rounding error of the adjusted price: the bulk archive publishes 4 decimals of thousand VND
 -- (0.05 VND), the per-ticker history 2 decimals (5 VND).
 

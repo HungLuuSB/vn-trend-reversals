@@ -1,0 +1,42 @@
+# Paper 1 main design (CLAUDE.md "Paper 1 rules"; research/paper1/DECISIONS.md).
+# Code reads these values; changing one is a design change: log it in DECISIONS.md first.
+
+study:                         # D-001; shared with Paper 2 (P2-001)
+  start: 2012-01-03
+  end: 2026-11-20              # to that day's close; nothing later enters anything
+  warmup_start: 2011-10-01     # initialises trailing quantities only
+
+labels:                        # directional change (D-011)
+  k_main: 2.0                  # theta = k * ATR20 / price, trailing only
+  k_robustness: [1.5, 3.0]
+  atr_window: 20
+
+risk_set:                      # survival rows (D-009, D-011)
+  min_history_days: 250        # point-in-time history rule
+  halt_gap_sessions: 5         # >= 5 missing sessions censors as a halt
+
+features:                      # blocks A-D (D-009, D-012, D-016, D-017)
+  rsi_window: 14
+  volume_window: 20
+  limit_window: 5
+
+evaluation:
+  main_horizon: 5              # trading days
+  horizons: [5, 10, 20]        # td-AUC and calibration
+  tau: 20                      # Uno's C truncation; IBS over days 1..tau
+  max_step: 20                 # landmark hazard steps (D-013)
+  fit_cap: 21                  # durations above are censored for fitting only (D-014)
+  too_good_c: 0.70             # stop and run leakage-audit above this
+  bootstrap: {block: 20, resamples: 200}   # D-014
+
+walkforward:
+  embargo_sessions: 20
+  dev_end: 2016-12-31          # development stays inside the first training window (D-012)
+  dev_folds: [2014, 2015, 2016]
+  test_years: [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026]   # final run only
+
+tuning_grids:                  # D-014
+  logit: {C: [0.01, 0.1, 1.0], l1_ratio: [0.0, 0.5]}
+  gbm: {learning_rate: [0.03, 0.1], max_leaf_nodes: [15, 31]}
+  cox: {alpha: [1.0, 10.0, 100.0]}
+  rsf: {min_samples_leaf: [50, 200]}

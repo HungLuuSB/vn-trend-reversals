@@ -9,7 +9,7 @@ models:
       different values; all copies rejected); exchange_conflict (same values on two
       exchanges); nonpositive_price; high_below_low; negative_volume; weekend.
       warn_reason flags without rejecting: ohlc_outside_range (open or close outside
-      low..high; research/DECISIONS.md D-002). Price-limit checks need the exchange reference
+      low..high; research/paper1/DECISIONS.md D-002). Price-limit checks need the exchange reference
       price and come with corporate actions (CLAUDE.md rule 6).
     columns:
       - name: dq_outcome
