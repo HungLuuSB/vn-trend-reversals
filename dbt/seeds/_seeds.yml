@@ -112,3 +112,21 @@ seeds:
         source_url: String
         confidence: LowCardinality(String)
         notes: String
+  - name: global_series
+    description: >
+      Global overnight series of feature block D (docs/proposal.md, research/DECISIONS.md
+      D-009): source, symbol and the rule that sets each value's available_at_utc. Read by
+      both ingestion (what to fetch) and dbt (when each value became public).
+    config:
+      column_types:
+        series_id: LowCardinality(String)
+        source: LowCardinality(String)
+        symbol: String
+        description: String
+        kind: LowCardinality(String)
+        availability_rule: LowCardinality(String)
+        close_time_local: String
+        close_tz: LowCardinality(String)
+        proposal_ref: String
+        note: String
+        confidence: LowCardinality(String)

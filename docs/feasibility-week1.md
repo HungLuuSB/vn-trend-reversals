@@ -171,6 +171,21 @@ Neither source is complete. An event missing from our series shows up as an arti
 - `int_corporate_actions_final`: 82 adjudicated and 558 inferred events on universe stock-days.
 - Agreement with Yahoo: 85.7% → 88.6%. The remainder is mostly known Yahoo errors.
 
+## Finding 9: global series for feature block D (2026-11-24)
+
+**Series and coverage.**
+- Series follow `docs/proposal.md`, with the source changes in D-009: Brent `BZ=F`, USD/CNY `CNY=X`, and DGS10 timed by the Treasury's 18:00 ET publication.
+- Everything is loaded from 2000 onward (Brent from 2007, USD/VND from 2003) except **CSI 300**: Yahoo returns no price history for `000300.SS` or `399300.SZ`. The Shanghai Composite (`000001.SS`) is available. Decision pending.
+
+**Timing.**
+- `available_at_utc` per series comes from seed `global_series` (close time in the market's own time zone, so daylight saving is handled).
+- GPR is updated on Mondays and treated as public from the Wednesday after (median staleness 11 days).
+- The GPR file's hindsight `event` labels are never loaded.
+
+**Tables and checks.**
+- `global_asof_daily` and `global_features_daily` pass `no_feature_after_decision_time`, the CLAUDE.md rule-4 test, now implemented.
+- Check case: the first session after Tết 2024 carries the S&P 500's cumulative move since the last pre-Tết decision (+0.93%).
+
 ## Next steps
 
 1. Freeze the first research snapshot (prices, adjusted prices, limits, universe) and record its hash in `research/snapshots.md`.

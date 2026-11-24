@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: stg_global_obs
+    description: Latest-fetch global observations with available_at_utc from seed global_series.
+    columns:
+      - name: available_at_utc
+        data_tests: [not_null]
+
+  - name: global_asof_daily
+    description: >
+      For each HOSE session and global series, the latest value public before the session's
+      09:00 Asia/Ho_Chi_Minh decision time.
+    data_tests:
+      - no_feature_after_decision_time:
+          arguments:
+            available_at_column: available_at_utc
+            decision_time_column: decision_time_utc
+
+  - name: global_features_daily
+    description: >
+      Feature block D, one row per HOSE session: changes since the previous Vietnamese
+      session's decision time (log returns for prices, differences for levels), GPR levels.
+    data_tests:
+      - no_feature_after_decision_time:
+          arguments:
+            available_at_column: available_at_max_utc
+            decision_time_column: decision_time_utc
+    columns:
+      - name: trade_date
+        data_tests: [not_null, unique]
+
+unit_tests:
+  - name: availability_follows_market_close_and_dst
+    description: >
+      S&P 500 close 16:00 New York: 20:00 UTC in summer (EDT), 21:00 UTC in winter (EST).
+      USD/VND: end of the London day. GPR for Tue 2026-11-17: next Monday 11-23, public Wed
+      11-25 00:00 New York (05:00 UTC). Bars dated on/after their fetch date are dropped.
+    model: stg_global_obs
+    given:
+      - input: source('global', 'raw_global_obs')
+        rows:
+          - {raw_key: k1, source: yahoo, symbol: '^GSPC', obs_date: 2026-07-15, close: 6000, fetched_at_utc: '2026-11-24 00:00:00'}
+          - {raw_key: k1, source: yahoo, symbol: '^GSPC', obs_date: 2026-01-15, close: 5900, fetched_at_utc: '2026-11-24 00:00:00'}
+          - {raw_key: k1, source: yahoo, symbol: '^GSPC', obs_date: 2026-11-24, close: 1, fetched_at_utc: '2026-11-24 00:00:00'}
+          - {raw_key: k2, source: yahoo, symbol: 'VND=X', obs_date: 2026-07-15, close: 25000, fetched_at_utc: '2026-11-24 00:00:00'}
+          - {raw_key: k3, source: gpr, symbol: GPRD, obs_date: 2026-11-17, close: 120, fetched_at_utc: '2026-11-24 12:00:00'}
+      - input: ref('global_series')
+        rows:
+          - {series_id: spx, symbol: '^GSPC', kind: price}
+          - {series_id: usdvnd, symbol: 'VND=X', kind: price}
+          - {series_id: gpr, symbol: GPRD, kind: level}
+    expect:
+      rows:
+        - {series_id: spx, obs_date: 2026-07-15, available_at_utc: '2026-07-15 20:00:00'}
+        - {series_id: spx, obs_date: 2026-01-15, available_at_utc: '2026-01-15 21:00:00'}
+        - {series_id: usdvnd, obs_date: 2026-07-15, available_at_utc: '2026-07-15 23:00:00'}
+        - {series_id: gpr, obs_date: 2026-11-17, available_at_utc: '2026-11-25 05:00:00'}

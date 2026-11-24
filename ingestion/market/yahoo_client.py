@@ -197,3 +197,35 @@ def parse_events(content: bytes) -> pd.DataFrame:
         )
     out = pd.DataFrame(rows, columns=EVENT_COLUMNS)
     return out.sort_values(["ex_date", "event_type"], ignore_index=True)
+
+
+def parse_quotes(content: bytes) -> pd.DataFrame:
+    """Daily OHLCV bars of one chart payload; obs_date is the bar's date in the exchange time
+    zone. Raw (unadjusted) values only: adjclose is ignored (CLAUDE.md rule 7). Bars with no
+    close (holidays Yahoo fills with nulls) are dropped."""
+    chart = json.loads(content)["chart"]
+    cols = ["symbol", "obs_date", "open", "high", "low", "close", "volume"]
+    if chart.get("error") is not None or not chart.get("result"):
+        return pd.DataFrame(columns=cols)
+    result = chart["result"][0]
+    tz = ZoneInfo(result["meta"].get("exchangeTimezoneName") or "UTC")
+    stamps = result.get("timestamp") or []
+    quote = (result.get("indicators", {}).get("quote") or [{}])[0]
+    df = pd.DataFrame(
+        {
+            "symbol": result["meta"]["symbol"],
+            "obs_date": [datetime.fromtimestamp(int(t), tz).date() for t in stamps],
+            "open": quote.get("open", [None] * len(stamps)),
+            "high": quote.get("high", [None] * len(stamps)),
+            "low": quote.get("low", [None] * len(stamps)),
+            "close": quote.get("close", [None] * len(stamps)),
+            "volume": quote.get("volume", [None] * len(stamps)),
+        },
+        columns=cols,
+    )
+    df = df[df["close"].notna()].copy()
+    for c in ("open", "high", "low", "close"):
+        df[c] = df[c].astype("float64")
+    df["volume"] = df["volume"].fillna(0).astype("int64")
+    # Yahoo occasionally repeats the last bar (intraday snapshot); keep one row per date.
+    return df.drop_duplicates(["symbol", "obs_date"], keep="last").reset_index(drop=True)
