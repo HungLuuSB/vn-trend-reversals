@@ -29,12 +29,22 @@ Started 2026-11-24. This tracks whether the data the paper needs can be obtained
 | B. A broker's official Open API directly, through our own client | No third-party wrapper; we wrap libraries anyway (rule 7); clearer licence | Need an account and keys; must verify history depth back to 2012, raw vs adjusted, and delisted tickers |
 | C. University-licensed data (LSEG Datastream/Workspace, Bloomberg, FiinPro) | Most credible for reviewers; usually has delisted stocks, corporate actions and index constituents | Depends on library access; licence may limit redistribution of snapshots |
 
+## Finding 2: broker APIs ruled out; CafeF chosen (2026-11-24)
+
+- The user found broker API registration impractical, and no university database is available, so options B and C are out and A is on hold.
+- **CafeF's free bulk archives** meet the main needs: raw and adjusted files, all three exchanges from 2000, and delisted stocks included.
+- **Yahoo Finance** lacks delisted stocks, so it can serve only as a cross-check.
+- Full test results, known gaps and terms: [ADR 0002](adr/0002-market-data-source-cafef.md).
+- **First ingestion (2026-11-24):** both archives up to 2026-11-23 are stored in the raw layer. The raw archive has 3,383,146 rows and 4,137 tickers (HSX 2,762, HNX 380, UPCoM 1,125; a ticker that changed exchange counts once per exchange).
+
 ## VN30 membership
 
-Not yet investigated. Candidate sources: HOSE semi-annual review announcements (compiled by hand with source URLs and announcement dates), or index constituent history from a licensed database (option C).
+Not yet investigated. No free source with history was found. Plan: compile it from HOSE's semi-annual review announcements, with source URLs, announcement dates and effective dates.
 
 ## Next steps
 
-1. User decides on the market-data source (A, B or C).
-2. Probe the chosen source: earliest date per ticker, raw vs adjusted, corporate actions, reference price, delisted tickers. Record the results here.
-3. Settle the VN30 membership source.
+1. Schedule daily CafeF downloads to build a dated vintage of each file.
+2. Stage CafeF data in ClickHouse with quality checks: duplicates, non-positive prices, high < low, warrant/ETF filtering.
+3. Infer corporate actions from the adjusted/raw ratio, then compute our own adjustments and reference prices.
+4. Compile VN30 membership history from HOSE announcements.
+5. Fill or document the gaps: pre-transfer HNX history (ACB, SHB) and index levels.
