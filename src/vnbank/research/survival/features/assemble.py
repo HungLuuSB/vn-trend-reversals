@@ -55,6 +55,27 @@ def xdir(cols: list[str]) -> list[str]:
     return [f"{c}_xdir" for c in cols]
 
 
+BANK_CHANNELS = ["ust10_chg", "dxy_ret", "usdvnd_ret"]  # D-020: H2 rate and dollar channels
+
+
+def bank_features() -> list[str]:
+    return ["is_bank", *[f"bank_x_{c}" for c in BANK_CHANNELS],
+            *[f"bank_x_{c}_xdir" for c in BANK_CHANNELS]]  # fmt: skip
+
+
+def add_bank_interactions(ds: pd.DataFrame) -> pd.DataFrame:
+    """D-020: is_bank x channel, and is_bank x channel x swing_dir (NaN stays NaN)."""
+    bank = ds["is_bank"].astype("float64")
+    d = ds["swing_dir"].astype("float64")
+    new = {}
+    for c in BANK_CHANNELS:
+        new[f"bank_x_{c}"] = bank * ds[c]
+        new[f"bank_x_{c}_xdir"] = bank * ds[c] * d
+    out = ds.assign(**new)
+    out["is_bank"] = bank
+    return out
+
+
 def add_direction_interactions(ds: pd.DataFrame) -> pd.DataFrame:
     """D-017: direction-specific slopes. `<x>_xdir` = swing_dir * x (NaN stays NaN)."""
     cols = [c for b in XDIR_BLOCKS for c in BLOCKS[b]]

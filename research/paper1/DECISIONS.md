@@ -552,3 +552,22 @@ Paired differences (pooled moving-block bootstrap, blocks of 20 sessions, 200 re
 - the 5-day reversal probability predicted by M, fitted on all development rows up to 2016-12-31 with the 2016 fold's chosen hyperparameters, across the same age buckets at the median `swing_dist`.
 
 **What does not change:** the main specification. This is descriptive and decides only what RQ3 may claim from development data. The confirmatory version is in the final run.
+
+## D-020 — RQ2 bank × global interactions on development data (pre-registered)
+
+- **Date:** 2026-11-24
+- **Type:** the last block-D specification allowed on development data by the D-017 guard. The proposal (RQ2, H2) pre-specifies it: "Banks react more to rates and the dollar than other VN30 stocks".
+- **State when decided:**
+  - D-017, D-018 and the tree check found no detectable block-D information in 2014–2016.
+  - Development data hold 9 banks (ACB, BID, CTG, EIB, MBB, NVB, SHB, STB, VCB), about 24% of rows.
+  - No test year evaluated.
+
+**Specification.**
+- Rate and dollar channels, chosen in advance from H2: `ust10_chg`, `dxy_ret`, `usdvnd_ret`.
+- `ABCDx_bank` = `ABCDx` + `is_bank` + `is_bank` × each channel + `is_bank` × each channel × `swing_dir`. The direction-specific form follows D-017.
+
+**Comparison.** D-014 protocol, logistic hazard tuned on the D-014 grid. Paired difference `ABCDx_bank` − `ABCDx` (pooled block bootstrap, blocks of 20, 200 resamples).
+- **Decision rule:** H2's bank part is supported in development only if the pooled C interval lies above zero **and** the IBS interval lies below zero.
+- Descriptive: per-fold results.
+
+**Guard.** After D-020, no further block-D specification is examined on development data. Everything else about RQ2 is decided by the final run.
