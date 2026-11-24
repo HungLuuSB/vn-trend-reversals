@@ -36,18 +36,34 @@ inferred as (
     )
 ),
 
-fact_events as (
+components as (
+    -- One row per distinct component. Two queue items can describe the same event (e.g. our
+    -- date and Yahoo's date for DIG 2012); identical facts must not be counted twice.
     select
         ticker,
         assumeNotNull(ex_date) as official_ex_date,
-        sum(cash_vnd) as cash_vnd,
-        sum(stock_ratio) as stock_ratio,
-        sum(rights_ratio) as rights_ratio,
-        max(rights_price_vnd) as rights_price_vnd,
+        cash_vnd,
+        stock_ratio,
+        rights_ratio,
+        rights_price_vnd,
         arrayStringConcat(groupUniqArray(source_url), ' ') as source_urls,
         min(confidence) as confidence
     from facts
     where verdict = 'event_found' and ex_date is not null
+    group by ticker, official_ex_date, cash_vnd, stock_ratio, rights_ratio, rights_price_vnd
+),
+
+fact_events as (
+    select
+        ticker,
+        official_ex_date,
+        sum(cash_vnd) as cash_vnd,
+        sum(stock_ratio) as stock_ratio,
+        sum(rights_ratio) as rights_ratio,
+        max(rights_price_vnd) as rights_price_vnd,
+        arrayStringConcat(groupArray(source_urls), ' ') as source_urls,
+        min(confidence) as confidence
+    from components
     group by ticker, official_ex_date
 ),
 

@@ -223,3 +223,31 @@ How the bands are computed:
 
   An event without verified facts keeps its CafeF-inferred value and is flagged `unadjudicated`.
 - No adjudication may consider returns, swings or model results. The only inputs are corporate-action facts and raw prices around the ex-date.
+
+---
+
+## D-008 — Two judgement calls from adjudication
+
+- **Date:** 2026-11-24
+- **Type:** data-cleaning clarifications, made while applying D-007 and before any outcome is examined.
+
+1. **Economic adjustment even where the exchange did not adjust.**
+   - MBB 2016-03-09 distributed 0.25% extra shares from a merger swap, and HOSE did not adjust the reference price.
+   - Adjusted prices (`prices_daily_adjusted`) apply every distribution that changes value per share, so the ratio here is 1.0025.
+   - The same ratio also enters `prices_daily_limits`, which makes that day's computed reference 0.25% lower than HOSE's. The difference is below one tick for MBB's price level then and has no practical effect.
+2. **Exchange-transfer artifacts.**
+   - CafeF's adjusted series can jump on the day a stock moves exchange, because the pre-transfer segment is not re-adjusted for later events. KLB (2026-01-15) and VAB (2025-07-22) were confirmed as no-event days and removed.
+   - No other bank has an event left on its transfer day.
+   - Rule for the future: an inferred event on a transfer day is presumed to be an artifact and is queued for adjudication.
+
+**Results of D-007**
+
+- **Queue and sources:** all 88 queued events answered; 56 from exchange/depository notices, 32 from secondary sources.
+- **Spot checks:** 3 of 3 passed against the original HOSE PDFs (TPB 2018, VIB 2020, MWG 2025).
+- **Who was right:**
+  - CafeF-inferred event right, Yahoo wrong: 64.
+  - Yahoo right, ours wrong: 17.
+  - Both wrong: 7.
+- **Final universe events:** 82 adjudicated, 558 inferred.
+- **Agreement with Yahoo:** 85.7% → 88.6%. Most remaining differences are known Yahoo errors (rights issues not recorded, wrong splits).
+- **Open anomaly:** VBB 2021-06-10. The verified event is a 14% stock dividend, but the price fell by more, so that week of price data is suspicious. It is left as is and flagged here.

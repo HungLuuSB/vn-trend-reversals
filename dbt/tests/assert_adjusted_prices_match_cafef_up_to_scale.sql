@@ -1,4 +1,5 @@
--- Our adjusted prices must reproduce CafeF's adjusted file up to one constant per ticker
+-- Our adjustment machinery must reproduce CafeF's adjusted file up to one constant per ticker,
+-- for stocks whose events were not corrected by adjudication (D-007)
 -- (CafeF sometimes applies an event dated after a stock's last trade to the whole series,
 -- which changes no return). Fails if more than 100 study-period rows differ by > 0.5% after
 -- per-ticker scale normalisation (2026-11-24 baseline: 17 rows, one ticker).
@@ -13,6 +14,8 @@ with m as (
         where variant = 'adjusted' and instrument_type = 'share' and dq_outcome = 'kept'
     ) as c using (ticker, trade_date)
     where a.trade_date between '2012-01-03' and '2026-11-20'
+      -- Stocks with verified corrections (any D-007 verdict) intentionally differ from CafeF.
+      and a.ticker not in (select distinct ticker from {{ ref('corporate_action_adjudications') }})
 ),
 
 n as (

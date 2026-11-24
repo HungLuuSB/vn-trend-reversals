@@ -59,6 +59,7 @@ unit_tests:
       EEE: rights 0.5 at 8,000 with P = 10,000 -> reference 9,333.33, ratio 1.07142857;
            a second rights issue priced above P is ignored (ratio 1.0).
       FFF: verdict unclear -> inferred event kept, status unadjudicated.
+      GGG: the same 10% stock dividend reported for two queue items -> counted once (1.1).
     model: int_corporate_actions_final
     given:
       - input: ref('int_corporate_actions')
@@ -75,6 +76,8 @@ unit_tests:
           - {ticker: EEE, queue_date: 2024-04-02, ex_date: 2024-04-02, cash_vnd: 0, stock_ratio: 0, rights_ratio: 0.5, rights_price_vnd: 8000, verdict: event_found, source_url: s4, confidence: verified-official}
           - {ticker: EEE, queue_date: 2024-04-10, ex_date: 2024-04-10, cash_vnd: 0, stock_ratio: 0, rights_ratio: 0.5, rights_price_vnd: 12000, verdict: event_found, source_url: s5, confidence: verified-official}
           - {ticker: FFF, queue_date: 2024-05-02, ex_date: null, cash_vnd: 0, stock_ratio: 0, rights_ratio: 0, rights_price_vnd: 0, verdict: unclear, source_url: s6, confidence: unverified}
+          - {ticker: GGG, queue_date: 2024-06-03, ex_date: 2024-06-10, cash_vnd: 0, stock_ratio: 0.1, rights_ratio: 0, rights_price_vnd: 0, verdict: event_found, source_url: s7, confidence: verified-secondary}
+          - {ticker: GGG, queue_date: 2024-06-10, ex_date: 2024-06-10, cash_vnd: 0, stock_ratio: 0.1, rights_ratio: 0, rights_price_vnd: 0, verdict: event_found, source_url: s7b, confidence: verified-secondary}
       - input: ref('prices_daily_raw')
         rows:
           - {ticker: AAA, trade_date: 2024-01-03, close_vnd: 10000}
@@ -85,6 +88,8 @@ unit_tests:
           - {ticker: EEE, trade_date: 2024-04-02, close_vnd: 9300}
           - {ticker: EEE, trade_date: 2024-04-09, close_vnd: 10000}
           - {ticker: EEE, trade_date: 2024-04-10, close_vnd: 10000}
+          - {ticker: GGG, trade_date: 2024-06-07, close_vnd: 11000}
+          - {ticker: GGG, trade_date: 2024-06-10, close_vnd: 10000}
     expect:
       rows:
         - {ticker: AAA, ex_date: 2024-01-04, adj_ratio: 1.25, status: adjudicated}
@@ -93,3 +98,4 @@ unit_tests:
         - {ticker: EEE, ex_date: 2024-04-02, adj_ratio: 1.07142857, status: adjudicated}
         - {ticker: EEE, ex_date: 2024-04-10, adj_ratio: 1.0, status: adjudicated}
         - {ticker: FFF, ex_date: 2024-05-02, adj_ratio: 1.02, status: unadjudicated}
+        - {ticker: GGG, ex_date: 2024-06-10, adj_ratio: 1.1, status: adjudicated}
