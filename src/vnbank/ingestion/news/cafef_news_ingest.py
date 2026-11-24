@@ -2,8 +2,10 @@
 
     uv run python -m vnbank.ingestion.news.cafef_news_ingest --start 2012-01-01 --end 2016-12-31
 
-Resumable: windows already in the raw layer are skipped. Polite: one request at a time, one
-second apart, backing off on errors. Parsing and mention counts come later (D-023).
+Resumable: windows already in the raw layer are skipped. Adaptive politeness: 3 parallel
+connections to start, one more after each clean window, halved (and a 60 s pause) on any
+429/5xx/connection error or a doubling of latency, never above 8; each connection waits one
+second after each request. Parsing and mention counts come later (D-023).
 """
 
 from __future__ import annotations
@@ -54,8 +56,11 @@ def crawl(client: CafefNewsClient, store: RawStore, start: date, end: date, log=
         stats["stored"] += 1
         stats["pages"] += len(b.pages)
         stats["failed_pages"] += bad
+        cs = b.stats
         log(f"{w.stem}: {len(b.pages)} pages ({bad} failed), {len(body) / 1e6:.1f} MB, "
-            f"{time.time() - t0:.0f}s -> {key}")  # fmt: skip
+            f"{time.time() - t0:.0f}s, conc {cs.get('concurrency')} "
+            f"lat {cs.get('median_latency', 0):.2f}s throttled {cs.get('throttled')} "
+            f"-> {cs.get('action')} | {key}")  # fmt: skip
     return stats
 
 
