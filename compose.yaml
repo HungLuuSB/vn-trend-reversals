@@ -1,0 +1,98 @@
+# Docker Compose for the VN Bank Data Platform.
+#
+# RAM budget is 16 GB for the whole laptop. Start only the profile you need:
+#   docker compose --profile research up -d
+#
+# Ports bind to 127.0.0.1 only; reach them from the desktop through an SSH tunnel over Tailscale.
+# Images are pinned to exact versions. Per-service configs live in docker/<service>/.
+# Credentials come from .env (copy .env.example).
+
+name: vnbank
+
+x-defaults: &defaults
+  restart: unless-stopped
+  environment:
+    TZ: UTC
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  # Analytics store: prices, features, marts.
+  clickhouse:
+    <<: *defaults
+    image: clickhouse/clickhouse-server:26.8.36.3
+    profiles: [research]
+    environment:
+      TZ: UTC
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:?set in .env}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:?set in .env}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-vnbank}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    ports:
+      - "127.0.0.1:${CLICKHOUSE_HTTP_PORT:-8123}:8123"
+      - "127.0.0.1:${CLICKHOUSE_NATIVE_PORT:-9000}:9000"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./docker/clickhouse/config.d:/etc/clickhouse-server/config.d:ro
+    ulimits:
+      nofile: { soft: 262144, hard: 262144 }
+    mem_limit: 2g
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8123/ping | grep -q Ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # Immutable raw layer (S3 API). Replaces MinIO, which no longer publishes images:
+  # see docs/adr/0001-object-store-seaweedfs.md.
+  seaweedfs:
+    <<: *defaults
+    image: chrislusf/seaweedfs:4.52
+    profiles: [research]
+    environment:
+      TZ: UTC
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:?set in .env}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:?set in .env}
+    entrypoint: ["/bin/sh", "/docker/start.sh"]
+    ports:
+      - "127.0.0.1:${S3_PORT:-8333}:8333"   # S3 API
+      - "127.0.0.1:${SEAWEED_MASTER_PORT:-9333}:9333"   # master UI / status
+    volumes:
+      - seaweedfs-data:/data
+      - ./docker/seaweedfs:/docker:ro
+    mem_limit: 768m
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9333/cluster/status >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # Operational metadata now; Airflow metadata DB once Airflow is added.
+  postgres:
+    <<: *defaults
+    image: postgres:18.4
+    profiles: [research]
+    environment:
+      TZ: UTC
+      PGTZ: UTC
+      POSTGRES_USER: ${POSTGRES_USER:?set in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-vnbank}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  clickhouse-data:
+  seaweedfs-data:
+  postgres-data:

@@ -1,0 +1,54 @@
+# --- Secrets (never commit) ---
+.env
+.env.*
+!.env.example
+
+# --- Data (never commit; raw lives in MinIO) ---
+*.parquet
+*.csv
+*.tsv
+*.feather
+*.arrow
+*.xlsx
+*.xls
+*.pdf
+*.zip
+*.gz
+data/
+raw/
+research/snapshots/*/
+research/runs/*/
+!research/runs/.gitkeep
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+*.egg-info/
+dist/
+build/
+
+# --- dbt ---
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+
+# --- LaTeX build files (paper/generated/ is committed) ---
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.synctex.gz
+paper/*.pdf
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
