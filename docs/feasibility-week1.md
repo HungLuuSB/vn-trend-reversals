@@ -344,6 +344,37 @@ Paired differences, pooled [95% CI]:
 - **Beyond the mechanics** the verdict is unchanged from Finding 14: a small ranking gain at most, not significant on both metrics.
 - **Per the D-017 guard, no further block-D specifications will be tried on development data,** except the pre-specified bank × global interactions of RQ2. RQ2 and RQ4 are decided by the final run on 2017–2026. H4 (global effects grow after market upgrading) remains open, since 2014–2016 is pre-upgrade.
 
+## Finding 16: gold and each global feature, development only (2026-11-24)
+
+**Setup** (D-018 and its pre-run amendment; run `20261124T151155Z-devattribution-D-018`).
+- Each of the 14 global features is dropped in turn (the feature and its direction interaction) from the D-017 model `ABCDx`, using the hyperparameters chosen there.
+- Change in IBS over the pooled dev folds: 2,000 paired block-bootstrap resamples, Holm-adjusted across the 14 features.
+- **No test year was evaluated.**
+
+| Feature | ΔIBS when dropped (> 0 = feature helps) | 95% CI | p (raw) | ΔC (point) |
+| --- | ---: | --- | ---: | ---: |
+| gold_ret | +0.00007 | [−0.00001, +0.00019] | 0.12 | +0.0003 |
+| usdcny_ret | +0.00003 | [−0.00005, +0.00012] | 0.41 | +0.0002 |
+| vix_chg | +0.00000 | [−0.00009, +0.00010] | 0.91 | +0.0000 |
+| spx_ret | −0.00003 | [−0.00008, +0.00004] | 0.43 | −0.0002 |
+| sse_ret | −0.00012 | [−0.00031, +0.00006] | 0.26 | −0.0005 |
+| vix_level | −0.00069 | [−0.00165, +0.00012] | 0.09 | −0.0030 |
+| gpr_level | −0.00091 | [−0.00241, +0.00026] | 0.16 | −0.0040 |
+| (the other 7) | between −0.00005 and +0.00001 | all include 0 | ≥ 0.25 | |
+
+All Holm-adjusted p-values are 1.0, so **no global feature is informative** in 2014–2016.
+
+**Gold vs geopolitical risk.**
+- Gold given GPR: ΔIBS +0.00007 [−0.00001, +0.00019], ΔC +0.0003 [−0.0000, +0.0009].
+- GPR given no gold: ΔIBS −0.0009 [−0.0024, +0.0002].
+- Gold is the only global series whose point estimates favour it on both metrics, but the effect is tiny and not significant. GPR adds nothing even without gold.
+
+**Reading.**
+- **Gold is noise for reversal timing in these years.** It is not a significant channel, with or without the geopolitical index.
+- **The slight harm from block D comes mainly from the two *level* series,** VIX level and GPR level. Levels drift over time, so a slope fitted on earlier years extrapolates poorly.
+- Per the D-017 guard this is recorded and **not acted on** with development data: no re-specification of the levels. In the final run the levels stay as pre-specified. A standardised-level variant may be reported only as a robustness check labelled as motivated by development results.
+- **Limitation (from the Paper 2 data scout):** GPR history is revised, and the snapshot uses the current vintage. Vintages exist only from 2022-02-24, so first-release values cannot be rebuilt for 2012–2021.
+
 ## Next steps
 
 1. Done (Finding 12). Next on the modelling side: neural hazard model; decompose the 5-day td-AUC (swing age vs. features); block E (bank fundamentals, news).
