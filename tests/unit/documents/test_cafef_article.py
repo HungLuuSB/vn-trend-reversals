@@ -55,3 +55,19 @@ def test_iter_bundle_skips_failed_pages():
             {"member": "p00001.html", "url": "u1", "status": 404}]}))  # fmt: skip
     arts = list(iter_bundle(buf.getvalue()))
     assert [a.url for a in arts] == ["u0"]
+
+
+def test_bundle_rows_strict_excludes_ambiguous_aliases():
+    from vnbank.documents.news.extract_mentions import bundle_rows
+
+    html = HTML.replace("So với ACB và MBBank.".encode(), "Cổ phiếu MB tăng.".encode())
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:
+        zf.writestr("p0.html", html)
+        zf.writestr("index.json", json.dumps({"pages": [
+            {"member": "p0.html", "url": "u0", "status": 200}]}))  # fmt: skip
+    pats_all = alias_patterns(ALIASES)
+    pats_strict = alias_patterns([x for x in ALIASES if x[1] != "MB"])
+    df = bundle_rows(buf.getvalue(), pats_all, pats_strict)
+    assert df.tickers.iloc[0] == ["MBB", "VCB"] and df.tickers_strict.iloc[0] == ["VCB"]
+    assert str(df.published_at_utc.iloc[0]) == "2014-06-10 16:11:12+00:00"
