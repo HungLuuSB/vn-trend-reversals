@@ -1,0 +1,22 @@
+<!-- Laptop settings: UTC everywhere, quiet logs, modest caches (container limit is 2 GB). -->
+<clickhouse>
+    <timezone>UTC</timezone>
+    <logger>
+        <level>warning</level>
+        <console>true</console>
+    </logger>
+    <max_server_memory_usage_to_ram_ratio>0.8</max_server_memory_usage_to_ram_ratio>
+    <mark_cache_size>268435456</mark_cache_size>
+    <uncompressed_cache_size>0</uncompressed_cache_size>
+    <!-- System log tables grow forever by default; keep two weeks. -->
+    <query_log replace="1">
+        <database>system</database>
+        <table>query_log</table>
+        <engine>ENGINE = MergeTree PARTITION BY event_date ORDER BY event_time TTL event_date + INTERVAL 14 DAY</engine>
+        <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </query_log>
+    <trace_log remove="1"/>
+    <metric_log remove="1"/>
+    <asynchronous_metric_log remove="1"/>
+    <text_log remove="1"/>
+</clickhouse>
