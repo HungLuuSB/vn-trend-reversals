@@ -45,7 +45,7 @@ def test_ingest_stores_list_and_pdf_then_resumes():
     c = fc.CafefFilingsClient(http=http, pause_s=0, sleep=lambda s: None)
     store = InMemoryRawStore()
     st = ingest(c, store, ["vcb"], [2013], log=lambda m: None)
-    assert st == {"lists": 1, "pdfs": 1, "skipped": 0, "failed": []}
+    assert st == {"lists": 1, "pdfs": 1, "skipped": 0, "failed": [], "empty": []}
     assert http.calls[0][1]["Symbol"] == "VCB"  # upper case
     keys = store.keys()
     assert any("list_VCB_2013." in k for k in keys) and any("VCB_13Q3_BCTC_HN." in k for k in keys)
@@ -74,3 +74,32 @@ def test_archives_are_accepted_and_other_bodies_rejected():
                      (b"<html>404</html>", False)):  # fmt: skip
         c = fc.CafefFilingsClient(http=H(body), pause_s=0, sleep=lambda s: None)
         assert (c.pdf(f)[0] == 200) is ok
+
+
+class FlakyHttp(FakeHttp):
+    """Answers an empty list `empties` times, then the real one."""
+
+    def __init__(self, empties):
+        super().__init__()
+        self.empties = empties
+
+    def get(self, url, params=None):
+        if params and self.empties > 0:
+            self.empties -= 1
+            self.calls.append((url, params))
+
+            class R:
+                status_code = 200
+                content = b'{"Data": [], "Message": null, "Success": true}'
+
+            return R()
+        return super().get(url, params)
+
+
+def test_empty_list_is_retried_then_reported():
+    c = fc.CafefFilingsClient(http=FlakyHttp(2), pause_s=0, sleep=lambda s: None)
+    st = ingest(c, InMemoryRawStore(), ["BID"], [2015], log=lambda m: None)
+    assert st["lists"] == 3 and st["pdfs"] == 1 and st["empty"] == []
+    c = fc.CafefFilingsClient(http=FlakyHttp(99), pause_s=0, sleep=lambda s: None)
+    st = ingest(c, InMemoryRawStore(), ["BID"], [2015], log=lambda m: None)
+    assert st["empty"] == ["BID 2015"] and st["pdfs"] == 0

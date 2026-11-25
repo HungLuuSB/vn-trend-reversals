@@ -4,6 +4,10 @@
 
 Stores each list reply and each PDF unchanged. Resumable: PDFs already stored (by file name,
 any download date) are skipped. Bank tickers default to dbt/seeds/bank_spells.csv.
+
+The list endpoint intermittently answers an empty list for a year that has filings (observed
+2026-11-25: BID 2015 empty four times, then 12 filings), so an empty list is retried up to
+EMPTY_RETRIES times before the year is reported as empty.
 """
 
 from __future__ import annotations
@@ -20,6 +24,8 @@ from vnbank.common.raw_store import RawStore, S3RawStore, raw_key, sha256_hex
 from vnbank.ingestion.filings.cafef_filings_client import CafefFilingsClient
 
 SOURCE = "cafef_filings"
+EMPTY_RETRIES = 8
+RETRY_PAUSE_S = 3.0
 
 
 def stored_pdfs(store: RawStore) -> set[str]:
@@ -27,7 +33,7 @@ def stored_pdfs(store: RawStore) -> set[str]:
     out = set()
     for k in keys:
         name = k.rsplit("/", 1)[-1]
-        m = re.match(r"^(.*)\.[0-9a-f]{8}(\.(?:pdf|zip|rar|7z))$", name)
+        m = re.match(r"^(.*)\.[0-9a-f]{8}(\.(?:pdf|zip|rar|7z|docx))$", name)
         if k.startswith(f"{SOURCE}/") and m:
             out.add(m[1] + m[2])
     return out
@@ -36,13 +42,20 @@ def stored_pdfs(store: RawStore) -> set[str]:
 def ingest(client: CafefFilingsClient, store: RawStore, symbols: list[str], years: list[int],
            log=print) -> dict:  # fmt: skip
     have = stored_pdfs(store)
-    st = {"lists": 0, "pdfs": 0, "skipped": 0, "failed": []}
+    st = {"lists": 0, "pdfs": 0, "skipped": 0, "failed": [], "empty": []}
     for sym in (s.upper() for s in symbols):
         for y in years:
-            body, filings, fetched = client.list_filings(sym, y)
-            store.put_immutable(raw_key(SOURCE, fetched, f"list_{sym}_{y}.json", sha256_hex(body)),
-                                body, {"symbol": sym, "year": str(y)})  # fmt: skip
-            st["lists"] += 1
+            for _ in range(EMPTY_RETRIES):
+                body, filings, fetched = client.list_filings(sym, y)
+                key = raw_key(SOURCE, fetched, f"list_{sym}_{y}.json", sha256_hex(body))
+                store.put_immutable(key, body, {"symbol": sym, "year": str(y)})
+                st["lists"] += 1
+                if filings:
+                    break
+                client.sleep(RETRY_PAUSE_S)
+            else:
+                st["empty"].append(f"{sym} {y}")
+                log(f"{sym} {y}: empty list after {EMPTY_RETRIES} tries")
             for f in filings:
                 if f.filename in have:
                     st["skipped"] += 1
