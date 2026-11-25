@@ -702,7 +702,14 @@ The model-shape table and the test results do not change.
     - the comparison column must do the same **whenever its total is legible**;
     - every line after the five group rows is tried as the total line (a garbled first "Tổng" line can be followed by a clean one).
   - Labels match on their distinctive words. A misread significant digit is still rejected; a unit test pins this.
-  - Documents that still fail get a second OCR pass on the candidate pages only (other resolution and page-segmentation settings), under the same rule.
+  - **Second pass, tried and dropped (2026-11-25).** On skewed EIB scans, tesseract misreads digits (e.g. "1,413,300" for 1.412.300) and drops rows at every resolution and layout setting tried. No parser can recover them, and the sum check rightly rejects the result.
+  - **Third tier: visual transcription.**
+    - **Applies to:** a first-release statement whose table the OCR parser cannot accept.
+    - **Method:** the assistant reads the loan-quality table from the rendered page image.
+    - **Acceptance:** the five groups must sum **exactly** to the printed total in **both** columns. This is stricter than for OCR rows, and a value that fails is not recorded.
+    - **Storage:** rows go to the curated seed `dbt/seeds/loan_quality_transcribed.csv`, with the raw-layer key and page number on every row (CLAUDE.md seed exception), flagged `method = visual`.
+    - **Robustness:** block E results are also reported with these rows removed.
+    - **Why:** leaving these quarters missing would drop most of EIB from a 9-bank development sample. An exact two-column sum check is strong evidence of a correct reading.
 - **Features** (bank rows; NaN when missing, then median-imputed like every feature):
   - `npl_ratio`: the latest available first-released value;
   - `npl_change`: the latest value minus the previous quarter's first-released value.
