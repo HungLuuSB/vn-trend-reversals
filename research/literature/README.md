@@ -5,6 +5,7 @@ Drop PDFs here, by topic:
 - `monetary/`: monetary policy, Fed and rate spillovers, FX and dollar effects
 - `geopolitical/`: geopolitical risk, GPR index, economic policy uncertainty, safe havens, war and sanctions shocks
 - `us-vn-spillover/`: US market moves transmitted to Vietnamese stocks
+- `international-spillover/`: general cross-market spillover and contagion methods
 - `methods/`: forecasting and machine-learning methods
 
 Files are named `Author-Year_short-title.pdf`. Reading notes: `NOTES.md`.
