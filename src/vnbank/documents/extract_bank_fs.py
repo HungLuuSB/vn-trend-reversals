@@ -5,7 +5,8 @@
 Reads PDFs from the raw layer (raw/cafef_filings/), OCRs them (cached by hash) and writes one
 row per document to data/extracted/loan_quality.parquet: symbol, period, kind, raw key, page,
 the five groups and the total (current and comparison columns), NPL ratio, and status
-(ok / no_table / not_pdf). Archives (.zip/.rar/.7z) and .docx are skipped for now.
+(ok / no_table / not_pdf). Archives (.zip/.rar/.7z) are read member by member (PDFs in name
+order, pages numbered across them); a .docx is read from its XML (``container`` column).
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ import pandas as pd
 from vnbank.common import paths
 from vnbank.common.env import load_dotenv
 from vnbank.common.raw_store import S3RawStore
+from vnbank.documents.parse.containers import ARCHIVES, archive_pdfs, docx_lines, is_docx
 from vnbank.documents.parse.ocr import ocr_pdf
 from vnbank.documents.tables.loan_quality import find_loan_quality
 
@@ -42,10 +44,16 @@ def _one(key: str) -> dict:
     name = key.rsplit("/", 1)[-1]
     row = {"raw_key": key, **(parse_name(name) or {})}
     body = store.get(key)
-    if not body.startswith(b"%PDF"):
-        return {**row, "status": "not_pdf"}
     t0 = time.time()
-    pages = ocr_pdf(body, workers=2)
+    if body.startswith(b"%PDF"):
+        row["container"], pages = "pdf", ocr_pdf(body, workers=2)
+    elif is_docx(body):
+        row["container"], pages = "docx", ["\n".join(docx_lines(body))]
+    elif body.startswith(ARCHIVES) and (pdfs := archive_pdfs(body)):
+        row["container"], pages = "archive", [p for _, b in pdfs for p in ocr_pdf(b, workers=2)]
+        row["members"] = " | ".join(n for n, _ in pdfs)
+    else:
+        return {**row, "status": "not_pdf"}
     lq = find_loan_quality(pages)
     row.update({"n_pages": len(pages), "ocr_s": round(time.time() - t0, 1)})
     if lq is None:
