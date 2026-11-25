@@ -9,6 +9,7 @@ Drop PDFs here, by topic:
 - `methods/`: forecasting and machine-learning methods
 - `bank-asset-quality/`: loan quality, provisions and bank stock returns (Paper 1 block E)
 - `investor-attention/`: search and news attention and returns (Paper 1 block E)
+- `trend-duration/`: duration of trends and bull/bear phases, reversal prediction, survival models in trading (Paper 1 novelty)
 
 The `inbox/` folder stays in place for new uploads.
 
