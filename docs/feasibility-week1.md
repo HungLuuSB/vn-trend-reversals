@@ -503,6 +503,37 @@ Paired differences for nn_seq_ABCD:
 - A value below 0.5 cannot come from leakage, which would raise C. The probable cause is label-free structure in the network's outputs (prediction spread depends on input scale). This is unproven, recorded and not acted on.
 - No model exceeded the C = 0.70 stop line.
 
+## Finding 22: block E (bank fundamentals and news), development only (2026-11-25)
+
+D-023 tests whether first-released NPL figures and daily news attention help time reversals of bank stocks. The test uses bank rows only: 9 banks and 9,571 rows in 2012–2016 (runs `20261125T032814Z-devdecompose-D-023` and `20261125T033831Z-devdecompose-D-023-ocr-only`).
+
+**Data.**
+- 212 first-release bank-quarters exist. Of these, 143 NPL values come from OCR and 59 from visual transcription; every transcribed row sums exactly to its printed total in both columns. 10 are missing.
+- Each value is dated by the conservative rule: the later of the filing deadline and the PDF date, plus 5 sessions.
+- News counts cover every session of 2012–2016, from about 200,000 CafeF articles.
+
+| Pooled 2014–2016, bank rows | Uno C | IBS | 5-day td-AUC |
+|---|---|---|---|
+| M (mechanical) | 0.594 | 0.2004 | 0.669 |
+| M + E | 0.605 | 0.1986 | 0.677 |
+| ABCDx (full linear) | 0.614 | 0.1970 | 0.690 |
+| ABCDx + E | 0.610 | 0.1975 | 0.685 |
+
+| Paired difference | C | IBS | Pre-registered verdict |
+|---|---|---|---|
+| ABCDx + E − ABCDx (primary) | [−0.009, +0.000] | [−0.0008, +0.0019] | no improvement |
+| M + E − M | [+0.003, +0.019] | [−0.0039, −0.0001] | improves on both |
+| Without transcribed values: ABCDx + E − ABCDx | [−0.008, +0.000] | [−0.0010, +0.0016] | no improvement |
+| Without transcribed values: M + E − M | [+0.006, +0.024] | [−0.0039, −0.0003] | improves on both |
+
+**Reading.**
+- **Block E carries real information beyond the swing mechanics.** It is the first block in the project to clear the D-016 bar on both metrics.
+- That information is already in the local features. With blocks A–C in the model, E adds nothing, and the point estimates are slightly negative. Bank fundamentals and news attention move with what price, volume and limit features already show.
+- **The pre-registered primary test is not supported in development.** Under D-023, with 9 banks this means "not detected", not "no effect".
+- The result does not depend on the visual transcriptions. Without them, the gain over M is slightly larger.
+- On bank rows the full linear model sits well above M (C 0.614 vs 0.594). This comparison was not pre-registered for this subsample and is noted only descriptively.
+- The final run on 2017–2026, with about 27 banks, decides block E.
+
 ## Next steps
 
 Status 2026-11-25:
