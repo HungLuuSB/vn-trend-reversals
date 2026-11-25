@@ -775,3 +775,24 @@ The model-shape table and the test results do not change.
 - **Power:** development has 9 banks (about 9,600 rows). A null result is reported as "not detected with this sample", not as "no effect".
 
 **What does not change:** labels, folds, metrics, and blocks A–D.
+
+## D-024 — Final snapshot freeze moved from mid-February 2027 to as soon as the pipeline is complete
+
+- **Date:** 2026-11-25
+- **Decided by:** the user ("Move the freeze to 20-11"), after the trade-offs below were explained.
+- **Decision:**
+  - The data cutoff is unchanged: the **2026-11-20 close** (D-001). Nothing after it enters any feature, label, outcome or estimate.
+  - The final snapshot is frozen **as soon as the pipeline is complete**, instead of waiting until mid-February 2027 for the data about the study period to "settle". The target is early December 2026.
+- **Why:**
+  - Every feature uses only values public before its decision time, and bank figures are first-release (rules 3–5). Waiting adds nothing that was knowable before 2026-11-20.
+  - Later revisions to past data (GPR revisions, restatements, re-adjusted archives) are, if anything, a form of look-ahead, so an earlier freeze is cleaner.
+  - Swings still open at the cutoff are right-censored, so no prices after 2026-11-20 are needed.
+- **What gates the freeze** (each step finished and logged before it):
+  1. block E for all banks, 2016–2026 (OCR, visual transcription, first-release selection, D-023 clarifications 4–5), with the 2012–2016 values confirmed identical to the D-023 inputs;
+  2. the 2017–2026 news crawl and mention extraction;
+  3. the raw GPR file covering every US date up to 2026-11-20;
+  4. the `leakage-audit` skill over the whole pipeline, and a referee-style review of the design;
+  5. all tests and dbt tests passing, configs committed.
+- **What does not change:**
+  - the single final walk-forward run on 2017–2026 happens only once, on the frozen snapshot, and only with the user's explicit go-ahead;
+  - a data problem found after the freeze reopens it as a new, documented snapshot, and every run is reported.
