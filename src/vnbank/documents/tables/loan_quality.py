@@ -12,15 +12,18 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
-# group label prefixes after accent stripping and lower-casing (OCR may garble the tail)
+# group label keys after accent stripping, lower-casing and removing spaces (OCR glues
+# words: "Nợcân chúý", "Nợ nghingd"). Checked in this order (group 3 before group 1).
+# The leading "Nợ" is often misread ("Ng", "Ny"), so keys use the distinctive words only.
 GROUPS = [
-    ("no du tieu chu", 1),
-    ("no can chu y", 2),
-    ("no duoi tieu chu", 3),
-    ("no nghi ngo", 4),
-    ("no co kha nang m", 5),
+    ("duoitieu", 3),
+    ("canchu", 2),
+    ("nghing", 4),
+    ("khanang", 5),
+    ("dutieu", 1),
 ]
-_NUM = re.compile(r"(?<![\d.,])\d{1,3}(?:[.,]\d{3})+(?![\d.,])|(?<![\d.,])\d{1,6}(?![\d.,])")
+MAX_ROWS = 30  # look-ahead in lines (OCR often inserts blank lines between table rows)
+_NUM = re.compile(r"\d[\d.,]*\d|\d")
 
 
 def fold(s: str) -> str:
@@ -31,57 +34,76 @@ def fold(s: str) -> str:
 
 
 def numbers(line: str) -> list[int]:
-    """Integers written with . or , thousands separators (or plain), in order."""
+    """Integers written with . or , thousands separators, in order. Tolerant of OCR that
+    drops a separator ("5371348.825.425"): separators are removed, not validated. A misread
+    cannot pass silently because every table must sum to its printed total."""
     return [int(re.sub(r"[.,]", "", m)) for m in _NUM.findall(line)]
+
+
+def sums_to(parts: list[int], total: int) -> bool:
+    """Equal up to presentation rounding: banks round each line (e.g. to millions), so the
+    printed total can differ from the sum by a few units (D-023 clarification)."""
+    return abs(sum(parts) - total) <= max(5, 1e-7 * abs(total))
 
 
 @dataclass(frozen=True)
 class LoanQuality:
     page: int  # 1-based
     groups: tuple[tuple[int, int], ...]  # (current, comparison) for groups 1..5
-    total: tuple[int, int]
+    total: tuple[int, int | None]  # comparison total None when not legible
 
     @property
     def npl_ratio(self) -> float:
         return sum(self.groups[i][0] for i in (2, 3, 4)) / self.total[0]
 
     @property
-    def npl_ratio_prior(self) -> float:
+    def npl_ratio_prior(self) -> float | None:
+        if self.total[1] is None:
+            return None
         return sum(self.groups[i][1] for i in (2, 3, 4)) / self.total[1]
 
 
-def _two_large(nums: list[int]) -> tuple[int, int] | None:
+def _two_large(nums: list[int]) -> tuple[int, int] | None:  # used by the start-row test
     big = [n for n in nums if n >= 1000]
     return (big[-2], big[-1]) if len(big) >= 2 else None
 
 
 def _group(folded_line: str) -> int | None:
-    return next((k for p, k in GROUPS if folded_line.startswith(p) or f" {p}" in folded_line),
-                None)  # fmt: skip
+    compact = re.sub(r"[^a-z0-9]", "", folded_line)
+    return next((k for p, k in GROUPS if p in compact), None)
 
 
 def parse_page(text: str, page: int) -> LoanQuality | None:
     """Find a run of the five group lines (each with two amounts) followed by a total line.
     Headings vary by bank and year ("Phân tích chất lượng nợ cho vay", "Phân tích theo nhóm"),
-    so the table is located by its rows, not its heading."""
+    so the table is located by its rows, not its heading. Every later line with an amount is
+    tried as the total (OCR may garble the first "Tổng" line); the current column must sum
+    to it, and the comparison column too whenever its total is legible."""
     lines = text.splitlines()
     folded = [fold(x) for x in lines]
     for start, f in enumerate(folded):
         if _group(f) != 1 or not _two_large(numbers(lines[start])):
             continue
         found: dict[int, tuple[int, int]] = {}
-        total = None
-        for j in range(start, min(start + 12, len(lines))):
-            g, pair = _group(folded[j]), _two_large(numbers(lines[j]))
-            if g and pair and g not in found:
-                found[g] = pair
-            elif len(found) == 5 and pair:
-                total = pair
-                break
-        if len(found) == 5 and total:
+        for j in range(start, min(start + MAX_ROWS, len(lines))):
+            if not re.search(r"\w", folded[j]):
+                continue  # blank or punctuation-only line
+            big = [n for n in numbers(lines[j]) if n >= 1000]
+            g = _group(folded[j])
+            if len(found) < 5:
+                if g and g not in found and len(big) >= 2:
+                    found[g] = (big[-2], big[-1])
+                continue
+            if not big:
+                continue
             groups = tuple(found[k] for k in range(1, 6))
-            if all(sum(gr[c] for gr in groups) == total[c] for c in (0, 1)):
+            cur = [gr[0] for gr in groups]
+            prev = [gr[1] for gr in groups]
+            total = (big[-2], big[-1]) if len(big) >= 2 else (big[0], None)
+            if sums_to(cur, total[0]) and (total[1] is None or sums_to(prev, total[1])):
                 return LoanQuality(page, groups, total)
+            if len(big) >= 2 and sums_to(cur, big[-1]):  # only the current total legible
+                return LoanQuality(page, groups, (big[-1], None))
     return None
 
 
