@@ -1,0 +1,71 @@
+% Paper 1 -- skeleton (2026-11-25). Planned content per section is in the % PLAN comments of each
+% sections/*.tex file. Every number comes from papers/paper1/generated/ (CLAUDE.md); final results
+% wait for the single walk-forward run on the frozen snapshot (D-024). Never type a result by hand.
+\documentclass[preprint,12pt,authoryear]{elsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage[textsize=footnotesize]{todonotes}
+
+% generated numbers (vnbank.research.<paper1 builder>, not written yet: results are not final)
+\IfFileExists{generated/numbers.tex}{\input{generated/numbers.tex}}{}
+
+\journal{(target journal to be chosen; see docs/proposals/paper1-trend-reversals.md)}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{When Do Trends Reverse? A Survival Analysis of Price Swings in the Vietnamese Stock
+Market Under Global Shocks}
+% PLAN: keep a finding out of the title until the final run supports it (skill rule).
+
+\author[inst]{Author \todo{names, affiliations, ORCID}}
+\affiliation[inst]{organization={\todo{affiliation}}}
+
+\begin{abstract}
+% PLAN (written last): problem -> gap -> method -> data -> main result with number and
+% uncertainty -> implication. 150-250 words, no citations.
+\todo{Abstract: written after the final run.}
+\end{abstract}
+
+\begin{highlights}
+% PLAN: 3-5 findings, <= 85 characters each, written after the final run.
+\item \todo{Highlight 1}
+\end{highlights}
+
+\begin{keyword}
+Survival analysis \sep Directional change \sep Trend reversal \sep Emerging markets \sep
+Price limits \sep Vietnam
+\JEL G12 \sep G14 \sep G17 \sep C41 \sep C53
+\end{keyword}
+
+\end{frontmatter}
+
+\input{sections/01_introduction}
+\input{sections/02_literature}
+\input{sections/03_market_data}
+\input{sections/04_method}
+\input{sections/05_results}
+\input{sections/06_robustness}
+\input{sections/07_discussion}
+\input{sections/08_conclusion}
+
+\section*{Data and code availability}
+% PLAN: snapshot hash (research/snapshots.md), git commit of the final run, repository URL;
+% third-party data terms (CafeF, Yahoo, FRED, GPR) and what can / cannot be redistributed.
+\todo{Data and code availability statement.}
+
+\section*{Declarations}
+% PLAN: CRediT, competing interests, funding, generative-AI use statement (Elsevier requires it).
+\todo{Declarations.}
+
+\appendix
+\input{sections/A_appendix}
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{refs}
+
+\end{document}

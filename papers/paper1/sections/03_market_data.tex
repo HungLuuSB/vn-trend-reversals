@@ -1,0 +1,28 @@
+\section{Market setting and data}\label{sec:data}
+% Drafted first (skill order). Facts come from dbt seeds and docs; numbers from generated/.
+
+\subsection{The Vietnamese stock market}
+% PLAN: HOSE/HNX/UPCoM; daily price limits by exchange and date (D-003; seed price_limit_schedule:
+%   HOSE +-5% -> +-7% from 2013-01-15, HNX +-7% -> +-10%, UPCoM +-10% -> +-15%), reference-price
+%   rules, T+2 settlement (seed settlement_cycle), retail dominance, foreign ownership limits,
+%   FTSE upgrade (announced 2025-10-07, effective 2026-09-21). Every fact with its seed source.
+\todo{Market setting.}
+
+\subsection{Universe, sample and sources}
+% PLAN: VN30 point-in-time membership + all listed banks (29 with rows); study period
+%   2012-01-03 to the 2026-11-20 close (D-001); CafeF bulk archives (ADR 0002) stored raw;
+%   prices raw vs adjusted (rule 9); global series (seed global_series) with availability rules.
+% PLAN TABLE (generated): counts after each filter: stocks, stock-days, swings, survival rows.
+\todo{Universe and sources.}
+
+\subsection{Point-in-time alignment}
+% PLAN: decision time 09:00 Asia/Ho_Chi_Minh on t+1 (rule 4); available_at_utc on every value;
+%   the dbt test no_feature_after_decision_time; Vietnamese holidays (rule 8); first-release bank
+%   figures with conservative publication time (D-023 + clarifications 1-5); news 09:00-09:00
+%   windows. Figure: timeline of one decision (US close, GPR, SBV, filings).
+\todo{Point-in-time alignment.}
+
+\subsection{Descriptive statistics}
+% PLAN TABLE (generated): swing durations by direction and exchange, censoring share, events per
+%   year, Kaplan-Meier survival at 5/10/20 sessions; feature summary.
+\todo{Descriptive statistics.}
