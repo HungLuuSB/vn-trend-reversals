@@ -696,6 +696,13 @@ The model-shape table and the test results do not change.
   - The parent-only statement (`M`) is used only for a bank with no consolidated statement in that quarter.
   - Later versions (reviewed, audited, restated comparison columns) are never used for features.
 - **Values:** the current-period column only. NPL ratio = groups 3–5 / total customer loans (SBV classification), accepted only when the five groups sum to the printed total in both columns.
+  - **Clarification (2026-11-25, before any block E value was joined to an outcome).** The first OCR pass showed three things: printed totals differ from the sum by presentation rounding (e.g. CTG Q3/2013: 345,555,671 summed vs 345,555,670 printed, million-VND rounding); OCR sometimes loses the comparison column of the total line; and "Nợ" is often misread.
+  - The acceptance rule becomes:
+    - the **current** column must sum to its printed total within max(5 units, 10⁻⁷ × total);
+    - the comparison column must do the same **whenever its total is legible**;
+    - every line after the five group rows is tried as the total line (a garbled first "Tổng" line can be followed by a clean one).
+  - Labels match on their distinctive words. A misread significant digit is still rejected; a unit test pins this.
+  - Documents that still fail get a second OCR pass on the candidate pages only (other resolution and page-segmentation settings), under the same rule.
 - **Features** (bank rows; NaN when missing, then median-imputed like every feature):
   - `npl_ratio`: the latest available first-released value;
   - `npl_change`: the latest value minus the previous quarter's first-released value.
