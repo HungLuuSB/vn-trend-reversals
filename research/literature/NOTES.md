@@ -20,7 +20,10 @@ The two firm-panel papers are annual. Their US variable is the same for every fi
 2. test formally whether the link changed after 2018 (break tests, regime interactions), instead of choosing breaks from events after the fact;
 3. use *surprises* (FOMC rate surprises, VIX innovations, overnight S&P returns), not levels such as the Fed funds rate;
 4. test the mechanism the 2025 paper only asserts: does US uncertainty predict foreign net flows on HOSE?
-5. compare state-owned banks (VCB, BID, CTG) with private banks, and large firms with small ones.
+5. compare state-owned banks (VCB, BID, CTG) with private banks, and large firms with small ones;
+6. test whether US effects appear **only in crashes** (left-tail dependence between the US close on day t−1 and Vietnam on day t; a "US crash" indicator in the hazard model, with expanding-window thresholds; 2–3-day Vietnamese returns to catch moves capped by price limits). Nguyen, Bhatti & Henry (2017) suggest this, but they measure it on same-date pairs.
+
+Paper 1's development data cannot be used for item 6 either: the D-017 guard closed block-D specifications there. Each item would be pre-registered for the final run or for Paper 3. Power is low: the bottom 1% of about 1,250 sessions in 2012–2016 is only about 12 events.
 
 Constraint: these tests use the same US series as Paper 1's final run. They would be run after that run, or on 2012–2016 only until then.
 
@@ -107,3 +110,32 @@ Abolmakarem, S., Abdi, F., Khalili-Damghani, K. & Didehkhani, H. (2024). A multi
   - A list of practices our pipeline already guards against.
   - Usable, point-in-time features: intraday range ratios (ln H/O, ln L/O) and price-normalised ATR, RSI and ADX through the close of day t.
   - Cite only as an example of an evaluation pitfall, if at all.
+
+## Nguyen, Bhatti & Henry (2017): US contagion into Vietnam and China in extreme events
+
+Nguyen, C., Bhatti, M.I. & Henry, D. (2017). Are Vietnam and Chinese stock markets out of the US contagion effect in extreme events? *Physica A*. **DOI 10.1016/j.physa.2017.02.045: verified.** The text is the accepted manuscript, so volume and pages must be taken from the published version before citing. File: `us-vn-spillover/`.
+
+- **Data:** daily VN-Index, Shanghai, Shenzhen and S&P 500 (DataStream), 2003–2011. The start date is given three different ways.
+- **Alignment:** never stated, so almost certainly same-date pairs. Vietnam's day t closes before the US day t opens, so the channel that matters (US t−1 to Vietnam t) is not modelled.
+- **Method:** Clayton (lower tail), Gumbel (upper tail) and Normal copulas on GARCH-filtered returns, before and after the crisis. The crisis window (Aug 2008 – Apr 2009) is excluded, chosen with the reasoning that all markets "presumably" moved together.
+- **Findings (Table 2):**
+  - US–Vietnam Clayton θ rises from 0.0945 before to 0.2968 after; Normal ρ rises from 0.061 to 0.238.
+  - After the crisis, the Clayton and Normal log-likelihoods are nearly tied (19.52 vs 19.34).
+  - The implied lower-tail dependence 2^(−1/θ) is about 0.0007 before and about 0.097 after (our arithmetic; the paper reports none).
+  - Conclusion: the two markets are "more prone to crashing than booming together".
+- **Weaknesses:**
+  - Same-date pairing.
+  - No formal test of change and no tail-dependence coefficients reported.
+  - The "before" period contains Vietnam's 2007–08 crash.
+  - Price limits are ignored: HOSE's ±5% band censors the tails the copulas measure.
+  - A thin early market (22 firms in 2003).
+- **For us:** weak, contemporaneous, in-sample evidence. It does not contradict our null on swing reversals. Its useful idea is synthesis item 6: US effects may sit only in the left tail, which average-effect models dilute.
+
+## Nguyen & Paientko (2024): forecasting the VN30 index (methods)
+
+Nguyen, H.L. & Paientko, T. (2024). Forecasting the VN30 Index: insights into Vietnam's stock market trends. *Strategies in Accounting and Management* 4(5), 000598 (Crimson Publishers; labelled "Review Article"; published 24 days after submission). **DOI 10.31031/SIAM.2024.04.000598: verified** (it resolves to the publisher's page). File: `methods/`.
+
+- **Data:** VN30 *levels* from Bloomberg: monthly from Feb 2012, plus daily 2018–2023 and 2022–2023. Test sets are 6 months and 5 days. There are no features.
+- **Method:** `auto.arima` (Box-Cox, KPSS, AICc). Evaluation only checks whether actuals fall inside the forecast intervals; no error metrics and no baseline.
+- **Findings:** the daily models select ARIMA(0,1,0), **a random walk**, giving a flat forecast of 1129.43 against actuals of 1143.16–1160.59 (Tables 2–3). The monthly forecasts are all too low (Jan 2023: 1009.73 vs 1125.07, Table 1). All actuals fall inside the very wide 80% bands. The paper still concludes the VN30 is forecastable.
+- **For us:** read correctly, this is weak evidence that daily VN30 levels behave like a random walk, which fits our red-flag rule. Practices to avoid: forecasting levels, checking interval coverage only, five-day holdouts. The VN30 figure of about 80% of HOSE market capitalisation is attributed to "Bloomberg 2023" and needs a primary source.
