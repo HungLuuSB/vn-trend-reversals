@@ -45,7 +45,7 @@ def test_ingest_stores_list_and_pdf_then_resumes():
     c = fc.CafefFilingsClient(http=http, pause_s=0, sleep=lambda s: None)
     store = InMemoryRawStore()
     st = ingest(c, store, ["vcb"], [2013], log=lambda m: None)
-    assert st == {"lists": 1, "pdfs": 1, "skipped": 0, "failed": [], "empty": []}
+    assert st == {"lists": 1, "pdfs": 1, "skipped": 0, "failed": [], "empty": [], "not_wanted": 0}
     assert http.calls[0][1]["Symbol"] == "VCB"  # upper case
     keys = store.keys()
     assert any("list_VCB_2013." in k for k in keys) and any("VCB_13Q3_BCTC_HN." in k for k in keys)
@@ -112,3 +112,16 @@ def test_stored_files_recognised_whatever_the_extension_case():
     for name in ("SHB_14Q1_BCTC_HN.0a1b2c3d.PDF", "ACB_12Q4_BCTC_HN.faf296a1.docx"):
         store.put_immutable(f"cafef_filings/2026-11-24/{name}", b"x", {})
     assert stored_pdfs(store) == {"SHB_14Q1_BCTC_HN.PDF", "ACB_12Q4_BCTC_HN.docx"}
+
+
+def test_kinds_filter_skips_other_statements_but_keeps_unknown_names():
+    from vnbank.ingestion.filings.cafef_filings_ingest import wanted
+
+    assert wanted("VCB_13Q3_BCTC_HN.pdf", {"HN", "M"})
+    assert not wanted("VCB_14Q2_BCTC_MSX.pdf", {"HN", "M"})
+    assert not wanted("VCB_22Q2_BCTC_MSX_2022-103257.pdf", {"HN", "M"})
+    assert wanted("VCB_22Q2_BCTC_HN_2022-092134.pdf", {"HN", "M"})
+    assert wanted("odd-name.pdf", {"HN"}) and wanted("VCB_14Q2_BCTC_MSX.pdf", None)
+    c = fc.CafefFilingsClient(http=FakeHttp(), pause_s=0, sleep=lambda s: None)
+    st = ingest(c, InMemoryRawStore(), ["VCB"], [2013], log=lambda m: None, kinds={"M"})
+    assert st["pdfs"] == 0 and st["not_wanted"] == 1

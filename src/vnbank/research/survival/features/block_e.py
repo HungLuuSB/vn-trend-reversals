@@ -108,8 +108,15 @@ def main(argv: list[str] | None = None) -> int:
     sess = np.sort(pd.to_datetime(sessions).to_numpy())
     load_dotenv(["S3_"])
     store = S3RawStore.from_env()
-    fr = first_release(documents(store))
-    fr["created"] = [document_created(store.get(k)) for k in fr.raw_key]
+    docs = documents(store)
+    # D-023 clarification 4: creation dates decide between versions of the same kind
+    dup = docs.duplicated(["symbol", "year", "period", "kind"], keep=False)
+    docs["created"] = None
+    docs.loc[dup, "created"] = [document_created(store.get(k)) for k in docs.raw_key[dup]]
+    print(f"{int(dup.sum())} files share a bank-quarter and kind with another file")
+    fr = first_release(docs)
+    fr["created"] = [c if c is not None and not pd.isna(c) else document_created(store.get(k))
+                     for c, k in zip(fr.created, fr.raw_key, strict=True)]  # fmt: skip
     vals = quarterly_values(npl_values(fr), sess)
     vals.to_parquet(EXTRACTED / "block_e_npl.parquet", index=False)
     print(pd.crosstab(vals.symbol, vals.value_source.fillna("none"), margins=True).to_string())

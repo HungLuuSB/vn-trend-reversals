@@ -36,6 +36,16 @@ def test_first_release_precedence():
     assert dict(zip(fr.q, fr.kind, strict=True)) == {2: "HN", 3: "M", 4: "HNKT"}
 
 
+def test_first_release_prefers_the_earliest_version_of_a_kind():
+    docs = pd.DataFrame({"symbol": ["VCB"] * 3, "year": [2022] * 3, "period": ["Q2"] * 3,
+                         "kind": ["HN"] * 3, "suffix": ["", "2022-092134", "2022-100000"],
+                         "created": [date(2022, 8, 10), date(2022, 7, 28), None],
+                         "raw_key": ["a", "b", "c"]})  # fmt: skip
+    assert first_release(docs).raw_key.tolist() == ["b"]  # earliest creation date
+    docs["created"] = None
+    assert first_release(docs).raw_key.tolist() == ["a"]  # no dates: unsuffixed name
+
+
 SESSIONS = pd.bdate_range("2015-04-01", "2015-07-31").to_numpy()  # weekdays as sessions
 
 
