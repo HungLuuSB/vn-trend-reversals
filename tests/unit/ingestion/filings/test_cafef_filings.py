@@ -103,3 +103,12 @@ def test_empty_list_is_retried_then_reported():
     c = fc.CafefFilingsClient(http=FlakyHttp(99), pause_s=0, sleep=lambda s: None)
     st = ingest(c, InMemoryRawStore(), ["BID"], [2015], log=lambda m: None)
     assert st["empty"] == ["BID 2015"] and st["pdfs"] == 0
+
+
+def test_stored_files_recognised_whatever_the_extension_case():
+    from vnbank.ingestion.filings.cafef_filings_ingest import stored_pdfs
+
+    store = InMemoryRawStore()
+    for name in ("SHB_14Q1_BCTC_HN.0a1b2c3d.PDF", "ACB_12Q4_BCTC_HN.faf296a1.docx"):
+        store.put_immutable(f"cafef_filings/2026-11-24/{name}", b"x", {})
+    assert stored_pdfs(store) == {"SHB_14Q1_BCTC_HN.PDF", "ACB_12Q4_BCTC_HN.docx"}
