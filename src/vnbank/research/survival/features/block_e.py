@@ -127,8 +127,21 @@ if __name__ == "__main__":
     sys.exit(main())
 
 
-def add_block_e(ds: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+def ocr_only(npl: pd.DataFrame) -> pd.DataFrame:
+    """D-023 robustness: drop visually transcribed values and recompute npl_change from the
+    remaining first-release values (a change needs both quarters from OCR)."""
+    out = npl.copy()
+    out.loc[out.value_source != "ocr", "npl_ratio"] = np.nan
+    prev = out[["symbol", "qidx", "npl_ratio"]].assign(qidx=lambda x: x.qidx + 1)
+    out = out.drop(columns="npl_change").merge(prev, on=["symbol", "qidx"], how="left",
+                                               suffixes=("", "_prev"))  # fmt: skip
+    out["npl_change"] = out.npl_ratio - out.npl_ratio_prev
+    return out.drop(columns="npl_ratio_prev")
+
+
+def add_block_e(ds: pd.DataFrame, ocr_values_only: bool = False) -> tuple[pd.DataFrame, dict]:
     """D-023: add npl_ratio, npl_change, news_count, news_rel_20 and keep bank rows only.
+    ocr_values_only: the pre-registered robustness check without the visual-transcription tier.
     Returns the dataset and the sha256 of each input file (recorded in the run config: block E
     inputs are not yet part of the frozen snapshot)."""
     import hashlib
@@ -140,6 +153,9 @@ def add_block_e(ds: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     for name in ("block_e_npl.parquet", "news_counts.parquet"):
         meta[name] = hashlib.sha256((EXTRACTED / name).read_bytes()).hexdigest()
     npl = pd.read_parquet(EXTRACTED / "block_e_npl.parquet")
+    if ocr_values_only:
+        npl = ocr_only(npl)
+    meta["ocr_values_only"] = ocr_values_only
     nc = pd.read_parquet(EXTRACTED / "news_counts.parquet")
     bank = ds[ds.is_bank.astype(bool)].reset_index(drop=True)
     bank = add_npl_features(bank, npl)
