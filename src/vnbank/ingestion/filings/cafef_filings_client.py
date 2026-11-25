@@ -6,8 +6,9 @@ Facts (observed 2026-11-25; docs/blockE-data-feasibility.md):
   returns ``{"Data": [...], "Success": true}``; ``Symbol`` must be upper case (lower case gives
   an empty list). Each item: Quarter (1-4; 5 = annual), Time ("Q3/2013", "CN/2013"), Name
   (e.g. "... hợp nhất quý 2 năm 2013 (đã soát xét)"), Link. There is NO publication date.
-* Links point to ``cafefnew.mediacdn.vn`` (404); the same path on ``cafef1.mediacdn.vn``
-  serves the PDF.
+* Links point to ``cafefnew.mediacdn.vn``. For older uploads that host answers 404 and the same
+  path on ``cafef1.mediacdn.vn`` serves the PDF; recent uploads (seen from late 2025) are served
+  only by the listed host. ``pdf`` tries cafef1 first and falls back to the listed link on 404.
 
 The list replies and every PDF are stored unchanged in the raw layer (CLAUDE.md rule 1).
 """
@@ -88,6 +89,8 @@ class CafefFilingsClient:
 
     def pdf(self, f: Filing) -> tuple[int, bytes, datetime]:
         status, body, fetched = self._get(f.pdf_url)
+        if status == 404 and f.pdf_url != f.link:
+            status, body, fetched = self._get(f.link)
         if status == 200 and not body.startswith(SIGNATURES):
             status = -2  # neither a PDF nor a known archive
         return status, body, fetched

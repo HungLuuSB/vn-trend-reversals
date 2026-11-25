@@ -1,0 +1,12 @@
+# Literature (user-supplied papers)
+
+Drop PDFs here, by topic:
+
+- `monetary/`: monetary policy, Fed and rate spillovers, FX and dollar effects
+- `geopolitical/`: geopolitical risk, GPR index, economic policy uncertainty, safe havens, war and sanctions shocks
+- `us-vn-spillover/`: US market moves transmitted to Vietnamese stocks
+- `methods/`: forecasting and machine-learning methods
+
+Files are named `Author-Year_short-title.pdf`. Reading notes: `NOTES.md`.
+
+PDFs are git-ignored (`*.pdf` in `.gitignore`): published papers are copyrighted, so they stay on the laptop only. Reading notes and BibTeX entries that cite them go in each paper's `papers/paperN/refs.bib`, verified as CLAUDE.md requires.

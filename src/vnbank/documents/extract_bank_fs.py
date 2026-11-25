@@ -42,11 +42,11 @@ def parse_name(name: str) -> dict | None:
             "kind": m["kind"], "suffix": m["suffix"] or ""}  # fmt: skip
 
 
-def _one(key: str) -> dict:
+def _one(key: str, meta: dict | None = None) -> dict:
     load_dotenv(["S3_"])
     store = S3RawStore.from_env()
     name = key.rsplit("/", 1)[-1]
-    row = {"raw_key": key, **(parse_name(name) or {})}
+    row = {"raw_key": key, **(meta or parse_name(name) or {})}
     body = store.get(key)
     t0 = time.time()
     if body.startswith(b"%PDF"):
@@ -71,25 +71,83 @@ def _one(key: str) -> dict:
     return row
 
 
-def candidate_keys(keys) -> list[str]:
+_TIME = re.compile(r"^(?P<per>Q[1-4]|CN)/(?P<year>\d{4})$")
+_SHA = re.compile(r"\.[0-9a-f]{8}(?=\.|$)")
+
+
+def original_name(stored: str, listed=()) -> str | None:
+    """Invert raw_key's ``<stem>.<sha8><suffix>``: remove one ``.xxxxxxxx`` hex segment that is
+    followed by a dot or the end. Several candidates (a stem may contain dots or hex): the one
+    CafeF listed wins, else the last."""
+    cands = [stored[: m.start()] + stored[m.end() :] for m in _SHA.finditer(stored)]
+    if not cands:
+        return None
+    return next((c for c in cands if c in listed), cands[-1])
+
+
+_LIST = re.compile(r"/list_(?P<sym>[A-Z]+)_(?P<year>\d{4})\.")
+
+
+def kind_from_description(name: str) -> str:
+    """CafeF's description of a filing -> statement kind (D-023 clarification 5)."""
+    n = name.lower()
+    base = "HN" if "hợp nhất" in n else "M" if "mẹ" in n else ""
+    if "soát xét" in n:
+        return base + "SX" if base else "SX"
+    if "kiểm toán" in n:
+        return base + "KT" if base else "KT"
+    return base or "Q"
+
+
+def filing_index(store) -> pd.DataFrame:
+    """Every stored filing file with symbol, year, period, kind and suffix: from the file name
+    where it follows CafeF's old pattern, otherwise from the stored list replies' Time and Name
+    (kind_source says which). Files found in neither are left out."""
+    import json
+
+    prefix = "cafef_filings/"
+    keys = sorted(store.list_keys(prefix) if hasattr(store, "list_keys")
+                  else [k for k in store.keys() if k.startswith(prefix)])  # fmt: skip
+    listed = {}
+    for k in keys:
+        m = _LIST.search(k)
+        if not m:
+            continue
+        for r in json.loads(store.get(k)).get("Data") or []:
+            listed[str(r["Link"]).rsplit("/", 1)[-1]] = (m["sym"], str(r["Time"]), str(r["Name"]))
+    rows = []
+    for k in keys:
+        if _LIST.search(k):
+            continue
+        fname = k.rsplit("/", 1)[-1]
+        original = original_name(fname, listed)
+        if original is None:
+            continue
+        stem = original.rsplit(".", 1)[0] if "." in original else original
+        if meta := parse_name(fname):
+            rows.append({**meta, "raw_key": k, "name": stem, "kind_source": "filename"})
+            continue
+        hit = listed.get(original) or next((v for f, v in listed.items()
+                                            if f.lower() == original.lower()), None)  # fmt: skip
+        t = _TIME.match(hit[1]) if hit else None
+        if hit and t:
+            rows.append({"symbol": hit[0], "year": int(t["year"]), "period": t["per"],
+                         "kind": kind_from_description(hit[2]), "suffix": stem,
+                         "raw_key": k, "name": stem, "kind_source": "list_name"})  # fmt: skip
+    return pd.DataFrame(rows)
+
+
+def candidate_keys(index: pd.DataFrame) -> list[str]:
     """Every file of the kind that wins the D-023 precedence for its bank-quarter (all versions
     of it, so the creation-date rule can choose later), earliest stored copy per file name."""
-    from vnbank.research.survival.features.fundamentals import CONSOLIDATED_FALLBACK, QUARTER
+    from vnbank.research.survival.features.fundamentals import QUARTER, kind_rank
 
-    rows = []
-    for k in sorted(keys):
-        meta = parse_name(k.rsplit("/", 1)[-1])
-        if not meta or meta["period"] not in QUARTER:
-            continue
-        q, kind = QUARTER[meta["period"]], meta["kind"]
-        rank = 0 if kind == "HN" else 1 if CONSOLIDATED_FALLBACK.get(kind) == q else (
-            2 if kind == "M" else None)  # fmt: skip
-        if rank is not None:
-            rows.append({**meta, "q": q, "rank": rank, "key": k,
-                         "name": k.rsplit("/", 1)[-1].split(".")[0]})  # fmt: skip
-    d = pd.DataFrame(rows).drop_duplicates("name")  # keys are sorted: earliest copy kept
+    d = index[index.period.isin(list(QUARTER))].copy()
+    d["q"] = d.period.map(QUARTER)
+    d["rank"] = [kind_rank(k, q) for k, q in zip(d.kind, d.q, strict=True)]
+    d = d.dropna(subset=["rank"]).sort_values("raw_key").drop_duplicates("name")
     best = d.groupby(["symbol", "year", "q"])["rank"].transform("min")
-    return sorted(d[d["rank"] == best].key)
+    return sorted(d[d["rank"] == best].raw_key)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -108,26 +166,25 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out", default="", help="output parquet (default data/extracted/...)")
     a = p.parse_args(argv)
     load_dotenv(["S3_"])
-    keys = S3RawStore.from_env().list_keys("cafef_filings/")
+    index = filing_index(S3RawStore.from_env())
     kinds, syms = set(a.kinds.split(",")), set(filter(None, a.symbols.split(",")))
-    todo = []
-    for k in sorted(keys):
-        meta = parse_name(k.rsplit("/", 1)[-1])
-        if meta and meta["kind"] in kinds and (not syms or meta["symbol"] in syms):
-            todo.append(k)
     if a.first_release_only:
-        todo = candidate_keys(keys)
+        sel = index[index.raw_key.isin(candidate_keys(index))]
+    else:
+        sel = index[index.kind.isin(kinds)]
+    if syms:
+        sel = sel[sel.symbol.isin(syms)]
     if a.years:
         y0, y1 = map(int, a.years.split("-"))
-        todo = [k for k in todo if y0 <= parse_name(k.rsplit("/", 1)[-1])["year"] <= y1]
-    if syms:
-        todo = [k for k in todo if parse_name(k.rsplit("/", 1)[-1])["symbol"] in syms]
+        sel = sel[sel.year.between(y0, y1)]
+    meta = sel.set_index("raw_key")[["symbol", "year", "period", "kind"]].to_dict("index")
+    todo = sorted(meta)
     if a.limit:
         todo = todo[: a.limit]
     print(f"{len(todo)} documents", flush=True)
     rows = []
     with ProcessPoolExecutor(max_workers=a.processes) as ex:
-        for r in ex.map(_one, todo):
+        for r in ex.map(_one, todo, [meta[k] for k in todo]):
             rows.append(r)
             npl = f"npl={r['npl_ratio']:.4f}" if r["status"] == "ok" else ""
             print(r.get("symbol"), r.get("year"), r.get("period"), r.get("kind"), r["status"],

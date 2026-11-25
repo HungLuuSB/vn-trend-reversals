@@ -24,7 +24,24 @@ import pandas as pd
 
 VN = ZoneInfo("Asia/Ho_Chi_Minh")
 CONSOLIDATED_FALLBACK = {"HNSX": 2, "HNKT": 4}  # kind -> the only quarter it may stand in for
-DEADLINE_DAYS = {"HN": 45, "M": 45, "HNSX": 45, "HNKT": 90}
+DEADLINE_DAYS = {"HN": 45, "M": 45, "HNSX": 45, "HNKT": 90, "Q": 45, "SX": 45, "KT": 90}
+SINGLE_FALLBACK = {"SX": 2, "KT": 4}  # single-entity reviewed / audited (D-023 clarification 5)
+
+
+def kind_rank(kind: str, q: int) -> float | None:
+    """D-023 precedence (clarification 5): HN, single-entity quarterly Q, HNSX/HNKT standing in
+    for Q2/Q4, SX/KT standing in for Q2/Q4, then parent-only M. None: never used."""
+    if kind == "HN":
+        return 0.0
+    if kind == "Q":
+        return 0.5
+    if CONSOLIDATED_FALLBACK.get(kind) == q:
+        return 1.0
+    if SINGLE_FALLBACK.get(kind) == q:
+        return 1.5
+    return 2.0 if kind == "M" else None
+
+
 QUARTER = {"Q1": 1, "Q2": 2, "Q3": 3, "Q4": 4, "CN": 4}
 MARGIN_SESSIONS = 5  # D-023 main; robustness 0 and 20
 
@@ -36,12 +53,8 @@ def quarter_end(year: int, q: int) -> date:
 def first_release(docs: pd.DataFrame) -> pd.DataFrame:
     """One document per (symbol, year, q). docs: symbol, year, period, kind, raw_key, ..."""
     d = docs.assign(q=docs.period.map(QUARTER))
-    rank = pd.Series(np.nan, index=d.index)
-    rank[d.kind == "HN"] = 0
-    for kind, q in CONSOLIDATED_FALLBACK.items():
-        rank[(d.kind == kind) & (d.q == q)] = 1
-    rank[d.kind == "M"] = 2
-    d = d.assign(rank=rank).dropna(subset=["rank"])
+    rank = [kind_rank(k, q) for k, q in zip(d.kind, d.q, strict=True)]
+    d = d.assign(rank=pd.Series(rank, index=d.index, dtype="float64")).dropna(subset=["rank"])
     # D-023 clarification 4: among files of the chosen kind, the earliest creation date, then
     # the unsuffixed name (no creation date sorts last), then the earliest raw key
     d["_created"] = pd.to_datetime(d["created"]) if "created" in d else pd.NaT

@@ -27,7 +27,7 @@ import pandas as pd
 from vnbank.common import paths
 from vnbank.common.env import load_dotenv
 from vnbank.common.raw_store import S3RawStore
-from vnbank.documents.extract_bank_fs import parse_name
+from vnbank.documents.extract_bank_fs import filing_index
 from vnbank.documents.parse.pdfmeta import document_created
 from vnbank.research.survival.features.fundamentals import first_release, quarterly_values
 from vnbank.research.survival.features.news import articles, session_counts
@@ -38,13 +38,11 @@ _WINDOW = re.compile(r"cafef_news_(\d{8})_(\d\d)\.")
 
 
 def documents(store) -> pd.DataFrame:
-    rows = []
-    for k in sorted(store.list_keys("cafef_filings/")):
-        meta = parse_name(k.rsplit("/", 1)[-1])
-        if meta and meta["kind"] in ("HN", "HNSX", "HNKT", "M"):
-            rows.append({**meta, "raw_key": k, "name": k.rsplit("/", 1)[-1].split(".")[0]})
-    d = pd.DataFrame(rows)
-    return d.sort_values("raw_key").drop_duplicates("name").drop(columns="name")  # earliest copy
+    """Statement files block E may use (D-023 kinds, incl. clarification 5), from the filing
+    index (file name, or CafeF's description for new-style names); earliest copy per name."""
+    d = filing_index(store)
+    d = d[d.kind.isin(["HN", "HNSX", "HNKT", "M", "Q", "SX", "KT"])]
+    return d.sort_values("raw_key").drop_duplicates("name").drop(columns="name")
 
 
 def npl_values(fr: pd.DataFrame) -> pd.DataFrame:
