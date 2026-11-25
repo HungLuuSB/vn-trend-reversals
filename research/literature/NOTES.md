@@ -241,3 +241,34 @@ Hamao, Y., Masulis, R.W. & Ng, V. (1990). Correlations in price changes and vola
 - **For us:** the template for the gap vs intraday test (see the design table above). Two warnings:
   - Do it on opens that actually traded in the HOSE opening auction.
   - The open is known only after 09:00, so it can be an outcome in Paper 3 but never a Paper 1 feature.
+
+## Paper 1 novelty check, first pass (2026-11-25; web search, every hit verified on Crossref, PDFs not yet read)
+
+**Verdict:** the *question* (when does a trend end?) and several of the *tools* have precedents. The *combination* Paper 1 uses has none in this search:
+- stock-level directional-change swings with a volatility-scaled threshold;
+- a proper survival treatment (censoring, landmark discrete-time hazard);
+- an emerging market with daily price limits;
+- point-in-time global and bank information;
+- purged walk-forward tests against a mechanical baseline.
+
+The paper must cite and position against the work below, not claim to be first to model reversal timing.
+
+| Prior work | What it does | How Paper 1 differs |
+|---|---|---|
+| Lunde & Timmermann (2004), "Duration dependence in stock prices: an analysis of bull and bear markets", *J. Business & Economic Statistics* 22(3), 253–273, doi 10.1198/073500104000000136 | Hazard of bull or bear market *termination* for the US index. Bull hazards fall with age, bear hazards rise. Higher interest rates raise bull hazards. | Index-level phases defined by large fixed filters vs stock-level swings with a volatility-scaled threshold. In-sample duration dependence vs out-of-sample prediction. **Our D-019 result (age adds nothing once distance is known) speaks directly to their duration dependence:** a contribution, not a threat. |
+| Zakamulin (2023), "Revisiting the duration dependence in the US stock market cycles", *Applied Economics* 55(4), 357–368, doi 10.1080/00036846.2022.2089344 | Two centuries of US data: positive duration dependence in bear markets and in most bull markets. | As above. |
+| Adegboye & Kampouridis (2021), "Machine learning classification and regression models for predicting directional changes trend reversal in FX markets", *Expert Systems with Applications* 173, 114645, doi 10.1016/j.eswa.2021.114645 | **Closest in method:** machine learning predicts when a DC trend reverses (overshoot length) in FX. | FX vs equities. Regression or classification without censoring vs survival models. No point-in-time global information, mechanical baseline or trading-cost test. To be read in full. |
+| Hu & Zhou (2024), "Trading signal survival analysis: a framework for enhancing technical analysis strategies in stock markets", *Computational Economics* 64(6), 3473–3507, doi 10.1007/s10614-024-10567-8 | **Closest in tool:** survival models of the time until a stock reaches an investment target after a technical signal, about 380 stocks, used to filter signals. | Time-to-target after a signal vs time-to-reversal of a swing. US/developed stocks. To be read in full: the most important threat to check. |
+| Gao, Jiang, Xiong & Xiong (2023), "Daily momentum and new investors in emerging stock markets", SSRN doi 10.2139/ssrn.4527729 (NBER w31839) | About half of emerging markets show daily momentum, while developed markets show daily reversal. China's price limits can mechanically extend moves. | Context for price limits and reversal timing in Vietnam. Worth citing in the price-limit discussion. |
+
+**Also found, lower relevance:**
+- survival analysis of index declines during COVID (Bieszk-Stolorz & Dmytrów, *Risks* 2021);
+- time to reach target prices in India (Chatterjee & Kumar);
+- a 2015 IEEE conference paper using a Cox model for buy and sell points (doi 10.1109/besc.2015.7365968, not checked).
+
+**PDFs to get, in priority order:**
+1. Hu & Zhou (2024);
+2. Adegboye & Kampouridis (2021), open copy in the Essex repository;
+3. Lunde & Timmermann (2004), working-paper version on the author's UCSD page;
+4. Zakamulin (2023);
+5. Gao et al. (2023), open on NBER or the author's page.
