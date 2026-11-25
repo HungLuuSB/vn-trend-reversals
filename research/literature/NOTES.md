@@ -27,6 +27,27 @@ Paper 1's development data cannot be used for item 6 either: the D-017 guard clo
 
 Constraint: these tests use the same US series as Paper 1's final run. They would be run after that run, or on 2012–2016 only until then.
 
+## What the core literature adds (2026-11-25): a design, not just a gap
+
+The five core papers below give the possible Paper 3 a concrete method for each weakness found in the Vietnam papers:
+
+| Weakness in the Vietnam papers | Fix from the core literature |
+|---|---|
+| Same-date or open-to-open pairing; the US move may be priced at the open | **Hamao, Masulis & Ng (1990)**: split the domestic return into the overnight gap (close t−1 → open t) and open-to-close t. Regress each on the foreign open-to-close return of the market that traded last (US t−1). Treat a stale open as an artefact: it creates a spurious intraday mean effect. |
+| "Stronger link after the crisis" read from correlations | **Forbes & Rigobon (2002)**: correlations rise mechanically with volatility; the regression slope does not (their eq. 5). Compare betas with regime interactions. Fix regimes from US-side events in advance, never from Vietnamese volatility. Control for common shocks. |
+| The Fed funds rate *level* as the policy measure | **Bauer & Swanson (2023)**: narrow-window FOMC surprises, purged of public information released before the announcement. Raw surprises are fine for asset-price event studies; local projections need the purged series. |
+| No mechanism | **Miranda-Agrippino & Rey (2020)**: a US tightening raises global risk aversion and cuts global banks' leverage, cross-border flows and risky asset prices. Testable daily chain: FOMC surprise → VIX or dollar → foreign net flows on HOSE → VN30 and bank returns. |
+| Ad hoc uncertainty measures | **Baker, Bloom & Davis (2016)**: the US EPU index. The daily version exists but is revised and rescaled, so archived vintages are needed for any point-in-time use. |
+
+**Data blockers** (to settle before pre-registering):
+- **FOMC surprises end in June 2019** in Bauer & Swanson. Extending them to 2026 needs intraday federal funds and SOFR futures, which are usually paid data. First check whether their openICPSR package (doi 10.3886/E181661V1) or the purged series in their *NBER Macroeconomics Annual* follow-up (not yet read) goes further.
+- **Foreign net flows on HOSE** are not collected yet.
+- **HOSE opening-auction quality:** flag opens with no auction trade and opens at a price limit.
+
+**Power:** about 8 FOMC meetings a year gives about 120 events in 2012–2026. From 2012 to 2015 the funds rate was at the zero lower bound, so the signal there sits in the path factor.
+
+**For Paper 1 (interpretation only, no change):** Hamao et al. and Thuan imply that overnight US information is priced at the Vietnamese open. Paper 1 decides at 09:00, before the open, but its outcome (when a swing reverses) unfolds over days. A null for US series on reversal timing is therefore consistent with US information being absorbed at the open. That is a discussion point for the paper, not a new test on development data.
+
 ## Vo & Nguyen (2016): US monetary policy and Vietnamese stocks
 
 Vo, X.V. & Nguyen, P.C. (2016). Impacts of the US monetary policy on the Vietnamese stock market. *Afro-Asian Journal of Finance and Accounting* 6(2), 119–134. **No DOI in the text: unverified.** File: `monetary/`.
@@ -139,3 +160,84 @@ Nguyen, H.L. & Paientko, T. (2024). Forecasting the VN30 Index: insights into Vi
 - **Method:** `auto.arima` (Box-Cox, KPSS, AICc). Evaluation only checks whether actuals fall inside the forecast intervals; no error metrics and no baseline.
 - **Findings:** the daily models select ARIMA(0,1,0), **a random walk**, giving a flat forecast of 1129.43 against actuals of 1143.16–1160.59 (Tables 2–3). The monthly forecasts are all too low (Jan 2023: 1009.73 vs 1125.07, Table 1). All actuals fall inside the very wide 80% bands. The paper still concludes the VN30 is forecastable.
 - **For us:** read correctly, this is weak evidence that daily VN30 levels behave like a random walk, which fits our red-flag rule. Practices to avoid: forecasting levels, checking interval coverage only, five-day holdouts. The VN30 figure of about 80% of HOSE market capitalisation is attributed to "Bloomberg 2023" and needs a primary source.
+
+## Bauer & Swanson (2023): an alternative explanation for the "Fed information effect"
+
+Bauer, M.D. & Swanson, E.T. (2023). An alternative explanation for the "Fed information effect". *American Economic Review* 113(3), 664–700. **DOI 10.1257/aer.20201220: verified** (printed). Replication package doi 10.3886/E181661V1 (openICPSR), which resolves. File: `monetary/`.
+
+- **Surprise series (Sec. I.A).** They use existing series rather than building new ones:
+  - the GSS target and path factors (federal funds and Eurodollar futures, 30-minute window around FOMC announcements);
+  - the "NS" surprise: the first principal component of five futures rates, scaled so that one unit raises the one-year Treasury yield by 1 pp.
+- **Sample:** January 1990 to June 2019; 217 announcements with unscheduled meetings, 206 without. FOMC statements only; speeches and press conferences are excluded.
+- **Main finding:** surprises are predictable from public news released before the announcement (Sec. II.B, eq. 7; R² 0.12–0.20, Table 3), because markets underestimate how strongly the Fed responds to data. That explains the "information effect" without any private Fed information. Stocks respond in the standard direction even at "information-heavy" meetings: the S&P 500's 30-minute response to the NS surprise is −8.04 vs −7.14 at other meetings (Table 7).
+- **For us:**
+  - The cleanest US monetary shock available, but it ends in 2019, so extending it is a data question.
+  - Purge surprises using only information released before the announcement, re-estimated on an expanding window for out-of-sample work. Exclude their BBK index, which is published after the announcement (fn. 20).
+  - Timing: a 14:00 New York statement arrives at about 01:00–02:00 Vietnam time, before the open.
+  - Surprises are estimated regressors (they bootstrap).
+
+## Miranda-Agrippino & Rey (2020): US monetary policy and the global financial cycle
+
+Miranda-Agrippino, S. & Rey, H. (2020). U.S. monetary policy and the global financial cycle. *Review of Economic Studies* 87(6), 2754–2776. **DOI 10.1093/restud/rdaa019: verified** (Crossref; the text is the revised manuscript of 13 April 2020). File: `monetary/`.
+
+- **Data:** one global factor from 858 monthly risky-asset series, 1990–2012, explaining over 20% of their common variation. The US shock is identified by an external instrument: FF4 futures surprises in a 30-minute window, summed by month (first-stage F = 17.930 in the domestic VAR, Table 1). Bayesian VAR, 12 lags, monthly.
+- **Findings (Sec. 3.2):** a US tightening causes:
+  - the global factor to fall about 40% on impact (about 8% in local stock markets);
+  - risk aversion to rise over 50% above trend;
+  - global credit and cross-border flows to fall by several percent;
+  - global banks' leverage to fall.
+  - Countries with floating exchange rates respond similarly.
+- **Mechanism:** the dollar is global banks' funding currency; banks constrained by value-at-risk interact with risk-averse asset managers.
+- **For us:**
+  - The best-founded channel to test: US surprise → risk appetite or dollar → foreign flows → VN30 and banks.
+  - Caveats: their evidence is monthly and builds over months; daily data would show only the short run. Vietnam is not in their samples. It is a frontier market with a managed exchange rate, foreign-ownership limits and price limits, any of which can delay or truncate the response.
+
+## Baker, Bloom & Davis (2016): measuring economic policy uncertainty
+
+Baker, S.R., Bloom, N. & Davis, S.J. (2016). Measuring economic policy uncertainty. *Quarterly Journal of Economics* 131(4), 1593–1636. **DOI 10.1093/qje/qjw024: verified** (Crossref; the text is the accepted manuscript). File: `geopolitical/`.
+
+- **Construction:**
+  - Monthly US index: share of articles in 10 newspapers containing terms for economy, policy and uncertainty, normalised to mean 100 over 1985–2009.
+  - Daily index: Newsbank, about 1,500 US papers. The paper warns that changes in the archive's coverage over time can distort the series.
+  - Audit: about 12,000 articles were coded by hand; the human and computer indices correlate 0.86 (quarterly).
+- **Findings:** firm implied volatility rises with EPU (coefficient on log EPU 0.432, Table II); investment and employment fall for firms exposed to government demand; in a VAR, industrial production falls about 1.1%.
+- **Point-in-time issues:** "We update the daily EPU index at approximately 9am EST each day." A value for day d posted at 9am New York time on d+1 can only enter the Vietnamese session of d+2. Revisions are not documented, and the values depend on the query date and the normalisation base.
+- **For us:** daily EPU is at best a complement to GPR, with a low prior given our nulls. If used: archive dated copies from now on, treat the back history as latest-vintage robustness only, work in logs, and build shocks as for GPR.
+
+## Forbes & Rigobon (2002): no contagion, only interdependence
+
+Forbes, K.J. & Rigobon, R. (2002). No contagion, only interdependence: measuring stock market comovements. *Journal of Finance* 57(5), 2223–2261. **DOI 10.1111/0022-1082.00494: verified** (Crossref). File: `international-spillover/`.
+
+- **The bias:** with y = a + b·x + e and no omitted variables or endogeneity, the slope b is the same in calm and turbulent periods, but the correlation rises with the variance of x:
+  - ρ* = ρ·√[(1+δ)/(1+δρ²)], where δ is the relative rise in variance (eqs. 9–10).
+  - Adjusted correlation: ρ = ρ*/√(1+δ[1−ρ*²]) (eq. 11).
+  - Valid only without global common shocks or feedback.
+- **Time zones:** they use rolling two-day average returns, a VAR with 5 lags and interest-rate controls.
+- **Findings:** cases of contagion before vs after adjustment:
+
+  | Crisis | Unadjusted | Adjusted |
+  |---|---|---|
+  | 1997 Asia | 15 | 1 |
+  | 1994 Mexico | 6 | 0 |
+  | 1987 US | 4 | 0 |
+
+- **For us:**
+  - Test regime change with regression betas and interactions, not correlations.
+  - Fix regimes from US events in advance.
+  - Pair US t−1 with Vietnam t instead of averaging over two days, since the time-zone ordering is clean.
+  - Price limits truncate crash-day returns: use cumulative returns over several days, or flag days that hit a limit.
+  - The "stronger after 2008" claims of Thuan (2011) and Nguyen et al. (2017) are exposed to exactly this bias.
+
+## Hamao, Masulis & Ng (1990): correlations in price changes and volatility across international stock markets
+
+Hamao, Y., Masulis, R.W. & Ng, V. (1990). Correlations in price changes and volatility across international stock markets. *Review of Financial Studies* 3(2), 281–307. **DOI 10.1093/rfs/3.2.281: verified** (Crossref; the file is a scan, read by OCR, and Table 1 is unreadable). File: `international-spillover/`.
+
+- **Data:** Tokyo, London and New York, daily opening and closing prices, April 1985 to March 1988. Each return is split into close-to-open and open-to-close parts.
+- **Method:** MA(1)-GARCH(1,1)-M. The squared residual of the open-to-close return of the market that traded most recently enters the domestic variance; that market's return enters the domestic mean.
+- **Findings:**
+  - Volatility spills into Tokyo's open-to-close return from New York: f = .0464 (t = 5.24, Table 3). This is the only spillover that survives in the pre-crash sample.
+  - Foreign returns move the domestic open strongly: New York to Tokyo, t = 7.69 (Table 7).
+  - They attribute mean spillovers into open-to-close returns to stale opening prices.
+- **For us:** the template for the gap vs intraday test (see the design table above). Two warnings:
+  - Do it on opens that actually traded in the HOSE opening auction.
+  - The open is known only after 09:00, so it can be an outcome in Paper 3 but never a Paper 1 feature.
