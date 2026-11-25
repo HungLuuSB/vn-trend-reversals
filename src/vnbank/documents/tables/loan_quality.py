@@ -86,8 +86,19 @@ def parse_page(text: str, page: int) -> LoanQuality | None:
     to it, and the comparison column too whenever its total is legible."""
     lines = text.splitlines()
     folded = [fold(x) for x in lines]
+
+    def _next_group(i: int) -> int | None:
+        for k in range(i + 1, min(i + 4, len(lines))):
+            if re.search(r"\w", folded[k]):
+                return _group(folded[k])
+        return None
+
     for start, f in enumerate(folded):
-        if _group(f) != 1 or not _two_large(numbers(lines[start])):
+        if not _two_large(numbers(lines[start])):
+            continue
+        g0 = _group(f)
+        unreadable_first = g0 is None and re.search(r"[a-z]", f) and _next_group(start) == 2
+        if g0 != 1 and not unreadable_first:
             continue
         found: dict[int, tuple[int, int]] = {}
         extras: list[tuple[int, int]] = []
@@ -97,8 +108,13 @@ def parse_page(text: str, page: int) -> LoanQuality | None:
             big = [n for n in numbers(lines[j]) if n >= 1000]
             g = _group(folded[j])
             if len(found) < 5:
-                if g and g not in found and len(big) >= 2:
-                    found[g] = (big[-2], big[-1])
+                if len(big) >= 2:
+                    compact = re.sub(r"[^a-z]", "", folded[j])
+                    nxt = len(found) + 1
+                    if g is None and compact and not compact.startswith(("tong", "cong")):
+                        g = nxt  # unreadable label: SBV tables always list groups 1-5 in order
+                    if g == nxt:
+                        found[g] = (big[-2], big[-1])
                 continue
             if not big:
                 continue
@@ -123,6 +139,10 @@ def find_loan_quality(pages: list[str]) -> LoanQuality | None:
     """First table in the document whose groups add up to its printed total."""
     for i, text in enumerate(pages, start=1):
         lq = parse_page(text, i)
+        if lq:
+            return lq
+    for i in range(1, len(pages)):  # then tables that run over a page break
+        lq = parse_page(pages[i - 1] + "\n" + pages[i], i)
         if lq:
             return lq
     return None

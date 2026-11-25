@@ -202,3 +202,21 @@ def test_extra_rows_still_sum_checked():
     assert find_loan_quality([MBB15Q1.replace("1.025.361", "1026381")]) is None  # as OCRed
     # an extra row is accepted only when both columns of the total are legible
     assert find_loan_quality([SHB14Q1.replace(" 76,509,670,985,802", "")]) is None
+
+
+def test_unreadable_label_takes_the_next_group_in_order_and_page_breaks_join():
+    vcb = """Phân tích chất lượng nợ cho vay:
+31/3/2015 31/12/2014
+Nợ dg tiéu chuân 305.766.039 298.526.817
+Nợcân chúý -. 16.184.890 17.346.539
+No dưới tiéu chuan 2.612.538 2.135.698
+Nợ nghi ngờ ; 1.448.719 1.770.773
+Nợ có khả năng mất vốn 4.769.707 3.552.210
+330.781.893 323.332.037
+"""
+    first = vcb.replace("Nợ dg tiéu chuân", "Nợ đủ tiêu chuẩn")
+    assert find_loan_quality([first]) is not None  # baseline
+    assert find_loan_quality([vcb]).total == (330781893, 323332037)
+    split = first.split("Nợ nghi ngờ")
+    lq = find_loan_quality([split[0] + "Trang 14", "Nợ nghi ngờ" + split[1]])
+    assert lq is not None and lq.page == 1
