@@ -9,7 +9,7 @@ from vnbank.research.shared import report as R
 
 
 def test_macro_names_are_letters_only():
-    assert R.macro("p2", "h1", "beta5", "bar") == "PtwoHoneBetafiveBar"
+    assert R.macro("p2", "h1", "beta5", "bar") == "PTwoHOneBetaFiveBar"
     assert R.macro("ptwo", "rows", "bmr") == "PtwoRowsBmr"
     with pytest.raises(R.ReportError):
         R.macro("p2", "_")

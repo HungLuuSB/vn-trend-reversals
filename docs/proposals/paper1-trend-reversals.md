@@ -229,7 +229,7 @@ The study takes about nine months, from December 2026 to a first submission in e
 
 &#91;embedded content: proposal timeline · Dec 2026 to Aug 2027\]
 
-The one hard gate is freezing the data snapshot in mid-February 2027: all modelling runs on that snapshot, and a data problem found later reopens it. Phases overlap by two weeks so writing of methods can start while experiments finish.
+The one hard gate is freezing the data snapshot in mid-February 2027 (moved forward to early December 2026 by D-024, research/paper1/DECISIONS.md): all modelling runs on that snapshot, and a data problem found later reopens it. Phases overlap by two weeks so writing of methods can start while experiments finish.
 
 ## Risks and limitations
 

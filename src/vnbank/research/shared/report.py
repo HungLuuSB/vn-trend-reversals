@@ -10,7 +10,7 @@ registry (``research/paperN/configs/report.yaml``), and writes to ``papers/paper
 
 Rules enforced here:
 
-* macro names are letters only (LaTeX); digits are spelled out (``macro("p2", "h1")`` -> PtwoHone);
+* macro names are letters only (LaTeX); digits are spelled out (``macro("p2", "h1")`` -> PTwoHOne);
 * a name can be defined once;
 * a source run must exist and its recorded commit must not be ``+dirty`` (numbers in a paper
   come only from committed code);
@@ -44,7 +44,7 @@ class ReportError(ValueError):
 
 def macro(*parts: str) -> str:
     """CamelCase letters-only macro name; digits are spelled out: ("p2", "h1", "beta5") ->
-    "PtwoHoneBetafive"."""
+    "PTwoHOneBetaFive"."""
     out = []
     for p in parts:
         words = re.findall(r"[A-Za-z]+|\d", str(p))
