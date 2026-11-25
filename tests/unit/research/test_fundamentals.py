@@ -82,3 +82,14 @@ def test_npl_features_accept_mixed_timestamp_resolutions():
     ds = pd.DataFrame({"ticker": ["ACB"], "decision_date": pd.to_datetime(["2015-03-02"]),
                        "is_bank": [True]})  # fmt: skip
     assert add_npl_features(ds, vals).npl_ratio.tolist() == [0.020]
+
+
+def test_ocr_only_drops_visual_values_and_recomputes_changes():
+    from vnbank.research.survival.features.block_e import ocr_only
+
+    npl = pd.DataFrame({"symbol": ["EIB"] * 3, "qidx": [8048, 8049, 8050],
+                        "npl_ratio": [0.02, 0.03, 0.025], "npl_change": [np.nan, 0.01, -0.005],
+                        "value_source": ["ocr", "visual", "ocr"]})  # fmt: skip
+    out = ocr_only(npl)
+    assert np.isnan(out.npl_ratio.iloc[1])
+    assert out.npl_change.isna().all()  # each change needs two OCR quarters in a row

@@ -114,6 +114,7 @@ PROTOCOLS = {
     "D-020": (SPECS_D020, DIFFS_D020),
     "D-022": (SPECS_D022, DIFFS_D022),
     "D-023": (SPECS_D023, DIFFS_D023),
+    "D-023-ocr-only": (SPECS_D023, DIFFS_D023),  # robustness: no visually transcribed values
 }
 
 
@@ -183,8 +184,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.protocol == "D-020":
         ds = add_bank_interactions(ds)
     block_e = {}
-    if args.protocol == "D-023":
-        ds, block_e = add_block_e(ds)
+    if args.protocol.startswith("D-023"):
+        ds, block_e = add_block_e(ds, ocr_values_only=args.protocol.endswith("ocr-only"))
 
     run = RUNS / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-devdecompose-{args.protocol}"
     run.mkdir(parents=True)
