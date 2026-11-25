@@ -159,3 +159,46 @@ def test_rounding_tolerance_is_tight():
     assert sums_to([100, 200], 302) and not sums_to([100, 200], 310)
     big = 400_000_000  # million-VND table: tolerance 40 units
     assert sums_to([big], big + 40) and not sums_to([big], big + 41)
+
+
+# SHB Q1/2014 (VND): Vinashin loans awaiting resolution printed between group 5 and the total
+SHB14Q1 = """y 20.1. Phân tích chất lượng nợ cho vay
+31/03/2014 31/12/2013
+No đủ tiêu chuẩn 74,685,918,917,330 69,824,849,892,000
+Nợ cần chú y 2,883,173,705,586 2,352,445,687,051
+No dưới tiêu chuẩn 307,792,975,786 144,391,408,890
+Nợ nghi ngờ 212,597,167,859 434,849,602,395
+Nợ có khả năng mắt vốn 2,986,117,034,519 2,524,550,316,059
+Các khoản nợ chờ xử ly - Vinashin 1,228,584,079,407 1,228,584,079,407
+82,304,183,880,487 76,509,670,985,802
+20.2. Phân tich dư nợ theo thời gian
+"""
+
+# MBB Q1/2015: "đủ" read as "40"; MBS repo row inside the total (as printed, then as OCRed)
+MBB15Q1 = """- Phén tich chét lượng nợ cho vay:
+Nợ 40 tiêu chuan 93.742.850 94.348.653
+Nợ cén chú ÿ 2.634.129 2.367.403
+Nợ dưới tiêu chuắn 729.534 594.447
+Nợ nghi ngờ 492.176 902.868
+Nợ có khả năng mắt vén 1.396.070 1.364.495
+Các hợp đồng REPO, hỗ trợ tai chinh và ứng
+trước cho khách hàng của MBS — 1.025.361 991.140
+100.020.120 100.569.006
+"""
+
+
+def test_extra_rows_inside_the_total():
+    lq = find_loan_quality([SHB14Q1])
+    assert lq is not None and lq.extra == (1228584079407, 1228584079407)
+    assert lq.total == (82304183880487, 76509670985802)
+    npl = (307792975786 + 212597167859 + 2986117034519) / (82304183880487 - 1228584079407)
+    assert lq.npl_ratio == pytest.approx(npl, rel=1e-12)  # denominator: classified loans
+    mbb = find_loan_quality([MBB15Q1])
+    assert mbb is not None and mbb.groups[0] == (93742850, 94348653)
+    assert mbb.extra == (1025361, 991140)
+
+
+def test_extra_rows_still_sum_checked():
+    assert find_loan_quality([MBB15Q1.replace("1.025.361", "1026381")]) is None  # as OCRed
+    # an extra row is accepted only when both columns of the total are legible
+    assert find_loan_quality([SHB14Q1.replace(" 76,509,670,985,802", "")]) is None

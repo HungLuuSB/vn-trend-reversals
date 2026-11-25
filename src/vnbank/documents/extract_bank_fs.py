@@ -53,6 +53,7 @@ def _one(key: str) -> dict:
     for i, (cur, prev) in enumerate(lq.groups, start=1):
         row[f"g{i}"], row[f"g{i}_prior"] = cur, prev
     row.update({"total": lq.total[0], "total_prior": lq.total[1], "page": lq.page,
+                "extra": lq.extra[0], "extra_prior": lq.extra[1],
                 "npl_ratio": lq.npl_ratio, "npl_ratio_prior": lq.npl_ratio_prior,
                 "status": "ok"})  # fmt: skip
     return row

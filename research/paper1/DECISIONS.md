@@ -702,6 +702,11 @@ The model-shape table and the test results do not change.
     - the comparison column must do the same **whenever its total is legible**;
     - every line after the five group rows is tried as the total line (a garbled first "Tổng" line can be followed by a clean one).
   - Labels match on their distinctive words. A misread significant digit is still rejected; a unit test pins this.
+  - **Clarification 2 (2026-11-25, after the full dev OCR pass, before any block E value was joined to an outcome): unclassified rows and the denominator.**
+    - Some tables print rows between group 5 and the total that are not in any SBV group: SHB's Vinashin loans awaiting resolution (2014) and MBB's repo and margin advances by its broker MBS (2014–2016).
+    - **Acceptance:** such a table is accepted when the five groups **plus** at most two such rows sum to the printed total in **both** columns (the comparison total must be legible). The rows are recorded as `extra`.
+    - **Denominator:** NPL ratio = groups 3–5 / the sum of the five groups (the SBV-classified loans). With no extra rows this equals the printed total to the rounding tolerance, so every value accepted under the first rule is unchanged (to ~10⁻⁷). With extra rows it keeps the ratio independent of where the table's total is drawn: MBB's 2014 annual table prints both the bank-only subtotal and the total including MBS, and the two readings gave 2.757% and 2.730%.
+    - Label keys also accept "tiêu chu…" for group 1 when no other group matches ("Nợ 40 tiêu chuan" for "đủ") and "…n chú ý" for group 2 ("Nợ cén chú ÿ"). The sum check still guards every reading; unit tests pin both cases.
   - **Second pass, tried and dropped (2026-11-25).** On skewed EIB scans, tesseract misreads digits (e.g. "1,413,300" for 1.412.300) and drops rows at every resolution and layout setting tried. No parser can recover them, and the sum check rightly rejects the result.
   - **Third tier: visual transcription.**
     - **Applies to:** a first-release statement whose table the OCR parser cannot accept.

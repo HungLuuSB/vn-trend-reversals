@@ -2,8 +2,9 @@
 
 The five State Bank loan groups (1 standard, 2 special mention, 3 substandard, 4 doubtful,
 5 loss) with the current and the comparison column, the printed total, and
-NPL ratio = (groups 3 + 4 + 5) / total loans. A table is accepted only if the five groups sum
-to the printed total (both columns): the sum check is the OCR test (block E, D-023).
+NPL ratio = (groups 3 + 4 + 5) / (groups 1..5), the SBV-classified loans. A table is accepted
+only if the five groups (plus at most MAX_EXTRA unclassified rows such as SHB's Vinashin loans)
+sum to the printed total: the sum check is the OCR test (block E, D-023 and its clarifications).
 """
 
 from __future__ import annotations
@@ -18,10 +19,13 @@ from dataclasses import dataclass
 GROUPS = [
     ("duoitieu", 3),
     ("canchu", 2),
+    ("nchuy", 2),  # "Nợ cén chú ÿ"
     ("nghing", 4),
     ("khanang", 5),
     ("dutieu", 1),
+    ("tieuchu", 1),  # "Nợ 40 tiêu chuan" (MBB): any other "tiêu chuẩn" row, checked last
 ]
+MAX_EXTRA = 2  # rows printed between group 5 and the total (D-023 clarification)
 MAX_ROWS = 30  # look-ahead in lines (OCR often inserts blank lines between table rows)
 _NUM = re.compile(r"\d[\d.,]*\d|\d")
 
@@ -51,16 +55,17 @@ class LoanQuality:
     page: int  # 1-based
     groups: tuple[tuple[int, int], ...]  # (current, comparison) for groups 1..5
     total: tuple[int, int | None]  # comparison total None when not legible
+    extra: tuple[int, int] = (0, 0)  # unclassified rows inside the total (SHB Vinashin, MBS)
 
     @property
     def npl_ratio(self) -> float:
-        return sum(self.groups[i][0] for i in (2, 3, 4)) / self.total[0]
+        return sum(self.groups[i][0] for i in (2, 3, 4)) / sum(g[0] for g in self.groups)
 
     @property
     def npl_ratio_prior(self) -> float | None:
         if self.total[1] is None:
             return None
-        return sum(self.groups[i][1] for i in (2, 3, 4)) / self.total[1]
+        return sum(self.groups[i][1] for i in (2, 3, 4)) / sum(g[1] for g in self.groups)
 
 
 def _two_large(nums: list[int]) -> tuple[int, int] | None:  # used by the start-row test
@@ -85,6 +90,7 @@ def parse_page(text: str, page: int) -> LoanQuality | None:
         if _group(f) != 1 or not _two_large(numbers(lines[start])):
             continue
         found: dict[int, tuple[int, int]] = {}
+        extras: list[tuple[int, int]] = []
         for j in range(start, min(start + MAX_ROWS, len(lines))):
             if not re.search(r"\w", folded[j]):
                 continue  # blank or punctuation-only line
@@ -104,6 +110,12 @@ def parse_page(text: str, page: int) -> LoanQuality | None:
                 return LoanQuality(page, groups, total)
             if len(big) >= 2 and sums_to(cur, big[-1]):  # only the current total legible
                 return LoanQuality(page, groups, (big[-1], None))
+            if extras and len(big) >= 2:  # groups + extra rows = total, both columns legible
+                ex = (sum(e[0] for e in extras), sum(e[1] for e in extras))
+                if sums_to(cur + [ex[0]], big[-2]) and sums_to(prev + [ex[1]], big[-1]):
+                    return LoanQuality(page, groups, (big[-2], big[-1]), ex)
+            if len(big) >= 2 and len(extras) < MAX_EXTRA:
+                extras.append((big[-2], big[-1]))
     return None
 
 
