@@ -84,7 +84,9 @@ def decision_utc(decision_date: pd.Series) -> pd.Series:
 def _asof(rows: pd.DataFrame, vals: pd.DataFrame, value: str, at: str) -> pd.Series:
     """Latest vals[value] per symbol with vals[at] strictly before the row's decision time."""
     v = vals.dropna(subset=[value, at]).sort_values(at)[["symbol", at, value]]
+    v[at] = pd.to_datetime(v[at], utc=True).astype("datetime64[ns, UTC]")  # parquet may give us
     r = rows.sort_values("_t")
+    r["_t"] = pd.to_datetime(r["_t"], utc=True).astype("datetime64[ns, UTC]")
     m = pd.merge_asof(r, v.rename(columns={at: "_t", "symbol": "ticker"}), on="_t", by="ticker",
                       allow_exact_matches=False)  # fmt: skip
     return m.set_index("_row")[value].reindex(rows["_row"]).to_numpy()
