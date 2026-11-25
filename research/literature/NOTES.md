@@ -340,3 +340,17 @@ File: `trend-duration/Yao-Partington-Stevenson-2005_run-length-predictability-re
 - Our unit filters out the noise that makes daily runs unpredictable: a directional-change swing needs a move of 2 × ATR20 against the extreme before it counts as a reversal.
 - We use scale-free inputs, a pre-specified design instead of stepwise selection, 15 years of point-in-time stock-level data, and a walk-forward test with many years rather than one two-year holdout.
 - So Paper 1 can be presented as answering Yao et al.'s negative result: reversal timing is unpredictable for noisy daily runs, and (if the final run confirms development) modestly predictable for volatility-scaled swings, beyond the Kaplan–Meier baseline as well as the mechanical one.
+
+## Market facts from official reports (2026-11-25)
+
+Primary sources for Paper 1's introduction and market section. PDFs are in `market-reports/` (not in git). **Download URLs are still needed for the citations.**
+
+- **HOSE Annual Report 2024** (`market-reports/annual-report-2024.pdf`, 51 pages, English section): "Foreign investors engaged in transactions totaling approximately 31.6 billion securities, equivalent to a trading value of VND 969,793 billion, representing 10.38% of the market's total trading value. Throughout 2024, foreign investors net sold an excess of VND 90,311 billion."
+  - So domestic investors accounted for about 90% of HOSE trading value in 2024.
+- **SSC (UBCKNN) Annual Report 2024** (`market-reports/SSC-UBCKNN-annual-report.pdf`, 111 pages, Vietnamese):
+  - "Trong năm 2024, thị trường ghi nhận thêm 2 triệu tài khoản cá nhân trong nước, nâng tổng số tài khoản chứng khoán lên 9,3 triệu tài khoản, tương đương khoảng 9% dân số" (2 million new domestic individual accounts in 2024; 9.3 million accounts in total, about 9% of the population).
+  - Average trading value per session was VND 20,985 billion, up 19.4%, "nhờ sự đóng góp của các nhà đầu tư trong nước" (driven by domestic investors).
+- **SHS Research (2025), "Macroeconomy & Stock Market in 2025: Timing is Everything"** (Saigon–Hanoi Securities, dated about 21 Jan 2025; `market-reports/SHS-Research-2025_macroeconomy-stock-market-outlook.pdf`, p. 18; data Bloomberg, FiinProX, SHS Research): "The average trading proportion [of individual investors] for 2024 was 81.2%. Notably, individual investors recorded a net purchase of VND 77,764.9 billion, a record high". Foreign institutional investors had 10.1% and domestic institutional investors 8.4%.
+  - This is consistent with HOSE's official 10.38% foreign share (foreign institutions 10.1% plus foreign individuals).
+  - Cite as "SHS Research (2025), using FiinProX data", alongside the HOSE figure.
+  - It is a broker report, not an official source.
