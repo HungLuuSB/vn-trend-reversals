@@ -15,6 +15,7 @@ dependencies = [
     "scikit-learn==1.9.1",
     "scikit-survival==0.28.0",
     "scipy==1.18.1",  # imported directly (deflated Sharpe ratio); already locked via scikit-learn
+    "statsmodels>=0.15.0",
     "torch==2.14.1",  # D-022 neural hazard (GRU); CPU build from the PyTorch CPU index
     "vnstock==6.0.1",
     "vnstock-oapi==0.1.2",
