@@ -272,3 +272,30 @@ The paper must cite and position against the work below, not claim to be first t
 3. Lunde & Timmermann (2004), working-paper version on the author's UCSD page;
 4. Zakamulin (2023);
 5. Gao et al. (2023), open on NBER or the author's page.
+
+## Block E related work: bank asset quality and investor attention (2026-11-25)
+
+Six papers, each read in full, with key numbers checked against the text. Files are in `bank-asset-quality/` and `investor-attention/`.
+
+**Synthesis for Paper 1 (block E):**
+- **Asset quality is reflected in prices by the time statements appear.** The three annual studies find NPL, provisions or reserves line up with returns or valuations *over the same period the statements describe* (Eng & Nabar 2007; Agusman et al. 2009; Tran & Ha 2024). None shows they predict later returns.
+- **Reactions are fast.** The one daily event study (Huang et al. 2012, China) finds the reaction concentrated in days −1 to +4 and gone by +10.
+- **Attention effects in Vietnam are small and short-lived.** A search-sentiment effect of about 2 days reverses at t+2. Once publication lag is respected it shrinks to about 5 bp per SD (Nguyen & Pham 2018). Returns appear to drive search attention more than the reverse (Pham et al. 2024).
+- Together this explains the D-023 development result: block E beats the mechanical baseline but adds nothing beyond local market features, because by our conservative entry time (5th session after the later of the deadline and the PDF date) the information is already in returns, volatility and volume.
+- None of the six uses first-released data or real-time timestamps. Our design is stricter than all of them.
+
+**Ideas raised by these readings that are NOT adopted** (they would change block E after its development results; at most robustness checks fixed before the final run, each logged in DECISIONS.md first):
+- an NPL "surprise" against an expectation fitted only on past data (Eng & Nabar's approach);
+- flags for Vietnamese regulatory regimes that affect reported NPLs: the VAMC transfers from 2013, Resolution 42/2017, and Circular 01/2020 (COVID restructuring), as caveats;
+- a diagnostic event study around actual PDF dates, to measure how much of any reaction comes before our entry lag.
+
+| Paper | Data and timing | Key numbers | Use |
+|---|---|---|---|
+| Eng & Nabar (2007), *J. Int'l Financial Management & Accounting* 18(1), 18–38, doi 10.1111/j.1467-646x.2007.01006.x | 35 banks in Hong Kong, Malaysia and Singapore, annual, 1993–2000. "Unexpected" components come from expectation models fitted on the full sample (look-ahead). | Unexpected provisions +5.79 (t = 3.99); unexpected ΔNPL −0.45 (t = −1.57, n.s.) (Table 6). Provisions lose their signalling value in the 1997–98 crisis. | NPL *changes* carry the least information among loan-loss items |
+| Agusman, Monroe, Gasbarro & Zumwalt (2009), SSRN working paper 1227362, doi 10.2139/ssrn.1227362 | 42 banks in 9 Asian countries, annual, 1999–2007. The reserve ratio covers the same year as the return. | Reserves / gross loans: −0.321*** (fixed effects, Table 2) | Contemporaneous association only |
+| Tran & Ha (2024, printed 2025), *Macroeconomics and Finance in Emerging Market Economies* 18(2), 278–300, doi 10.1080/17520843.2024.2419758 | 20 Vietnamese banks, annual, 2010–2023. NPL = groups 3–5 / total loans, as ours. | NPL −1.547*** on Tobin's Q (Table 4); mean NPL 1.8% | The only Vietnamese evidence: NPL is reflected in valuation levels. The tables have typos and the estimator is unclear. |
+| Huang, Schwienbacher & Zhao (2012), *J. Int'l Financial Markets, Institutions & Money* 22, 233–252, doi 10.1016/j.intfin.2011.09.004 | China, 424 loan announcements, daily event study | CAR [0, +1] −0.277% (p = .005), [−1, +4] −0.461%, [−1, +10] not significant (Table 3). The lending bank's NPL is not significant (Table 5). | Timing lesson: disclosure reactions finish within about a week |
+| Pham, Pavelkova, Popesko, Hoang & Huynh (2024), *Financial Innovation* 10:123, doi 10.1186/s40854-023-00576-1 | Weekly Google Trends (fintech terms) vs an index of 8 banks, 2017–2021, VAR–Granger | BankReturn → FinLending χ² 18.42***, reverse 23.70*** (Table 7). The factor model is weak (KMO 0.501). | Search attention vs our news supply. Full-sample factor scaling is exactly the look-ahead we avoid. Ambiguous Granger table layout. |
+| Nguyen & Pham (2018), *Journal of Asian Finance, Economics and Business* 5(4), 45–56, doi 10.13106/jafeb.2018.vol5.no4.45 (our copy is the SSRN working paper) | Daily Vietnamese Google search sentiment, 2011–2018 | One SD of sentiment ≈ −7.7 bp over 2 days, then +6.3 bp at t+2 (Table 2); about 5 bp with real-time timing (Table 3E) | Attention effects are tiny and reverse quickly. Weak venue. Check the published numbers before citing. |
+
+**To read next for this area:** Nguyen, Schinckus & Nguyen (2019), "Google search and stock returns in emerging markets", *Borsa Istanbul Review* 19(4), 288–296, doi 10.1016/j.bir.2019.07.001 (verified on Crossref; it covers Vietnam).

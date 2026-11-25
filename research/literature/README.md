@@ -7,6 +7,10 @@ Drop PDFs here, by topic:
 - `us-vn-spillover/`: US market moves transmitted to Vietnamese stocks
 - `international-spillover/`: general cross-market spillover and contagion methods
 - `methods/`: forecasting and machine-learning methods
+- `bank-asset-quality/`: loan quality, provisions and bank stock returns (Paper 1 block E)
+- `investor-attention/`: search and news attention and returns (Paper 1 block E)
+
+The `inbox/` folder stays in place for new uploads.
 
 Files are named `Author-Year_short-title.pdf`. Reading notes: `NOTES.md`.
 
