@@ -51,3 +51,7 @@ neural:                        # D-022 GRU sequence + logistic-hazard head
   clip_sd: 10.0
   outer_seeds: [0, 1, 2]       # outer refits average these seeds' survival curves
   shuffle_controls: 3
+
+rq4:                            # proposal RQ4 (exploratory); dates from seed market_classification_events
+  break_event: ftse_upgrade_announced   # 2025-10-07 (FTSE Russell press release)
+  effective_event: ftse_upgrade_effective  # 2026-09-21

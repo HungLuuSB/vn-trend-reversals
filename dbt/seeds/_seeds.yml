@@ -150,6 +150,24 @@ seeds:
         data_tests: [not_null]
       - name: source_url
         data_tests: [not_null]
+  - name: market_classification_events
+    description: >
+      Vietnam's market-classification events (FTSE Russell) with a source on every row. Paper 1
+      RQ4 uses the announcement date as its break (proposal; config rq4.break_event).
+    config:
+      column_types:
+        event_date: Date
+        event: LowCardinality(String)
+        source_url: String
+        confidence: LowCardinality(String)
+        note: String
+    columns:
+      - name: event_date
+        data_tests: [not_null]
+      - name: event
+        data_tests: [not_null, unique]
+      - name: source_url
+        data_tests: [not_null]
   - name: bank_aliases
     description: >
       Names used to count news mentions of each bank (research/paper1/DECISIONS.md D-023):
