@@ -54,3 +54,11 @@ paper/*.pdf
 .vscode/
 .idea/
 .DS_Store
+
+# LaTeX build artefacts (papers are built with tectonic)
+papers/**/*.log
+papers/**/*.aux
+papers/**/*.xdv
+papers/**/*.bbl
+papers/**/*.blg
+papers/**/*.out

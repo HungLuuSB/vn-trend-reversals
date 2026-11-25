@@ -2,41 +2,25 @@
 % Notation table if > ~8 symbols (likely). Hyperparameter grids in Appendix A.
 
 \subsection{Swings: a volatility-scaled directional-change rule}
-% PLAN: theta_t = k * ATR20_t / P_t, trailing only (k = 2 main; 1.5, 3 robustness); swing
-%   extreme, confirmation, swing_dist; why volatility scaling makes swings comparable across
-%   stocks (answers Hu & Zhou's pooling objection). Equations.
-\todo{Swing definition.}
+\plan{theta\_t = k * ATR20\_t / P\_t, trailing only (k = 2 main; 1.5, 3 robustness); swing extreme, confirmation, swing\_dist; why volatility scaling makes swings comparable across stocks (answers Hu \& Zhou's pooling objection). Equations.}
+\todo[inline]{Swing definition.}
 
 \subsection{Survival setup}
-% PLAN: each swing a spell; risk set of (swing, session) rows; event = reversal confirmed;
-%   right-censoring at the study end and at delisting; landmark discrete-time hazard
-%   h(t | x) = P(T = t | T >= t, x); horizons 5/10/20 sessions (main 5).
-\todo{Survival setup.}
+\plan{each swing a spell; risk set of (swing, session) rows; event = reversal confirmed; right-censoring at the study end and at delisting; landmark discrete-time hazard h(t | x) = P(T = t | T $\geq$ t, x); horizons 5/10/20 sessions (main 5).}
+\todo[inline]{Survival setup.}
 
 \subsection{Feature blocks}
-% PLAN: A swing mechanics (age, swing_dist); B local returns/volatility/volume; C price limits &
-%   microstructure; D overnight global (14 series, direction-specific, D-009/D-017); E banks:
-%   first-released NPL ratio and change, news count and relative attention (D-023).
-%   Mechanical baseline M = swing age + swing_dist (D-016).
-\todo{Feature blocks.}
+\plan{A swing mechanics (age, swing\_dist); B local returns/volatility/volume; C price limits \& microstructure; D overnight global (14 series, direction-specific, D-009/D-017); E banks: first-released NPL ratio and change, news count and relative attention (D-023). Mechanical baseline M = swing age + swing\_dist (D-016).}
+\todo[inline]{Feature blocks.}
 
 \subsection{Models}
-% PLAN: Kaplan-Meier (no features); logistic landmark hazard (elastic net); Cox; random survival
-%   forest; gradient-boosted hazard; GRU neural hazard (D-022). Tuning by inner purged CV on
-%   integrated Brier score.
-\todo{Models.}
+\plan{Kaplan-Meier (no features); logistic landmark hazard (elastic net); Cox; random survival forest; gradient-boosted hazard; GRU neural hazard (D-022). Tuning by inner purged CV on integrated Brier score.}
+\todo[inline]{Models.}
 
 \subsection{Evaluation}
-% PLAN: walk-forward, expanding window from 2012, refit each January, test years 2017-2026
-%   (2026 partial); purge rows whose swing ends inside the test window; 20-session embargo.
-%   Metrics: Uno's C, IPCW integrated Brier score, time-dependent AUC, calibration at 5/10/20;
-%   paired block bootstrap (20 sessions). Decision rule for "improves": C interval > 0 and IBS
-%   interval < 0. Controls: shuffled labels; red-flag thresholds. Number of configurations tried
-%   (all decisions D-001..D-024 logged before running).
-\todo{Evaluation protocol.}
+\plan{walk-forward, expanding window from 2012, refit each January, test years 2017-2026 (2026 partial); purge rows whose swing ends inside the test window; 20-session embargo. Metrics: Uno's C, IPCW integrated Brier score, time-dependent AUC, calibration at 5/10/20; paired block bootstrap (20 sessions). Decision rule for "improves": C interval > 0 and IBS interval < 0. Controls: shuffled labels; red-flag thresholds. Number of configurations tried (all decisions D-001..D-024 logged before running).}
+\todo[inline]{Evaluation protocol.}
 
 \subsection{Economic test}
-% PLAN: long-only exit rule from the predicted hazard vs buy-and-hold and a fixed DC rule; T+2;
-%   no fill at limit-down; 0.4% round trip (0.2%, 0.8% sensitivity); Sharpe, drawdown, deflated
-%   Sharpe with the number of trials.
-\todo{Trading test.}
+\plan{long-only exit rule from the predicted hazard vs buy-and-hold and a fixed DC rule; T+2; no fill at limit-down; 0.4\% round trip (0.2\%, 0.8\% sensitivity); Sharpe, drawdown, deflated Sharpe with the number of trials.}
+\todo[inline]{Trading test.}

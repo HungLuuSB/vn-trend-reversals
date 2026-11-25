@@ -7,12 +7,17 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+% Skeleton plans: visible in drafts; set \showplansfalse to hide every plan at once.
+\newif\ifshowplans \showplanstrue
+\newcommand{\plan}[1]{\ifshowplans{\par\noindent\color{gray}\small\textit{Plan:} #1\par}\fi}
+\setlength{\marginparwidth}{2cm}
 \usepackage[textsize=footnotesize]{todonotes}
 
 % generated numbers (vnbank.research.<paper1 builder>, not written yet: results are not final)
 \IfFileExists{generated/numbers.tex}{\input{generated/numbers.tex}}{}
 
-\journal{(target journal to be chosen; see docs/proposals/paper1-trend-reversals.md)}
+\journal{[target journal to be chosen]}
 
 \begin{document}
 
@@ -22,18 +27,18 @@
 Market Under Global Shocks}
 % PLAN: keep a finding out of the title until the final run supports it (skill rule).
 
-\author[inst]{Author \todo{names, affiliations, ORCID}}
-\affiliation[inst]{organization={\todo{affiliation}}}
+\author[inst]{[Author names to be added]}
+\affiliation[inst]{organization={[Affiliation to be added]}}
 
 \begin{abstract}
 % PLAN (written last): problem -> gap -> method -> data -> main result with number and
 % uncertainty -> implication. 150-250 words, no citations.
-\todo{Abstract: written after the final run.}
+\todo[inline]{Abstract: written after the final run.}
 \end{abstract}
 
 \begin{highlights}
 % PLAN: 3-5 findings, <= 85 characters each, written after the final run.
-\item \todo{Highlight 1}
+\item \todo[inline]{Highlights: written after the final run.}
 \end{highlights}
 
 \begin{keyword}
@@ -56,11 +61,11 @@ Price limits \sep Vietnam
 \section*{Data and code availability}
 % PLAN: snapshot hash (research/snapshots.md), git commit of the final run, repository URL;
 % third-party data terms (CafeF, Yahoo, FRED, GPR) and what can / cannot be redistributed.
-\todo{Data and code availability statement.}
+\todo[inline]{Data and code availability statement.}
 
 \section*{Declarations}
 % PLAN: CRediT, competing interests, funding, generative-AI use statement (Elsevier requires it).
-\todo{Declarations.}
+\todo[inline]{Declarations.}
 
 \appendix
 \input{sections/A_appendix}
