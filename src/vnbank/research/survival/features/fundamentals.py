@@ -42,9 +42,14 @@ def first_release(docs: pd.DataFrame) -> pd.DataFrame:
         rank[(d.kind == kind) & (d.q == q)] = 1
     rank[d.kind == "M"] = 2
     d = d.assign(rank=rank).dropna(subset=["rank"])
-    return (d.sort_values(["symbol", "year", "q", "rank", "raw_key"])
+    # D-023 clarification 4: among files of the chosen kind, the earliest creation date, then
+    # the unsuffixed name (no creation date sorts last), then the earliest raw key
+    d["_created"] = pd.to_datetime(d["created"]) if "created" in d else pd.NaT
+    d["_suffix"] = (d["suffix"].fillna("") != "") if "suffix" in d else False
+    keys = ["symbol", "year", "q", "rank", "_created", "_suffix", "raw_key"]
+    return (d.sort_values(keys, na_position="last")
             .groupby(["symbol", "year", "q"], as_index=False).head(1)
-            .drop(columns="rank").reset_index(drop=True))  # fmt: skip
+            .drop(columns=["rank", "_created", "_suffix"]).reset_index(drop=True))  # fmt: skip
 
 
 def available_at(year: int, q: int, kind: str, created: date | None, sessions: np.ndarray,

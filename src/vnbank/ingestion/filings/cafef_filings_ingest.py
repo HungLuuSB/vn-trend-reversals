@@ -1,6 +1,7 @@
 """Download banks' financial-statement PDFs (CafeF mirror) into the raw layer (block E).
 
     uv run python -m vnbank.ingestion.filings.cafef_filings_ingest --symbols ACB --years 2011-2017
+    ... --kinds HN,HNSX,HNKT,M     # only the statement kinds block E uses (D-023)
 
 Stores each list reply and each PDF unchanged. Resumable: PDFs already stored (by file name,
 any download date) are skipped. Bank tickers default to dbt/seeds/bank_spells.csv.
@@ -39,10 +40,21 @@ def stored_pdfs(store: RawStore) -> set[str]:
     return out
 
 
+def wanted(filename: str, kinds: set[str] | None) -> bool:
+    """kinds filter (e.g. the four statement kinds D-023 uses). A name the parser does not
+    recognise is always downloaded, so nothing is lost to an unexpected naming scheme."""
+    if not kinds:
+        return True
+    from vnbank.documents.extract_bank_fs import parse_name
+
+    meta = parse_name(filename)
+    return meta is None or meta["kind"] in kinds
+
+
 def ingest(client: CafefFilingsClient, store: RawStore, symbols: list[str], years: list[int],
-           log=print) -> dict:  # fmt: skip
+           log=print, kinds: set[str] | None = None) -> dict:  # fmt: skip
     have = stored_pdfs(store)
-    st = {"lists": 0, "pdfs": 0, "skipped": 0, "failed": [], "empty": []}
+    st = {"lists": 0, "pdfs": 0, "skipped": 0, "failed": [], "empty": [], "not_wanted": 0}
     for sym in (s.upper() for s in symbols):
         for y in years:
             for _ in range(EMPTY_RETRIES):
@@ -57,6 +69,9 @@ def ingest(client: CafefFilingsClient, store: RawStore, symbols: list[str], year
                 st["empty"].append(f"{sym} {y}")
                 log(f"{sym} {y}: empty list after {EMPTY_RETRIES} tries")
             for f in filings:
+                if not wanted(f.filename, kinds):
+                    st["not_wanted"] += 1
+                    continue
                 if f.filename in have:
                     st["skipped"] += 1
                     continue
@@ -84,12 +99,14 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--symbols", default="", help="comma-separated; default: all bank tickers")
     p.add_argument("--years", required=True, help="e.g. 2011-2017")
+    p.add_argument("--kinds", default="", help="e.g. HN,HNSX,HNKT,M (default: every kind)")
     a = p.parse_args(argv)
     y0, y1 = map(int, a.years.split("-"))
     syms = a.symbols.split(",") if a.symbols else bank_tickers()
     load_dotenv(["S3_"])
+    kinds = set(a.kinds.split(",")) if a.kinds else None
     print(ingest(CafefFilingsClient(), S3RawStore.from_env(), syms, list(range(y0, y1 + 1)),
-                 log=lambda m: print(m, flush=True)))  # fmt: skip
+                 log=lambda m: print(m, flush=True), kinds=kinds))  # fmt: skip
     return 0
 
 

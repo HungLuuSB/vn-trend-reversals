@@ -27,7 +27,10 @@ from vnbank.documents.parse.ocr import ocr_pdf
 from vnbank.documents.tables.loan_quality import find_loan_quality
 
 OUT = paths.REPO / "data" / "extracted" / "loan_quality.parquet"
-_NAME = re.compile(r"^(?P<sym>[A-Z]+)_(?P<yy>\d\d)(?P<per>Q\d|CN)_(?:BCTC|KQKD)_(?P<kind>[A-Z]+)\.")
+_NAME = re.compile(
+    r"^(?P<sym>[A-Z]+)_(?P<yy>\d\d)(?P<per>Q\d|CN)_(?:BCTC|KQKD)_(?P<kind>[A-Z]+)"
+    r"(?:_(?P<suffix>[0-9A-Za-z-]+))?\."
+)  # suffix: later re-uploads (D-023 c. 4)
 
 
 def parse_name(name: str) -> dict | None:
@@ -35,7 +38,7 @@ def parse_name(name: str) -> dict | None:
     if not m:
         return None
     return {"symbol": m["sym"], "year": 2000 + int(m["yy"]), "period": m["per"],
-            "kind": m["kind"]}  # fmt: skip
+            "kind": m["kind"], "suffix": m["suffix"] or ""}  # fmt: skip
 
 
 def _one(key: str) -> dict:

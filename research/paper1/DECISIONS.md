@@ -749,6 +749,11 @@ The model-shape table and the test results do not change.
   - For a `.docx`, `docProps/core.xml` `dcterms:created` is used.
 - **Missing documents.** CafeF's list endpoint intermittently returns an empty list. The dev download was repeated with retries (up to 8 per bank-year), so a bank-quarter is missing only if CafeF lists no document for it.
 
+**Clarification 4 (2026-11-25, full-period download; before any 2017–2026 block E value exists): file versions.**
+- From about 2022, CafeF also lists files with a suffix after the statement kind, e.g. `VCB_22Q2_BCTC_HNSX_2022-092134.pdf`. The filename parser now accepts the suffix, and the kind is still the part before it.
+- When one bank-quarter has more than one file of the chosen kind (an original and a re-upload, or a corrected version), the **first release is the file with the earliest PDF creation date**. Ties, or files with no creation date, go to the unsuffixed name, then the earliest raw key.
+- The precedence of kinds (HN > HNSX/HNKT stand-ins > M) does not change. Later versions are never used.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.
