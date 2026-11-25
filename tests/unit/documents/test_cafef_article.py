@@ -71,3 +71,14 @@ def test_bundle_rows_strict_excludes_ambiguous_aliases():
     df = bundle_rows(buf.getvalue(), pats_all, pats_strict)
     assert df.tickers.iloc[0] == ["MBB", "VCB"] and df.tickers_strict.iloc[0] == ["VCB"]
     assert str(df.published_at_utc.iloc[0]) == "2014-06-10 16:11:12+00:00"
+
+
+def test_bundle_rows_of_an_empty_bundle_keep_their_columns():
+    from vnbank.documents.news.extract_mentions import COLUMNS, bundle_rows
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as zf:  # a repair bundle in which every page failed again
+        zf.writestr("index.json", json.dumps({"pages": [{"url": "u0", "status": 404}]}))
+    df = bundle_rows(buf.getvalue(), alias_patterns(ALIASES), alias_patterns(ALIASES))
+    assert len(df) == 0 and list(df.columns) == COLUMNS
+    assert df.tickers.map(len).gt(0).sum() == 0

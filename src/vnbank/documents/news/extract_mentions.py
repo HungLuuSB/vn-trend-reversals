@@ -31,7 +31,12 @@ def load_aliases() -> tuple[list[tuple[str, str]], list[tuple[str, str]]]:
     return every, strict
 
 
+COLUMNS = ["url", "published_at_utc", "n_chars", "tickers", "tickers_strict"]
+
+
 def bundle_rows(zip_bytes: bytes, pats_all, pats_strict) -> pd.DataFrame:
+    """One row per article; a bundle with no articles (e.g. a repair bundle that recovered
+    nothing) gives an empty table with the same columns."""
     out = []
     for a in iter_bundle(zip_bytes):
         text = a.text
@@ -43,7 +48,7 @@ def bundle_rows(zip_bytes: bytes, pats_all, pats_strict) -> pd.DataFrame:
             "tickers": sorted(mentions(text, pats_all)),
             "tickers_strict": sorted(mentions(text, pats_strict)),
         })  # fmt: skip
-    return pd.DataFrame(out)
+    return pd.DataFrame(out, columns=COLUMNS)
 
 
 def main() -> int:
