@@ -48,6 +48,8 @@ def macro(*parts: str) -> str:
     out = []
     for p in parts:
         words = re.findall(r"[A-Za-z]+|\d", str(p))
+        if not words:
+            raise ReportError(f"macro part {p!r} has no letters or digits")
         for w in words:
             w = DIGITS[int(w)] if w.isdigit() else w
             out.append(w[:1].upper() + w[1:])
@@ -76,8 +78,7 @@ def interval(lo: float, hi: float, digits: int = 3) -> str:
 
 def integer(n: int) -> str:
     """Thousands separated by a thin space (journal style): 3569 -> 3\\,569."""
-    s = f"{int(n):,}".replace(",", r"\,")
-    return s
+    return r"\ensuremath{" + f"{int(n):,}".replace(",", r"\,") + "}"
 
 
 def escape(text: str) -> str:
