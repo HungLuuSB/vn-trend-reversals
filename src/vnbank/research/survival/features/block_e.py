@@ -1,0 +1,151 @@
+"""Build block E inputs (D-023) from the extraction outputs and the raw layer.
+
+    uv run python -m vnbank.research.survival.features.block_e --snapshot b536ec69488162e0
+
+Writes (git-ignored, data/extracted/):
+
+* ``block_e_npl.parquet``: one row per bank-quarter: the first-release document, its creation
+  date, the NPL ratio and where it came from (``ocr``, ``visual`` seed, or none),
+  ``available_at``, ``npl_change`` and ``change_available_at``.
+* ``news_counts.parquet``: per bank and HOSE session, ``news_count`` / ``news_rel_20`` (strict
+  aliases) and ``*_all`` (all aliases). Sessions whose 09:00-09:00 window is not fully covered by
+  the processed news bundles are NaN, not zero.
+
+Prints a coverage summary: bank-quarters by value source, and news sessions covered.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from datetime import date, timedelta
+
+import numpy as np
+import pandas as pd
+
+from vnbank.common import paths
+from vnbank.common.env import load_dotenv
+from vnbank.common.raw_store import S3RawStore
+from vnbank.documents.extract_bank_fs import parse_name
+from vnbank.documents.parse.pdfmeta import document_created
+from vnbank.research.survival.features.fundamentals import first_release, quarterly_values
+from vnbank.research.survival.features.news import articles, session_counts
+
+EXTRACTED = paths.REPO / "data" / "extracted"
+SEED = paths.SEEDS / "loan_quality_transcribed.csv"
+_WINDOW = re.compile(r"cafef_news_(\d{8})_(\d\d)\.")
+
+
+def documents(store) -> pd.DataFrame:
+    rows = []
+    for k in sorted(store.list_keys("cafef_filings/")):
+        meta = parse_name(k.rsplit("/", 1)[-1])
+        if meta and meta["kind"] in ("HN", "HNSX", "HNKT", "M"):
+            rows.append({**meta, "raw_key": k, "name": k.rsplit("/", 1)[-1].split(".")[0]})
+    d = pd.DataFrame(rows)
+    return d.sort_values("raw_key").drop_duplicates("name").drop(columns="name")  # earliest copy
+
+
+def npl_values(fr: pd.DataFrame) -> pd.DataFrame:
+    ocr = pd.read_parquet(EXTRACTED / "loan_quality.parquet")[["raw_key", "status", "npl_ratio"]]
+    out = fr.merge(ocr, on="raw_key", how="left")
+    out["value_source"] = np.where(out.status == "ok", "ocr", None)
+    if SEED.exists():
+        seed = pd.read_csv(SEED)
+        g = seed[[f"g{i}" for i in range(1, 6)]].to_numpy(dtype="float64")
+        seed = seed.assign(npl_seed=g[:, 2:].sum(axis=1) / g.sum(axis=1))[["raw_key", "npl_seed"]]
+        out = out.merge(seed, on="raw_key", how="left")
+        use = out.value_source.isna() & out.npl_seed.notna()
+        out.loc[use, "npl_ratio"] = out.loc[use, "npl_seed"]
+        out.loc[use, "value_source"] = "visual"
+        out = out.drop(columns="npl_seed")
+    out.loc[out.value_source.isna(), "npl_ratio"] = np.nan
+    return out
+
+
+def covered_dates(mention_files) -> set[date]:
+    """Local dates covered by the processed news bundles (window names cafef_news_YYYYMMDD_DD)."""
+    days = set()
+    for f in mention_files:
+        m = _WINDOW.match(f.name)
+        if not m:
+            continue
+        d0 = date.fromisoformat(f"{m[1][:4]}-{m[1][4:6]}-{m[1][6:]}")
+        d = d0
+        while d.day <= int(m[2]) and d.month == d0.month:
+            days.add(d)
+            d += timedelta(days=1)
+    return days
+
+
+def news_counts(sessions: pd.Series, tickers: list[str]) -> pd.DataFrame:
+    files = sorted((EXTRACTED / "news_mentions").glob("*.parquet"))
+    men = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    strict = session_counts(articles(men, "tickers_strict"), sessions, tickers)
+    every = session_counts(articles(men, "tickers"), sessions, tickers)
+    out = strict.merge(every.drop(columns="window_end_session"), on=["ticker", "trade_date"],
+                       suffixes=("", "_all"))  # fmt: skip
+    cov = covered_dates(files)
+    full = [all((s.date() + timedelta(days=i)) in cov for i in range((e - s).days + 1))
+            for s, e in zip(pd.to_datetime(out.trade_date), pd.to_datetime(out.window_end_session),
+                            strict=True)]  # fmt: skip
+    cols = ["news_count", "news_rel_20", "news_count_all", "news_rel_20_all"]
+    out.loc[~np.array(full), cols] = np.nan
+    # the 20-session mean must also lie inside the covered period
+    for c in ("news_rel_20", "news_rel_20_all"):
+        ok = pd.Series(full, index=out.index).groupby(out.ticker).transform(
+            lambda x: x.astype(float).rolling(21).min().fillna(0).astype(bool))  # fmt: skip
+        out.loc[~ok, c] = np.nan
+    return out
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p.add_argument("--snapshot", required=True)
+    a = p.parse_args(argv)
+    sessions = pd.read_parquet(paths.SNAPSHOTS / a.snapshot / "sessions_hose.parquet").trade_date
+    sess = np.sort(pd.to_datetime(sessions).to_numpy())
+    load_dotenv(["S3_"])
+    store = S3RawStore.from_env()
+    fr = first_release(documents(store))
+    fr["created"] = [document_created(store.get(k)) for k in fr.raw_key]
+    vals = quarterly_values(npl_values(fr), sess)
+    vals.to_parquet(EXTRACTED / "block_e_npl.parquet", index=False)
+    print(pd.crosstab(vals.symbol, vals.value_source.fillna("none"), margins=True).to_string())
+    print("kinds:", vals.kind.value_counts().to_dict(), "| created missing:",
+          int(vals.created.isna().sum()))  # fmt: skip
+    nc = news_counts(sessions, sorted(vals.symbol.unique()))
+    nc.to_parquet(EXTRACTED / "news_counts.parquet", index=False)
+    yr = pd.to_datetime(nc.trade_date).dt.year
+    print("news sessions covered by year:", nc.news_count.notna().groupby(yr).mean().round(2)
+          .to_dict())  # fmt: skip
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+
+def add_block_e(ds: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """D-023: add npl_ratio, npl_change, news_count, news_rel_20 and keep bank rows only.
+    Returns the dataset and the sha256 of each input file (recorded in the run config: block E
+    inputs are not yet part of the frozen snapshot)."""
+    import hashlib
+
+    from vnbank.research.survival.features.fundamentals import add_npl_features
+    from vnbank.research.survival.features.news import add_news_features
+
+    meta = {}
+    for name in ("block_e_npl.parquet", "news_counts.parquet"):
+        meta[name] = hashlib.sha256((EXTRACTED / name).read_bytes()).hexdigest()
+    npl = pd.read_parquet(EXTRACTED / "block_e_npl.parquet")
+    nc = pd.read_parquet(EXTRACTED / "news_counts.parquet")
+    bank = ds[ds.is_bank.astype(bool)].reset_index(drop=True)
+    bank = add_npl_features(bank, npl)
+    bank = add_news_features(bank, nc[["ticker", "trade_date", "window_end_session",
+                                       "news_count", "news_rel_20"]])  # fmt: skip
+    meta["bank_rows"] = len(bank)
+    cols = ("npl_ratio", "npl_change", "news_count", "news_rel_20")
+    meta["share_missing"] = {c: round(float(bank[c].isna().mean()), 4) for c in cols}
+    return bank, meta

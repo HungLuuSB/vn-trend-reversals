@@ -3,7 +3,8 @@
     uv run python -m vnbank.documents.news.extract_mentions
 
 Incremental: each raw bundle is processed once and written to
-data/extracted/news_mentions/<bundle stem>.parquet with one row per article: url,
+data/extracted/news_mentions/<bundle name without .zip>.parquet (window and content hash, so a
+repair bundle for an already processed window is still read) with one row per article: url,
 published_at_utc, n_chars, and `tickers` (all aliases) / `tickers_strict` (ambiguous aliases
 excluded). Daily counts and features are built from these files, never from live pages.
 """
@@ -54,7 +55,8 @@ def main() -> int:
     done = {p.stem for p in OUT.glob("*.parquet")}
     n = 0
     for key in sorted(store.list_keys("cafef_news/")):
-        stem = key.rsplit("/", 1)[-1].split(".")[0]
+        stem = key.rsplit("/", 1)[-1].removesuffix(".zip")  # keeps the hash: repair bundles
+        # cover the same window under a new hash and must not be skipped
         if stem in done:
             continue
         df = bundle_rows(store.get(key), pa, ps)

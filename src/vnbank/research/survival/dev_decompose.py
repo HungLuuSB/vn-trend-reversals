@@ -32,6 +32,7 @@ from vnbank.research.survival.features.assemble import (
     bank_features,
     xdir,
 )
+from vnbank.research.survival.features.block_e import add_block_e
 from vnbank.research.survival.features.sequence import SEQ, add_sequences
 from vnbank.research.survival.models.zoo import CFG, make_model
 from vnbank.research.survival.walkforward import DEV_END, DEV_FOLDS, TAU, TOO_GOOD_C, split
@@ -93,6 +94,15 @@ SPECS_D022 = {
 }
 DIFFS_D022 = [("nn_seq_ABCD", "nn_static_ABCD"), ("nn_seq_ABCD", "ABCDx"), ("nn_seq_ABCD", "M"),
               ("nn_seq_ABCD", "nn_seq_ABC")]  # fmt: skip
+# D-023: block E (first-released NPL, news attention) on bank rows only
+FEATURES_E = ["npl_ratio", "npl_change", "news_count", "news_rel_20"]
+SPECS_D023 = {
+    "M": SPECS_D016["M"],
+    "M_E": [*SPECS_D016["M"], *FEATURES_E],
+    "ABCDx": SPECS_D017["ABCDx"],
+    "ABCDx_E": [*SPECS_D017["ABCDx"], *FEATURES_E],
+}
+DIFFS_D023 = [("ABCDx_E", "ABCDx"), ("M_E", "M")]
 OUTER_EXTRA = {"nn": {"seeds": CFG["neural"]["outer_seeds"]}}  # D-022: seed-averaged outer refit
 SHUFFLED = {"D-022": "nn_seq_ABCD"}  # spec that gets the shuffled-label control
 PROTOCOLS = {
@@ -103,6 +113,7 @@ PROTOCOLS = {
     "D-019": (SPECS_D019, DIFFS_D019),
     "D-020": (SPECS_D020, DIFFS_D020),
     "D-022": (SPECS_D022, DIFFS_D022),
+    "D-023": (SPECS_D023, DIFFS_D023),
 }
 
 
@@ -162,7 +173,7 @@ def main(argv: list[str] | None = None) -> int:
     sessions = np.sort(pd.to_datetime(
         pd.read_parquet(snap / "sessions_hose.parquet").trade_date).to_numpy())  # fmt: skip
     ds = ds[ds.trade_date <= DEV_END]
-    if args.protocol.startswith(("D-017", "D-020", "D-022")):
+    if args.protocol.startswith(("D-017", "D-020", "D-022", "D-023")):
         ds = add_direction_interactions(ds)
     if args.protocol == "D-022":
         cols = ["ticker", "trade_date", "open_adj", "high_adj", "low_adj", "close_adj", "volume"]
@@ -171,6 +182,9 @@ def main(argv: list[str] | None = None) -> int:
         ds = add_sequences(ds.reset_index(drop=True), prices[prices.trade_date <= DEV_END])
     if args.protocol == "D-020":
         ds = add_bank_interactions(ds)
+    block_e = {}
+    if args.protocol == "D-023":
+        ds, block_e = add_block_e(ds)
 
     run = RUNS / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-devdecompose-{args.protocol}"
     run.mkdir(parents=True)
@@ -238,7 +252,8 @@ def main(argv: list[str] | None = None) -> int:
                 if m["uno_c"] > TOO_GOOD_C]  # fmt: skip
     cfg = {"protocol": args.protocol, "features_run": fr.name, "snapshot_id": fcfg["snapshot_id"],
            "git_commit": commit, "specs": specs, "diffs": diffs, "folds": DEV_FOLDS,
-           "horizons": HORIZONS.tolist(), "bootstrap": args.bootstrap, "block": 20}  # fmt: skip
+           "horizons": HORIZONS.tolist(), "bootstrap": args.bootstrap, "block": 20,
+           **({"block_e": block_e} if block_e else {})}  # fmt: skip
     (run / "config.json").write_text(json.dumps(cfg, indent=2))
     (run / "metrics.json").write_text(json.dumps({"results": results, "warnings": warnings},
                                                  indent=2, default=float))  # fmt: skip

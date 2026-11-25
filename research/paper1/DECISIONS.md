@@ -740,6 +740,15 @@ The model-shape table and the test results do not change.
   - `news_count`: articles mentioning the bank published in [decision time of t, decision time of t + 1), i.e. 09:00 on t to 09:00 on t + 1;
   - `news_rel_20`: log((1 + news_count) / (1 + mean news_count over the previous 20 sessions)).
 
+**Clarification 3 (2026-11-25, before any block E value was joined to an outcome): implementation details the text above leaves open.**
+- **Aliases.** The main `news_count` uses the strict aliases: those flagged ambiguous in `bank_aliases.csv` (e.g. "MB") are excluded. Robustness: all aliases.
+- **Article identity.** Articles are deduplicated by URL; repair bundles for a window are read alongside the first bundle.
+- **History for `news_rel_20`.** Counts are built for every HOSE session, so the 20-session mean does not depend on which rows are in the risk set. The value is NaN for the first 20 sessions of the crawl (January 2012).
+- **Creation date.** The PDF's `CreationDate` (`pdfinfo -isodates`) is converted to its Asia/Ho_Chi_Minh date. If it is absent, the deadline alone applies; `ModDate` is never used.
+  - For an archive, the latest `CreationDate` among its PDFs is used.
+  - For a `.docx`, `docProps/core.xml` `dcterms:created` is used.
+- **Missing documents.** CafeF's list endpoint intermittently returns an empty list. The dev download was repeated with retries (up to 8 per bank-year), so a bank-quarter is missing only if CafeF lists no document for it.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.
