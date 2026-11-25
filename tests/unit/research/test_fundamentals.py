@@ -69,3 +69,16 @@ def test_npl_features_strictly_before_decision_time_and_bank_rows_only():
     assert out.npl_ratio.tolist()[1:4] == [0.020, 0.020, 0.025]
     assert np.isnan(out.npl_change.iloc[2]) and np.isclose(out.npl_change.iloc[3], 0.005)
     assert np.isnan(out.npl_ratio.iloc[4])  # not a bank
+
+
+def test_npl_features_accept_mixed_timestamp_resolutions():
+    """Values read back from parquet can be datetime64[us]; decision times are [ns]."""
+    fr = pd.DataFrame({"symbol": ["ACB"], "year": [2014], "q": [4], "kind": ["HN"],
+                       "npl_ratio": [0.020], "created": [None]})  # fmt: skip
+    vals = quarterly_values(fr, pd.bdate_range("2015-01-01", "2015-07-31").to_numpy())
+    for col in ("available_at", "change_available_at"):
+        if col in vals:
+            vals[col] = pd.to_datetime(vals[col], utc=True).astype("datetime64[us, UTC]")
+    ds = pd.DataFrame({"ticker": ["ACB"], "decision_date": pd.to_datetime(["2015-03-02"]),
+                       "is_bank": [True]})  # fmt: skip
+    assert add_npl_features(ds, vals).npl_ratio.tolist() == [0.020]
