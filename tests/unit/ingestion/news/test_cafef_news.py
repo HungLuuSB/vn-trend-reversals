@@ -83,3 +83,18 @@ def test_parallel_fetch_keeps_sitemap_order():
     b = c.fetch_window(nc.Window(2012, 1, 1, 5))
     assert [u for u, _, _ in b.pages] == ["https://cafef.vn/a-1.chn", "https://cafef.vn/b-2.chn"]
     assert b.stats["concurrency"] == 3 and b.stats["pages"] == 2
+
+
+def test_repair_refetches_only_failed_pages_into_a_new_bundle():
+    from vnbank.ingestion.news.cafef_news_ingest import repair
+
+    http = FakeHttp()
+    c = nc.CafefNewsClient(http=http, pause_s=0, sleep=lambda s: None)
+    store = InMemoryRawStore()
+    crawl(c, store, date(2012, 1, 1), date(2012, 1, 5), log=lambda m: None)  # b-2 -> 404
+    before = set(store.keys())
+    http.urls.clear()
+    st = repair(c, store, log=lambda m: None)
+    assert st["urls"] == 1 and http.urls == ["https://cafef.vn/b-2.chn"]
+    new = set(store.keys()) - before
+    assert len(new) == 1 and "cafef_news_20120101_05_repair_1." in new.pop()
