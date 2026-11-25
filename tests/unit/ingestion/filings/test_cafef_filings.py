@@ -125,3 +125,25 @@ def test_kinds_filter_skips_other_statements_but_keeps_unknown_names():
     c = fc.CafefFilingsClient(http=FakeHttp(), pause_s=0, sleep=lambda s: None)
     st = ingest(c, InMemoryRawStore(), ["VCB"], [2013], log=lambda m: None, kinds={"M"})
     assert st["pdfs"] == 0 and st["not_wanted"] == 1
+
+
+def test_pdf_falls_back_to_the_listed_host_on_404():
+    class Http:
+        def __init__(self):
+            self.urls = []
+
+        def get(self, url, params=None):
+            self.urls.append(url)
+
+            class R:
+                status_code = 404 if "cafef1." in url else 200
+                content = b"" if "cafef1." in url else b"%PDF-1.4 new"
+
+            return R()
+
+    http = Http()
+    c = fc.CafefFilingsClient(http=http, pause_s=0, sleep=lambda s: None)
+    (f,) = fc.parse_list("VCB", 2013, LIST)
+    status, body, _ = c.pdf(f)
+    assert status == 200 and body.startswith(b"%PDF")
+    assert [u.split("/")[2] for u in http.urls] == ["cafef1.mediacdn.vn", "cafefnew.mediacdn.vn"]

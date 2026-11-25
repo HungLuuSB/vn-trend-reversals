@@ -754,6 +754,19 @@ The model-shape table and the test results do not change.
 - When one bank-quarter has more than one file of the chosen kind (an original and a re-upload, or a corrected version), the **first release is the file with the earliest PDF creation date**. Ties, or files with no creation date, go to the unsuffixed name, then the earliest raw key.
 - The precedence of kinds (HN > HNSX/HNKT stand-ins > M) does not change. Later versions are never used.
 
+**Clarification 5 (2026-11-25, full-period download; before any 2017–2026 block E value exists): statement kind for new file names, and single-entity banks.**
+- From about 2023, CafeF names many files freely, for example `20260126_-_ACB_-_BCTC_hop_nhat_Quy_04_nam_2025_….pdf`, so the filename gives no kind. For these files the kind comes from CafeF's own description of the file in the stored list reply (`Name`), with the period taken from `Time`.
+  - "hợp nhất" (consolidated) gives HN, HNSX if reviewed ("đã soát xét") and HNKT if audited ("đã kiểm toán").
+  - "công ty mẹ" (parent) gives M, MSX and MKT in the same way.
+  - On the 1,593 listed files whose filename *does* parse, this mapping matches the filename's kind in all but two: STB Q2/2011 `KQKD_MSX`, an income statement only, and BAB Q2/2024 `MSX`, described without \"soát xét\". The filename's kind is used whenever it parses.
+- **Single-entity statements.** Some banks publish one set of statements, neither consolidated nor parent-only ("Báo cáo tài chính quý …"): LPB in every year 2016–2026, PGB in 2019, ABB in 2026, and ACB once (Q4/2014, alongside an HN). For such a bank they are the full-entity report. Precedence:
+  1. HN;
+  2. the single-entity quarterly statement (kind `Q`);
+  3. HNSX or HNKT standing in for Q2 or Q4;
+  4. a reviewed or audited single-entity statement (`SX`, `KT`) standing in for Q2 or Q4;
+  5. M.
+  - In the development data the only case is ACB Q4/2014, where HN exists and still wins, so the D-023 development results do not change.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.
