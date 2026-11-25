@@ -171,3 +171,40 @@ seeds:
         data_tests: [not_null]
       - name: source
         data_tests: [not_null]
+  - name: loan_quality_transcribed
+    description: >
+      Visual-transcription tier of the block E loan-quality tables (research/paper1/DECISIONS.md
+      D-023): first-release statements whose table OCR could not accept, read from the rendered
+      page image. Every row sums exactly to the printed total in both columns (pytest
+      tests/unit/documents/test_visual_seed.py); raw-layer key and page on every row.
+    config:
+      column_types:
+        raw_key: String
+        page: UInt16
+        symbol: LowCardinality(String)
+        year: UInt16
+        period: LowCardinality(String)
+        kind: LowCardinality(String)
+        g1: Int64
+        g1_prior: Int64
+        g2: Int64
+        g2_prior: Int64
+        g3: Int64
+        g3_prior: Int64
+        g4: Int64
+        g4_prior: Int64
+        g5: Int64
+        g5_prior: Int64
+        extra: Int64
+        extra_prior: Int64
+        total: Int64
+        total_prior: Int64
+        unit: LowCardinality(String)
+        method: LowCardinality(String)
+        transcribed_on: Date
+        note: String
+    columns:
+      - name: raw_key
+        data_tests: [not_null, unique]
+      - name: total
+        data_tests: [not_null]
