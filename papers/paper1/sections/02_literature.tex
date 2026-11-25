@@ -3,38 +3,25 @@
 % research/literature/NOTES.md (every entry verified there).
 
 \subsection{Duration dependence of trends and market phases}
-% PLAN: Lunde & Timmermann (2004): filter-defined bull/bear phases, discrete-time hazard, bull
-%   hazard falls / bear hazard rises with age, interest rates shift hazards (in-sample).
-%   Zakamulin (2023): two centuries, mostly positive duration dependence.
-% PLAN: gap -> age-only hazards average over the distance to the filter trigger; index level;
-%   no out-of-sample test. Sets up our age-vs-distance result.
-\todo{Strand 1.}
+\plan{Lunde \& Timmermann (2004): filter-defined bull/bear phases, discrete-time hazard, bull hazard falls / bear hazard rises with age, interest rates shift hazards (in-sample). Zakamulin (2023): two centuries, mostly positive duration dependence.}
+\plan{gap $\rightarrow$ age-only hazards average over the distance to the filter trigger; index level; no out-of-sample test. Sets up our age-vs-distance result.}
+\todo[inline]{Strand 1.}
 
 \subsection{Survival analysis of price reversals and trading signals}
-% PLAN: Yao, Partington & Stevenson (2005): Cox models of daily index runs (mean ~2.5 days),
-%   Brier score worse than random walk out of sample. Hu & Zhou (2024): survival models of time
-%   to a +5% target after technical signals, 380 S&P 500 stocks, argue stocks cannot be pooled.
-% PLAN: gap -> the unit (noisy one-day runs; target returns) and pooling across stocks;
-%   our volatility scaling makes swings comparable across stocks.
-\todo{Strand 2.}
+\plan{Yao, Partington \& Stevenson (2005): Cox models of daily index runs (mean \textasciitilde{}2.5 days), Brier score worse than random walk out of sample. Hu \& Zhou (2024): survival models of time to a +5\% target after technical signals, 380 S\&P 500 stocks, argue stocks cannot be pooled.}
+\plan{gap $\rightarrow$ the unit (noisy one-day runs; target returns) and pooling across stocks; our volatility scaling makes swings comparable across stocks.}
+\todo[inline]{Strand 2.}
 
 \subsection{Directional-change methods}
-% PLAN: intrinsic-time / DC framework \citep{GlattfelderDupuisOlsen2011}; ML prediction of DC
-%   overshoot length in FX \citep{AdegboyeKampouridis2021}: fixed thresholds, completed spells only.
-% PLAN: gap -> censoring of open trends; updating the prediction as a trend ages (landmarks).
-\todo{Strand 3.}
+\plan{intrinsic-time / DC framework \citep{GlattfelderDupuisOlsen2011}; ML prediction of DC overshoot length in FX \citep{AdegboyeKampouridis2021}: fixed thresholds, completed spells only.}
+\plan{gap $\rightarrow$ censoring of open trends; updating the prediction as a trend ages (landmarks).}
+\todo[inline]{Strand 3.}
 
 \subsection{Global shocks, price limits and emerging markets}
-% PLAN: daily momentum in emerging markets and the mechanical effect of price limits; Vietnam
-%   value-weighted continuation vs equal-weighted reversal \citep{GaoJiangXiongXiong2023};
-%   US -> Vietnam spillover studies (in-sample, crisis-era; see NOTES.md) and the volatility bias
-%   in comparing correlations \citep{ForbesRigobon2002}; geopolitical risk \citep{CaldaraIacoviello2022}.
-% PLAN: gap -> no out-of-sample, point-in-time test of whether overnight global information
-%   changes reversal timing.
-\todo{Strand 4.}
+\plan{daily momentum in emerging markets and the mechanical effect of price limits; Vietnam value-weighted continuation vs equal-weighted reversal \citep{GaoJiangXiongXiong2023}; US $\rightarrow$ Vietnam spillover studies (in-sample, crisis-era; see NOTES.md) and the volatility bias in comparing correlations \citep{ForbesRigobon2002}; geopolitical risk \citep{CaldaraIacoviello2022}.}
+\plan{gap $\rightarrow$ no out-of-sample, point-in-time test of whether overnight global information changes reversal timing.}
+\todo[inline]{Strand 4.}
 
 \subsection{Survival-model evaluation and backtest overfitting}
-% PLAN: Uno's C \citep{Uno2011}, IPCW Brier \citep{Graf1999}, landmarking \citep{vanHouwelingen2007},
-%   discrete-time neural hazards \citep{KvammeBorgan2021}, RSF \citep{Ishwaran2008}, Cox \citep{Cox1972};
-%   deflated Sharpe \citep{BaileyLopezdePrado2014}. Mostly cited in Section~\ref{sec:method}.
-\todo{Strand 5 (short).}
+\plan{Uno's C \citep{Uno2011}, IPCW Brier \citep{Graf1999}, landmarking \citep{vanHouwelingen2007}, discrete-time neural hazards \citep{KvammeBorgan2021}, RSF \citep{Ishwaran2008}, Cox \citep{Cox1972}; deflated Sharpe \citep{BaileyLopezdePrado2014}. Mostly cited in Section~\ref{sec:method}.}
+\todo[inline]{Strand 5 (short).}
