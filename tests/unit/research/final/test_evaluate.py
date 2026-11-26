@@ -10,7 +10,20 @@ from vnbank.research.survival.final import year as Y
 from .synth import make
 
 YEARS = [2010, 2011, 2012]
-ONLY = {"M", "DIST", "AGE", "ABCx", "ABCDx", "loo-gold_ret", "loo-gpr_level", "boundary:M"}
+ONLY = {
+    "M",
+    "DIST",
+    "AGE",
+    "ABCx",
+    "ABCDx",
+    "M_flex",
+    "M_s",
+    "DIST_s",
+    "loo-gold_ret",
+    "loo-gold-gpr",
+    "loo-gpr_level",
+    "boundary:M",
+}
 
 
 def _caches(tmp, **kw):
@@ -28,14 +41,22 @@ def weak(tmp_path_factory):
 
 def test_too_good_signal_stops_before_any_other_output(tmp_path):
     c = _caches(tmp_path, base=0.01, slope=0.6)
-    res = E.evaluate(c, YEARS, n_boot=10, log=lambda m: None)
+    res = E.evaluate(c, YEARS, n_boot=10, n_primary=10, log=lambda m: None)
     assert set(res) == {"STOP"} and res["STOP"]["stop"]
     assert "M" in res["STOP"]["too_good_c"]
 
 
 def test_weak_signal_runs_every_section(weak):
-    res = E.evaluate(weak, YEARS, n_boot=10, log=lambda m: None)
+    res = E.evaluate(weak, YEARS, n_boot=10, n_primary=20, log=lambda m: None)
     assert "STOP" not in res and not res["stop_checks"]["stop"]
+    pr = res["primary"]
+    assert {"H1", "H2", "H3"} <= set(pr) and "ABCx-M_flex" in pr["H1_mech"]["pairs"]
+    assert 0 <= pr["H3"]["p"] <= 1 and set(res["primary_holm"]) == set(pr)
+    m = res["pooled"]["metrics"]["M"]
+    assert {"uno_c_strat", "ibs_strat", "uno_c_date_strat", "uno_c"} <= set(m)
+    assert (
+        "M-km" in res["pooled"]["clark_west"] and "ABCx-M_flex" not in res["pooled"]["clark_west"]
+    )  # gbm vs logit on other features: not nested
     sh = res["stop_checks"]["shuffled"]
     assert {"shuffled:M", "shuffled:ABCDx"} <= set(sh)
     assert set(sh["shuffled:M"]["per_year_mean"]) == {"2010", "2011", "2012"}
@@ -55,7 +76,7 @@ def test_weak_signal_runs_every_section(weak):
     assert {"banks", "2017-2019"} & set(pooled["slices"]) == {"banks"}  # synthetic years only
     assert set(res["per_year"]) == {"2010", "2011", "2012"}
     m = pooled["metrics"]["M"]
-    assert m["uno_c"] > pooled["metrics"]["km"]["uno_c"]  # the planted signal is found
+    assert m["uno_c_strat"] > pooled["metrics"]["km"]["uno_c_strat"]  # planted signal found
     assert set(res["h2_coefficients"]["2012"]) == set(E.H2_TERMS)
 
 
@@ -68,7 +89,7 @@ def test_strict_mode_refuses_missing_preregistered_specs(weak):
     import pytest as _pt
 
     with _pt.raises(SystemExit, match="missing"):
-        E.evaluate(weak, YEARS, n_boot=5, log=lambda m: None, strict=True)
+        E.evaluate(weak, YEARS, n_boot=5, n_primary=5, log=lambda m: None, strict=True)
 
 
 def test_caches_from_different_runs_are_refused(tmp_path):
@@ -102,3 +123,18 @@ def test_later_steps_need_a_passed_evaluation(tmp_path):
     (run / "STOP.json").write_text("{}")
     with pytest.raises(SystemExit, match="stop rule"):
         E.require_passed_evaluation(run)
+
+
+def test_low_shuffled_control_does_not_stop(weak):
+    import copy
+
+    c = copy.copy(weak)
+    c["preds"] = dict(weak["preds"])
+    keys = weak["keys"]
+    # a shuffled "model" that ranks perfectly backwards: C far below 0.5, not leakage
+    worst = np.tile(-keys.duration.to_numpy(float)[:, None], (1, 3))
+    c["preds"]["shuffled:M"] = -worst
+    st = E.stop_checks(c, YEARS)
+    assert st["shuffled"]["shuffled:M"]["mean"] < 0.4 and not st["shuffled_above_upper"]
+    c["preds"]["shuffled:M"] = worst
+    assert E.stop_checks(c, YEARS)["stop"]

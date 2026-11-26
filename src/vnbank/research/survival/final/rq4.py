@@ -30,6 +30,7 @@ from sklearn.linear_model import LogisticRegression
 from vnbank.common import paths
 from vnbank.research.shared.config import load
 from vnbank.research.shared.run_meta import code_version
+from vnbank.research.survival.features.assemble import BLOCKS
 from vnbank.research.survival.final.specs import ABCDx
 from vnbank.research.survival.models.hazard import expand
 from vnbank.research.survival.models.zoo import FIT_CAP
@@ -124,6 +125,106 @@ def wald(X, y, groups, cols, tickers=None) -> dict:
     return out
 
 
+def landmark(d: pd.DataFrame, feats: list[str], extra: np.ndarray | None = None):
+    """Landmark rows (D-013) of standardised features (+ extra row-level columns) and step
+    dummies. Returns X, y, date groups, ticker groups and the row index of each landmark row."""
+    x = d[feats].to_numpy(dtype="float64")
+    med = np.nanmedian(x, axis=0)
+    x = np.where(np.isnan(x), med, x)
+    sd = x.std(axis=0)
+    x = (x - x.mean(axis=0)) / np.where(sd > 0, sd, 1)
+    base = x if extra is None else np.hstack([x, extra])
+    dur = np.minimum(d.duration.to_numpy(), FIT_CAP)
+    ev = np.where(d.duration.to_numpy() > FIT_CAP, 0, d.event.to_numpy())
+    rows, steps, y = expand(dur, ev, MAX_STEP)
+    dummies = (steps[:, None] == np.arange(1, MAX_STEP + 1)[None, :]).astype(float)
+    X = np.hstack([base[rows], dummies])
+    return X, y, d.trade_date.to_numpy()[rows], d.ticker.to_numpy()[rows], rows, x
+
+
+def fit_clustered(X, y, groups, tickers) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Ridge (C = RIDGE_C) landmark logit; date-clustered and two-way (date x ticker,
+    positive semi-definite) sandwich covariances."""
+    m = LogisticRegression(C=RIDGE_C, l1_ratio=0.0, fit_intercept=False, max_iter=5000)
+    m.fit(X, y)
+    b = m.coef_[0]
+    p = 1 / (1 + np.exp(-(X @ b)))
+    Hi = np.linalg.inv((X * (p * (1 - p))[:, None]).T @ X + np.eye(X.shape[1]) / RIDGE_C)
+    r = y - p
+    both = pd.factorize(pd.MultiIndex.from_arrays([groups, tickers]))[0]
+    Bd = _meat(X, r, groups)
+    V2 = _psd(Hi @ (Bd + _meat(X, r, tickers) - _meat(X, r, both)) @ Hi)
+    return b, Hi @ Bd @ Hi, V2
+
+
+def one_sided(b, Vd, V2, j: int, sign: int) -> dict:
+    """H0: sign * beta_j <= 0 against sign * beta_j > 0; the larger of the date-clustered and
+    two-way p-values decides (D-027 item 5/6)."""
+    out = {"coef": float(b[j])}
+    for name, V in (("date", Vd), ("two_way", V2)):
+        se = float(np.sqrt(max(V[j, j], 0.0)))
+        z = sign * b[j] / se if se > 0 else float("nan")
+        out[name] = {"se": se, "z": float(z), "p": float(sst.norm.sf(z))}
+    out["p"] = max(out["date"]["p"], out["two_way"]["p"])
+    out["z"] = min(out["date"]["z"], out["two_way"]["z"])
+    return out
+
+
+def joint_wald(b, Vd, V2, cols) -> dict:
+    out = {}
+    for name, V in (("date", Vd), ("two_way", V2)):
+        bc, Vc = b[cols], _psd(V[np.ix_(cols, cols)])
+        stat = float(bc @ np.linalg.pinv(Vc) @ bc)
+        out[name] = {"wald": stat, "df": len(cols), "p": float(sst.chi2.sf(stat, len(cols)))}
+    out["p"] = max(out["date"]["p"], out["two_way"]["p"])
+    return out
+
+
+D_COLS = [c for c in ABCDx if c.removesuffix("_xdir") in set(BLOCKS["D"])]
+PRE_YEARS = 4  # D-027 item 6: matched pre-window
+INDEX_PLACEBO_YEARS = range(2016, 2024)
+
+
+def index_test(ds, sessions, post_date: pd.Timestamp, start: pd.Timestamp,
+               end: pd.Timestamp) -> dict:  # fmt: skip
+    """D-027 item 6: eta_D = block D's linear index from ABCDx fitted on the sample's
+    pre-period; then ABCDx + post + post x eta_D on the sample; H0 lambda <= 0, one-sided."""
+    d = censor_at(ds[ds.trade_date >= start], sessions, end)
+    X, y, g, t, rows, x = landmark(d, ABCDx)
+    pre = (d.trade_date < post_date).to_numpy()[rows]
+    m = LogisticRegression(C=RIDGE_C, l1_ratio=0.0, fit_intercept=False, max_iter=5000)
+    m.fit(X[pre], y[pre])
+    jd = [ABCDx.index(c) for c in D_COLS]
+    eta = x[:, jd] @ m.coef_[0][jd]
+    eta = (eta - eta.mean()) / (eta.std() or 1.0)
+    post = (d.trade_date >= post_date).to_numpy(float)
+    X2, y2, g2, t2, _, _ = landmark(d, ABCDx, extra=np.column_stack([post, post * eta]))
+    b, Vd, V2 = fit_clustered(X2, y2, g2, t2)
+    res = one_sided(b, Vd, V2, len(ABCDx) + 1, +1)
+    res.update({"start": str(start.date()), "end": str(end.date()), "rows": int(len(d)),
+                "post_rows": int(post.sum())})  # fmt: skip
+    return res
+
+
+def run_index(ds, sessions, announce: pd.Timestamp, study_end: pd.Timestamp,
+              placebo_years=None, log=print) -> dict:  # fmt: skip
+    """RQ4 primary (D-027 item 6) with matched four-year pre-windows."""
+    real = index_test(ds, sessions, announce, announce - pd.DateOffset(years=PRE_YEARS),
+                      study_end)  # fmt: skip
+    log("index: real computed")
+    placebos = {}
+    for y in placebo_years if placebo_years is not None else INDEX_PLACEBO_YEARS:
+        pd_ = pd.Timestamp(f"{y}-10-07")
+        end = min(pd_ + WINDOW, announce - pd.Timedelta(days=1))
+        placebos[str(y)] = index_test(ds, sessions, pd_, pd_ - pd.DateOffset(years=PRE_YEARS),
+                                      end)  # fmt: skip
+        log(f"index: placebo {y} computed")
+    beats = all(real["z"] > v["z"] for v in placebos.values())
+    return {"real": real, "placebos": placebos, "beats_every_placebo": beats,
+            "rank_of_real": 1 + sum(v["z"] >= real["z"] for v in placebos.values()),
+            "h4_supported": bool(real["p"] < 0.05 and beats)}  # fmt: skip
+
+
 def run(ds, sessions, announce: pd.Timestamp, study_end: pd.Timestamp, placebo_years=None,
         log=print) -> dict:  # fmt: skip
     real = wald(*design(censor_at(ds, sessions, study_end), announce))
@@ -171,7 +272,9 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
     ds["trade_date"], ds["end_date"] = pd.to_datetime(ds.trade_date), pd.to_datetime(ds.end_date)
     run_dir = paths.runs_dir(1) / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-final-rq4"
     run_dir.mkdir(parents=True)
-    res = run(ds, sessions, announce, pd.Timestamp(CFG["study"]["end"]))
+    end = pd.Timestamp(CFG["study"]["end"])
+    res = {"primary_single_index": run_index(ds, sessions, announce, end),  # D-027 item 6
+           "secondary_wald_10": run(ds, sessions, announce, end)}  # D-026 5a  # fmt: skip
     (run_dir / "config.json").write_text(json.dumps({
         "git_commit": commit, "features_run": fr.name, "snapshot_id": fcfg["snapshot_id"],
         "announcement": str(announce.date()), "post_terms": POST_TERMS, "ridge_C": RIDGE_C,

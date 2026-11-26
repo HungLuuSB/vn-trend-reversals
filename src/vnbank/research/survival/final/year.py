@@ -52,6 +52,7 @@ STUDY_END = pd.Timestamp(CFG["study"]["end"])
 H = CFG["evaluation"]["main_horizon"]
 OUTER_EXTRA = {"nn": {"seeds": CFG["neural"]["outer_seeds"]}}  # D-022
 KEY_COLS = ["ticker", "trade_date", "event", "duration", "end_date", "is_bank", "in_vn30",
+            "bank_on_upcom",
             "close_at_limit", "limit_known_5", "swing_dir", "swing_age", "swing_dist"]  # fmt: skip
 
 
@@ -64,9 +65,27 @@ def prepare(ds: pd.DataFrame, prices: pd.DataFrame | None) -> pd.DataFrame:
         raise SystemExit("dataset has labels ending after the study end")
     ds = add_bank_interactions(add_direction_interactions(ds))
     ds["foreign_missing"] = ds.foreign_net_share.isna().astype("float64")
+    ds = add_dist_spline(ds)
     if prices is not None:
         ds = add_sequences(ds.reset_index(drop=True), prices)
     return ds.reset_index(drop=True)
+
+
+def add_dist_spline(ds: pd.DataFrame) -> pd.DataFrame:
+    """D-027: cubic B-spline basis of swing_dist on knots fixed in advance (specs.DIST_KNOTS).
+    The basis depends on no data, so it is the same in every training window."""
+    from sklearn.preprocessing import SplineTransformer
+
+    sp = SplineTransformer(knots=np.array(S.DIST_KNOTS)[:, None], degree=3,
+                           extrapolation="linear", include_bias=False)  # fmt: skip
+    sp.fit(np.array(S.DIST_KNOTS)[:, None])
+    x = ds[["swing_dist"]].to_numpy(dtype="float64")
+    miss = np.isnan(x[:, 0])
+    basis = sp.transform(np.where(miss[:, None], 0.0, x))
+    basis[miss] = np.nan
+    if basis.shape[1] != len(S.DIST_SPLINE):
+        raise RuntimeError("spline basis size differs from specs.DIST_SPLINE")
+    return ds.assign(**{c: basis[:, i] for i, c in enumerate(S.DIST_SPLINE)})
 
 
 def censored_split(ds: pd.DataFrame, sessions: np.ndarray, year: int):
@@ -155,7 +174,8 @@ def machine() -> dict:
 
 
 def run_year(ds, sessions, year: int, out: Path, bank_sets: dict | None = None,
-             only: set[str] | None = None, confirm: bool = False, log=print) -> dict:  # fmt: skip
+             only: set[str] | None = None, confirm: bool = False, log=print,
+             prices: pd.DataFrame | None = None, k: float | None = None) -> dict:  # fmt: skip
     """Fit and cache one test year. `bank_sets`: block E variant -> bank-row dataset.
     `only`: restrict to these spec names (tests, partial reruns); results merge into the
     existing cache."""
@@ -180,6 +200,16 @@ def run_year(ds, sessions, year: int, out: Path, bank_sets: dict | None = None,
         f"test {len(test):,}")  # fmt: skip
 
     c.put("preds", "km", _fit_predict("km", [], {}, train, test))
+    if prices is not None and want(S.RW) and not c.has("preds", S.RW):  # D-027: no fitting
+        from vnbank.research.survival.final.rw_null import rw_survival
+
+        t0 = time.time()
+        rw = rw_survival(prices, test[["ticker", "trade_date"]].reset_index(drop=True), k)
+        if np.isnan(rw).any():
+            raise SystemExit(f"{year}: RW null undefined on {int(np.isnan(rw[:, 0]).sum())} rows")
+        c.put("preds", S.RW, rw)
+        meta["seconds"][S.RW] = round(time.time() - t0, 1)
+        log(f"  RW null ({meta['seconds'][S.RW]}s)")
     for name, (mname, feats, rows) in S.SPECS.items():
         if rows != "all" or not want(name) or (c.has("preds", name) and name in meta["chosen"]):
             continue
@@ -323,6 +353,8 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
     cols = ["ticker", "trade_date", "open_adj", "high_adj", "low_adj", "close_adj", "volume"]
     prices = pd.read_parquet(snap / "prices_adjusted.parquet", columns=cols)
     prices["trade_date"] = pd.to_datetime(prices.trade_date)
+    hose = set(sessions.astype("datetime64[ns]"))  # the labeller's calendar (assemble.main)
+    rw_prices = prices[prices.trade_date.isin(hose)]
     import hashlib
 
     ds_sha = hashlib.sha256((fr / "dataset.parquet").read_bytes()).hexdigest()
@@ -357,7 +389,7 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
                 raise SystemExit(f"cache {a.year} was written with {k}={old[k]}, now {v}")
     t0 = time.time()
     meta = run_year(ds, sessions, a.year, a.out, bank_sets=bank_sets, only=only, confirm=True,
-                    log=log)  # fmt: skip
+                    log=log, prices=rw_prices, k=fcfg["k"])  # fmt: skip
     runs = meta.setdefault("invocations", [])
     runs.append({"git_commit": commit, "only": sorted(only) if only else None,
                  "wall_seconds": round(time.time() - t0)})  # fmt: skip

@@ -57,7 +57,7 @@ uv run python -m vnbank.research.survival.final.year --features-run research/pap
     --year $Y --out cache/main --final --i-confirm-final-run
 for K in k1_5 k3; do
   uv run python -m vnbank.research.survival.final.year --features-run research/paper1/runs/<$K> \
-      --year $Y --out cache/$K --only M,ABCDx --final --i-confirm-final-run
+      --year $Y --out cache/$K --only M,ABCDx,RW --final --i-confirm-final-run
 done
 nproc; free -g; lscpu | head -20 > cache/machine_$Y.txt
 ```
@@ -101,7 +101,7 @@ uv run python -m vnbank.research.survival.final.evaluate --cache data/final_cach
     --final --i-confirm-final-run
 ```
 
-- If it exits with `STOP.json`, run the `leakage-audit` skill. Read nothing else.
+- If it exits with `STOP.json`, run the `leakage-audit` skill and read nothing else. Only after a documented clean audit may the same caches be evaluated again, with `--audit-cleared <audit file>` (D-027 item 7).
 - **Budget.** The evaluation computes Uno's C on about 99k rows (about 18 s per call) for every model across 3 × 200 resamples, which comes to several hours on 8 cores. Ask the user before starting it, or run it on a vast.ai instance as well.
 - Otherwise (`EVAL` = that run's folder):
 
@@ -116,7 +116,9 @@ for K in 1.5 3; do  # robustness: evaluate each k cache first, then its trading 
       --snapshot $SNAP --k $K --evaluate-run <that run> --final --i-confirm-final-run
 done
 uv run python -m vnbank.research.survival.final.rq4 --features-run research/paper1/runs/<k2> \
-    --evaluate-run $EVAL --final --i-confirm-final-run
+    --evaluate-run $EVAL --final --i-confirm-final-run          # single-index primary + 10-term Wald
+uv run python -m vnbank.research.survival.final.h2 --features-run research/paper1/runs/<k2> \
+    --cache data/final_cache/main --evaluate-run $EVAL --final --i-confirm-final-run   # D-027 item 5
 ```
 
 - **Afterwards:**

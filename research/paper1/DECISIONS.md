@@ -921,3 +921,88 @@ The model-shape table and the test results do not change.
 8. **Abolmakarem appendix (5d):** written after the run, on development data only, so it does not touch the test years.
 9. **Disclosure:** IPCW weights come from the purged training outcomes, as in development, so the 2026 test rows' administrative censoring is not reweighted. This is visible only in 2026's per-year IBS.
 10. **Robustness of the per-year runner:** each prediction set is saved as soon as it exists, so a restart skips finished work. The machine (CPU model, RAM, package versions, thread settings) is recorded at the start.
+
+## D-027 — Changes from the pre-freeze design review (approved before any test-year output)
+
+- **Date:** 2026-11-26
+- **Decided by:** the user adopted all six major points of the referee-style design review (D-024 gate 4, second half), the "M_flex + random-walk null" option for point 1, and an upper-side-only shuffled-control stop.
+- **Status:** no test-year output exists. These change pre-registered elements; nothing else in D-026 changes.
+
+**1. Mechanical nulls (RQ1 "beyond the mechanics", RQ3).** M enters `swing_dist` and age linearly, but the random-walk probability of confirming a reversal is strongly nonlinear in distance. A richer model could beat M just by fixing its functional form. Added:
+- **`M_flex`:** the gradient-boosted landmark hazard on M's features (`swing_age`, `log_age`, `swing_dist`), tuned on the D-014 GBM grid like every model.
+- **`RW`, a model-free random-walk null with no fitting:**
+  - For row (stock, t), 500 paths of 20 days are drawn. Each day is a whole-day tuple (close-to-close log return, high/close, low/close) resampled with replacement from the stock's own last 250 sessions up to t.
+  - The directional-change labeller is rolled forward from its exact state at t: direction, running extreme, the last 20 true ranges and the close. θ is recomputed daily from the simulated ATR20 (D-011).
+  - S(h) is the share of paths not yet confirmed reversed by day h. Fixed seed; adjusted prices (rule 9).
+  - **Validation:** a unit test checks that rolling the real future path reproduces the labeller's actual duration. RW is also scored on the 2014–2016 development folds (descriptive) before the final run.
+- **Primary "beyond the mechanics" test (H1-mech):** `ABCx` must beat **both** `M_flex` and `RW` under the decision rule. ABCx is the D-016/D-017 specification. `ABCx` − `M` stays reported.
+- **H3 with distance entered flexibly in both arms:**
+  - `DIST_s` is a cubic B-spline of `swing_dist`. The knots are fixed in advance at −1, −0.75, −0.5, −0.25 and 0; the variable lies in [−1, 0] by construction, so no knot comes from the data.
+  - `M_s` = `DIST_s` + `swing_age` + `log_age`.
+  - **H3 primary:** `M_s` − `DIST_s`. `M` − `DIST` stays reported.
+- Every model − KM comparison becomes a sanity table, not evidence beyond the label mechanics.
+
+**2. Primary metric: year-stratified.** Pooled C concatenates ten yearly models; about 90% of its pairs are cross-year and reward differences in level between years.
+- **Primary C:** year-stratified Uno C (τ = 20). The IPCW-weighted concordant and comparable pair sums are added up over within-year pairs only, each year using its own training censoring distribution.
+- **Primary IBS:** the row-weighted mean of the yearly IBS, each with its own year's censoring distribution.
+- **Secondary:** pooled C and IBS (comparable with development), and the date-stratified C, as a point estimate (cross-sectional ranking, within-date pairs only).
+- The decision rule (C interval above 0 **and** IBS interval below 0) uses the primary metrics.
+- **Confirmatory horizon:** C at τ = 20 and IBS over days 1–20, as pre-registered in D-014. The 5-day td-AUC is secondary.
+
+**3. H5:** supported only if the model exit beats **all three** benchmarks: DC exit, buy-and-hold **and** the mechanical (M) exit. Each needs a paired Sharpe-difference interval above 0 at 0.40% costs.
+
+**4. Primary tests and resamples.** One primary per question:
+
+| Question | Primary test |
+|---|---|
+| H1 | `ABCDx` − KM |
+| H1-mech | `ABCx` − `M_flex` and `ABCx` − `RW` |
+| H2 | `ABCDx` − `ABCx` |
+| H3 | `M_s` − `DIST_s` |
+| H5 | as in item 3 |
+| Block E | `bank_ABCDx_E` − `bank_ABCDx` |
+| H4 | item 6; exploratory |
+
+- Each primary is tested on its own at the 5% level; each conjunctive rule is an intersection–union test, valid at level α. Holm-adjusted bootstrap p-values across the six confirmatory primaries are reported as a sensitivity.
+- Primary intervals use 1,000 paired moving-block resamples (block 20). Their Monte Carlo error is reported as the spread of the endpoints between the two halves of the resamples.
+- Everything else is secondary or descriptive. The paper reports it as such.
+
+**5. Directional and bank parts of H2 (explanatory, in-sample; not forecasting evidence).**
+- **Model:** a full-sample landmark logit on `ABCDx_bank`, all rows from 2012 to 2026-11-20, ridge C = 100 only for convergence, with date-clustered and two-way (date × ticker) clustered errors, the larger p-value deciding (as for RQ4).
+- **Signs, pre-registered, one-sided, Holm across the three:**
+  - `spx_ret_xdir` < 0 and `nasdaq_ret_xdir` < 0: a US fall raises the hazard that an up-swing ends and lowers the hazard that a down-swing ends;
+  - `vix_chg_xdir` > 0.
+- **Bank part:** joint Wald test of the 6 `bank_x_*` terms.
+- **Descriptive:** the number of yearly `ABCDx` fits with each predicted sign (binomial).
+
+**6. RQ4 primary: one-sided single-index test.**
+- **Index:** η_D, block D's linear index (D and D×direction terms) from a landmark logit on `ABCDx` fitted on the sample's pre-announcement rows only.
+- **Model:** on the sample, ABCDx + `post` + `post` × η_D. Test λ > 0, one-sided, with the conservative clustered errors of item 5.
+- **Samples:** the real sample runs from four years before the announcement (2021-10-07) to 2026-11-20.
+- **Placebos:** 7 October of 2016–2023, each with a matched four-year pre-window and a post-window of 13 months or up to the day before the real announcement, whichever ends first.
+- **Claim:** H4 is supported only if the one-sided p < 0.05 **and** the real statistic exceeds every placebo.
+- The 10-term Wald test of D-026 (5a) stays as a secondary.
+
+**7. Stop rule for the shuffled control: upper side only.**
+- The run stops if the mean over years of the per-year mean shuffled C exceeds 0.53, which is where leakage would push it.
+- A low value is reported, not stopped.
+- **After a stop:** only `STOP.json` is written, and the leakage-audit skill runs.
+  - If the audit is clean and documented, the same caches may be evaluated (`--audit-cleared <audit file>`).
+  - If a leak is found, it is fixed and the whole run is repeated on a new snapshot. Both runs are reported.
+
+**8. Smaller changes:**
+- **Diebold–Mariano:** descriptive. For nested pairs (one model's features a subset of the other's), Clark–West adjusted Brier losses at 5 days.
+- **D-005's promised robustness:** a slice without UPCoM bank rows.
+- **Deflated Sharpe ratio:** the probabilistic Sharpe ratio of the pre-registered strategy, plus the DSR with N = 16 (pre-registered) and with every configuration actually tried (all τ, both executions, k = 2, 1.5 and 3) listed.
+- **Disclosed in the paper:**
+  - Sharpe ratios with a zero risk-free rate;
+  - informative censoring at VN30 exit;
+  - inner validation rows selected through the purge;
+  - level features (`vix_level`, `gpr_level`) not winsorised, so H2 is read together with the D-018 leave-one-out;
+  - "execution at the close", not a re-timed decision;
+  - the AI visual-transcription method of block E;
+  - statistical gains from overnight data need not carry over to H5.
+- **Protocol text:**
+  - §5a now says ridge C = 100;
+  - §7 says one large instance (runbook §4b).
+- **Compute:** the RW development validation and every final computation run on the rented instance.

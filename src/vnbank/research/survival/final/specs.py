@@ -21,6 +21,10 @@ ABCDx = SPECS_D017["ABCDx"]
 ABCx = SPECS_D017["ABCx"]
 ABC, ABCD = SPECS_D016["ABC"], SPECS_D016["ABCD"]
 FOREIGN = ["foreign_net_share", "foreign_missing"]  # D-012 robustness: flows + missing indicator
+# D-027 item 1: swing_dist as a cubic B-spline with knots fixed in advance (no data-driven knot)
+DIST_KNOTS = (-1.0, -0.75, -0.5, -0.25, 0.0)
+DIST_SPLINE = [f"swing_dist_s{i}" for i in range(len(DIST_KNOTS) + 3 - 1 - 1)]
+AGE = ["swing_age", "log_age"]
 
 SPECS: dict[str, tuple[str, list[str], str]] = {
     # logistic hazard (landmark, D-013)
@@ -35,6 +39,10 @@ SPECS: dict[str, tuple[str, list[str], str]] = {
     "MBCDx": ("logit", SPECS_D017["MBCDx"], "all"),
     "ABCDx_bank": ("logit", SPECS_D020["ABCDx_bank"], "all"),
     "ABCDx_ff": ("logit", [*ABCDx, *FOREIGN], "all"),
+    # D-027 mechanical nulls and the flexible H3 arms
+    "M_flex": ("gbm", SPECS_D016["M"], "all"),
+    "DIST_s": ("logit", DIST_SPLINE, "all"),
+    "M_s": ("logit", [*DIST_SPLINE, *AGE], "all"),
     # other families
     "cox_ABCx": ("cox", ABCx, "all"),
     "cox_ABCDx": ("cox", ABCDx, "all"),
@@ -68,6 +76,14 @@ BOUNDARY = ("M", "ABCx", "ABCDx")
 # D-021 trading test: inner-year predictions for tau
 BACKTEST = ("ABCDx", "M")
 
+RW = "RW"  # D-027: model-free random-walk null (final/rw_null.py); no fitting, no tuning
+
+# D-027 item 4: one primary test per question (each an intersection-union test at 5%)
+PRIMARY = {"H1": [("ABCDx", "km")], "H1_mech": [("ABCx", "M_flex"), ("ABCx", RW)],
+           "H2": [("ABCDx", "ABCx")], "H3": [("M_s", "DIST_s")]}  # fmt: skip
+PRIMARY_BANK = {"E": [("bank_ABCDx_E", "bank_ABCDx")]}
+PRIMARY_RESAMPLES = 1000
+
 # Pairs compared in the pooled evaluation (hi, lo), FINAL_RUN_PROTOCOL.md section 4
 DIFFS = [
     ("ABCDx", "km"), ("ABCx", "M"), ("ABCDx", "M"), ("nn_seq_ABCD", "M"),  # RQ1, D-016
@@ -77,10 +93,12 @@ DIFFS = [
     ("M", "DIST"), ("AGE", "km"), ("DIST", "km"),  # RQ3, D-019
     ("nn_seq_ABCD", "nn_static_ABCD"), ("nn_seq_ABCD", "ABCDx"),  # D-022
     ("ABCDx_ff", "ABCDx"), ("ABCDx_ff", "M"),  # D-012 robustness
+    ("ABCx", "M_flex"), ("ABCx", RW), ("M_s", "DIST_s"),  # D-027 primaries
+    ("ABCDx", "M_flex"), ("ABCDx", RW), ("M", "M_flex"), ("M_flex", RW),  # D-027 secondary
 ]  # fmt: skip
 # RQ1 / H1: every model against Kaplan-Meier (protocol section 4)
-DIFFS += [(n, "km") for n, (_, _, rows) in SPECS.items()
-          if rows == "all" and (n, "km") not in DIFFS]  # fmt: skip
+DIFFS += [(n, "km") for n in [*[n for n, v in SPECS.items() if v[2] == "all"], RW]
+          if (n, "km") not in DIFFS]  # fmt: skip
 BANK_DIFFS = [
     ("bank_ABCDx_E", "bank_ABCDx"),
     ("bank_M_E", "bank_M"),

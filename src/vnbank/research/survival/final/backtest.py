@@ -113,6 +113,30 @@ def run_years(stocks, sessions, cache: Path, years, log=print, tag: str = "") ->
     return folds, {k: pd.concat(v) for k, v in pooled.items()}
 
 
+def sharpe_tests(r: np.ndarray, sr0: float) -> float:
+    """Probability that the true per-period Sharpe exceeds sr0 (Bailey and Lopez de Prado
+    2012/2014): PSR(sr0); the DSR is PSR at the expected maximum of N trials."""
+    from scipy import stats
+
+    r = np.asarray(r, float)
+    sr = sharpe(r, annualise=False)
+    g3, g4 = stats.skew(r), stats.kurtosis(r, fisher=False)
+    denom = np.sqrt(max(1e-12, 1 - g3 * sr + (g4 - 1) / 4 * sr**2))
+    return float(stats.norm.cdf((sr - sr0) * np.sqrt(len(r) - 1) / denom))
+
+
+def dsr_for_n(r: np.ndarray, trial_sr: np.ndarray, n: int) -> dict:
+    """DSR with N trials; the dispersion of trial Sharpe ratios comes from the trials run."""
+    from scipy import stats
+
+    v = np.var(trial_sr, ddof=1)
+    g = 0.5772156649015329
+    sr0 = np.sqrt(v) * (
+        (1 - g) * stats.norm.ppf(1 - 1 / n) + g * stats.norm.ppf(1 - 1 / (n * np.e))
+    )
+    return {"n": n, "sr0_period": float(sr0), "dsr": sharpe_tests(r, sr0)}
+
+
 def pooled_results(P: dict, n_boot: int) -> dict:
     out = {k: summary({"daily": P[k], "trades": None, "assumed_fills": None})
            for k in P if not k.startswith("trial:")}  # fmt: skip
@@ -129,10 +153,13 @@ def pooled_results(P: dict, n_boot: int) -> dict:
     for name, (a, b) in SUBPERIODS.items():
         sub[name] = {k: sharpe(P[k][(P[k].index.year >= a) & (P[k].index.year <= b)].to_numpy())
                      for k in (*HAZARD, "dc", "bh")}  # fmt: skip
-    h5 = bool(diffs["model-dc"]["lo"] > 0 and diffs["model-bh"]["lo"] > 0)
+    # D-027 item 3: H5 needs the model exit to beat the DC exit, buy-and-hold AND the M exit
+    h5 = bool(all(diffs[f"model-{b}"]["lo"] > 0 for b in ("dc", "bh", "mech")))
+    psr = {k: sharpe_tests(P[k].to_numpy(), 0.0) for k in HAZARD}
     return {"pooled": out, "dsr": dsr, "sharpe_diffs": diffs,
             "sharpe_diffs_block_sensitivity": diffs_blocks, "subperiod_sharpe": sub,
-            "n_trials": len(trial_sr), "h5_supported": h5}  # fmt: skip
+            "n_trials": len(trial_sr), "psr": psr, "trial_sharpes": trial_sr,
+            "h5_supported": h5}  # fmt: skip
 
 
 def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
@@ -170,14 +197,22 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
         logf.write(msg + "\n")
         logf.flush()
 
-    out = {}
+    out, all_trials = {}, []
     for execution in ("open", "close"):
         stocks = build_stocks(snap, a.k, execution=execution)
         folds, P = run_years(stocks, sessions, a.cache, years, log=log, tag=f"[{execution}] ")
         out[execution] = {"folds": folds, **pooled_results(P, a.bootstrap)}
+        all_trials += out[execution]["trial_sharpes"]
+        out[execution]["_daily_model"] = P["model"].to_numpy()
         pd.DataFrame({k: v for k, v in P.items() if not k.startswith("trial:")}).to_parquet(
             run / f"daily_returns_{execution}.parquet")  # fmt: skip
-    cfg = {"protocol": "D-021 / D-026", "cache": str(a.cache), "snapshot_id": a.snapshot,
+    # D-027 item 8: DSR with N = 16 (pre-registered), with every trial of this run (both
+    # executions) and with every trial of the final run (k = 2, 1.5, 3, both executions)
+    for execution in ("open", "close"):
+        r = out[execution].pop("_daily_model")
+        out[execution]["dsr_n"] = [dsr_for_n(r, np.array(all_trials), n)
+                                   for n in (16, len(all_trials), 3 * len(all_trials))]  # fmt: skip
+    cfg = {"protocol": "D-021 / D-026 / D-027", "cache": str(a.cache), "snapshot_id": a.snapshot,
            "k": a.k, "git_commit": commit, "taus": TAUS, "bootstrap": a.bootstrap,
            "years": years, "evaluate_run": a.evaluate_run.name}  # fmt: skip
     (run / "config.json").write_text(json.dumps(cfg, indent=2))
