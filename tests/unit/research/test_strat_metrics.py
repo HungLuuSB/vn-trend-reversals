@@ -33,3 +33,15 @@ def test_strata_ignore_cross_stratum_pairs():
     a2, b2 = c_parts(ytr, y2, r2, 20)
     assert abs(c - (a1 + a2) / (b1 + b2)) < 1e-12
     assert abs(c - uno_c(ytr, y, r, 20)) > 0.01  # pooled C is moved by the level shift
+
+
+def test_stratum_without_events_before_tau_adds_no_pairs():
+    """D-028: a date whose rows ending before tau are all censored contributes (0, 0)."""
+    ytr, _ = _data(500, 5)
+    y1, r1 = _data(300, 6)
+    y2 = surv(np.array([False, False, True]), np.array([3.0, 5.0, 25.0]))  # event only after tau
+    r2 = np.array([0.1, 0.2, 0.3])
+    assert c_parts(ytr, y2, r2, 20) == (0.0, 0.0)
+    y = np.concatenate([y1, y2])
+    c = strat_c(np.repeat([1, 2], [300, 3]), {1: ytr, 2: ytr}, y, np.concatenate([r1, r2]), 20)
+    assert abs(c - uno_c(ytr, y1, r1, 20)) < 1e-12
