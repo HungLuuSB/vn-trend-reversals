@@ -1,5 +1,7 @@
 # Paper 1 final run: protocol (D-026)
 
+**Amended by D-027 (2026-11-26, before any test-year output):** mechanical nulls `M_flex` and `RW`, spline H3, year-stratified primary metrics, the stricter H5 rule, named primary tests with 1,000 resamples, the H2 sign test, the RQ4 single-index primary, an upper-side-only shuffled stop. Where this file and D-027 differ, D-027 wins.
+
 **Status:** approved by the user on 2026-11-26: the RQ4 design (5a), execution at the close (5b), and vast.ai for compute (section 7, option 2). Written before any test-year output exists. Nothing in it may change after the run starts. Sections 1–6 collect what D-012 to D-025 already pre-registered; the items marked **NEW** were the open ones.
 
 ## 1. Data and folds
@@ -59,7 +61,7 @@ An improvement counts only if the pooled C interval is above zero **and** the po
 ## 5. Items the decisions left open (NEW; approved 2026-11-26)
 
 **5a. RQ4: has sensitivity to global shocks risen since the FTSE announcement?** RQ4 is exploratory in the proposal. Only the 2026 refit has any post-announcement training data (about 2.5 months), so an out-of-sample test has almost no power. Proposed instead: an estimation on the full sample, which also says plainly that RQ4 is not a forecasting claim.
-- **Model:** the landmark logistic hazard on `ABCDx`, fitted on all rows from 2012 to 2026-11-20 with the main year's hyperparameters, plus
+- **Model:** the landmark logistic hazard on `ABCDx`, fitted on all rows from 2012 to 2026-11-20 with a ridge of C = 100 (D-026 clarification 2), plus
   - `post` (1 from 2025-10-07, the seed's `ftse_upgrade_announced` date), and
   - `post` × each of the H2 channels and their direction terms: `spx_ret`, `nasdaq_ret`, `vix_chg`, `ust10_chg`, `dxy_ret`, each with its `_xdir` term (10 terms).
 - **Test:** a joint Wald test of the 10 `post` interactions, with standard errors clustered by date. A tiny ridge (C = 100) is used only so the fit converges.
@@ -97,7 +99,9 @@ An improvement counts only if the pooled C interval is above zero **and** the po
   2. **vast.ai:** years in parallel, a few hours, with the agreed constraints: no `.env`, no Paper 2 data (the snapshot's `paper2/` folder is left out), and the machine specs recorded.
   3. **Laptop, with RSF limited to the D-014 grid's smaller leaf size** if it proves too slow. This is a reduction and would be logged.
 
-**Decision (2026-11-26): option 2, vast.ai.**
+**Decision (2026-11-26): vast.ai, one large instance (runbook §4b) running all years in parallel; the earlier one-year-per-instance plan below is the fallback.**
+
+**Original plan: option 2, vast.ai.**
 - **Runner:** works one test year at a time (`--year`), so years run on separate instances. The pooled evaluation runs on the laptop from the returned caches.
 - **Copied to each instance:**
   - a `git bundle` of the run commit, so the commit is recorded and there is no `.env` and no untracked files;
