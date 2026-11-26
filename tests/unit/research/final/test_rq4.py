@@ -43,6 +43,7 @@ def test_planted_effect_is_found_and_beats_placebos():
     ds, sessions = _data(0.6)
     res = rq4.run(ds, sessions, ANN, END, placebo_years=[2009, 2010], log=lambda m: None)
     assert res["real"]["p"] < 0.01 and res["real"]["coef"]["spx_ret_xdir"] > 0
+    assert res["real"]["p"] == max(res["real"]["two_way"]["p"], res["real"]["date"]["p"])
     assert res["beats_every_placebo"] and res["h4_supported"] and res["rank_of_real"] == 1
 
 

@@ -52,6 +52,7 @@ def make(
         ds[c] = np.where(rng.random(n) < 0.1, np.nan, rng.normal(size=n))
     ds["in_vn30"] = ~ds.is_bank
     ds["close_at_limit"] = 0.0
+    ds["limit_known_5"] = 1.0
     ds["trade_date"] = pd.to_datetime(ds.trade_date)
     ds["end_date"] = pd.to_datetime(ds.end_date)
     return ds, sessions

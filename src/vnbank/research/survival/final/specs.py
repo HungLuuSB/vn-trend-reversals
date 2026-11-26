@@ -76,9 +76,17 @@ DIFFS = [
     ("ABCDx_bank", "ABCDx"),  # RQ2 banks, D-020
     ("M", "DIST"), ("AGE", "km"), ("DIST", "km"),  # RQ3, D-019
     ("nn_seq_ABCD", "nn_static_ABCD"), ("nn_seq_ABCD", "ABCDx"),  # D-022
-    ("ABCDx_ff", "ABCDx"),  # D-012 robustness
+    ("ABCDx_ff", "ABCDx"), ("ABCDx_ff", "M"),  # D-012 robustness
 ]  # fmt: skip
-BANK_DIFFS = [("bank_ABCDx_E", "bank_ABCDx"), ("bank_M_E", "bank_M")]  # D-023
+# RQ1 / H1: every model against Kaplan-Meier (protocol section 4)
+DIFFS += [(n, "km") for n, (_, _, rows) in SPECS.items()
+          if rows == "all" and (n, "km") not in DIFFS]  # fmt: skip
+BANK_DIFFS = [
+    ("bank_ABCDx_E", "bank_ABCDx"),
+    ("bank_M_E", "bank_M"),
+    ("bank_ABCDx", "bank_km"),
+    ("bank_M", "bank_km"),
+]  # D-023; RQ1 on bank rows
 
 
 def all_features() -> set[str]:

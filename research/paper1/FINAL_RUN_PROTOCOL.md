@@ -86,7 +86,7 @@ An improvement counts only if the pooled C interval is above zero **and** the po
   - the snapshot's derived inputs are present;
   - `--final --i-confirm-final-run` is given.
 - It writes one run folder with the configuration, snapshot id, commit, every cached prediction (Parquet, git-ignored), `metrics.json` and a log. Every run, including a crash or a stop for leakage, is listed in `RUNS.md`.
-- **Stops:** any pooled C above 0.70, or a shuffled control outside 0.5 ± 0.03, halts the run before any further output is read.
+- **Stops:** any pooled C above 0.70, or a shuffled control whose mean of per-year mean C lies outside 0.5 ± 0.03, halts the run before any further output is read. The trading test and RQ4 refuse to run without a passed evaluation (D-026 clarifications).
 - **Before the run:** an end-to-end test on a synthetic dataset (known signal planted in fake "test years"), and a leakage review of the runner code (D-025).
 
 ## 7. Compute (decided: vast.ai)
@@ -100,7 +100,7 @@ An improvement counts only if the pooled C interval is above zero **and** the po
 **Decision (2026-11-26): option 2, vast.ai.**
 - **Runner:** works one test year at a time (`--year`), so years run on separate instances. The pooled evaluation runs on the laptop from the returned caches.
 - **Copied to each instance:**
-  - a `git archive` of the run commit, so no `.env` and no untracked files;
+  - a `git bundle` of the run commit, so the commit is recorded and there is no `.env` and no untracked files;
   - the frozen snapshot without its `paper2/` folder.
 - **Recorded per year:** instance type, CPU and RAM, Python and package versions (`uv.lock` hash) and wall time.
 - **Returned:** the prediction caches and logs. The instance is destroyed afterwards.

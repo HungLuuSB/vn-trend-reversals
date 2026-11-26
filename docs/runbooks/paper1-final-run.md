@@ -75,18 +75,26 @@ uv run python -m vnbank.research.survival.final.evaluate --cache data/final_cach
 ```
 
 - If it exits with `STOP.json`, run the `leakage-audit` skill. Read nothing else.
-- Otherwise:
+- **Budget.** The evaluation computes Uno's C on about 99k rows (about 18 s per call) for every model across 3 × 200 resamples, which comes to several hours on 8 cores. Ask the user before starting it, or run it on a vast.ai instance as well.
+- Otherwise (`EVAL` = that run's folder):
 
 ```bash
 uv run python -m vnbank.research.survival.final.backtest --cache data/final_cache/main \
-    --snapshot $SNAP --final --i-confirm-final-run
-for K in 1.5 3; do  # robustness: the k-specific caches
-  uv run python -m vnbank.research.survival.final.backtest \
-      --cache data/final_cache/k${K/./_} --snapshot $SNAP --k $K --final --i-confirm-final-run
+    --snapshot $SNAP --evaluate-run $EVAL --final --i-confirm-final-run
+for K in 1.5 3; do  # robustness: evaluate each k cache first, then its trading test
+  T=k${K/./_}
+  uv run python -m vnbank.research.survival.final.evaluate --cache data/final_cache/$T \
+      --label $T --final --i-confirm-final-run
+  uv run python -m vnbank.research.survival.final.backtest --cache data/final_cache/$T \
+      --snapshot $SNAP --k $K --evaluate-run <that run> --final --i-confirm-final-run
 done
 uv run python -m vnbank.research.survival.final.rq4 --features-run research/paper1/runs/<k2> \
-    --final --i-confirm-final-run
+    --evaluate-run $EVAL --final --i-confirm-final-run
 ```
+
+- **Afterwards:**
+  - SHAP on the saved 2026 models (`data/final_cache/main/2026/models/`);
+  - the Abolmakarem appendix on development data.
 
 ## 6. After
 

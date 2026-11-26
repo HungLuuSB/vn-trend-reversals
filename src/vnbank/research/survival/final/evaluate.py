@@ -54,33 +54,54 @@ SLICE_SPECS = ("km", "M", "ABCDx")
 H2_TERMS = ("spx_ret_xdir", "nasdaq_ret_xdir", "vix_chg_xdir")
 
 
+IDENTITY = (
+    "git_commit",
+    "snapshot_id",
+    "snapshot_manifest_id",
+    "features_run",
+    "k",
+    "dataset_sha256",
+)  # every year must come from the same run (D-026)
+
+
 def load_caches(cache: Path, years) -> dict:
-    """Concatenate the years: keys, predictions per spec (same set in every year), the last
-    year's training outcomes, per-year metas."""
+    """Concatenate the years: keys, predictions per spec (same set in every year), training
+    outcomes, per-year metas. Refuses years written by different code, snapshot or dataset."""
+    from vnbank.research.survival.final.year import load_preds
+
     out = {"keys": [], "bank_keys": [], "preds": {}, "bank_preds": {}, "year_of": [],
            "bank_year_of": [], "meta": {}, "train_y": {}}  # fmt: skip
-    names = None
+    names = bank_names = None
     for y in years:
         d = cache / str(y)
+        meta = json.loads((d / "meta.json").read_text())
+        out["meta"][y] = meta
+        first = out["meta"][years[0]]
+        for k in IDENTITY:
+            if meta.get(k) != first.get(k):
+                raise SystemExit(f"{y}: {k} = {meta.get(k)} differs from {years[0]}'s")
         keys = pd.read_parquet(d / "keys.parquet")
-        p = np.load(d / "preds.npz")
-        if names is None:
-            names = set(p.files)
-        elif set(p.files) != names:
-            raise SystemExit(f"{y}: cached specs differ from the first year's")
+        p = load_preds(d, "preds")
+        names = names or set(p)
+        if set(p) != names:
+            raise SystemExit(f"{y}: cached specs differ from the first year's: "
+                             f"{sorted(set(p) ^ names)}")  # fmt: skip
         out["keys"].append(keys)
         out["year_of"].append(np.full(len(keys), y))
-        for k in p.files:
-            out["preds"].setdefault(k, []).append(p[k])
-        if (d / "bank_preds.npz").exists():
+        for k, v in p.items():
+            out["preds"].setdefault(k, []).append(v)
+        bp = load_preds(d, "bank_preds") if (d / "bank_preds").exists() else {}
+        bank_names = set(bp) if bank_names is None else bank_names
+        if set(bp) != bank_names:
+            raise SystemExit(f"{y}: cached block E specs differ from the first year's")
+        if bp:
             bk = pd.read_parquet(d / "bank_keys.parquet")
             out["bank_keys"].append(bk)
             out["bank_year_of"].append(np.full(len(bk), y))
-            bp = np.load(d / "bank_preds.npz")
-            for k in bp.files:
-                out["bank_preds"].setdefault(k, []).append(bp[k])
+            for k, v in bp.items():
+                out["bank_preds"].setdefault(k, []).append(v)
+            out["train_y"].setdefault("bank", {})[y] = dict(np.load(d / "bank_train_y.npz"))
         out["train_y"][y] = dict(np.load(d / "train_y.npz"))
-        out["meta"][y] = json.loads((d / "meta.json").read_text())
     out["keys"] = pd.concat(out["keys"], ignore_index=True)
     out["year_of"] = np.concatenate(out["year_of"])
     out["preds"] = {k: np.concatenate(v) for k, v in out["preds"].items()}
@@ -108,21 +129,44 @@ def metrics(y_train, keys: pd.DataFrame, s: np.ndarray) -> dict:
     return out
 
 
-def stop_checks(c: dict, keys, y_train) -> dict:
-    """Section 6 stop rules on pooled test rows; nothing else is computed before these."""
+def stop_checks(c: dict, years) -> dict:
+    """Section 6 stop rules, before anything else (D-026 clarification 1):
+    - any pooled Uno C (all-row specs and block E specs) above too_good_c;
+    - the shuffled-label control, checked per year as in development (each year's model is
+      trained on permuted outcomes and scored on that year's test rows): the mean over years of
+      the per-year mean C must lie within 0.5 +/- 0.03. Pooled shuffled C is reported only
+      (pooling mixes ten models whose risk differs mainly between years)."""
+    keys, y_last = c["keys"], _ytrain(c, years[-1])
     y = _y(keys)
-    pooled_c = {k: uno_c(y_train, y, 1 - v[:, TAU - 1], TAU)
+    pooled_c = {k: uno_c(y_last, y, 1 - v[:, TAU - 1], TAU)
                 for k, v in c["preds"].items() if v.ndim == 2 and v.shape[1] == TAU}  # fmt: skip
+    if len(c["bank_keys"]):
+        yb, yl = _y(c["bank_keys"]), _ytrain(c, years[-1], bank=True)
+        pooled_c.update({k: uno_c(yl, yb, 1 - v[:, TAU - 1], TAU)
+                         for k, v in c["bank_preds"].items()})  # fmt: skip
     shuffled = {}
     for k, v in c["preds"].items():
-        if k.startswith("shuffled:"):
-            cs = [uno_c(y_train, y, v[:, j], TAU) for j in range(v.shape[1])]
-            shuffled[k] = {"values": np.round(cs, 4).tolist(), "mean": float(np.mean(cs))}
+        if not k.startswith("shuffled:"):
+            continue
+        per_year = {}
+        for yr in years:
+            m = c["year_of"] == yr
+            yy = _y(keys[m])
+            per_year[str(yr)] = float(np.mean([uno_c(_ytrain(c, yr), yy, v[m, j], TAU)
+                                               for j in range(v.shape[1])]))  # fmt: skip
+        shuffled[k] = {"per_year_mean": per_year, "mean": float(np.mean(list(per_year.values()))),
+                       "pooled": float(np.mean([uno_c(y_last, y, v[:, j], TAU)
+                                                for j in range(v.shape[1])]))}  # fmt: skip
     too_good = {k: v for k, v in pooled_c.items() if v > TOO_GOOD_C}
     bad_shuffle = {k: v["mean"] for k, v in shuffled.items()
                    if abs(v["mean"] - 0.5) > SHUFFLE_BAND}  # fmt: skip
     return {"stop": bool(too_good or bad_shuffle), "too_good_c": too_good,
             "shuffled_outside_band": bad_shuffle, "shuffled": shuffled}  # fmt: skip
+
+
+def _ytrain(c: dict, year: int, bank: bool = False):
+    t = c["train_y"]["bank"][year] if bank else c["train_y"][year]
+    return surv(t["event"], t["duration"])
 
 
 _W: dict = {}  # per-worker state, set once by _init (avoids pickling predictions per task)
@@ -192,33 +236,60 @@ def paired(y_train, keys, preds, diffs, block, n, seed=0, include_levels=True) -
     return {"ci": ci, "improves": improves, "block": block, "resamples": n}
 
 
+GOLD_C_MODELS = ("ABCDx", "loo-gold_ret", "loo-gold-gpr")  # D-018 amendment
+GOLD_C_RESAMPLES = 200
+
+
 def attribution(y_train, keys, preds, n=ATTRIB_RESAMPLES, block=BOOT["block"]) -> dict:
-    """D-018: per block-D feature, IBS(without) - IBS(ABCDx) on 2,000 paired block resamples,
-    two-sided bootstrap p-value, Holm across the 14 features; C differences as points."""
+    """D-018 as in development (dev_attribution.main): per block-D feature, IBS(without) -
+    IBS(ABCDx) on 2,000 paired block resamples (seed 0), two-sided bootstrap p, Holm across the
+    14 features, informative if Holm p < 0.05 and the difference > 0; d_c = C(full) -
+    C(without) as a point estimate. Gold vs GPR: the four contrasts of D-018 with C intervals
+    from 200 resamples for the three gold/GPR models."""
     names = [k for k in preds if k.startswith("loo")]
     ev, du = keys.event.to_numpy(), keys.duration.to_numpy()
     y = _y(keys)
-    base_ibs = ibs(y_train, y, preds["ABCDx"], TIMES)
-    base_c = uno_c(y_train, y, 1 - preds["ABCDx"][:, TAU - 1], TAU)
-    draws = {k: [] for k in names}
-    for idx in block_resamples(keys.trade_date.to_numpy(), block, n, seed=1):
+    point = {k: {"ibs": ibs(y_train, y, preds[k], TIMES),
+                 "uno_c": uno_c(y_train, y, 1 - preds[k][:, TAU - 1], TAU)}
+             for k in ["ABCDx", *names]}  # fmt: skip
+    D = {k: {"ibs": [], "uno_c": []} for k in ["ABCDx", *names]}
+    dates = keys.trade_date.to_numpy()
+    for idx in block_resamples(dates, block, n, seed=0):
         yi = surv(ev[idx], du[idx])
-        b0 = ibs(y_train, yi, preds["ABCDx"][idx], TIMES)
-        for k in names:
-            draws[k].append(ibs(y_train, yi, preds[k][idx], TIMES) - b0)
-    out = {}
+        for k in D:
+            D[k]["ibs"].append(ibs(y_train, yi, preds[k][idx], TIMES))
+    gold_models = [m for m in GOLD_C_MODELS if m in D]
+    for idx in block_resamples(dates, block, GOLD_C_RESAMPLES, seed=0):
+        yi = surv(ev[idx], du[idx])
+        for k in gold_models:
+            D[k]["uno_c"].append(uno_c(y_train, yi, 1 - preds[k][idx, TAU - 1], TAU))
+    D = {k: {m: np.asarray(x) for m, x in d.items()} for k, d in D.items()}
     singles = [k for k in names if k != "loo-gold-gpr"]
-    p = np.array([boot_p(np.array(draws[k])) for k in singles])
-    adj = dict(zip(singles, holm(p), strict=True))
-    for k in names:
-        d = np.array(draws[k])
-        out[k] = {"d_ibs": ibs(y_train, y, preds[k], TIMES) - base_ibs,
-                  "d_ibs_lo": float(np.quantile(d, 0.025)),
-                  "d_ibs_hi": float(np.quantile(d, 0.975)), "p": boot_p(d),
-                  "p_holm": float(adj.get(k, np.nan)),
-                  "d_uno_c": uno_c(y_train, y, 1 - preds[k][:, TAU - 1], TAU) - base_c}  # fmt: skip
-        out[k]["informative"] = bool(k in adj and adj[k] < 0.05 and out[k]["d_ibs"] > 0)
-    return out
+    rows = {}
+    for k in singles:
+        d = D[k]["ibs"] - D["ABCDx"]["ibs"]  # > 0: dropping the feature hurts, so it helps
+        rows[k] = {"d_ibs": point[k]["ibs"] - point["ABCDx"]["ibs"],
+                   "d_ibs_lo": float(np.quantile(d, 0.025)),
+                   "d_ibs_hi": float(np.quantile(d, 0.975)), "p_ibs": boot_p(d),
+                   "d_c": point["ABCDx"]["uno_c"] - point[k]["uno_c"]}  # fmt: skip
+    adj = holm(np.array([rows[k]["p_ibs"] for k in singles]))
+    for k, a in zip(singles, adj, strict=True):
+        rows[k]["p_ibs_holm"] = float(a)
+        rows[k]["informative"] = bool(a < 0.05 and rows[k]["d_ibs"] > 0)
+
+    def ci(a, b, m):
+        d = D[a][m] - D[b][m]
+        return {"point": float(point[a][m] - point[b][m]), "lo": float(np.quantile(d, 0.025)),
+                "hi": float(np.quantile(d, 0.975)), "p": boot_p(d)}  # fmt: skip
+
+    gold = {}
+    if {"loo-gold_ret", "loo-gold-gpr"} <= set(D):
+        gold = {"gold_given_gpr_ibs": ci("loo-gold_ret", "ABCDx", "ibs"),
+                "gpr_given_no_gold_ibs": ci("loo-gold-gpr", "loo-gold_ret", "ibs"),
+                "gold_given_gpr_c": ci("ABCDx", "loo-gold_ret", "uno_c"),
+                "gpr_given_no_gold_c": ci("loo-gold_ret", "loo-gold-gpr", "uno_c")}  # fmt: skip
+    return {"point": point, "leave_one_out": rows, "gold_vs_gpr": gold, "ibs_resamples": n,
+            "c_resamples": GOLD_C_RESAMPLES}  # fmt: skip
 
 
 def diebold_mariano(keys, preds, a: str, b: str, h: int = H, lags: int = BOOT["block"]) -> dict:
@@ -245,25 +316,36 @@ def slices(keys, year_of) -> dict[str, np.ndarray]:
     out = {name: (year_of >= a) & (year_of <= b) for name, (a, b) in SUBPERIODS.items()}
     out["banks"] = keys.is_bank.astype(bool).to_numpy()
     out["vn30_non_banks"] = (keys.in_vn30.astype(bool) & ~keys.is_bank.astype(bool)).to_numpy()
-    out["no_limit_close"] = (keys.close_at_limit.fillna(0) == 0).to_numpy()
+    # rule 6: never guess a limit; rows whose last 5 days all had a known limit
+    out["no_limit_close"] = ((keys.close_at_limit.fillna(0) == 0)
+                             & (keys.limit_known_5 == 1)).to_numpy()  # fmt: skip
     return out
 
 
-def evaluate(c: dict, years, n_boot: int = BOOT["resamples"], log=print) -> dict:
+def evaluate(c: dict, years, n_boot: int = BOOT["resamples"], log=print,
+             strict: bool = False) -> dict:  # fmt: skip
+    """strict (the main run): every pre-registered comparison must be computable."""
     keys, preds = c["keys"], c["preds"]
-    y_last = surv(c["train_y"][years[-1]]["event"], c["train_y"][years[-1]]["duration"])
-    stop = stop_checks(c, keys, y_last)
+    y_last = _ytrain(c, years[-1])
+    stop = stop_checks(c, years)
     if stop["stop"]:
         return {"STOP": stop}
+    if strict:
+        need = {x for d in S.DIFFS for x in d} | {f"shuffled:{k}" for k in S.SHUFFLED}
+        need |= {f"loo{k}" for k in S.LOO} | {f"boundary:{b}" for b in S.BOUNDARY}
+        bneed = {x for d in S.BANK_DIFFS for x in d}
+        bneed |= {f"{n}@{v}" for n in S.E_VARIANT_SPECS for v in S.E_VARIANTS}
+        missing = sorted(need - set(preds)) + sorted(bneed - set(c["bank_preds"] or {}))
+        if missing:
+            raise SystemExit(f"pre-registered specs missing from the cache: {missing}")
     res = {"stop_checks": stop, "per_year": {}, "pooled": {}}
     main = {k: v for k, v in preds.items() if v.ndim == 2 and v.shape[1] == TAU}
     for y in years:
         m = c["year_of"] == y
-        yt = surv(c["train_y"][y]["event"], c["train_y"][y]["duration"])
+        yt = _ytrain(c, y)
         kk = keys[m].reset_index(drop=True)
-        res["per_year"][str(y)] = {k: {kk2: v for kk2, v in metrics(yt, kk, p[m]).items()
-                                       if not kk2.startswith("calibration")}
-                                   for k, p in main.items() if not k.startswith("loo")}  # fmt: skip
+        res["per_year"][str(y)] = {k: metrics(yt, kk, p[m]) for k, p in main.items()
+                                   if not k.startswith("loo")}  # fmt: skip
         log(f"  per-year metrics {y}")
     res["pooled"]["metrics"] = {k: metrics(y_last, keys, p) for k, p in main.items()
                                 if not k.startswith("loo")}  # fmt: skip
@@ -298,20 +380,48 @@ def evaluate(c: dict, years, n_boot: int = BOOT["resamples"], log=print) -> dict
     log("  slices")
     if len(c["bank_keys"]):
         bk, bp = c["bank_keys"], c["bank_preds"]
-        yb = surv(c["train_y"][years[-1]]["bank_event"], c["train_y"][years[-1]]["bank_duration"])
+        yb = _ytrain(c, years[-1], bank=True)
         bdiffs = [d for d in S.BANK_DIFFS if d[0] in bp and d[1] in bp]
         for v in S.E_VARIANTS:
             bdiffs += [(f"{a}@{v}", b) for a, b in S.BANK_DIFFS if f"{a}@{v}" in bp]
+        per_year = {}
+        for y in years:
+            m = c["bank_year_of"] == y
+            kk = bk[m].reset_index(drop=True)
+            per_year[str(y)] = {k: metrics(_ytrain(c, y, bank=True), kk, p[m])
+                                for k, p in bp.items()}  # fmt: skip
         res["pooled"]["block_e"] = {
-            "metrics": {k: {x: y for x, y in metrics(yb, bk, p).items()
-                            if not x.startswith("calibration")} for k, p in bp.items()},
-            "paired": paired(yb, bk, bp, bdiffs, BOOT["block"], n_boot)}  # fmt: skip
+            "metrics": {k: metrics(yb, bk, p) for k, p in bp.items()},
+            "per_year": per_year,
+            "paired": paired(yb, bk, bp, bdiffs, BOOT["block"], n_boot),
+            "paired_block_sensitivity": {str(b): paired(yb, bk, bp, bdiffs, b, n_boot,
+                                                        include_levels=False)
+                                         for b in BLOCK_SENS},
+            "diebold_mariano": {f"{a}-{b}": diebold_mariano(bk, bp, a, b) for a, b in bdiffs},
+        }  # fmt: skip
         log("  block E")
     res["h2_coefficients"] = {str(y): {t: c["meta"][y].get("abcdx_coef_std", {}).get(t)
                                        for t in H2_TERMS} for y in years}  # fmt: skip
     res["rq3_shape"] = empirical(keys).to_dict("list")
     res["chosen"] = {str(y): c["meta"][y]["chosen"] for y in years}
     return res
+
+
+def require_passed_evaluation(run_dir: Path, cache: Path | None = None,
+                              snapshot: str | None = None) -> dict:  # fmt: skip
+    """Protocol section 6: later steps (trading test, RQ4) run only after an evaluation of the
+    same cache and snapshot finished without a stop rule firing."""
+    run_dir = Path(run_dir)
+    if (run_dir / "STOP.json").exists():
+        raise SystemExit(f"{run_dir.name}: a stop rule fired; run the leakage-audit skill")
+    if not (run_dir / "metrics.json").exists():
+        raise SystemExit(f"{run_dir.name}: no completed evaluation (metrics.json missing)")
+    cfg = json.loads((run_dir / "config.json").read_text())
+    if cache is not None and Path(cfg["cache"]).resolve() != Path(cache).resolve():
+        raise SystemExit(f"evaluation {run_dir.name} is of {cfg['cache']}, not {cache}")
+    if snapshot is not None and set(cfg["snapshot_id"].values()) != {snapshot}:
+        raise SystemExit(f"evaluation {run_dir.name} used snapshot {cfg['snapshot_id']}")
+    return cfg
 
 
 def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
@@ -338,7 +448,7 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
 
     t0 = time.time()
     c = load_caches(a.cache, years)
-    res = evaluate(c, years, log=log)
+    res = evaluate(c, years, log=log, strict=a.label == "main")
     metas = c["meta"]
     cfg = {"git_commit": commit, "cache": str(a.cache), "years": years,
            "year_commits": {y: metas[y].get("git_commit") for y in years},

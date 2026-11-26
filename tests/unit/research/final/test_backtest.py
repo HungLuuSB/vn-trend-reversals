@@ -34,7 +34,9 @@ def test_run_years_from_caches(tmp_path):
         keys.to_parquet(d / "keys.parquet")
         n = len(keys)
         s = np.sort(rng.uniform(0.3, 1, (n, 20)), axis=1)[:, ::-1]
-        np.savez(d / "preds.npz", ABCDx=s, M=s[:, ::1] ** 0.9)
+        (d / "preds").mkdir()
+        np.save(d / "preds" / "ABCDx.npy", s)
+        np.save(d / "preds" / "M.npy", s**0.9)
         irows = [(t, s) for t in stocks for s in sessions if pd.Timestamp(s).year == y - 1]
         inner = pd.DataFrame(irows, columns=["ticker", "trade_date"])
         inner["p5:ABCDx"] = rng.uniform(0, 1, len(inner))

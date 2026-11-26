@@ -42,8 +42,8 @@ def test_run_year_writes_caches_without_metrics(tmp_path):
     meta = Y.run_year(ds, sessions, 2011, tmp_path, only=only, log=lambda m: None)
     out = tmp_path / "2011"
     keys = pd.read_parquet(out / "keys.parquet")
-    preds = np.load(out / "preds.npz")
-    assert set(preds.files) >= {
+    preds = Y.load_preds(out)
+    assert set(preds) >= {
         "km",
         "M",
         "DIST",
@@ -64,8 +64,22 @@ def test_run_year_writes_caches_without_metrics(tmp_path):
     assert (inner.trade_date.dt.year == 2010).all() and {"p5:ABCDx", "p5:M"} <= set(inner)
     saved = json.loads((out / "meta.json").read_text())
     assert set(saved["chosen"]) >= {"M", "DIST", "ABCDx"} and "abcdx_coef_std" in saved
+    assert saved["machine_at_start"]["cpus"] and "scikit-learn" in saved["machine_at_start"]
     assert not any("uno_c" in k or "ibs" in k for k in json.dumps(saved).split('"'))
     # the planted signal: higher 5-day risk where swing_dist is closer to the trigger
     r5 = 1 - preds["M"][:, 4]
     assert np.corrcoef(r5, -keys.swing_dist)[0, 1] > 0.5
     assert meta["n"]["test"] == len(keys)
+
+
+def test_restart_skips_finished_specs_and_merges_only_runs(tmp_path):
+    ds, sessions = make(n_tickers=6)
+    ds = Y.prepare(ds, prices=None)
+    Y.run_year(ds, sessions, 2011, tmp_path, only={"M"}, log=lambda m: None)
+    f = tmp_path / "2011" / "preds" / "M.npy"
+    stamp = f.stat().st_mtime_ns
+    logs = []
+    Y.run_year(ds, sessions, 2011, tmp_path, only={"M", "DIST"}, log=logs.append)
+    assert f.stat().st_mtime_ns == stamp  # M was not refitted
+    assert any(m.startswith("  DIST") for m in logs) and not any(m.startswith("  M:") for m in logs)
+    assert {"M", "DIST", "km"} <= set(Y.load_preds(tmp_path / "2011"))

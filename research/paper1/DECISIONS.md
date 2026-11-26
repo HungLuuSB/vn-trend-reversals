@@ -899,3 +899,25 @@ The model-shape table and the test results do not change.
   - sections 1–4 and 6 restate D-012 to D-025;
   - section 5 fixes the items never specified before (RQ4, decision at the close, the proposal's other robustness checks, the Abolmakarem appendix on development data only, SHAP scope).
 - **Change control:** after the run starts, nothing in the protocol changes. Anything added later is labelled post hoc in the paper.
+
+**D-026 clarifications (2026-11-26, after the runner's independent leakage review; before any test-year output exists).** The review found no look-ahead in the per-year runner. It found the gaps below, all fixed before the run.
+1. **Shuffled-label stop rule.** The control is checked per year, as in development. Each year's model is trained on permuted outcomes and scored on that year's test rows; the run stops if the mean over years of the per-year mean C lies outside 0.5 ± 0.03. Pooled across years, a shuffled model's C mostly reflects differences between the years' base rates, so the pooled shuffled C is reported but not tested. The C > 0.70 stop also covers the block E models.
+2. **RQ4 errors.**
+   - The ridge (C = 100) replaces the tuned hyperparameters in the RQ4 fit, only so that it converges.
+   - Overlapping landmark rows of one swing are serially dependent, so the Wald test is computed both with date-clustered and with two-way (date × ticker) clustered errors (Cameron, Gelbach and Miller 2011; the two-way variance is made positive semi-definite by clipping negative eigenvalues).
+   - The decision uses the larger of the two p-values.
+3. **Completeness.**
+   - RQ1 now compares every model with KM, and the bank rows with their own KM.
+   - The D-018 gold-vs-GPR contrasts are computed exactly as in development, with C intervals from 200 resamples for the three gold/GPR models.
+   - The foreign-flow robustness model is also compared with KM and M.
+   - For the main run, the evaluation refuses a cache that lacks any pre-registered specification.
+4. **Order and identity.**
+   - The trading test and RQ4 refuse to run unless an evaluation of the same cache and snapshot finished without a stop.
+   - The k = 1.5 and 3 caches are evaluated (`--label k1_5`, `k3`) before their trading tests.
+   - The evaluation refuses years whose commit, snapshot, features run, k or dataset hash differ.
+5. **Execution at the close (5b):** τ is re-chosen on the inner year under close execution, the same procedure as for the open.
+6. **"No limit close" slice:** rows whose last 5 days all had a computed limit and that did not close at a limit. Unknown limits are never treated as "not at the limit" (data rule 6).
+7. **SHAP (5e):** the fitted 2026 `gbm_ABCD` and `nn_seq_ABCD` are saved by the runner, and SHAP is computed afterwards on exactly those models.
+8. **Abolmakarem appendix (5d):** written after the run, on development data only, so it does not touch the test years.
+9. **Disclosure:** IPCW weights come from the purged training outcomes, as in development, so the 2026 test rows' administrative censoring is not reweighted. This is visible only in 2026's per-year IBS.
+10. **Robustness of the per-year runner:** each prediction set is saved as soon as it exists, so a restart skips finished work. The machine (CPU model, RAM, package versions, thread settings) is recorded at the start.

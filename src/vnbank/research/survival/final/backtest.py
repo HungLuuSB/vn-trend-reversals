@@ -36,6 +36,8 @@ from vnbank.research.survival.backtest.dev_backtest import (
     summary,
 )
 from vnbank.research.survival.backtest.metrics import deflated_sharpe, sharpe, sharpe_diff_ci
+from vnbank.research.survival.final.evaluate import require_passed_evaluation
+from vnbank.research.survival.final.year import load_preds
 
 CFG = load(1)
 TEST_YEARS = tuple(CFG["walkforward"]["test_years"])
@@ -67,7 +69,7 @@ def run_years(stocks, sessions, cache: Path, years, log=print, tag: str = "") ->
         t0 = time.time()
         d = cache / str(y)
         keys = pd.read_parquet(d / "keys.parquet")
-        preds = np.load(d / "preds.npz")
+        preds = load_preds(d, "preds")
         inner = pd.read_parquet(d / "inner_p5.parquet")
         inner["trade_date"] = pd.to_datetime(inner.trade_date)
         win = year_window(y)
@@ -139,11 +141,18 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
     ap.add_argument("--snapshot", required=True)
     ap.add_argument("--k", type=float, default=CFG["labels"]["k_main"])
     ap.add_argument("--bootstrap", type=int, default=CFG["evaluation"]["bootstrap"]["resamples"])
+    ap.add_argument(
+        "--evaluate-run",
+        required=True,
+        type=Path,
+        help="the passed final.evaluate run of the same cache (protocol section 6)",
+    )
     ap.add_argument("--final", action="store_true")
     ap.add_argument("--i-confirm-final-run", action="store_true")
     a = ap.parse_args(argv)
     if not (a.final and a.i_confirm_final_run):
         raise SystemExit("the final trading test needs --final --i-confirm-final-run (D-026)")
+    require_passed_evaluation(a.evaluate_run, cache=a.cache, snapshot=a.snapshot)
     commit = code_version()
     years = sorted(int(p.name) for p in a.cache.iterdir() if p.is_dir() and p.name.isdigit())
     if tuple(years) != TEST_YEARS:
@@ -170,7 +179,7 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
             run / f"daily_returns_{execution}.parquet")  # fmt: skip
     cfg = {"protocol": "D-021 / D-026", "cache": str(a.cache), "snapshot_id": a.snapshot,
            "k": a.k, "git_commit": commit, "taus": TAUS, "bootstrap": a.bootstrap,
-           "years": years}  # fmt: skip
+           "years": years, "evaluate_run": a.evaluate_run.name}  # fmt: skip
     (run / "config.json").write_text(json.dumps(cfg, indent=2))
     (run / "metrics.json").write_text(json.dumps(out, indent=1, default=float))
     log(f"done: {run}")

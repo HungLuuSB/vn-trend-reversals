@@ -6,8 +6,9 @@ announcement? FINAL_RUN_PROTOCOL.md section 5a (D-026).
 
 Full-sample landmark logistic hazard on ``ABCDx`` plus ``post`` (1 from the announcement,
 seed market_classification_events) and ``post`` x each H2 channel and its direction term (10
-terms). Ridge C = 100 only so the fit converges; standard errors are the date-clustered sandwich
-of the penalised fit; joint Wald test of the 10 interactions (chi-squared, 10 df). Placebos: the
+terms). Ridge C = 100 replaces the tuned hyperparameters, only so the fit converges (D-026
+clarification 2); joint Wald test of the 10 interactions (chi-squared, 10 df) with two-way
+(date x ticker) clustered sandwich errors, date-only errors reported alongside. Placebos: the
 same statistic with a placebo announcement on 7 October of 2013-2023, each sample ending 13
 months later (labels censored there) and before the real announcement. H4 is supported only if
 p < 0.05 and the real statistic exceeds every placebo.
@@ -70,35 +71,63 @@ def design(d: pd.DataFrame, post_date: pd.Timestamp):
     dummies = (steps[:, None] == np.arange(1, MAX_STEP + 1)[None, :]).astype(float)
     X = np.hstack([base[rows], dummies])
     groups = d.trade_date.to_numpy()[rows]
+    tickers = d.ticker.to_numpy()[rows]
     post_cols = np.arange(x.shape[1] + 1, x.shape[1] + 1 + len(POST_TERMS))
-    return X, y, groups, post_cols
+    return X, y, groups, post_cols, tickers
 
 
-def wald(X, y, groups, cols) -> dict:
-    """Penalised fit (L2, C = RIDGE_C, no intercept: the step dummies span it) and the
-    date-clustered sandwich covariance V = H^-1 B H^-1."""
+def _meat(X, resid, groups) -> np.ndarray:
+    _, g = np.unique(groups, return_inverse=True)
+    s = np.zeros((g.max() + 1, X.shape[1]))
+    np.add.at(s, g, X * resid[:, None])
+    return s.T @ s
+
+
+def _psd(V: np.ndarray) -> np.ndarray:
+    """Cameron, Gelbach and Miller (2011): clip negative eigenvalues of a two-way variance."""
+    w, U = np.linalg.eigh((V + V.T) / 2)
+    return (U * np.clip(w, 0, None)) @ U.T
+
+
+def _test(b, V, cols) -> dict:
+    bc, Vc = b[cols], _psd(V[np.ix_(cols, cols)])
+    stat = float(bc @ np.linalg.pinv(Vc) @ bc)
+    return {"wald": stat, "df": len(cols), "p": float(sst.chi2.sf(stat, len(cols))),
+            "se": dict(zip(POST_TERMS, np.round(np.sqrt(np.abs(np.diag(Vc))), 6).tolist(),
+                           strict=True))}  # fmt: skip
+
+
+def wald(X, y, groups, cols, tickers=None) -> dict:
+    """Penalised fit (L2, C = RIDGE_C, no intercept: the step dummies span it) and sandwich
+    covariances V = H^-1 B H^-1 clustered by date, and two-way by date and ticker (Cameron,
+    Gelbach and Miller 2011): B = B_date + B_ticker - B_date x ticker, made positive
+    semi-definite. Overlapping landmark rows of one swing share a ticker, so the two-way errors
+    also cover that serial dependence. The decision uses the larger of the two p-values
+    (D-026 clarification 2)."""
     m = LogisticRegression(C=RIDGE_C, l1_ratio=0.0, fit_intercept=False, max_iter=5000)
     m.fit(X, y)
     b = m.coef_[0]
     p = 1 / (1 + np.exp(-(X @ b)))
     Hm = (X * (p * (1 - p))[:, None]).T @ X + np.eye(X.shape[1]) / RIDGE_C
-    _, g = np.unique(groups, return_inverse=True)
-    s = np.zeros((g.max() + 1, X.shape[1]))
-    np.add.at(s, g, X * (y - p)[:, None])
     Hi = np.linalg.inv(Hm)
-    V = Hi @ (s.T @ s) @ Hi
-    bc, Vc = b[cols], V[np.ix_(cols, cols)]
-    stat = float(bc @ np.linalg.solve(Vc, bc))
-    return {"wald": stat, "df": len(cols), "p": float(sst.chi2.sf(stat, len(cols))),
-            "coef": dict(zip(POST_TERMS, np.round(bc, 6).tolist(), strict=True)),
-            "se": dict(zip(POST_TERMS, np.round(np.sqrt(np.diag(Vc)), 6).tolist(),
-                           strict=True)), "clusters": int(g.max() + 1)}  # fmt: skip
+    r = y - p
+    out = {"coef": dict(zip(POST_TERMS, np.round(b[cols], 6).tolist(), strict=True)),
+           "clusters_date": int(len(np.unique(groups)))}  # fmt: skip
+    out["date"] = _test(b, Hi @ _meat(X, r, groups) @ Hi, cols)
+    if tickers is not None:
+        both = pd.factorize(pd.MultiIndex.from_arrays([groups, tickers]))[0]
+        B = _meat(X, r, groups) + _meat(X, r, tickers) - _meat(X, r, both)
+        out["two_way"] = _test(b, Hi @ B @ Hi, cols)
+    # decision: the more conservative of the two (larger p), D-026 clarification 2
+    main = max((out[k] for k in ("date", "two_way") if k in out), key=lambda t: t["p"])
+    out.update({"wald": main["wald"], "p": main["p"], "df": main["df"]})
+    return out
 
 
 def run(ds, sessions, announce: pd.Timestamp, study_end: pd.Timestamp, placebo_years=None,
         log=print) -> dict:  # fmt: skip
     real = wald(*design(censor_at(ds, sessions, study_end), announce))
-    log(f"real: computed ({real['clusters']} date clusters)")
+    log(f"real: computed ({real['clusters_date']} date clusters)")
     placebos = {}
     for y in placebo_years if placebo_years is not None else PLACEBO_YEARS:
         start = pd.Timestamp(f"{y}-10-07")
@@ -116,6 +145,12 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
 
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--features-run", required=True)
+    ap.add_argument(
+        "--evaluate-run",
+        required=True,
+        type=Path,
+        help="the passed final.evaluate run of the main cache (protocol section 6)",
+    )
     ap.add_argument("--final", action="store_true")
     ap.add_argument("--i-confirm-final-run", action="store_true")
     a = ap.parse_args(argv)
@@ -124,6 +159,9 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - CLI wiring
     commit = code_version()
     fr = Path(a.features_run)
     fcfg = json.loads((fr / "config.json").read_text())
+    from vnbank.research.survival.final.evaluate import require_passed_evaluation
+
+    require_passed_evaluation(a.evaluate_run, snapshot=fcfg["snapshot_id"])
     snap = paths.SNAPSHOTS / fcfg["snapshot_id"]
     sessions = np.sort(pd.to_datetime(
         pd.read_parquet(snap / "sessions_hose.parquet").trade_date).to_numpy())  # fmt: skip
