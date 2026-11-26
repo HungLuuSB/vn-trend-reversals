@@ -63,7 +63,7 @@ compare a random split with a chronological one.
 Directional-change (DC) methods describe a price series by reversals of a set size rather than by
 calendar time. A DC is confirmed when the price moves a threshold against its running extreme.
 \citet{GlattfelderDupuisOlsen2011} use this event-based view to document scaling laws in
-high-frequency FX data.\todo{verify: Glattfelder et al.\ have no entry in NOTES.md}
+high-frequency FX data.
 
 The closest machine-learning precedent predicts how long a DC trend lasts. \citet{AdegboyeKampouridis2021}
 use 10-minute data on 20 currency pairs with fixed-percentage thresholds. They first classify whether
@@ -95,11 +95,11 @@ spills over from New York into Tokyo's open-to-close return.
 
 Evidence on US spillovers into Vietnam is thin and in sample. A daily study finds that the lagged
 US return moves the VN-Index open in 2003--2009, but only in crisis-era sub-periods chosen after the
-fact.\todo{cite: Thuan (2011), IJBFR; no DOI} A copula
+fact \citep{Luu2011}. A copula
 study on same-date pairs finds stronger lower-tail dependence between US and Vietnamese returns after
-the 2008 crisis.\todo{cite: Nguyen, Bhatti \& Henry (2017), Physica A}
+the 2008 crisis \citep{NguyenBhattiHenry2017}.
 Two annual firm panels identify a US effect from seven to nine yearly values of a variable that is
-the same for every firm.\todo{cite: Vo \& Nguyen (2016); Nguyen, Bao \& Le (2025)} None
+the same for every firm \citep{VoNguyen2016,NguyenHoLe2025}. None
 tests out of sample.
 
 Crisis-era comparisons of comovement are also biased. \citet{ForbesRigobon2002} show that
@@ -111,7 +111,7 @@ index of \citet{CaldaraIacoviello2022} measures a further global shock; we use i
 No study we know of tests, out of sample and with point-in-time timing, whether overnight global
 information changes when swings in Vietnamese stocks reverse. We test this with price-limit features
 in the model, and ask whether the sensitivity changed after the FTSE Russell upgrade announcement of
-7 October 2025.\todo{cite: FTSE Russell upgrade announcement}
+7 October 2025 \citep{FTSE2025}.
 
 \subsection{Survival-model evaluation and backtest overfitting}
 
@@ -124,4 +124,4 @@ inverse-probability-of-censoring weights \citep{Graf1999}. The deflated Sharpe r
 trading result for selection bias, backtest overfitting and non-normality
 \citep{BaileyLopezdePrado2014}. These tools say how to score a censored prediction, not how to split
 serially dependent financial data. We therefore pair them with purged, embargoed walk-forward
-splits.\todo{cite: purging and embargo, e.g.\ L\'opez de Prado (2018)}
+splits \citep{LopezdePrado2018}.

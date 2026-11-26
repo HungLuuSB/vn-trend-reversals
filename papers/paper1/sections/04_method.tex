@@ -283,7 +283,7 @@ tests it is an intersection--union test, valid at the nominal level without adju
 \paragraph{One primary test per question} Table~\ref{tab:primary} lists the primary tests. Each
 uses 1,000 paired resamples. We report its Monte Carlo error as the spread of the interval endpoints
 between the two halves of the resamples. Holm-adjusted bootstrap $p$-values across the six
-confirmatory primaries are reported as a sensitivity.\todo{cite Holm 1979} Every
+confirmatory primaries are reported as a sensitivity \citep{Holm1979}. Every
 other comparison is secondary or descriptive and is labelled so.
 
 \begin{table}[t]
@@ -325,7 +325,7 @@ adjustment of \citet{ClarkWest2007}.
 
 \paragraph{Attribution within block D} Each of the 14 global features is dropped in turn from
 \texttt{ABCDx}, refitted with that year's \texttt{ABCDx} hyperparameters, and compared on IBS with
-2,000 resamples and Holm adjustment across the 14. A separate contrast asks whether gold adds
+2,000 resamples and \citet{Holm1979} adjustment across the 14. A separate contrast asks whether gold adds
 anything once geopolitical risk is in the model, and the reverse.
 
 \paragraph{Controls and stop rules} For \texttt{ABCD}, \texttt{ABCDx}, \texttt{M} and the neural model, the
@@ -363,7 +363,8 @@ post-announcement interactions is secondary.
 \subsection{Trading test}\label{sec:trading}
 
 The trading test asks whether the predicted hazard is worth anything after Vietnamese trading
-frictions. Short selling of individual stocks is not generally available, so every strategy is
+frictions. Short selling of individual stocks was not available during the sample
+(Section~\ref{sec:market}), so every strategy is
 long-only.
 
 \paragraph{Strategies} Each strategy holds at most one position per stock.
