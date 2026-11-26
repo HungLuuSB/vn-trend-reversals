@@ -35,7 +35,14 @@ from vnbank.research.survival.features.assemble import (
 from vnbank.research.survival.features.block_e import add_block_e
 from vnbank.research.survival.features.sequence import SEQ, add_sequences
 from vnbank.research.survival.models.zoo import CFG, make_model
-from vnbank.research.survival.walkforward import DEV_END, DEV_FOLDS, TAU, TOO_GOOD_C, split
+from vnbank.research.survival.walkforward import (
+    BOOT_BLOCK,
+    DEV_END,
+    DEV_FOLDS,
+    TAU,
+    TOO_GOOD_C,
+    split,
+)
 
 REPO = paths.REPO
 RUNS = paths.runs_dir(1)  # research/paper1/runs
@@ -141,7 +148,13 @@ def boot(y_train, val, preds: dict[str, np.ndarray], n: int, seed: int, diffs=DI
     for hi, lo in diffs:
         for key, f in (("uno_c", c), ("ibs", b), ("auc5", a5)):
             stats[f"{hi}-{lo}:{key}"] = lambda i, f=f, hi=hi, lo=lo: f(hi)(i) - f(lo)(i)
-    return paired_ci(val.trade_date.to_numpy(), stats, block=20, n=n, seed=seed)
+    return paired_ci(
+        val.trade_date.to_numpy(),
+        stats,
+        block=BOOT_BLOCK,
+        n=n,
+        seed=seed,
+    )
 
 
 def shuffled_control(mname, feats, params, train, val, y_train, log) -> dict:
@@ -185,7 +198,9 @@ def main(argv: list[str] | None = None) -> int:
         ds = add_bank_interactions(ds)
     block_e = {}
     if args.protocol.startswith("D-023"):
-        ds, block_e = add_block_e(ds, ocr_values_only=args.protocol.endswith("ocr-only"))
+        ds, block_e = add_block_e(
+            ds, ocr_values_only=args.protocol.endswith("ocr-only"), snapshot=fcfg["snapshot_id"]
+        )
 
     run = RUNS / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-devdecompose-{args.protocol}"
     run.mkdir(parents=True)

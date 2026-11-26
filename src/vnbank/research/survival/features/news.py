@@ -18,6 +18,8 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 
+from vnbank.research.shared.config import load
+
 VN = ZoneInfo("Asia/Ho_Chi_Minh")
 REL_WINDOW = 20
 
@@ -30,7 +32,7 @@ def articles(mentions: pd.DataFrame, column: str = "tickers_strict") -> pd.DataF
 
 
 def _at_nine(days) -> np.ndarray:
-    local = pd.to_datetime(pd.Series(days)) + pd.Timedelta(hours=9)
+    local = pd.to_datetime(pd.Series(days)) + pd.Timedelta(hours=load(1)["decision"]["hour_local"])
     return local.dt.tz_localize(VN).dt.tz_convert("UTC").to_numpy()
 
 

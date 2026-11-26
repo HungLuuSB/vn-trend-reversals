@@ -28,7 +28,7 @@ CFG = load(1)  # research/paper1/configs/main.yaml
 
 REPO = paths.REPO
 RUNS = paths.runs_dir(1)  # research/paper1/runs
-STUDY_START, STUDY_END = pd.Timestamp("2012-01-03"), pd.Timestamp("2026-11-20")
+STUDY_START, STUDY_END = (pd.Timestamp(CFG["study"][k]) for k in ("start", "end"))
 
 
 def load(snapshot: str) -> dict[str, pd.DataFrame]:
@@ -69,27 +69,29 @@ def label_stock(px: pd.DataFrame, sessions: pd.Series, universe: set, k: float):
 
 
 def summarise(surv: pd.DataFrame, rev: pd.DataFrame) -> dict:
-    by_reason = surv[surv.event == 0].censor_reason.value_counts().to_dict()
+    """Run summary. Outcome statistics (events, durations, censoring) cover development rows
+    only (trade_date <= dev_end): test-year outcomes are seen only by the final run (D-012)."""
+    dev_end = pd.Timestamp(CFG["walkforward"]["dev_end"])
+    dev = surv[pd.to_datetime(surv.trade_date) <= dev_end]
+    by_reason = dev[dev.event == 0].censor_reason.value_counts().to_dict()
+    ev = dev[dev.event == 1]
     return {
         "rows": int(len(surv)),
         "stocks": int(surv.ticker.nunique()),
-        "event_rows": int(surv.event.sum()),
-        "censored_rows": int((surv.event == 0).sum()),
-        "censored_by_reason": {k: int(v) for k, v in by_reason.items()},
         "rows_up_share": float((surv.direction == 1).mean()),
-        "reversals_in_study": int(
-            ((rev.confirm_date >= STUDY_START) & (rev.confirm_date <= STUDY_END)).sum()
+        "outcome_stats_through": str(dev_end.date()),
+        "dev_rows": int(len(dev)),
+        "dev_event_rows": int(dev.event.sum()),
+        "dev_censored_rows": int((dev.event == 0).sum()),
+        "dev_censored_by_reason": {k: int(v) for k, v in by_reason.items()},
+        "dev_reversals": int(
+            ((rev.confirm_date >= STUDY_START) & (rev.confirm_date <= dev_end)).sum()
         ),  # fmt: skip
-        "median_duration_at_entry_event_rows": float(
-            surv[(surv.event == 1) & (surv.age_conf == 0)].duration.median()
+        "dev_median_duration_at_entry_event_rows": float(ev[ev.age_conf == 0].duration.median()),
+        "dev_median_swing_age_at_reversal": float(
+            (ev.age + ev.duration).groupby([ev.ticker, ev.age - ev.age_conf]).first().median()
         ),
-        "median_swing_age_at_reversal": float(
-            (surv[surv.event == 1].age + surv[surv.event == 1].duration)
-            .groupby([surv.ticker, surv.age - surv.age_conf])
-            .first()
-            .median()
-        ),
-        "share_rows_reversal_within_5d": float(((surv.event == 1) & (surv.duration <= 5)).mean()),
+        "dev_share_rows_reversal_within_5d": float(((dev.event == 1) & (dev.duration <= 5)).mean()),
     }
 
 

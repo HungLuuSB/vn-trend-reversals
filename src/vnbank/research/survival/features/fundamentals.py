@@ -22,6 +22,8 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 
+from vnbank.research.shared.config import load
+
 VN = ZoneInfo("Asia/Ho_Chi_Minh")
 CONSOLIDATED_FALLBACK = {"HNSX": 2, "HNKT": 4}  # kind -> the only quarter it may stand in for
 DEADLINE_DAYS = {"HN": 45, "M": 45, "HNSX": 45, "HNKT": 90, "Q": 45, "SX": 45, "KT": 90}
@@ -43,7 +45,8 @@ def kind_rank(kind: str, q: int) -> float | None:
 
 
 QUARTER = {"Q1": 1, "Q2": 2, "Q3": 3, "Q4": 4, "CN": 4}
-MARGIN_SESSIONS = 5  # D-023 main; robustness 0 and 20
+MARGIN_SESSIONS = load(1)["block_e"]["margin_sessions"]  # D-023 main; robustness 0 and 20
+DECISION_HOUR = load(1)["decision"]["hour_local"]  # 09:00 local (CLAUDE.md data rule 4)
 
 
 def quarter_end(year: int, q: int) -> date:
@@ -76,7 +79,9 @@ def available_at(year: int, q: int, kind: str, created: date | None, sessions: n
     if i >= len(sessions):
         return pd.NaT
     s = pd.Timestamp(sessions[i]).date()
-    return pd.Timestamp(year=s.year, month=s.month, day=s.day, hour=9, tz=VN).tz_convert("UTC")
+    return pd.Timestamp(
+        year=s.year, month=s.month, day=s.day, hour=DECISION_HOUR, tz=VN
+    ).tz_convert("UTC")
 
 
 def quarterly_values(fr: pd.DataFrame, sessions: np.ndarray,
@@ -100,7 +105,7 @@ def quarterly_values(fr: pd.DataFrame, sessions: np.ndarray,
 
 
 def decision_utc(decision_date: pd.Series) -> pd.Series:
-    local = pd.to_datetime(decision_date) + pd.Timedelta(hours=9)
+    local = pd.to_datetime(decision_date) + pd.Timedelta(hours=DECISION_HOUR)
     return local.dt.tz_localize(VN).dt.tz_convert("UTC")
 
 

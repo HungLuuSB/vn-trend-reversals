@@ -29,6 +29,7 @@ from vnbank.research.survival.evaluation.metrics import calibration, ibs, surv, 
 from vnbank.research.survival.features.assemble import BLOCKS
 from vnbank.research.survival.models.zoo import GRIDS, make_model
 from vnbank.research.survival.walkforward import (
+    BOOT_BLOCK,
     DEV_END,
     DEV_FOLDS,
     HORIZONS,
@@ -95,7 +96,13 @@ def bootstrap(y_train, val, preds: dict[str, np.ndarray], n: int, seed: int) -> 
     if "logit_ABC" in preds:
         stats["ABCD-ABC:uno_c"] = lambda i: c_of("logit")(i) - c_of("logit_ABC")(i)
         stats["ABCD-ABC:ibs"] = lambda i: b_of("logit")(i) - b_of("logit_ABC")(i)
-    return paired_ci(val.trade_date.to_numpy(), stats, block=20, n=n, seed=seed)
+    return paired_ci(
+        val.trade_date.to_numpy(),
+        stats,
+        block=BOOT_BLOCK,
+        n=n,
+        seed=seed,
+    )
 
 
 def main(argv: list[str] | None = None) -> int:

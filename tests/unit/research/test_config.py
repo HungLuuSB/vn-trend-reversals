@@ -19,6 +19,28 @@ def test_main_design_is_the_pre_registered_one():
     assert c["walkforward"]["test_years"] == list(range(2017, 2027))
     assert c["risk_set"] == {"min_history_days": 250, "halt_gap_sessions": 5}
     assert c["neural"]["seq_len"] == 60 and c["neural"]["outer_seeds"] == [0, 1, 2]  # D-022
+    assert c["decision"] == {"hour_local": 9, "tz": "Asia/Ho_Chi_Minh"}
+    assert c["block_e"] == {"margin_sessions": 5, "margin_robustness": [0, 20]}  # D-023
+    assert c["evaluation"]["bootstrap"] == {"block": 20, "resamples": 200}  # D-014
+    assert c["backtest"] == {  # D-021
+        "round_trip_cost": 0.004, "sales_tax": 0.001, "cost_sensitivity": [0.002, 0.008],
+        "tau_grid": [0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]}  # fmt: skip
+
+
+def test_values_outside_python_match_the_config():
+    """The study window is also written in dbt SQL; it must equal the config (D-001)."""
+    import re
+
+    from vnbank.common import paths
+    from vnbank.research.survival.backtest.engine import Costs
+
+    c = load(1)
+    sql = (paths.REPO / "dbt/models/universe/research_universe_daily.sql").read_text()
+    start = re.search(r"study_start = '([\d-]+)'", sql)[1]
+    end = re.search(r"study_end = '([\d-]+)'", sql)[1]
+    assert (start, end) == (str(c["study"]["start"]), str(c["study"]["end"]))
+    main = Costs.round_trip(c["backtest"]["round_trip_cost"], c["backtest"]["sales_tax"])
+    assert abs(main.buy + main.sell - 0.004) < 1e-12 and main == Costs()  # engine default = main
 
 
 def test_grids_keep_the_d014_order():

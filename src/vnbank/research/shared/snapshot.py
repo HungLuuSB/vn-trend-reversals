@@ -37,6 +37,44 @@ WARMUP_START = CFG["study"]["warmup_start"]  # D-001: initialises trailing quant
 
 UNIVERSE_TICKERS = "(SELECT DISTINCT ticker FROM research_universe_daily)"
 
+# Derived inputs built outside the warehouse (D-024 gate 1, P2-017): frozen with the tables.
+# published path -> (source, date column or None). Rows dated after the study end are dropped
+# (and counted in the manifest); nothing later enters the snapshot.
+EXTRACTED = REPO / "data" / "extracted"
+STAGING_P2 = REPO / "data" / "staging" / "paper2"
+DERIVED: dict[str, tuple[Path, str | None]] = {
+    "block_e_npl.parquet": (EXTRACTED / "block_e_npl.parquet", None),  # D-023
+    "news_counts.parquet": (EXTRACTED / "news_counts.parquet", "trade_date"),  # D-023
+    "paper2/snapshots.parquet": (STAGING_P2 / "snapshots.parquet", "day"),
+    "paper2/gpr_large.parquet": (STAGING_P2 / "gpr_large.parquet", "day"),
+    "paper2/gpr_trading_day.parquet": (STAGING_P2 / "gpr_trading_day.parquet", "day"),
+    "paper2/coverage.parquet": (STAGING_P2 / "coverage.parquet", None),
+    "paper2/usd_vnd.parquet": (STAGING_P2 / "usd_vnd.parquet", "day"),
+}
+
+
+def freeze_derived(staging: Path, end) -> tuple[dict[str, str], dict[str, int], dict[str, int]]:
+    """Copy each derived input into the staging snapshot, dropping rows dated after `end`.
+    Returns (sha256 per published path, rows kept, rows dropped)."""
+    import pandas as pd
+
+    files, kept, dropped = {}, {}, {}
+    for name, (src, date_col) in DERIVED.items():
+        if not src.exists():
+            raise SystemExit(f"derived input missing: {src} (build it before freezing)")
+        df = pd.read_parquet(src)
+        n0 = len(df)
+        if date_col is not None:
+            d = pd.to_datetime(df[date_col]).dt.date
+            df = df[d <= end]
+        out = staging / name
+        out.parent.mkdir(parents=True, exist_ok=True)
+        df.to_parquet(out, index=False, compression="zstd")
+        files[name] = sha256_file(out)
+        kept[name], dropped[name] = len(df), n0 - len(df)
+    return files, kept, dropped
+
+
 # name -> (SQL, date column checked against STUDY_END or None). Every query has a total order.
 TABLES: dict[str, tuple[str, str | None]] = {
     "universe_daily": (
@@ -102,14 +140,28 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def check_dbt_clean() -> None:
-    rr = REPO / "dbt" / "target" / "run_results.json"
-    if not rr.exists():
-        raise SystemExit("no dbt run_results.json: run `dbt build` first")
-    results = json.loads(rr.read_text())["results"]
+LOOKAHEAD_TEST = "no_feature_after_decision_time"  # CLAUDE.md data rule 4: never weakened
+
+
+def check_dbt_clean(run_results: dict | None = None) -> None:
+    """Freeze only after a full, unselected `dbt build` that passed and ran every look-ahead
+    test (a selected or partial run would let the snapshot skip them)."""
+    if run_results is None:
+        rr = REPO / "dbt" / "target" / "run_results.json"
+        if not rr.exists():
+            raise SystemExit("no dbt run_results.json: run `dbt build` first")
+        run_results = json.loads(rr.read_text())
+    args = run_results.get("args", {})
+    if args.get("which") != "build" or any(
+        args.get(k) for k in ("select", "exclude", "selector", "resource_types")
+    ):
+        raise SystemExit("the last dbt run was not a full `dbt build` (no --select/--exclude)")
+    results = run_results["results"]
     bad = [r["unique_id"] for r in results if r["status"] not in ("success", "pass")]
     if bad:
         raise SystemExit(f"last dbt run had failures: {bad[:5]}")
+    if not any(LOOKAHEAD_TEST in r["unique_id"] for r in results):
+        raise SystemExit(f"the last dbt run did not include the {LOOKAHEAD_TEST} tests")
 
 
 def snapshot_id(files: dict[str, str], manifest_core: dict) -> str:
@@ -146,6 +198,10 @@ def main(argv: list[str] | None = None) -> int:
         files[f"{name}.parquet"] = sha256_file(path)
         counts[name] = table.num_rows
 
+    dfiles, dkept, ddropped = freeze_derived(staging, STUDY_END)
+    files.update(dfiles)
+    counts.update({k.removesuffix(".parquet"): v for k, v in dkept.items()})
+
     dbt_vars = (REPO / "dbt" / "dbt_project.yml").read_text()
     seeds = {p.name: sha256_file(p) for p in sorted((REPO / "dbt" / "seeds").glob("*.csv"))}
     core = {
@@ -158,6 +214,7 @@ def main(argv: list[str] | None = None) -> int:
         "seed_sha256": seeds,
         "sql": {k: " ".join(v[0].split()) for k, v in TABLES.items()},
         "row_counts": counts,
+        "derived_rows_dropped_after_study_end": ddropped,
         "files_sha256": files,
     }
     sid = snapshot_id(files, core)
@@ -172,8 +229,8 @@ def main(argv: list[str] | None = None) -> int:
 
     load_dotenv(["S3_"])
     raw = S3RawStore.from_env()
-    for p in sorted(final.iterdir()):
-        raw.put_immutable(f"snapshots/{sid}/{p.name}", p.read_bytes(),
+    for p in sorted(x for x in final.rglob("*") if x.is_file()):
+        raw.put_immutable(f"snapshots/{sid}/{p.relative_to(final)}", p.read_bytes(),
                           {"snapshot_id": sid, "label": args.label})  # fmt: skip
 
     with open(REGISTRY, "a", encoding="utf-8") as fh:
