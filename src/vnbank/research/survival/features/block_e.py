@@ -161,10 +161,20 @@ def ocr_only(npl: pd.DataFrame) -> pd.DataFrame:
     return out.drop(columns="npl_ratio_prev")
 
 
-def add_block_e(ds: pd.DataFrame, ocr_values_only: bool = False,
-                snapshot: str | None = None) -> tuple[pd.DataFrame, dict]:  # fmt: skip
+E_VARIANTS = (None, "ocr_only", "margin0", "margin20", "all_aliases")  # D-023 robustness
+
+
+def add_block_e(
+    ds: pd.DataFrame,
+    ocr_values_only: bool = False,
+    snapshot: str | None = None,
+    variant: str | None = None,
+    sessions=None,
+) -> tuple[pd.DataFrame, dict]:
     """D-023: add npl_ratio, npl_change, news_count, news_rel_20 and keep bank rows only.
-    ocr_values_only: the pre-registered robustness check without the visual-transcription tier.
+    variant (pre-registered robustness): "ocr_only" drops the visually transcribed values;
+    "margin0"/"margin20" recompute available_at with 0 or 20 sessions (needs `sessions`);
+    "all_aliases" counts news with every alias. ocr_values_only=True is variant "ocr_only".
     snapshot: read the inputs from that frozen snapshot when it holds them (D-024 gate 1; the
     final run requires it), else from data/extracted/. Returns the dataset and each input's
     sha256 and source (recorded in the run config)."""
@@ -173,15 +183,27 @@ def add_block_e(ds: pd.DataFrame, ocr_values_only: bool = False,
     from vnbank.research.survival.features.fundamentals import add_npl_features
     from vnbank.research.survival.features.news import add_news_features
 
-    meta, src = {}, {}
+    variant = "ocr_only" if ocr_values_only else variant
+    if variant not in E_VARIANTS:
+        raise ValueError(f"unknown block E variant {variant}")
+    meta, src = {"variant": variant}, {}
     for name in ("block_e_npl.parquet", "news_counts.parquet"):
         src[name], meta[f"{name}:source"] = paths.frozen_input(snapshot, name, EXTRACTED)
         meta[name] = hashlib.sha256(src[name].read_bytes()).hexdigest()
     npl = pd.read_parquet(src["block_e_npl.parquet"])
-    if ocr_values_only:
+    if variant == "ocr_only":
         npl = ocr_only(npl)
-    meta["ocr_values_only"] = ocr_values_only
+    if variant in ("margin0", "margin20"):
+        if sessions is None:
+            raise ValueError("margin variants need the session calendar")
+        base = npl[["symbol", "year", "q", "kind", "npl_ratio", "created", "value_source"]]
+        npl = quarterly_values(base, np.sort(np.asarray(sessions)), int(variant[6:]))
+    meta["ocr_values_only"] = variant == "ocr_only"
     nc = pd.read_parquet(src["news_counts.parquet"])
+    if variant == "all_aliases":
+        nc = nc.drop(columns=["news_count", "news_rel_20"]).rename(
+            columns={"news_count_all": "news_count", "news_rel_20_all": "news_rel_20"}
+        )
     bank = ds[ds.is_bank.astype(bool)].reset_index(drop=True)
     bank = add_npl_features(bank, npl)
     bank = add_news_features(bank, nc[["ticker", "trade_date", "window_end_session",

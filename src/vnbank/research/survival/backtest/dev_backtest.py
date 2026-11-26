@@ -48,7 +48,12 @@ MAIN = Costs.round_trip(BT["round_trip_cost"], BT["sales_tax"])
 COST_SENS = {f"{c:.1%}": Costs.round_trip(c, BT["sales_tax"]) for c in BT["cost_sensitivity"]}
 
 
-def build_stocks(snap: Path, k: float) -> dict[str, StockDays]:
+def build_stocks(snap: Path, k: float, execution: str = "open") -> dict[str, StockDays]:
+    """execution="close" (D-026 5b robustness): orders execute at the close of the action day
+    instead of its open; returns run close to close and fills are checked against the raw
+    close (a buy fails at the ceiling, a sell at the floor). Signals are unchanged."""
+    if execution not in ("open", "close"):
+        raise ValueError(execution)
     adj = pd.read_parquet(snap / "prices_adjusted.parquet",
                           columns=["ticker", "trade_date", "open_adj", "high_adj", "low_adj",
                                    "close_adj"])  # fmt: skip
@@ -56,7 +61,8 @@ def build_stocks(snap: Path, k: float) -> dict[str, StockDays]:
                           columns=["ticker", "trade_date", "open_vnd", "ceiling_price",
                                    "floor_price", "limit_status", "close_at_floor"])  # fmt: skip
     raw = pd.read_parquet(snap / "prices_raw.parquet",
-                          columns=["ticker", "trade_date", "open_vnd", "n_prior_days"])  # fmt: skip
+                          columns=["ticker", "trade_date", "open_vnd", "close_vnd",
+                                   "n_prior_days"])  # fmt: skip
     uni = pd.read_parquet(snap / "universe_daily.parquet", columns=["ticker", "trade_date"])
     ses = pd.read_parquet(snap / "sessions_hose.parquet", columns=["trade_date", "session_no"])
     for d in (adj, lim, raw, uni, ses):
@@ -76,7 +82,8 @@ def build_stocks(snap: Path, k: float) -> dict[str, StockDays]:
         known = (g.limit_status == "computed").to_numpy()
         out[t] = StockDays(
             dates=g.trade_date.to_numpy(), session=g.session_no.to_numpy(dtype="int64"),
-            open_adj=g.open_adj.to_numpy(float), open_raw=g.open_vnd.to_numpy(float),
+            open_adj=(g.open_adj if execution == "open" else g.close_adj).to_numpy(float),
+            open_raw=(g.open_vnd if execution == "open" else g.close_vnd).to_numpy(float),
             ceiling=np.where(known, g.ceiling_price, np.nan),
             floor=np.where(known, g.floor_price, np.nan), limit_known=known,
             close_at_floor=g.close_at_floor.fillna(False).to_numpy(bool),
