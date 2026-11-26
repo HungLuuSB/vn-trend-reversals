@@ -1006,3 +1006,12 @@ The model-shape table and the test results do not change.
   - §5a now says ridge C = 100;
   - §7 says one large instance (runbook §4b).
 - **Compute:** the RW development validation and every final computation run on the rented instance.
+
+## D-028 — Evaluation crash fix: a stratum with no event before τ (after the final per-year runs)
+
+- **Date:** 2026-11-26
+- **Decided by:** the assistant under the user's standing instruction to run the final run; a code bug fix, not a design change.
+- **Status:** the per-year caches of the final run (all 30 runs, exit 0) and the stop checks (passed, 19:04 UTC) exist. No model metric had been read: the first full evaluation crashed before writing anything.
+- **What happened:** `final.evaluate` on `cache/main` (commit `44393b4`) crashed in the secondary date-stratified C (`uno_c_date_strat`, pooled metrics), after the primaries and the per-year metrics had been computed in memory and before any output was written. On some test date every row ending before τ = 20 was censored; `sksurv` refuses to compute censoring weights for a set with no event ("all samples are censored").
+- **Fix:** `c_parts` returns (0, 0) for such a stratum. With no event before τ no pair can be comparable, so this is exactly the stratum's contribution under the definition already in use (the same value the existing no-comparable-pair branch returns). No metric definition, resample count, seed or test changes; year-stratified primaries are unaffected (every test year has events). A unit test covers the case.
+- **Rerun:** the same caches are evaluated again with the fixed commit. The crashed run folder is kept and listed in `RUNS.md`.

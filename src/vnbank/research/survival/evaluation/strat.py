@@ -21,6 +21,10 @@ def c_parts(y_train, y_test, risk, tau: float, tied_tol: float = 1e-8) -> tuple[
     y_test = clip_to_train(y_test, y_train)
     event, time = y_test["event"], y_test["time"]
     mask = time < tau
+    if not (event & mask).any():
+        # No event before tau: no pair can be comparable, so the stratum adds nothing. sksurv
+        # would raise "all samples are censored" when computing the weights (D-028).
+        return 0.0, 0.0
     cens = CensoringDistributionEstimator().fit(y_train)
     w = np.zeros(len(time))
     if mask.any():
