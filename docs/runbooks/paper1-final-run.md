@@ -67,6 +67,33 @@ nproc; free -g; lscpu | head -20 > cache/machine_$Y.txt
 - **Copy back:** `cache/` (predictions, keys, `meta.json`, logs) to the laptop under `data/final_cache/`, which git ignores.
 - **Destroy the instance.** Record the instance type and its hourly price in `RUNS.md`.
 
+## 4b. Alternative (chosen 2026-11-26): one large instance, all years in parallel
+
+- **Hardware:** an AMD EPYC with 64+ cores and 128+ GB RAM, any GPU (it is not used). The candidate is EPYC 7B12, 128 threads, 225 GB RAM, about $0.50/hr. Every year then runs on the same CPU.
+- **Packaging:** the same as above (bundle, snapshot without `paper2/`, features runs).
+- **Run in one tmux session:**
+
+```bash
+git clone vnbank-final.bundle vnbank && cd vnbank && git log -1 --oneline
+mkdir -p data/snapshots research/paper1/runs
+tar xzf ../snap.tar.gz -C data/snapshots && tar xzf ../features.tar.gz -C research/paper1/runs
+pip install uv && uv sync --frozen && uv run pytest -q tests/unit/research/final   # env check
+(lscpu; free -g; nproc) > machine.txt
+export OMP_NUM_THREADS=10 MKL_NUM_THREADS=10   # 10 processes x ~10 threads on 128 threads
+seq 2017 2026 | xargs -P 10 -I{} sh -c 'uv run python -m vnbank.research.survival.final.year \
+    --features-run research/paper1/runs/<k2> --year {} --out cache/main \
+    --final --i-confirm-final-run > cache/main_{}.out 2>&1'
+for K in k1_5 k3; do
+  seq 2017 2026 | xargs -P 10 -I{} sh -c "uv run python -m vnbank.research.survival.final.year \
+      --features-run research/paper1/runs/<$K> --year {} --out cache/$K --only M,ABCDx \
+      --final --i-confirm-final-run > cache/${K}_{}.out 2>&1"
+done
+```
+
+- **Watching it:** `ls cache/main/*/preds | wc -l` shows progress. Each year resumes where it stopped if the command is rerun.
+- **Evaluation on the same machine:** the step 5 commands with `--cache cache/main`, and so on, after the user has seen the stop checks pass.
+- **Afterwards:** copy back `cache/`, `research/paper1/runs/*final*` and `machine.txt`, then destroy the instance.
+
 ## 5. Evaluation (laptop)
 
 ```bash
