@@ -773,6 +773,14 @@ The model-shape table and the test results do not change.
 - The sum check is unchanged: every table must still add up to its printed total.
 - **Check, before the values are used:** every statement is re-parsed from the OCR cache. Every value the old parser accepted must be identical, and the number of newly read tables is reported.
 
+**Clarification 7 (2026-11-26, same stage as clarification 6): "of which" rows and wide credit-risk tables.**
+- **"Of which" rows.** MBB prints a sub-row inside group 1 (`+ Trong đó các khoản cho vay tại MBS …`). The parser read it as group 2 under its unreadable-label rule. Rows whose label begins with "trong đó" (of which), or with a "+" marker, are now skipped; they are parts of the row above, not loan groups.
+- **Wide tables.** From about 2019 VIB prints one table of credit-risk assets per date, with one column per asset class (customer loans, purchased bonds, investment securities, deposits at other banks, total).
+  - When the usual two-column reading fails the sum check, the parser reads the **first** amount of each row as the current value, with no comparison column.
+  - This applies only if the header lines just above the table name customer loans ("cho vay khách hàng") **before** any other asset class (deposits, securities, bonds).
+  - The first column must still sum to the first amount of the total row.
+- The check of clarification 6 is repeated: every value accepted before must be identical, and the new tables are reported per bank.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.

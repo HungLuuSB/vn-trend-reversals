@@ -241,3 +241,47 @@ Nợ có khả năng mắt vén 5.941.193 0,82 3.269.527 0,54
     assert lq is not None and lq.total == (723757397, 605813718)
     assert lq.groups[0] == (711706750, 594272007)
     assert abs(lq.npl_ratio - (918063 + 1339119 + 5941193) / 723757397) < 1e-12
+
+
+def test_of_which_rows_are_skipped():
+    """MBB: a 'Trong đó' sub-row inside group 1 (D-023 clarification 7)."""
+    from vnbank.documents.tables.loan_quality import parse_page
+
+    text = """- Phân tích chất lượng nợ cho vay:
+31/12/2023 31/12/2022
+Nợ đủ tiêu chuan 587.326.305 447.734.256
++ Trong đó các khoản cho vay tai MBS 9.218.483 3.759.500
+Nợ cần chú y 13.917.867 7.808.932
+Nợ dưới tiéu chuẩn 3.210.741 1.517.212
+Nợ nghỉ ngờ 3.704.226 1.220.770
+Nợ có khả năng mét vén 2.889.691 2.293.312
+611.048.830 460.574.482"""
+    lq = parse_page(text, 28)
+    assert lq is not None and lq.groups[1] == (13917867, 7808932)
+    assert lq.total == (611048830, 460574482)
+
+
+VIB_WIDE = """Tại ngày 30 tháng 06 năm 2023
+Cho vay Muang Chứngkhoán Tiền gửi và cho Tổng cộng
+khách hàng đầutưt vaycác TCTD
+Triệu VND Triệu VND Triệu VND Triệu VND Triệu VND
+Nợ đủ tiêu chuẩn 211.091.954 78.537 37.181.992 78.918.661 327.271.144
+Nợ cần chú ý 15.057.440 1.213 - - 15.058.653
+Nợ dưới tiêu chuẩn 3.149.028 - - - 3.149.028
+Nợ nghỉ ngờ 3.539.332 - - - 3.539.332
+Nợ có khả năng mất vốn 1.840.418 4.920 - 50.753 1.896.091
+234.678.172 84.670 37.181.992 78.969.414 350.914.248"""
+
+
+def test_wide_table_reads_the_customer_loans_column():
+    """VIB: one column per asset class, customer loans first (clarification 7)."""
+    from vnbank.documents.tables.loan_quality import find_loan_quality, parse_page
+
+    assert parse_page(VIB_WIDE, 52) is None  # the two-column reading fails the sum check
+    lq = find_loan_quality(["no table here", VIB_WIDE])
+    assert lq is not None and lq.page == 2 and lq.total == (234678172, None)
+    assert lq.groups[0][0] == 211091954 and lq.npl_ratio_prior is None
+    assert abs(lq.npl_ratio - (3149028 + 3539332 + 1840418) / 234678172) < 1e-12
+    # a wide table whose first column is NOT customer loans is never read
+    other_first = VIB_WIDE.replace("Cho vay Muang", "Tiền gửi Muang")
+    assert find_loan_quality([other_first]) is None
