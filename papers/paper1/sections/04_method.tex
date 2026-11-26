@@ -115,9 +115,9 @@ data pipeline enforces this with an automated test (Section~\ref{sec:data}).
 \caption{Feature blocks. All features are computed for row $(i,t)$ and used at 09:00 on the next
 session. Returns and changes in blocks B--D also enter multiplied by the swing direction
 $\delta_{i,t}$ in the linear models (Section~\ref{sec:features}). Full definitions and availability
-rules: Appendix~\ref{sec:appendix}.}\label{tab:features}
+rules: \ref{sec:appendix}.}\label{tab:features}
 \small
-\begin{tabular}{p{0.19\linewidth}p{0.75\linewidth}}
+\begin{tabular}{L{0.22\linewidth}L{0.72\linewidth}}
 \toprule
 Block & Features \\
 \midrule
@@ -218,7 +218,7 @@ moments. Hyperparameters are tuned by nested validation inside each training win
 year before the test year is the inner validation year, with the same purge and embargo as the outer
 split (Section~\ref{sec:walkforward}). The grid point with the lowest inner integrated Brier score is
 refitted on the full training window. Grids are small and fixed in advance
-(Appendix~\ref{sec:appendix}).
+(\ref{sec:appendix}).
 
 \subsection{Walk-forward protocol}\label{sec:walkforward}
 
@@ -289,7 +289,7 @@ other comparison is secondary or descriptive and is labelled so.
 \caption{Hypotheses and their primary tests. ``$A-B$'' is the paired difference of model $A$ over
 model $B$ under the decision rule of Section~\ref{sec:inference}. KM: Kaplan--Meier.}\label{tab:primary}
 \small
-\begin{tabular}{p{0.28\linewidth}p{0.36\linewidth}p{0.28\linewidth}}
+\begin{tabular}{L{0.28\linewidth}L{0.36\linewidth}L{0.28\linewidth}}
 \toprule
 Question & Primary test & Reported alongside \\
 \midrule
@@ -399,7 +399,7 @@ configuration actually computed in the run.
 
 Every design decision is recorded in a dated log before it was used, with the state of the
 evidence at that moment \todo{repo URL}. The development
-period produced \gen{DevRunCount} logged runs, all reported in Appendix~\ref{sec:appendix}. One
+period produced \gen{DevRunCount} logged runs, all reported in \ref{sec:appendix}. One
 change to the evaluation came from development results: the mechanical baseline was added after
 the distance to the threshold alone was found to carry most of the ranking skill. A second change,
 direction-specific effects, followed from the stated direction of H2. After a design review and
