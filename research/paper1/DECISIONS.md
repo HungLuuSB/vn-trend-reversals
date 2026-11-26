@@ -886,3 +886,16 @@ The model-shape table and the test results do not change.
   - **Refit each January** for 2017–2026, with 2026 censored at 2026-11-20.
   - Include **Kaplan–Meier, M and the shuffled-label controls**, the D-021 trading test with 0.2% and 0.8% cost sensitivity, the deflated Sharpe ratio, and the sensitivities above.
   - **Pass an end-to-end test on synthetic data** and its own leakage review before the user's go-ahead.
+
+## D-026 — Final-run protocol (approved before any test-year output)
+
+- **Date:** 2026-11-26
+- **Decided by:** the user approved the open items: the RQ4 full-sample interaction test with 11 placebo dates, execution at the close for the decision-at-close robustness, and vast.ai for compute.
+- **Protocol:** `research/paper1/FINAL_RUN_PROTOCOL.md`. It lists:
+  - every model, specification, comparison, decision rule and robustness check of the single final run;
+  - the stop rules;
+  - the compute plan.
+- **Origin of its contents:**
+  - sections 1–4 and 6 restate D-012 to D-025;
+  - section 5 fixes the items never specified before (RQ4, decision at the close, the proposal's other robustness checks, the Abolmakarem appendix on development data only, SHAP scope).
+- **Change control:** after the run starts, nothing in the protocol changes. Anything added later is labelled post hoc in the paper.
