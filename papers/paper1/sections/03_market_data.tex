@@ -1,19 +1,153 @@
 \section{Market setting and data}\label{sec:data}
-% Drafted first (skill order). Facts come from dbt seeds and docs; numbers from generated/.
+% Drafted 2026-11-26 from DECISIONS.md D-001 to D-012, D-023 to D-025 and the dbt seeds (every
+% market fact has a source URL in its seed). Counts come from generated/ via \gen{} and the
+% generated tables; none is typed by hand.
 
-\subsection{The Vietnamese stock market}
-\plan{HOSE/HNX/UPCoM; daily price limits by exchange and date (D-003; seed price\_limit\_schedule: HOSE $\pm$5\% $\rightarrow$ $\pm$7\% from 2013-01-15, HNX $\pm$7\% $\rightarrow$ $\pm$10\%, UPCoM $\pm$10\% $\rightarrow$ $\pm$15\%), reference-price rules, T+2 settlement (seed settlement\_cycle), retail dominance, foreign ownership limits, FTSE upgrade (announced 2025-10-07, effective 2026-09-21). Every fact with its seed source.}
-\todo[inline]{Market setting.}
+\subsection{The Vietnamese stock market}\label{sec:market}
 
-\subsection{Universe, sample and sources}
-\plan{VN30 point-in-time membership + all listed banks (29 with rows); study period 2012-01-03 to the 2026-11-20 close (D-001); CafeF bulk archives (ADR 0002) stored raw; prices raw vs adjusted (rule 9); global series (seed global\_series) with availability rules.}
-\plan{counts after each filter: stocks, stock-days, swings, survival rows.}
-\todo[inline]{Universe and sources.}
+Vietnam has three trading venues. The Ho Chi Minh City Stock Exchange (HOSE) lists the largest
+firms, including every VN30 constituent. The Hanoi Stock Exchange (HNX) lists smaller firms, and
+UPCoM is a trading venue for registered but unlisted public companies. Individual investors account
+for most trading value, and foreign investors for about a tenth \citep{SHS2025,HOSE2025}.
 
-\subsection{Point-in-time alignment}
-\plan{decision time 09:00 Asia/Ho\_Chi\_Minh on t+1 (rule 4); available\_at\_utc on every value; the dbt test no\_feature\_after\_decision\_time; Vietnamese holidays (rule 8); first-release bank figures with conservative publication time (D-023 + clarifications 1-5); news 09:00-09:00 windows. Figure: timeline of one decision (US close, GPR, SBV, filings).}
-\todo[inline]{Point-in-time alignment.}
+\paragraph{Daily price limits} Each stock may trade only within a band around its reference price.
+The band has changed over the study period. HOSE allowed $\pm5\%$ until 14 January 2013 and $\pm7\%$
+since; HNX allowed $\pm7\%$ and then $\pm10\%$ from the same date; UPCoM allowed $\pm10\%$ until 30
+June 2015 and $\pm15\%$ since. On HOSE the reference price is the previous close. On UPCoM, and on
+HNX before 29 July 2013, it was a volume-weighted average price. On ex-dates the reference is the
+previous close divided by the corporate-action ratio. The ceiling is rounded down and the floor up to
+the tick size in force. We encode every one of these rules as a dated schedule with its legal source
+and compute the band for each stock-day. Where the reference was a volume-weighted average that our
+data cannot reconstruct, the limit is recorded as unknown and is never guessed.
 
-\subsection{Descriptive statistics}
-\plan{swing durations by direction and exchange, censoring share, events per year, Kaplan-Meier survival at 5/10/20 sessions; feature summary.}
-\todo[inline]{Descriptive statistics.}
+\paragraph{Settlement and short sales} Equity trades settled T+3 until the trades of 31 December
+2015 and T+2 from 4 January 2016. Short selling of individual stocks is not generally available, so
+the trading test in Section~\ref{sec:trading} is long-only.
+
+\paragraph{Market upgrade} FTSE Russell announced on 7 October 2025 that Vietnam would be
+reclassified from Frontier to Secondary Emerging status, effective 21 September 2026
+\todo{cite FTSE release}. This
+event dates the exploratory test of H4.
+
+\subsection{Universe and sample}\label{sec:universe}
+
+The universe has two parts. The first is the VN30, HOSE's index of 30 large and liquid stocks, taken
+point in time. A stock is in the universe from the effective date of its addition to the day before
+the effective date of its removal, using every semi-annual review and ad hoc replacement since the
+index started on 6 February 2012. Stocks that later left the index or were delisted stay in the
+sample for the years they were members, which avoids survivorship bias. The reconstructed history
+has \gen{VNThirtyChanges} changes involving \gen{VNThirtyStocks} stocks and holds exactly 30 members
+on every session. It matches all \gen{VNThirtyBaskets} complete baskets printed in official or press
+sources.
+
+The second part is every Vietnamese bank whose shares traded on any of the three venues, for every
+spell in which they traded: \gen{BankCount} banks, including banks that later merged or moved
+venue. Banks registered only on UPCoM are kept and flagged; results are also reported without their
+UPCoM days.
+
+\paragraph{Study period} The sample runs from the first HOSE session of 2012, 3 January 2012, to the
+close of 20 November 2026. Prices from October 2011 are used only to initialise trailing quantities
+such as ATR20 and the swing state. Nothing after the 20 November 2026 close enters any feature,
+label or outcome, and swings still open at that close are right-censored. The trading calendar is
+the HOSE calendar.
+
+\paragraph{Filters} A stock-day enters the risk set only if it is in the universe on that date, the
+stock has at least 250 sessions of its own price history before it, and the stock is inside an open
+swing. Table~\ref{tab:sample} reports the counts after each step.
+
+\begin{table}[t]
+\centering
+\caption{Sample construction, 3 January 2012 to 20 November 2026. Survival rows are stock-sessions
+inside an open swing ($k=2$). Development rows (2012--2016) lie inside the first training window;
+test rows (2017--2026) are scored only by the final walk-forward run.}\label{tab:sample}
+\small
+\IfFileExists{generated/tab_sample.tex}{\input{generated/tab_sample.tex}}{\gen{tabsample}}
+\end{table}
+
+\subsection{Price data}\label{sec:prices}
+
+Daily open, high, low, close and volume come from the bulk end-of-day archives of CafeF, a
+Vietnamese financial portal \todo{cite CafeF}. Every download is stored
+unchanged before parsing. Where the bulk archive lacks a stock's history before a change of venue,
+it is filled from CafeF's per-ticker history; on the stock-days both sources cover, the two agree on
+all five fields on every day (\gen{PriceOverlapDays} stock-days). After the fill, the sample covers
+\gen{CoverageVNThirty} of VN30 member-days and \gen{CoverageBanks} of bank-days. Two VN30 members
+of 2012--2016 and one bank of 2012 have no usable history in either source; they are listed in
+Appendix~\ref{sec:appendix}.
+
+\paragraph{Raw and adjusted prices} We keep raw prices and compute adjusted prices ourselves from
+the corporate actions. Each disputed action (where our inferred ratio and a second source disagreed,
+or no second source existed) was checked against exchange, depository or company notices, and the
+adjustment ratio was computed from the verified facts by one formula. Adjusted prices are
+back-adjusted, so every past price level depends on later corporate actions. They are therefore used
+only for returns and scale-free ratios, such as ATR20 over price. Everything that depends on a price
+level, such as the price bands and the fill checks of the trading test, uses raw prices.
+
+\subsection{Global and local market data}\label{sec:global}
+
+Block D uses fourteen series observed before the Vietnamese open (Table~\ref{tab:features}). US
+equity indices, the dollar index, gold and Brent futures, the Hang Seng, the Shanghai Composite and
+the exchange rates come from Yahoo Finance; the VIX and the US 10-year Treasury yield come from the
+Federal Reserve Bank of St.\ Louis (FRED); and the daily geopolitical risk index comes from
+\citet{CaldaraIacoviello2022}. We use the Shanghai Composite instead of the CSI 300 because the
+source holds no CSI 300 history. Gold is the front-month COMEX future, and its return is set to
+missing on contract-roll days. All raw downloads are archived with the time of download.
+
+Block C uses the VN-Index and VN30 levels, the share of advancing stocks and market turnover, all from
+the same price archive. Foreign net flows are left out of the main specification because they are
+missing on \gen{ForeignMissingSessions} sessions, mostly between 2019 and 2021; a missing indicator
+there would act as a dummy for the COVID-19 period. A robustness specification adds them with that
+indicator.
+
+\subsection{Point-in-time alignment}\label{sec:pit}
+
+Every observation in the database carries the time at which it became public,
+\texttt{available\_at}, stored in UTC. The decision for row $(i,t)$ is taken at 09:00 Vietnam time
+(UTC+7) on the next HOSE session, and a feature may use a value only if it became public before that
+moment. An automated test in the data pipeline fails if any feature row uses a later value.
+
+The availability time follows each market's close in its own time zone, with daylight saving taken
+from the time-zone database. US equity indices close at 16:00 New York time, which is 03:00 (US
+summer) or 04:00 (US winter) in Vietnam on the next day, so they are usable for the Vietnamese session
+that follows. The US 10-year yield is taken as public at 18:00 New York time, when the Treasury
+posts its par yields. Daily exchange-rate bars are taken as public at the end of the London day. The
+geopolitical risk index is updated weekly, so a day's value is taken as public only from the
+Wednesday after the next Monday. When HOSE is closed while other markets trade, as during the Lunar
+New Year, global features use the cumulative change since the last Vietnamese session.
+
+\paragraph{Bank statements} The NPL ratio of a quarter becomes usable at 09:00 on the fifth session
+after the later of the legal filing deadline and the creation date of the statement file. The
+statements are those that CafeF lists today; the first release of each quarter is the earliest file
+of the highest-ranked kind (consolidated before parent-only). Block E covers \gen{BlockECoverage}
+bank-quarters, \gen{BlockEOCR} read by optical character recognition and \gen{BlockEVisual}
+transcribed from page images.
+
+\paragraph{News} News counts come from the archive of CafeF's news site, crawled in 2026, with each
+article's publication time. A bank is mentioned when one of its unambiguous names appears in the
+title, summary or body. Ambiguous short names are used only in a robustness check.
+
+\paragraph{Leakage checks} Before the test years were used, we ran a perturbation test: all prices,
+statements and news after a cutoff were scrambled or deleted, the features were rebuilt, and every
+feature with an earlier decision time had to be unchanged. The test found two join errors in block E,
+which we fixed; after the fix, no feature changed at any of the cutoffs tried.
+
+\subsection{Disclosures about the data}\label{sec:datalimits}
+
+Some choices could not be made perfectly point in time, and we state them here.
+\begin{itemize}
+\item The geopolitical risk index is a single 2026 vintage. Its values before about 2021 were not
+  published in real time, so they are pseudo-real-time.
+\item First releases are taken from the files CafeF lists today, and the news archive was crawled
+  in 2026. A statement or article that was removed later cannot be recovered.
+\item The pooled base rates of the labels were seen when the labels were built: for example, the
+  share of rows whose swing reverses within five sessions. No model output for the test years was
+  seen before the final run.
+\item Swings of VN30 stocks are censored when the stock leaves the index. Exit can depend on recent
+  performance, so this censoring may be informative.
+\end{itemize}
+
+\subsection{Descriptive statistics}\label{sec:desc}
+
+\todo[inline]{Descriptive statistics (generated after the evaluation passes its stop rules):
+swing durations by direction and venue, censoring share, events per year, Kaplan--Meier survival at
+5, 10 and 20 sessions, feature summary.}
