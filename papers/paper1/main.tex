@@ -16,6 +16,9 @@
 
 % generated numbers (vnbank.research.<paper1 builder>, not written yet: results are not final)
 \IfFileExists{generated/numbers.tex}{\input{generated/numbers.tex}}{}
+% \gen{Name}: a generated number. Until generated/numbers.tex defines \Name, it prints a visible
+% bold placeholder, so no number is ever typed by hand into the text.
+\newcommand{\gen}[1]{\ifcsname #1\endcsname\csname #1\endcsname\else\textbf{\textcolor{red}{[#1]}}\fi}
 
 \journal{Journal of Forecasting}
 % Target: Journal of Forecasting (Wiley; research/journals.md). Free-format first submission is

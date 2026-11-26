@@ -25,3 +25,5 @@ Status codes:
 | C13 | Volatility scaling makes swings comparable across stocks, allowing pooling. | θ = k·ATR20/P definition; swing-duration distributions by stock (descriptive table) | design (table to be generated) |
 | C14 | No feature uses information that was not public at the 09:00 decision time. | `available_at_utc` on every value; dbt test `no_feature_after_decision_time`; leakage audit | design (audit due before the freeze) |
 | C15 | Every reported number is reproducible from snapshot hash X and commit Y. | `research/snapshots.md`; `generated/numbers.tex` provenance header | design (after the freeze) |
+| C16 | Any predictability beyond the label mechanics survives a flexible mechanical model (M_flex) and a model-free random-walk null (RW). | H1-mech primary: ABCx − M_flex and ABCx − RW, year-stratified, 1,000 resamples | not yet tested (final run only; RW dev check: C 0.597, descriptive) |
+| C17 | The year-stratified metrics avoid rewarding differences in reversal rates between years. | Definition, eq. (stratc); pooled vs stratified reported side by side | design |

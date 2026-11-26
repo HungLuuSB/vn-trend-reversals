@@ -3,25 +3,125 @@
 % research/literature/NOTES.md (every entry verified there).
 
 \subsection{Duration dependence of trends and market phases}
-\plan{Lunde \& Timmermann (2004): filter-defined bull/bear phases, discrete-time hazard, bull hazard falls / bear hazard rises with age, interest rates shift hazards (in-sample). Zakamulin (2023): two centuries, mostly positive duration dependence.}
-\plan{gap $\rightarrow$ age-only hazards average over the distance to the filter trigger; index level; no out-of-sample test. Sets up our age-vs-distance result.}
-\todo[inline]{Strand 1.}
+
+Whether the chance that a trend ends depends on its age is an old question for stock market cycles.
+\citet{LundeTimmermann2004} date bull and bear phases of the US index with first-passage filters,
+from 20/15\% to 15/10\%, on daily data for 1885--1997. They fit a discrete-time logit hazard with a
+flexible baseline and interest-rate covariates. In their 15/10\% specification, the bull hazard drops
+from five to two percent per week after six months. The bear hazard rises from five to about eight
+percent per week. Rate rises raise bull hazards slightly and cut bear hazards a lot. All estimates
+are in sample.
+
+Longer samples give mixed evidence on the sign of duration dependence. \citet{Zakamulin2023} dates
+63 bull and 62 bear markets in monthly US data for 1802--2019 with the Pagan--Sossounov rules. He
+finds positive duration dependence in bear markets and in 93\% of bull markets, unlike the falling
+bull hazard above. His dating uses a two-sided window, so turning points are known only after the
+fact. Minimum phase durations also push hazards at young ages toward zero.
+
+Both studies model the hazard as a function of phase age alone, at the index level and in sample.
+Under a filter-type definition, age is tied mechanically to how far the price is from the trigger,
+so an age-only hazard averages over that distance. We condition on the distance to the reversal
+threshold and test, out of sample and for individual stocks, whether swing age adds information
+beyond it.
 
 \subsection{Survival analysis of price reversals and trading signals}
-\plan{Yao, Partington \& Stevenson (2005): Cox models of daily index runs (mean \textasciitilde{}2.5 days), Brier score worse than random walk out of sample. Hu \& Zhou (2024): survival models of time to a +5\% target after technical signals, 380 S\&P 500 stocks, argue stocks cannot be pooled.}
-\plan{gap $\rightarrow$ the unit (noisy one-day runs; target returns) and pooling across stocks; our volatility scaling makes swings comparable across stocks.}
-\todo[inline]{Strand 2.}
+
+Survival analysis has been applied directly to price reversals, with a negative out-of-sample
+result. \citet{Yao2005} treat runs of same-sign daily changes in the Australian All Ordinaries index
+as spells. A single opposite day ends a run, so runs are short: up runs average 2.51 days and down
+runs 2.13 days in 1980--2000. Separate Cox models use lagged price changes, measured in index points,
+and the number of transitions in the previous 30 days, chosen by stepwise selection. These variables
+shift the reversal rate in sample. On a two-year holdout, however, the models' Brier scores are
+worse than both a random walk and the empirical survival curve at every horizon from 1 to 9 days.
+The authors read this as consistent with weak-form efficiency.
+
+Survival models also appear in stock trading, but with a different event. \citet{HuZhou2024} study
+about 380 S\&P~500 stocks over 2018--2022. Their event is a return of $+5\%$ (or $-5\%$) within 22
+days after a moving-average convergence divergence (MACD) or relative strength index (RSI) signal.
+Deep survival models then filter the signals. The filtered strategies improve on the raw signals in
+both a bear and a bull half of 2022, their only test year. The authors argue that survival data from
+different stocks cannot be pooled.
+
+Machine-learning studies that target turning points directly report far stronger results, but
+their evaluation designs leave room for look-ahead. \citet{Abolmakarem2024} predict next-day
+direction, returns and turning points for four large stocks with a multilayer perceptron. They
+report next-day direction accuracy of 95.8--97.0\% and a test $R^2$ of about 0.9999 for daily
+returns. The data split is not stated as chronological, some targets use the full-sample minimum
+and maximum, and there is no naive baseline. Accuracy of this size on daily returns is a typical
+sign of look-ahead rather than of predictability. In an appendix we rebuild their targets on our data and
+compare a random split with a chronological one.
+
+These studies leave open the choice of unit. Daily runs end on one opposite day, so their length is
+dominated by noise, and a target return after a signal is not the end of a trend. Our swings end only
+when the price moves $\theta$ against its running extreme, with $\theta$ scaled by each stock's
+trailing volatility. This makes swings comparable across stocks, so they can be pooled. We also
+replace a single holdout with a walk-forward test over 2017--2026. We also compare against a
+model-free random-walk null, which echoes the random-walk benchmark of \citet{Yao2005}.
 
 \subsection{Directional-change methods}
-\plan{intrinsic-time / DC framework \citep{GlattfelderDupuisOlsen2011}; ML prediction of DC overshoot length in FX \citep{AdegboyeKampouridis2021}: fixed thresholds, completed spells only.}
-\plan{gap $\rightarrow$ censoring of open trends; updating the prediction as a trend ages (landmarks).}
-\todo[inline]{Strand 3.}
+
+Directional-change (DC) methods describe a price series by reversals of a set size rather than by
+calendar time. A DC is confirmed when the price moves a threshold against its running extreme.
+\citet{GlattfelderDupuisOlsen2011} use this event-based view to document scaling laws in
+high-frequency FX data.\todo{verify: Glattfelder et al.\ have no entry in NOTES.md}
+
+The closest machine-learning precedent predicts how long a DC trend lasts. \citet{AdegboyeKampouridis2021}
+use 10-minute data on 20 currency pairs with fixed-percentage thresholds. They first classify whether
+a DC event is followed by an overshoot, with an accuracy of 0.817. They then predict the overshoot
+length from the length of the DC event alone, by genetic programming. The gain in overshoot error
+over genetic programming without the classifier is not statistically significant (Hommel-adjusted
+$p = 0.327$).
+
+This work learns from completed trends only. On any prediction day the current trend is still open,
+so its length is right-censored, and the prediction is not updated as the trend ages. Its only
+predictor, DC length, is close to our mechanical baseline of swing age and distance. We treat open
+swings as censored spells, update the hazard at each session with landmark models, scale $\theta$ by
+volatility and study equities.
 
 \subsection{Global shocks, price limits and emerging markets}
-\plan{daily momentum in emerging markets and the mechanical effect of price limits; Vietnam value-weighted continuation vs equal-weighted reversal \citep{GaoJiangXiongXiong2023}; US $\rightarrow$ Vietnam spillover studies (in-sample, crisis-era; see NOTES.md) and the volatility bias in comparing correlations \citep{ForbesRigobon2002}; geopolitical risk \citep{CaldaraIacoviello2022}.}
-\plan{gap $\rightarrow$ no out-of-sample, point-in-time test of whether overnight global information changes reversal timing.}
-\todo[inline]{Strand 4.}
+
+Daily price limits change how fast prices move, and so when reversals occur.
+\citet{GaoJiangXiongXiong2023} find daily momentum, where the return on one day predicts the next,
+in about half of emerging markets; developed markets show daily reversal. In China, removing
+limit-hit days cuts daily momentum profits by about 40--60\%, so limits carry moves into the next
+session. Vietnam shows daily continuation in value-weighted portfolios and daily reversal in
+equal-weighted ones ($t = 4.93$ and $-5.84$).
+
+Foreign information that arrives overnight moves the domestic opening price.
+\citet{HamaoMasulisNg1990} split Tokyo, London and New York returns for 1985--1988 into
+close-to-open and open-to-close parts. The foreign return moves the domestic open strongly. The
+authors attribute mean spillovers into open-to-close returns to stale opening prices; volatility
+spills over from New York into Tokyo's open-to-close return.
+
+Evidence on US spillovers into Vietnam is thin and in sample. A daily study finds that the lagged
+US return moves the VN-Index open in 2003--2009, but only in crisis-era sub-periods chosen after the
+fact.\todo{cite: Thuan (2011), IJBFR; no DOI} A copula
+study on same-date pairs finds stronger lower-tail dependence between US and Vietnamese returns after
+the 2008 crisis.\todo{cite: Nguyen, Bhatti \& Henry (2017), Physica A}
+Two annual firm panels identify a US effect from seven to nine yearly values of a variable that is
+the same for every firm.\todo{cite: Vo \& Nguyen (2016); Nguyen, Bao \& Le (2025)} None
+tests out of sample.
+
+Crisis-era comparisons of comovement are also biased. \citet{ForbesRigobon2002} show that
+correlations rise mechanically with volatility while the regression slope does not. After their
+adjustment, the cases of contagion in the 1997 Asian crisis fall from 15 to 1. Claims of a stronger
+US--Vietnam link after 2008 are exposed to this bias. Beyond markets, the geopolitical risk (GPR)
+index of \citet{CaldaraIacoviello2022} measures a further global shock; we use its daily series.
+
+No study we know of tests, out of sample and with point-in-time timing, whether overnight global
+information changes when swings in Vietnamese stocks reverse. We test this with price-limit features
+in the model, and ask whether the sensitivity changed after the FTSE Russell upgrade announcement of
+7 October 2025.\todo{cite: FTSE Russell upgrade announcement}
 
 \subsection{Survival-model evaluation and backtest overfitting}
-\plan{Uno's C \citep{Uno2011}, IPCW Brier \citep{Graf1999}, landmarking \citep{vanHouwelingen2007}, discrete-time neural hazards \citep{KvammeBorgan2021}, RSF \citep{Ishwaran2008}, Cox \citep{Cox1972}; deflated Sharpe \citep{BaileyLopezdePrado2014}. Mostly cited in Section~\ref{sec:method}.}
-\todo[inline]{Strand 5 (short).}
+
+Our models and metrics come from survival analysis and from work on backtest overfitting, and
+Section~\ref{sec:method} describes them in detail. They include the proportional hazards model
+\citep{Cox1972}, dynamic prediction by landmarking \citep{vanHouwelingen2007}, random survival forests
+\citep{Ishwaran2008} and discrete-time neural hazards \citep{KvammeBorgan2021}. We score predictions
+with Uno's concordance index for censored data \citep{Uno2011} and the integrated Brier score with
+inverse-probability-of-censoring weights \citep{Graf1999}. The deflated Sharpe ratio corrects a
+trading result for selection bias, backtest overfitting and non-normality
+\citep{BaileyLopezdePrado2014}. These tools say how to score a censored prediction, not how to split
+serially dependent financial data. We therefore pair them with purged, embargoed walk-forward
+splits.\todo{cite: purging and embargo, e.g.\ L\'opez de Prado (2018)}

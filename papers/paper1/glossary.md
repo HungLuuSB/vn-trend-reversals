@@ -25,3 +25,8 @@ One term, one meaning, used consistently in the paper. Acronyms are defined at f
 | IBS | Integrated Brier score with inverse-probability-of-censoring weights (Graf et al. 1999). |
 | td-AUC | Time-dependent area under the ROC curve at a horizon. |
 | Deflated Sharpe ratio (DSR) | Sharpe ratio adjusted for the number of trials and non-normality (Bailey & López de Prado 2014). |
+| M_flex | Gradient-boosted landmark hazard on M's three features; lets the mechanical relation take any shape (D-027). |
+| RW (random-walk null) | Model-free null: the DC labeller rolled forward over 500 paths of whole-day tuples resampled from the stock's last 250 sessions; nothing fitted (D-027). |
+| Year-stratified C / IBS | Primary metrics: Uno's C over within-year pairs only, and the row-weighted mean of the yearly IBS, each year with its own training censoring distribution (D-027). |
+| Decision rule | An improvement needs the C-difference interval above 0 and the IBS-difference interval below 0 (an intersection–union test). |
+| Landmark hazard | Hazard s = 1..20 sessions after the decision, with features held at their day-t values (D-013). |

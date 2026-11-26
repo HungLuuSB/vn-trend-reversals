@@ -1,26 +1,408 @@
 \section{Methodology}\label{sec:method}
-% Notation table if > ~8 symbols (likely). Hyperparameter grids in Appendix A.
+% Drafted 2026-11-26 from research/paper1/DECISIONS.md (D-009 to D-027) and FINAL_RUN_PROTOCOL.md,
+% while the final run was in progress. Design values (k, horizons, grids, block lengths) are the
+% pre-registered config (research/paper1/configs/main.yaml); data-dependent numbers use \gen{}.
+% Hyperparameter grids and selected values: Appendix A.
 
-\subsection{Swings: a volatility-scaled directional-change rule}
-\plan{theta\_t = k * ATR20\_t / P\_t, trailing only (k = 2 main; 1.5, 3 robustness); swing extreme, confirmation, swing\_dist; why volatility scaling makes swings comparable across stocks (answers Hu \& Zhou's pooling objection). Equations.}
-\todo[inline]{Swing definition.}
+This section defines the swings, turns each open swing into survival data, describes the
+features and models, and states the evaluation protocol and the tests. Every element was fixed
+before the test years were used. Each choice is logged with its date in a public decision record
+(Section~\ref{sec:prereg}). Table~\ref{tab:notation} collects the notation.
 
-\subsection{Survival setup}
-\plan{each swing a spell; risk set of (swing, session) rows; event = reversal confirmed; right-censoring at the study end and at delisting; landmark discrete-time hazard h(t | x) = P(T = t | T $\geq$ t, x); horizons 5/10/20 sessions (main 5).}
-\todo[inline]{Survival setup.}
+\begin{table}[t]
+\centering
+\caption{Notation.}\label{tab:notation}
+\small
+\begin{tabular}{ll}
+\toprule
+Symbol & Meaning \\
+\midrule
+$i$, $t$ & stock, trading session (HOSE calendar) \\
+$P_{i,t}$, $H_{i,t}$, $L_{i,t}$ & adjusted close, high and low \\
+$\mathrm{ATR}_{20}(i,t)$ & mean true range over sessions $t-19,\dots,t$ \\
+$\theta_{i,t}$ & directional-change threshold, $k\,\mathrm{ATR}_{20}(i,t-1)/P_{i,t-1}$ \\
+$\delta_{i,t}\in\{-1,+1\}$ & direction of the current swing \\
+$E_{i,t}$ & running extreme close of the current swing \\
+$a_{i,t}$ & swing age: sessions since the swing's starting extreme \\
+$d_{i,t}$ & distance to the threshold, $\delta_{i,t}(P_{i,t}/E_{i,t}-1)/\theta_{i,t}\in(-1,0]$ \\
+$D_{i,t}$ & sessions from $t$ until the reversal is confirmed \\
+$\lambda_s(x)$ & hazard $s$ sessions after the decision, given features $x$ \\
+$S(h\mid x)$ & probability that the swing has not reversed $h$ sessions later \\
+$y$ & test year (fold), 2017--2026 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\subsection{Feature blocks}
-\plan{A swing mechanics (age, swing\_dist); B local returns/volatility/volume; C price limits \& microstructure; D overnight global (14 series, direction-specific, D-009/D-017); E banks: first-released NPL ratio and change, news count and relative attention (D-023). Mechanical baseline M = swing age + swing\_dist (D-016).}
-\todo[inline]{Feature blocks.}
+\subsection{Swings: a volatility-scaled directional-change rule}\label{sec:swings}
 
-\subsection{Models}
-\plan{Kaplan-Meier (no features); logistic landmark hazard (elastic net); Cox; random survival forest; gradient-boosted hazard; GRU neural hazard (D-022). Tuning by inner purged CV on integrated Brier score.}
-\todo[inline]{Models.}
+A swing ends only when the price retraces a threshold that scales with the stock's own recent
+volatility. The threshold for stock $i$ on session $t$ uses only the previous session:
+\begin{equation}\label{eq:theta}
+  \theta_{i,t} = k\,\frac{\mathrm{ATR}_{20}(i,t-1)}{P_{i,t-1}}, \qquad
+  \mathrm{ATR}_{20}(i,t) = \frac{1}{20}\sum_{j=0}^{19} \mathrm{TR}_{i,t-j},
+\end{equation}
+where $\mathrm{TR}_{i,t}=\max(H_{i,t},P_{i,t-1})-\min(L_{i,t},P_{i,t-1})$ is the true range. The
+average is a simple mean, not Wilder's smoothing. The main design fixes $k=2$; $k=1.5$ and $k=3$
+are robustness checks. Prices are adjusted for dividends, splits and rights issues. Adjusted prices
+enter only through returns and ratios, which later adjustments do not change (the adjustment
+procedure is described in Section~\ref{sec:data}).
 
-\subsection{Evaluation}
-\plan{walk-forward, expanding window from 2012, refit each January, test years 2017-2026 (2026 partial); purge rows whose swing ends inside the test window; 20-session embargo. Metrics: Uno's C, IPCW integrated Brier score, time-dependent AUC, calibration at 5/10/20; paired block bootstrap (20 sessions). Decision rule for "improves": C interval > 0 and IBS interval < 0. Controls: shuffled labels; red-flag thresholds. Number of configurations tried (all decisions D-001..D-024 logged before running).}
-\todo[inline]{Evaluation protocol.}
+During an up-swing ($\delta_{i,t}=+1$) the running extreme $E_{i,t}$ is the highest close since the
+swing's starting trough. The up-swing is confirmed as reversed on the first session $t$ on which
+the close does not set a new high and
+\begin{equation}\label{eq:confirm}
+  P_{i,t} \le E_{i,t}\,(1-\theta_{i,t}).
+\end{equation}
+Down-swings mirror this with the running minimum and $P_{i,t}\ge E_{i,t}(1+\theta_{i,t})$. After a
+confirmed reversal, the new swing's extreme is tracked from the old swing's extreme onward, so a
+swing starts at the turning point, not at its confirmation. Before a stock's first confirmation,
+both extremes are tracked and the first confirmation in either direction starts the first swing.
 
-\subsection{Economic test}
-\plan{long-only exit rule from the predicted hazard vs buy-and-hold and a fixed DC rule; T+2; no fill at limit-down; 0.4\% round trip (0.2\%, 0.8\% sensitivity); Sharpe, drawdown, deflated Sharpe with the number of trials.}
-\todo[inline]{Trading test.}
+Two quantities describe where a swing stands after the close of $t$. The \emph{swing age}
+$a_{i,t}$ counts sessions since the starting extreme. The \emph{distance to the threshold},
+\begin{equation}\label{eq:dist}
+  d_{i,t} = \delta_{i,t}\,\frac{P_{i,t}/E_{i,t}-1}{\theta_{i,t}},
+\end{equation}
+is $0$ when the close sets a new extreme and reaches $-1$ when the reversal is confirmed. It
+therefore lies in $(-1,0]$ on every session on which the swing is still open.
+
+The rule is causal: confirmation and the threshold use only prices up to $t$. The future enters
+only through the target, the time until the next confirmation. A swing is known only from its own
+confirmation onward, so its first survival row has age $a_{i,t}>0$ (delayed entry). Because the
+threshold is a multiple of each stock's own volatility, a swing of a volatile small bank and a
+swing of a large, quiet stock are measured in the same units. This is what allows the swings of
+different stocks to be pooled in one model.
+
+\subsection{Survival rows and landmark hazards}\label{sec:survival}
+
+Each row $(i,t)$ is one stock on one session inside a swing that has not yet been confirmed as
+reversed. It describes the state after the close of $t$ and is used for a decision at the HOSE
+open, 09:00 Vietnam time, on the next session. The outcome is $D_{i,t}$, the number of the stock's
+sessions until the reversal is confirmed at a later close. A row is right-censored when the study
+ends (the 2026-11-20 close), when the stock leaves the universe, or when the stock has no price for
+five or more consecutive sessions (a trading halt). Shorter gaps are days without trades, and the
+swing continues across them. A row enters the sample only if the stock has at least 250 sessions of
+price history before $t$; this rule is applied point in time, so it does not depend on whether the
+stock survives later.
+
+The target is the hazard $s$ sessions after the decision, with the features held at their values on
+day $t$:
+\begin{equation}\label{eq:hazard}
+  \lambda_s(x_{i,t}) = \Pr\!\left(D_{i,t}=s \mid D_{i,t}\ge s,\ x_{i,t}\right), \qquad
+  S(h\mid x_{i,t}) = \prod_{s=1}^{h}\bigl(1-\lambda_s(x_{i,t})\bigr),
+\end{equation}
+for $s,h = 1,\dots,20$. This is a landmark formulation \citep{vanHouwelingen2007}: each session is
+a new prediction for the same open swing, made with what is known on that session. Each row is
+expanded into steps $s=1,\dots,\min(D_{i,t},20)$ with a binary target that equals one at the step
+of the confirmation. Censored rows contribute their steps up to censoring. For fitting only,
+durations above 21 sessions are censored at 21; no reported metric uses that cap.
+
+The landmark form matters because the strongest features describe the current position of the
+swing. A first implementation advanced only the age and held the distance $d_{i,t}$ fixed for
+20 sessions. That chained hazard exaggerated both high and low risk and was worse calibrated than
+Kaplan--Meier on the development folds. Estimating the hazard at each step after the decision, as
+in equation~\eqref{eq:hazard}, removes the problem and matches how the prediction is used. The
+correction was made on development data only and is logged (D-013).
+
+\subsection{Features}\label{sec:features}
+
+The features form five blocks (Table~\ref{tab:features}). Every value carries the time at which it
+became public, and a feature may use a value only if that time is before the 09:00 decision. The
+data pipeline enforces this with an automated test (Section~\ref{sec:data}).
+
+\begin{table}[t]
+\centering
+\caption{Feature blocks. All features are computed for row $(i,t)$ and used at 09:00 on the next
+session. Returns and changes in blocks B--D also enter multiplied by the swing direction
+$\delta_{i,t}$ in the linear models (Section~\ref{sec:features}). Full definitions and availability
+rules: Appendix~\ref{sec:appendix}.}\label{tab:features}
+\small
+\begin{tabular}{p{0.19\linewidth}p{0.75\linewidth}}
+\toprule
+Block & Features \\
+\midrule
+A. Swing state & direction $\delta$; age $a$ and $\log(1+a)$; age since confirmation; move since the
+  swing's start and distance $d$, both in units of $\theta$; $\theta$ itself \\
+B. Stock technicals & returns over 1, 5 and 20 sessions; ATR20 relative to price; RSI(14); volume
+  relative to its 20-session mean; ceiling and floor hits in the last 5 sessions; whether the
+  limit was known on all of them; close at the limit on $t$ \\
+C. Local market & VN-Index and VN30 returns; advancing share; market turnover relative to its
+  20-session mean; the VN-Index's own swing direction, age and distance \\
+D. Global, overnight & S\&P 500 and Nasdaq returns; VIX change and level; US 10-year yield change;
+  dollar index; gold; Brent; Hang Seng; Shanghai Composite; USD/VND; USD/CNY; geopolitical risk
+  level and change \\
+E. Banks only & first-released non-performing-loan (NPL) ratio and its quarterly change; daily
+  news count and news count relative to its 20-session mean \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Direction-specific effects} A linear hazard with a raw return gives that return the same
+effect on up-swings and down-swings. The hypothesis on global shocks is directional: a US
+fall should raise the hazard that an up-swing ends and lower the hazard that a down-swing ends.
+Every feature $x$ in blocks B, C and D therefore enters the linear models both as $x$ and as
+$\delta_{i,t}\,x$ (suffix ``x'' in specification names: \texttt{ABCx}, \texttt{ABCDx}). Block A is
+already expressed relative to the swing. Tree and neural models receive the raw features and
+can form these interactions themselves.
+
+\paragraph{Bank interactions} The bank part of the global-shock hypothesis says that banks react more
+to rates and the dollar. Specification \texttt{ABCDx\_bank} adds a bank indicator and its products
+with the US 10-year yield change, the dollar index return and the USD/VND return, each also
+multiplied by $\delta_{i,t}$.
+
+\paragraph{Block E} For banks, the NPL ratio is groups 3--5 over the sum of the five loan groups of
+the central bank's classification. It is read from the first-released consolidated statement of
+each quarter, never from later restatements. A value is accepted only when the five groups add up to
+the printed total in both columns of the table. Most values were read by optical character
+recognition. Where the scan defeated it, the table was transcribed from the page image with an AI
+assistant, under a stricter rule: the groups must equal the printed total exactly, in both columns.
+Block E results are also reported without these transcribed values. A statement becomes usable at
+09:00 on the fifth session after the later of its legal filing deadline and the PDF's creation
+date. This rule is conservative by construction. We checked it against the news: for
+\gen{BlockENewsLead} first-release statements, an article reporting the result appeared before
+the statement's usable time. News counts are articles mentioning the bank published from 09:00 on $t$
+to 09:00 on the next session. Section~\ref{sec:data} gives the sources.
+
+\subsection{Mechanical baselines}\label{sec:mech}
+
+Part of any skill at predicting reversals follows from the label itself. A swing close to its
+threshold ($d_{i,t}$ near $-1$) needs only a small further move to be confirmed. A model that knows
+$d_{i,t}$ and the stock's volatility can predict reversals without any behavioural content. We
+therefore separate predictability \emph{beyond the mechanics} from predictability against
+Kaplan--Meier, and use three mechanical baselines.
+
+\begin{enumerate}
+\item \textbf{M} is the logistic landmark hazard on age, $\log(1+a)$ and $d$, entered linearly.
+\item \textbf{M\_flex} is a gradient-boosted landmark hazard on the same three features. It lets
+  the mechanical relation take any shape, so a richer model cannot beat the mechanics merely by
+  fixing M's functional form.
+\item \textbf{RW} is a model-free random-walk null with nothing fitted. For row $(i,t)$ we draw 500
+  paths of 20 sessions. Each simulated session is a whole-day tuple (close-to-close log return,
+  high/close, low/close) drawn with replacement from the stock's own last 250 sessions up to $t$.
+  The directional-change rule is rolled forward from its exact state after the close of $t$: the
+  direction, the running extreme, the close and the last 20 true ranges. The threshold is
+  recomputed every simulated day from the simulated ATR20. $S(h)$ is the share of paths not yet
+  confirmed as reversed by day $h$. A unit test checks that rolling the realised path reproduces the
+  observed duration exactly.
+\end{enumerate}
+
+RW asks what reversal timing would look like if the stock's recent daily returns arrived in random
+order. A model beats RW only if it knows something about the order of future returns that the
+stock's own volatility does not.
+
+\subsection{Models}\label{sec:models}
+
+We fit six model families, from no features to a sequence model.
+
+\begin{enumerate}
+\item \textbf{Kaplan--Meier} \citep{KaplanMeier1958}: one survival curve per training window, no
+  features. Every model is compared with it.
+\item \textbf{Logistic landmark hazard}, the main interpretable model: a logistic regression of
+  the step target on step indicators and the features \citep{SingerWillett1993}, with an
+  elastic-net penalty \citep{ZouHastie2005}. The main specification is \texttt{ABCDx}.
+\item \textbf{Cox regression} \citep{Cox1972} with a ridge penalty on time since the decision.
+\item \textbf{Gradient-boosted landmark hazard}: histogram gradient boosting \citep{Friedman2001}
+  on the same landmark expansion (300 iterations, L2 penalty 1).
+\item \textbf{Random survival forest} \citep{Ishwaran2008}: 100 trees, square-root feature
+  sampling.
+\item \textbf{Neural hazard}: a gated recurrent unit \citep{Cho2014} reads the stock's own last 60
+  sessions (log return, log high/low, log close/open, log volume relative to its 20-session mean),
+  and its last state is joined with the static features. A hidden layer then outputs 20 step
+  hazards, trained with the discrete-time likelihood \citep{KvammeBorgan2021}. The output bias
+  starts at the training rows' empirical hazard. Training is deterministic on a CPU, and the final
+  model averages the survival curves of three seeds.
+\end{enumerate}
+
+Every model imputes missing values with training medians and standardises features with training
+moments. Hyperparameters are tuned by nested validation inside each training window. The last full
+year before the test year is the inner validation year, with the same purge and embargo as the outer
+split (Section~\ref{sec:walkforward}). The grid point with the lowest inner integrated Brier score is
+refitted on the full training window. Grids are small and fixed in advance
+(Appendix~\ref{sec:appendix}).
+
+\subsection{Walk-forward protocol}\label{sec:walkforward}
+
+The test years are 2017 to 2026, and each is one fold. 2026 is a partial year that ends at the
+2026-11-20 close. For test year $y$:
+
+\begin{itemize}
+\item the training window holds every row from 2012-01-03 to the end of year $y-1$ (an expanding
+  window, refitted each January);
+\item training rows whose swing ends on or after 1 January of $y$ are dropped (the purge), so no
+  training outcome overlaps the test period;
+\item the 20 sessions before 1 January of $y$ are dropped as well (the embargo);
+\item the model is tuned and fitted on that window and then predicts every row of year $y$.
+\end{itemize}
+
+All design work, including every specification choice in this section, used only the
+development period 2012--2016, which lies inside the first training window. The test years were
+touched once, by a single run of the complete protocol on a frozen data snapshot.
+
+\subsection{Metrics}\label{sec:metrics}
+
+Ranking is measured by Uno's concordance index \citep{Uno2011}, truncated at $\tau=20$ sessions,
+with the risk score $1-S(20\mid x)$. Accuracy of the whole curve is measured by the integrated Brier
+score (IBS) over days 1 to 20, with inverse-probability-of-censoring weights \citep{Graf1999}. Both
+take their censoring distribution $\hat G$ from the training outcomes of the same fold.
+
+\paragraph{Year-stratified metrics (primary)} A C-index pooled over ten test years mixes ten
+separately fitted models. Most of its comparable pairs then cross years, and those pairs
+reward differences in reversal rates between years rather than ranking within them. The primary C
+therefore adds up the weighted concordant and comparable pairs within each year only:
+\begin{equation}\label{eq:stratc}
+  C^{\mathrm{strat}}_\tau = \frac{\sum_y \sum_{i,j\in y} \Delta_i\,\hat G_y(T_i)^{-2}\,
+    \mathbf{1}\{T_i<T_j,\ T_i<\tau\}\,\mathbf{1}\{r_i>r_j\}}
+  {\sum_y \sum_{i,j\in y} \Delta_i\,\hat G_y(T_i)^{-2}\,\mathbf{1}\{T_i<T_j,\ T_i<\tau\}},
+\end{equation}
+where $T_i$ is the observed time, $\Delta_i$ the event indicator, $r_i$ the risk score and $\hat
+G_y$ the censoring survival function from year $y$'s training outcomes. Ties in $r$ count one half.
+With a single year this equals Uno's C exactly. The primary IBS is the row-weighted mean of the
+yearly IBS, each with its own year's $\hat G_y$. The pooled C and IBS, comparable with the
+development results, and a C computed within dates (cross-sectional ranking only) are reported as
+secondary.
+
+\paragraph{Secondary metrics} Time-dependent AUC at 5, 10 and 20 sessions; calibration at the
+same horizons by deciles of predicted risk, with Kaplan--Meier observed rates in each decile.
+
+\subsection{Inference and decision rules}\label{sec:inference}
+
+\paragraph{Paired block bootstrap} Rows of the same swing and the same date are dependent. We
+resample test dates in moving blocks of 20 sessions \citep{Kunsch1989}, with every model scored on
+the same resamples, and recompute each metric on each resample. Differences between models are
+therefore paired. Intervals are 95\% percentile intervals. Blocks of 40 and 60 sessions are a
+sensitivity check, since many swings last longer than 20 sessions.
+
+\paragraph{Decision rule} A model counts as an improvement over another only if the interval of the
+C difference lies above zero \emph{and} the interval of the IBS difference lies below zero. The
+rule asks for better ranking and a better curve at the same time. As a conjunction of one-sided
+tests it is an intersection--union test, valid at the nominal level without adjustment
+\citep{Berger1982}.
+
+\paragraph{One primary test per question} Table~\ref{tab:primary} lists the primary tests. Each
+uses 1,000 paired resamples. We report its Monte Carlo error as the spread of the interval endpoints
+between the two halves of the resamples. Holm-adjusted bootstrap $p$-values across the six
+confirmatory primaries are reported as a sensitivity \todo{cite Holm 1979}. Every
+other comparison is secondary or descriptive and is labelled so.
+
+\begin{table}[t]
+\centering
+\caption{Hypotheses and their primary tests. ``$A-B$'' is the paired difference of model $A$ over
+model $B$ under the decision rule of Section~\ref{sec:inference}. KM: Kaplan--Meier.}\label{tab:primary}
+\small
+\begin{tabular}{p{0.28\linewidth}p{0.36\linewidth}p{0.28\linewidth}}
+\toprule
+Question & Primary test & Reported alongside \\
+\midrule
+H1: reversal timing is predictable & \texttt{ABCDx} $-$ KM & every model $-$ KM \\
+H1-mech: beyond the label mechanics & \texttt{ABCx} $-$ \texttt{M\_flex} \emph{and}
+  \texttt{ABCx} $-$ RW & \texttt{ABCx} $-$ M \\
+H2: global information adds to local & \texttt{ABCDx} $-$ \texttt{ABCx} & D vs no D in each model
+  family; per-feature attribution \\
+H3: trends age, given the distance & \texttt{M\_s} $-$ \texttt{DIST\_s} & M $-$ DIST; age-only
+  hazard \\
+H4: global sensitivity rose after the FTSE announcement & single-index interaction, one-sided
+  (exploratory) & 10-term Wald test; placebo dates \\
+H5: worth something after costs & model exit beats DC exit, buy-and-hold and mechanical exit &
+  costs 0.2\% and 0.8\%; deflated Sharpe ratio \\
+Block E: bank fundamentals and news & \texttt{ABCDx+E} $-$ \texttt{ABCDx} on bank rows &
+  \texttt{M+E} $-$ M; transcription and timing variants \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{H3 with a flexible distance} The age effect is tested given the distance, and the
+distance enters both arms flexibly. \texttt{DIST\_s} is a cubic B-spline of $d_{i,t}$ with knots
+fixed in advance at $-1$, $-0.75$, $-0.5$, $-0.25$ and $0$. Since $d$ lies in $(-1,0]$ by
+construction, no knot depends on the data. \texttt{M\_s} adds age and $\log(1+a)$. Trends ``age''
+only if \texttt{M\_s} beats \texttt{DIST\_s}.
+
+\paragraph{Forecast-loss tests} As descriptive companions we report Diebold--Mariano tests
+\citep{DieboldMariano1995} on the daily mean Brier loss of the 5-session reversal probability, with
+Newey--West variances \citep{NeweyWest1987}. For nested pairs within one model family, we use the
+adjustment of \citet{ClarkWest2007}.
+
+\paragraph{Attribution within block D} Each of the 14 global features is dropped in turn from
+\texttt{ABCDx}, refitted with that year's \texttt{ABCDx} hyperparameters, and compared on IBS with
+2,000 resamples and Holm adjustment across the 14. A separate contrast asks whether gold adds
+anything once geopolitical risk is in the model, and the reverse.
+
+\paragraph{Controls and stop rules} For \texttt{ABCD}, \texttt{ABCDx}, M and the neural model, the
+outcome pairs (duration, event) are permuted across training rows and the model is refitted. A
+model trained on permuted outcomes should rank test rows at chance. The run was set to stop before
+any other output was read if the mean over years of the shuffled C exceeded 0.53, or if any model's
+C exceeded 0.70. Either would point to leakage, and a stop would trigger a documented audit.
+
+\subsection{In-sample tests of direction and of the market upgrade}\label{sec:insample}
+
+Two questions are about the sign or the change of an effect, not about forecasting. We answer them
+with full-sample estimates and say so.
+
+\paragraph{Signs of the global effects (H2, directional part)} A landmark logit on
+\texttt{ABCDx\_bank} is fitted on all rows from 2012 to 2026-11-20, with a light ridge (inverse
+penalty 100) only so that it converges. Rows of one swing overlap, so standard errors are clustered
+by date and, separately, two-way by date and stock \citep{CameronGelbachMiller2011}. The larger
+$p$-value decides. The pre-registered signs are negative for the S\&P 500 and Nasdaq terms
+multiplied by direction, and positive for the VIX term. Each is tested one-sided, with Holm
+adjustment across the three. The bank part is a joint Wald test of the six bank interaction terms.
+We also count the yearly \texttt{ABCDx} fits whose coefficient has the predicted sign.
+
+\paragraph{Market upgrade (H4, exploratory)} FTSE Russell announced Vietnam's upgrade to Secondary
+Emerging status on 7 October 2025, effective 21 September 2026. Only the 2026 refit has any
+post-announcement training data, so an out-of-sample test would have almost no power. We fit the
+block-D linear index $\eta_D$ of \texttt{ABCDx} on the rows before the announcement. We then
+estimate \texttt{ABCDx} plus a post-announcement indicator and its product with $\eta_D$ on the
+four years before the announcement and the months after it. H4 predicts a positive coefficient
+$\lambda$ on that product, tested one-sided with the conservative clustered errors above. Placebo
+announcements on 7 October of each year from 2016 to 2023 use matched four-year pre-windows and
+post-windows of up to 13 months that end before the real announcement. H4 is supported only if the
+one-sided $p<0.05$ and the real statistic exceeds every placebo. A joint Wald test of ten
+post-announcement interactions is secondary.
+
+\subsection{Trading test}\label{sec:trading}
+
+The trading test asks whether the predicted hazard is worth anything after Vietnamese trading
+frictions. Short selling of individual stocks is not generally available, so every strategy is
+long-only.
+
+\paragraph{Strategies} Each strategy holds at most one position per stock.
+\begin{enumerate}
+\item \emph{Model exit} (H5): buy at the open after an up-swing is confirmed. Sell at the open after
+  the first day on which \texttt{ABCDx}'s predicted 5-session reversal probability exceeds $\tau$,
+  or after the down-reversal is confirmed, whichever comes first.
+\item \emph{Mechanical exit}: the same rule with M's predictions.
+\item \emph{Directional-change exit}: the same entry; sell at the open after the down-reversal is
+  confirmed.
+\item \emph{Buy-and-hold}: hold every stock while it is in the universe.
+\end{enumerate}
+The threshold $\tau\in\{0.25,0.30,\dots,0.60\}$ is chosen each year on the inner validation year, by
+the net Sharpe ratio at the main cost; ties go to the larger $\tau$.
+
+\paragraph{Frictions} Shares bought cannot be sold before settlement: T+3 for trades up to
+2015-12-31 and T+2 from 2016-01-04. A buy does not fill if the raw open is at or above the
+ceiling, and a sell does not fill if it is at or below the floor; unfilled orders are retried at the
+next open. The limits are those in force on each date, computed from the exchange reference price.
+Where the limit cannot be computed, the order is assumed to fill and the day is flagged; a
+sensitivity case forbids trading on such days. The main round-trip cost is 0.40\% (0.15\% brokerage
+per side plus the 0.10\% tax on sales); 0.20\% and 0.80\% are sensitivities. A second execution
+variant trades at the close of the session after the signal instead of the open.
+
+\paragraph{Portfolio and metrics} The portfolio is equal-weighted across the day's universe stocks,
+each slot earning the stock's open-to-open return when held and zero otherwise. We report the
+annualised return and Sharpe ratio (risk-free rate zero), maximum drawdown, turnover and the
+number of trades. H5 is supported only if the model exit beats all three benchmarks, each with a
+paired block-bootstrap interval of the Sharpe difference above zero at 0.40\% costs. We also report
+the probabilistic Sharpe ratio \citep{BaileyLopezdePrado2012} and the deflated Sharpe ratio
+\citep{BaileyLopezdePrado2014}, with $N=16$ trials as pre-registered and with every trading
+configuration actually computed in the run.
+
+\subsection{Pre-registration and number of configurations}\label{sec:prereg}
+
+Every design decision is recorded in a dated log before it was used, with the state of the
+evidence at that moment \todo{repo URL}. The development
+period produced \gen{DevRunCount} logged runs, all reported in Appendix~\ref{sec:appendix}. One
+change to the evaluation came from development results: the mechanical baseline was added after
+the distance to the threshold alone was found to carry most of the ranking skill. A second change,
+direction-specific effects, followed from the stated direction of H2. After a design review and
+before any test-year output, the mechanical nulls M\_flex and RW, the year-stratified primary
+metrics and the stricter H5 rule were added. None of these changes could use test-year
+information, because the test years had not been evaluated.
