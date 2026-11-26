@@ -195,6 +195,8 @@ seeds:
       D-023): first-release statements whose table OCR could not accept, read from the rendered
       page image. Every row sums exactly to the printed total in both columns (pytest
       tests/unit/documents/test_visual_seed.py); raw-layer key and page on every row.
+      Conventions (D-023 clarification 9): VIB uses the post-CIC table; "of which" rows are not
+      added; rows inside the total but outside groups 1-5 go to extra.
     config:
       column_types:
         raw_key: String

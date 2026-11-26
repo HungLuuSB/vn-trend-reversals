@@ -790,6 +790,26 @@ The model-shape table and the test results do not change.
   - **Rule:** a wide table is read only if the header lines above it show the statement's own period-end date (dd/mm/yyyy, dd.mm.yyyy or "dd tháng mm năm yyyy").
 - **Checks:** all accepted values are re-compared with the previous parse, and no value may repeat a different quarter's total for the same bank, except where two versions of the same quarter's statement exist.
 
+**Clarification 9 (2026-11-26, same stage): visual transcription of the remaining tables.** After clarifications 6–8, 251 first-release statements still had no accepted OCR table. They were read visually from the page images under the existing rule: groups 1–5 plus any unclassified rows must equal the printed total **exactly, in both columns**, and no digit is guessed.
+- **Result:**
+  - 207 rows were added to `dbt/seeds/loan_quality_transcribed.csv`, which now has 266 rows.
+  - 44 statements were skipped:
+    - 28 have no loan-group table (most are statements without notes);
+    - 14 have printed numbers that do not add up (mostly rounding of ±1–2 units, plus one VCB 2016 Q3 total that is 3.4 trillion away from its groups);
+    - 2 show the table at a different date (VIB 2019 Q1 and Q2 show month-end provisioning tables).
+  - **Coverage:** 1,151 of 1,195 bank-quarters (889 by OCR, 262 transcribed), against 944 before.
+- **Conventions:**
+  - **VIB: the table after the credit-bureau (CIC) update.** VIB prints two tables: the bank's own classification, and the classification after the CIC update. The figures after the update are the ones the bank reports. They are the only ones consistent with its other statements: 31/12/2018 is 2.52% (the Q4 2018 OCR value) and 31/12/2019 is 1.96% (the 2020 comparative figures). The pre-update table gives 2.30% and 1.70%.
+  - **"Of which" rows** (for example MBS margin loans under MBB group 1) are not added.
+  - Rows printed inside the total but outside groups 1–5 go to `extra`. Examples are loans held pending resolution, securities-subsidiary margin loans and HDB deferred-payment letters of credit. As for OCR values, `extra` stays out of the NPL denominator.
+  - **Wide credit-risk tables:** only the customer-loans column is read, at the statement's own date.
+  - **Units:** where no unit is printed next to the table, the unit is inferred from the size of the amounts, and the row's note says so.
+- **Checks:**
+  - **Previous values:** every value present before is unchanged (944 of 944), and no bank-quarter lost a value.
+  - **Continuity:** for 199 of the 229 rows with a Q4 comparison, the comparison total equals the Q4 statement's total exactly. The remaining differences are units, `extra` rows, or restated comparative figures. Restatements do not matter here, because block E uses only each statement's current column (first release).
+  - **Development inputs:** they gain one value, BID 2012 Q3 (0.0296, previously missing). The other 202 are identical. The D-023 development comparison is not re-run for one added value.
+- **EIB 2025 Q4:** the transcribed value never enters the features. The file's PDF creation date (2027-01-31) is after the cutoff, so it has no `available_at`. That is conservative, and it is left as is.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.
