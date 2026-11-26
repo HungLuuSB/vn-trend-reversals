@@ -6,6 +6,10 @@ study:                         # D-001; shared with Paper 2 (P2-001)
   end: 2026-11-20              # to that day's close; nothing later enters anything
   warmup_start: 2011-10-01     # initialises trailing quantities only
 
+decision:                      # CLAUDE.md data rule 4
+  hour_local: 9                # HOSE open, 09:00 on the session after t
+  tz: Asia/Ho_Chi_Minh
+
 labels:                        # directional change (D-011)
   k_main: 2.0                  # theta = k * ATR20 / price, trailing only
   k_robustness: [1.5, 3.0]
@@ -20,6 +24,10 @@ features:                      # blocks A-D (D-009, D-012, D-016, D-017)
   volume_window: 20
   limit_window: 5
 
+block_e:                       # D-023 (bank rows only)
+  margin_sessions: 5           # available_at = 09:00 of the 5th session after max(deadline, created)
+  margin_robustness: [0, 20]
+
 evaluation:
   main_horizon: 5              # trading days
   horizons: [5, 10, 20]        # td-AUC and calibration
@@ -28,6 +36,12 @@ evaluation:
   fit_cap: 21                  # durations above are censored for fitting only (D-014)
   too_good_c: 0.70             # stop and run leakage-audit above this
   bootstrap: {block: 20, resamples: 200}   # D-014
+
+backtest:                      # D-021
+  round_trip_cost: 0.004       # 0.10% sales tax + brokerage split evenly between buy and sell
+  sales_tax: 0.001
+  cost_sensitivity: [0.002, 0.008]
+  tau_grid: [0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]
 
 walkforward:
   embargo_sessions: 20

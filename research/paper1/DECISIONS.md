@@ -854,3 +854,35 @@ The model-shape table and the test results do not change.
 - **What does not change:**
   - the single final walk-forward run on 2017–2026 happens only once, on the frozen snapshot, and only with the user's explicit go-ahead;
   - a data problem found after the freeze reopens it as a new, documented snapshot, and every run is reported.
+
+## D-025 — Pre-freeze leakage audit: dispositions, and what the final runner must contain
+
+- **Date:** 2026-11-26
+- **Record:** `research/paper1/audits/2026-11-26-pre-freeze-leakage.md` (D-024 gate 4, first half). No model has touched the test years.
+- **Fixed before the freeze:**
+  - block E join bugs (D-023 clarification 10);
+  - block E and Paper 2 inputs are now frozen inside the snapshot (`freeze_derived`; rows after 2026-11-20 are dropped and counted). Readers prefer the snapshot (`paths.frozen_input`; P2-017 done);
+  - the snapshot gate requires a full `dbt build` that ran the look-ahead tests;
+  - label summaries report outcomes on development rows only;
+  - design values that were literals are now config keys pinned by tests.
+- **Kept as pre-registered:**
+  - **Purge.** Training rows whose swing ends at or after the fold start are dropped, as pre-registered. Rows kept near the boundary lean slightly towards short swings (2016 fold: 79 rows dropped), but no test information is used.
+  - **Bootstrap block** of 20 sessions.
+- **Added to the final run as reported sensitivities.** They are fixed now, before any test-year output, and none of them can replace the main results:
+  1. **Censoring at the fold boundary** instead of dropping (duration = sessions to the boundary, event = 0).
+  2. **Bootstrap blocks of 40 and 60 sessions.** Swing durations have p75 21 and p90 34 sessions.
+  3. **The shuffled-label control** for every reported model (ABCDx, M, nn), not only logit ABCD.
+- **Disclosed in the paper** (data and limitations sections):
+  - the pooled 2012–2026 label base rates were seen in the labels runs' summaries (for example, 26% of rows reverse within 5 days); no model output for the test years was;
+  - HBB has no price history (155 sessions in 2012);
+  - the GPR index is a single 2026 vintage, pseudo-real-time before about 2021;
+  - first releases are taken from files CafeF lists today;
+  - news was crawled in 2026;
+  - the backtest's handling of stocks without trades, and no capacity limit.
+- **Timing of the block E values validated** by the pre-registered D-023 news check (`block_e_timing.py`): result news precedes `available_at` for 878/879 dated and 179/179 undated statements (median lead about 5 weeks).
+- **What the final runner must do before it may run** (it does not exist yet):
+  - **Reuse the audited development pieces unchanged:** `split()`, the D-014/D-021 nested tuning, the metrics and the backtest engine.
+  - **Read only the frozen snapshot**, including block E.
+  - **Refit each January** for 2017–2026, with 2026 censored at 2026-11-20.
+  - Include **Kaplan–Meier, M and the shuffled-label controls**, the D-021 trading test with 0.2% and 0.8% cost sensitivity, the deflated Sharpe ratio, and the sensitivities above.
+  - **Pass an end-to-end test on synthetic data** and its own leakage review before the user's go-ahead.

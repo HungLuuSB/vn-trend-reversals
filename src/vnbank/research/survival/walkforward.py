@@ -46,6 +46,7 @@ EMBARGO_SESSIONS = CFG["walkforward"]["embargo_sessions"]
 HORIZONS = np.array(CFG["evaluation"]["horizons"])
 IBS_TIMES = np.arange(1, CFG["evaluation"]["tau"] + 1)
 TAU = CFG["evaluation"]["tau"]
+BOOT_BLOCK = CFG["evaluation"]["bootstrap"]["block"]  # D-014: sessions per resampled block
 TOO_GOOD_C = CFG["evaluation"][
     "too_good_c"
 ]  # CLAUDE.md: a C-index far above the baseline -> stop, run leakage-audit

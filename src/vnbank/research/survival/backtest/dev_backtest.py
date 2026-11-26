@@ -42,9 +42,10 @@ from vnbank.research.swings.directional_change import label_series
 CFG = load(1)
 RUNS = paths.runs_dir(1)
 H = CFG["evaluation"]["main_horizon"]
-TAUS = [0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]  # D-021
-MAIN = Costs.round_trip(0.004)
-COST_SENS = {"0.2%": Costs.round_trip(0.002), "0.8%": Costs.round_trip(0.008)}
+BT = CFG["backtest"]  # D-021
+TAUS = list(BT["tau_grid"])
+MAIN = Costs.round_trip(BT["round_trip_cost"], BT["sales_tax"])
+COST_SENS = {f"{c:.1%}": Costs.round_trip(c, BT["sales_tax"]) for c in BT["cost_sensitivity"]}
 
 
 def build_stocks(snap: Path, k: float) -> dict[str, StockDays]:

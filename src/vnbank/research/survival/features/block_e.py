@@ -161,24 +161,27 @@ def ocr_only(npl: pd.DataFrame) -> pd.DataFrame:
     return out.drop(columns="npl_ratio_prev")
 
 
-def add_block_e(ds: pd.DataFrame, ocr_values_only: bool = False) -> tuple[pd.DataFrame, dict]:
+def add_block_e(ds: pd.DataFrame, ocr_values_only: bool = False,
+                snapshot: str | None = None) -> tuple[pd.DataFrame, dict]:  # fmt: skip
     """D-023: add npl_ratio, npl_change, news_count, news_rel_20 and keep bank rows only.
     ocr_values_only: the pre-registered robustness check without the visual-transcription tier.
-    Returns the dataset and the sha256 of each input file (recorded in the run config: block E
-    inputs are not yet part of the frozen snapshot)."""
+    snapshot: read the inputs from that frozen snapshot when it holds them (D-024 gate 1; the
+    final run requires it), else from data/extracted/. Returns the dataset and each input's
+    sha256 and source (recorded in the run config)."""
     import hashlib
 
     from vnbank.research.survival.features.fundamentals import add_npl_features
     from vnbank.research.survival.features.news import add_news_features
 
-    meta = {}
+    meta, src = {}, {}
     for name in ("block_e_npl.parquet", "news_counts.parquet"):
-        meta[name] = hashlib.sha256((EXTRACTED / name).read_bytes()).hexdigest()
-    npl = pd.read_parquet(EXTRACTED / "block_e_npl.parquet")
+        src[name], meta[f"{name}:source"] = paths.frozen_input(snapshot, name, EXTRACTED)
+        meta[name] = hashlib.sha256(src[name].read_bytes()).hexdigest()
+    npl = pd.read_parquet(src["block_e_npl.parquet"])
     if ocr_values_only:
         npl = ocr_only(npl)
     meta["ocr_values_only"] = ocr_values_only
-    nc = pd.read_parquet(EXTRACTED / "news_counts.parquet")
+    nc = pd.read_parquet(src["news_counts.parquet"])
     bank = ds[ds.is_bank.astype(bool)].reset_index(drop=True)
     bank = add_npl_features(bank, npl)
     bank = add_news_features(bank, nc[["ticker", "trade_date", "window_end_session",
