@@ -6,6 +6,11 @@
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{microtype}
+\usepackage{enumitem}
+\setlist[itemize]{itemsep=2pt,parsep=0pt,topsep=4pt}
+% lets TeX stretch a line a little instead of running a word into the margin
+\setlength{\emergencystretch}{1.5em}
 % L{width}: ragged-right paragraph column (no hyphenation or stretched spaces in narrow cells)
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{graphicx}
@@ -27,6 +32,10 @@
 % Target: Journal of Forecasting (Wiley; research/journals.md). Free-format first submission is
 % accepted, so elsarticle is fine now; at revision switch to APA references and separate figure
 % files. Running title (< 40 characters): "When do trends reverse?". At most 6 keywords.
+
+% elsarticle defines \appendixname as "Appendix " (trailing space) and then adds ~, which
+% prints "Appendix  A" with a double space.
+\def\appendixname{Appendix}
 
 \begin{document}
 

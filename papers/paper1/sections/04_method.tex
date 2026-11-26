@@ -9,7 +9,7 @@ features and models, and states the evaluation protocol and the tests. Every ele
 before the test years were used. Each choice is logged with its date in a public decision record
 (Section~\ref{sec:prereg}). Table~\ref{tab:notation} collects the notation.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
 \caption{Notation.}\label{tab:notation}
 \small
@@ -88,8 +88,10 @@ stock survives later.
 The target is the hazard $s$ sessions after the decision, with the features held at their values on
 day $t$:
 \begin{equation}\label{eq:hazard}
-  \lambda_s(x_{i,t}) = \Pr\!\left(D_{i,t}=s \mid D_{i,t}\ge s,\ x_{i,t}\right), \qquad
-  S(h\mid x_{i,t}) = \prod_{s=1}^{h}\bigl(1-\lambda_s(x_{i,t})\bigr),
+\begin{split}
+  \lambda_s(x_{i,t}) &= \Pr\!\left(D_{i,t}=s \mid D_{i,t}\ge s,\ x_{i,t}\right),\\
+  S(h\mid x_{i,t}) &= \prod_{s=1}^{h}\bigl(1-\lambda_s(x_{i,t})\bigr),
+\end{split}
 \end{equation}
 for $s,h = 1,\dots,20$. This is a landmark formulation \citep{vanHouwelingen2007}: each session is
 a new prediction for the same open swing, made with what is known on that session. Each row is
@@ -117,7 +119,7 @@ session. Returns and changes in blocks B--D also enter multiplied by the swing d
 $\delta_{i,t}$ in the linear models (Section~\ref{sec:features}). Full definitions and availability
 rules: \ref{sec:appendix}.}\label{tab:features}
 \small
-\begin{tabular}{L{0.22\linewidth}L{0.72\linewidth}}
+\begin{tabular}{L{0.21\linewidth}L{0.72\linewidth}}
 \toprule
 Block & Features \\
 \midrule
@@ -172,11 +174,11 @@ therefore separate predictability \emph{beyond the mechanics} from predictabilit
 Kaplan--Meier, and use three mechanical baselines.
 
 \begin{enumerate}
-\item \textbf{M} is the logistic landmark hazard on age, $\log(1+a)$ and $d$, entered linearly.
-\item \textbf{M\_flex} is a gradient-boosted landmark hazard on the same three features. It lets
+\item \texttt{M} is the logistic landmark hazard on age, $\log(1+a)$ and $d$, entered linearly.
+\item \texttt{M\_flex} is a gradient-boosted landmark hazard on the same three features. It lets
   the mechanical relation take any shape, so a richer model cannot beat the mechanics merely by
-  fixing M's functional form.
-\item \textbf{RW} is a model-free random-walk null with nothing fitted. For row $(i,t)$ we draw 500
+  fixing the functional form of \texttt{M}.
+\item \texttt{RW} is a model-free random-walk null with nothing fitted. For row $(i,t)$ we draw 500
   paths of 20 sessions. Each simulated session is a whole-day tuple (close-to-close log return,
   high/close, low/close) drawn with replacement from the stock's own last 250 sessions up to $t$.
   The directional-change rule is rolled forward from its exact state after the close of $t$: the
@@ -186,8 +188,8 @@ Kaplan--Meier, and use three mechanical baselines.
   observed duration exactly.
 \end{enumerate}
 
-RW asks what reversal timing would look like if the stock's recent daily returns arrived in random
-order. A model beats RW only if it knows something about the order of future returns that the
+\texttt{RW} asks what reversal timing would look like if the stock's recent daily returns arrived in random
+order. A model beats \texttt{RW} only if it knows something about the order of future returns that the
 stock's own volatility does not.
 
 \subsection{Models}\label{sec:models}
@@ -222,7 +224,7 @@ refitted on the full training window. Grids are small and fixed in advance
 
 \subsection{Walk-forward protocol}\label{sec:walkforward}
 
-The test years are 2017 to 2026, and each is one fold. 2026 is a partial year that ends at the
+The test years are 2017 to 2026, and each is one fold. The 2026 fold is a partial year that ends at the
 2026-11-20 close. For test year $y$:
 
 \begin{itemize}
@@ -281,7 +283,7 @@ tests it is an intersection--union test, valid at the nominal level without adju
 \paragraph{One primary test per question} Table~\ref{tab:primary} lists the primary tests. Each
 uses 1,000 paired resamples. We report its Monte Carlo error as the spread of the interval endpoints
 between the two halves of the resamples. Holm-adjusted bootstrap $p$-values across the six
-confirmatory primaries are reported as a sensitivity \todo{cite Holm 1979}. Every
+confirmatory primaries are reported as a sensitivity.\todo{cite Holm 1979} Every
 other comparison is secondary or descriptive and is labelled so.
 
 \begin{table}[t]
@@ -289,23 +291,23 @@ other comparison is secondary or descriptive and is labelled so.
 \caption{Hypotheses and their primary tests. ``$A-B$'' is the paired difference of model $A$ over
 model $B$ under the decision rule of Section~\ref{sec:inference}. KM: Kaplan--Meier.}\label{tab:primary}
 \small
-\begin{tabular}{L{0.28\linewidth}L{0.36\linewidth}L{0.28\linewidth}}
+\begin{tabular}{L{0.27\linewidth}L{0.35\linewidth}L{0.27\linewidth}}
 \toprule
 Question & Primary test & Reported alongside \\
 \midrule
 H1: reversal timing is predictable & \texttt{ABCDx} $-$ KM & every model $-$ KM \\
-H1-mech: beyond the label mechanics & \texttt{ABCx} $-$ \texttt{M\_flex} \emph{and}
-  \texttt{ABCx} $-$ RW & \texttt{ABCx} $-$ M \\
+H1-mech: beyond the label mechanics & \texttt{ABCx} $-$ \texttt{M\_flex}, \emph{and}\newline
+  \texttt{ABCx} $-$ \texttt{RW} & \texttt{ABCx} $-$ \texttt{M} \\
 H2: global information adds to local & \texttt{ABCDx} $-$ \texttt{ABCx} & D vs no D in each model
   family; per-feature attribution \\
-H3: trends age, given the distance & \texttt{M\_s} $-$ \texttt{DIST\_s} & M $-$ DIST; age-only
+H3: trends age, given the distance & \texttt{M\_s} $-$ \texttt{DIST\_s} & \texttt{M} $-$ \texttt{DIST}; age-only
   hazard \\
 H4: global sensitivity rose after the FTSE announcement & single-index interaction, one-sided
   (exploratory) & 10-term Wald test; placebo dates \\
 H5: worth something after costs & model exit beats DC exit, buy-and-hold and mechanical exit &
   costs 0.2\% and 0.8\%; deflated Sharpe ratio \\
 Block E: bank fundamentals and news & \texttt{ABCDx+E} $-$ \texttt{ABCDx} on bank rows &
-  \texttt{M+E} $-$ M; transcription and timing variants \\
+  \texttt{M+E} $-$ \texttt{M}; transcription and timing variants \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -326,7 +328,7 @@ adjustment of \citet{ClarkWest2007}.
 2,000 resamples and Holm adjustment across the 14. A separate contrast asks whether gold adds
 anything once geopolitical risk is in the model, and the reverse.
 
-\paragraph{Controls and stop rules} For \texttt{ABCD}, \texttt{ABCDx}, M and the neural model, the
+\paragraph{Controls and stop rules} For \texttt{ABCD}, \texttt{ABCDx}, \texttt{M} and the neural model, the
 outcome pairs (duration, event) are permuted across training rows and the model is refitted. A
 model trained on permuted outcomes should rank test rows at chance. The run was set to stop before
 any other output was read if the mean over years of the shuffled C exceeded 0.53, or if any model's
@@ -337,8 +339,8 @@ C exceeded 0.70. Either would point to leakage, and a stop would trigger a docum
 Two questions are about the sign or the change of an effect, not about forecasting. We answer them
 with full-sample estimates and say so.
 
-\paragraph{Signs of the global effects (H2, directional part)} A landmark logit on
-\texttt{ABCDx\_bank} is fitted on all rows from 2012 to 2026-11-20, with a light ridge (inverse
+\paragraph{Signs of the global effects (H2, directional part)} Specification
+\texttt{ABCDx\_bank} is fitted as a landmark logit on all rows from 2012 to 2026-11-20, with a light ridge (inverse
 penalty 100) only so that it converges. Rows of one swing overlap, so standard errors are clustered
 by date and, separately, two-way by date and stock \citep{CameronGelbachMiller2011}. The larger
 $p$-value decides. The pre-registered signs are negative for the S\&P 500 and Nasdaq terms
@@ -369,7 +371,7 @@ long-only.
 \item \emph{Model exit} (H5): buy at the open after an up-swing is confirmed. Sell at the open after
   the first day on which \texttt{ABCDx}'s predicted 5-session reversal probability exceeds $\tau$,
   or after the down-reversal is confirmed, whichever comes first.
-\item \emph{Mechanical exit}: the same rule with M's predictions.
+\item \emph{Mechanical exit}: the same rule with the predictions of \texttt{M}.
 \item \emph{Directional-change exit}: the same entry; sell at the open after the down-reversal is
   confirmed.
 \item \emph{Buy-and-hold}: hold every stock while it is in the universe.
@@ -398,11 +400,11 @@ configuration actually computed in the run.
 \subsection{Pre-registration and number of configurations}\label{sec:prereg}
 
 Every design decision is recorded in a dated log before it was used, with the state of the
-evidence at that moment \todo{repo URL}. The development
+evidence at that moment.\todo{repo URL} The development
 period produced \gen{DevRunCount} logged runs, all reported in \ref{sec:appendix}. One
 change to the evaluation came from development results: the mechanical baseline was added after
 the distance to the threshold alone was found to carry most of the ranking skill. A second change,
 direction-specific effects, followed from the stated direction of H2. After a design review and
-before any test-year output, the mechanical nulls M\_flex and RW, the year-stratified primary
+before any test-year output, the mechanical nulls \texttt{M\_flex} and \texttt{RW}, the year-stratified primary
 metrics and the stricter H5 rule were added. None of these changes could use test-year
 information, because the test years had not been evaluated.

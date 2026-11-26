@@ -42,6 +42,13 @@ Deep survival models then filter the signals. The filtered strategies improve on
 both a bear and a bull half of 2022, their only test year. The authors argue that survival data from
 different stocks cannot be pooled.
 
+Both survival studies leave open the choice of unit. Daily runs end on one opposite day, so their length is
+dominated by noise, and a target return after a signal is not the end of a trend. Our swings end only
+when the price moves $\theta$ against its running extreme, with $\theta$ scaled by each stock's
+trailing volatility. This makes swings comparable across stocks, so they can be pooled. We
+replace a single holdout with a walk-forward test over 2017--2026, and compare against a
+model-free random-walk null, which echoes the random-walk benchmark of \citet{Yao2005}.
+
 Machine-learning studies that target turning points directly report far stronger results, but
 their evaluation designs leave room for look-ahead. \citet{Abolmakarem2024} predict next-day
 direction, returns and turning points for four large stocks with a multilayer perceptron. They
@@ -50,13 +57,6 @@ returns. The data split is not stated as chronological, some targets use the ful
 and maximum, and there is no naive baseline. Accuracy of this size on daily returns is a typical
 sign of look-ahead rather than of predictability. In an appendix we rebuild their targets on our data and
 compare a random split with a chronological one.
-
-These studies leave open the choice of unit. Daily runs end on one opposite day, so their length is
-dominated by noise, and a target return after a signal is not the end of a trend. Our swings end only
-when the price moves $\theta$ against its running extreme, with $\theta$ scaled by each stock's
-trailing volatility. This makes swings comparable across stocks, so they can be pooled. We also
-replace a single holdout with a walk-forward test over 2017--2026. We also compare against a
-model-free random-walk null, which echoes the random-walk benchmark of \citet{Yao2005}.
 
 \subsection{Directional-change methods}
 
