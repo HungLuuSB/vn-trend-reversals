@@ -810,6 +810,21 @@ The model-shape table and the test results do not change.
   - **Development inputs:** they gain one value, BID 2012 Q3 (0.0296, previously missing). The other 202 are identical. The D-023 development comparison is not re-run for one added value.
 - **EIB 2025 Q4:** the transcribed value never enters the features. The file's PDF creation date (2027-01-31) is after the cutoff, so it has no `available_at`. That is conservative, and it is left as is.
 
+**Clarification 10 (2026-11-26, pre-freeze leakage audit): two join bugs in block E, fixed before any test-year run.** A perturbation test scrambled every value public at or after a cutoff and checked that features with earlier decision times did not change. It found two bugs.
+- **Look-ahead in `npl_change`.** A change became public at `max(available_at, available_at_prev)`, and pandas `max` skips NaT. When one quarter is never public (EIB 2025 Q4, `available_at` NaT; see above), its value still entered the change, dated by the other quarter alone.
+  - **Impact:** 65 EIB rows, 2026-05-22 to 2026-08-20 (test years), received Q1 2026 − Q4 2025. No development row was affected.
+  - **Fix:** `skipna=False`, so a change is public only once both quarters are.
+  - **Test:** `test_change_is_never_public_if_either_quarter_never_is`.
+- **Ties at the same `available_at`.** Q1 and Q2 2011 of several banks first become usable at the same moment, the start of the session calendar. The as-of join then picked between them by row order, which depended on unrelated rows.
+  - **Impact:** 2011 rows only (ACB, SHB, STB, VCB). No study-period row changes.
+  - **Fix:** ties go to the latest quarter (stable sort on `available_at`, `qidx`).
+  - **Test:** `test_tied_publication_times_resolve_to_the_latest_quarter_whatever_the_row_order`.
+- **After the fixes:**
+  - **Block E perturbation:** zero changes at cutoffs in 2014, 2018, 2021, 2024 and 2026 (105,560 bank-session rows each).
+  - **News perturbation** (articles after the cutoff deleted): zero changes.
+  - **Price perturbation of blocks A–C and the sequence channels:** zero changes in 369,855 rows (224 stock and cutoff pairs).
+  - Every stored `npl_ratio` is unchanged.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.
