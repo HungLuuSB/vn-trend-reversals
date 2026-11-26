@@ -85,7 +85,7 @@ seq 2017 2026 | xargs -P 10 -I{} sh -c 'uv run python -m vnbank.research.surviva
     --final --i-confirm-final-run > cache/main_{}.out 2>&1'
 for K in k1_5 k3; do
   seq 2017 2026 | xargs -P 10 -I{} sh -c "uv run python -m vnbank.research.survival.final.year \
-      --features-run research/paper1/runs/<$K> --year {} --out cache/$K --only M,ABCDx \
+      --features-run research/paper1/runs/<$K> --year {} --out cache/$K --only M,ABCDx,RW \
       --final --i-confirm-final-run > cache/${K}_{}.out 2>&1"
 done
 ```
