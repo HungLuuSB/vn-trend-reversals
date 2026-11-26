@@ -50,7 +50,7 @@ The five core papers below give the possible Paper 3 a concrete method for each 
 
 ## Vo & Nguyen (2016): US monetary policy and Vietnamese stocks
 
-Vo, X.V. & Nguyen, P.C. (2016). Impacts of the US monetary policy on the Vietnamese stock market. *Afro-Asian Journal of Finance and Accounting* 6(2), 119–134. **No DOI in the text: unverified.** File: `monetary/`.
+Vo, X.V. & Nguyen, P.C. (2016). Impacts of the US monetary policy on the Vietnamese stock market. *Afro-Asian Journal of Finance and Accounting* 6(2), 119–134. **DOI 10.1504/AAJFA.2016.077331: verified** (Crossref, 2026-11-26). File: `monetary/`.
 
 - **Data:** annual returns of HOSE and HNX firms, 2006–2013 (the text also says 2005–2013); 2,168 firm-years. US policy is measured by the *level* of the Fed funds rate (FFR).
 - **Method:** pooled OLS and firm fixed effects, with FFR × size, market-to-book and leverage interactions. All regressors are contemporaneous.
@@ -69,7 +69,7 @@ Vo, X.V. & Nguyen, P.C. (2016). Impacts of the US monetary policy on the Vietnam
 
 ## Thuan (2011): the US and Vietnam stock markets
 
-Luu Tien Thuan (2011). The relationship between the United States and Vietnam stock markets. *International Journal of Business and Finance Research* 5(1), 77–89. **No DOI in the text: unverified.** File: `us-vn-spillover/`.
+Luu Tien Thuan (2011). The relationship between the United States and Vietnam stock markets. *International Journal of Business and Finance Research* 5(1), 77–89. **No DOI; verified on RePEc/IDEAS** (https://ideas.repec.org/a/ibf/ijbfre/v5y2011i1p77-89.html, 2026-11-26). Family name Luu, cited as Luu (2011). File: `us-vn-spillover/`.
 
 - **Data:** daily, December 2003 to August 2009, 1,482 returns. The VN-Index *opening* price is regressed on the previous S&P 500 or Dow Jones close. Quote: "the U.S. stock market closes at 3 AM (Vietnamese time) and the Vietnam Stock market opens at 8:30 AM" (it ignores US daylight saving time).
 - **Method:** ARMA–GARCH(1,1) and EGARCH, with the lagged US return in the mean and squared US residuals in the variance. Sub-periods are cut at leaders' visits (2005, 2007, 2008).
@@ -134,7 +134,7 @@ Abolmakarem, S., Abdi, F., Khalili-Damghani, K. & Didehkhani, H. (2024). A multi
 
 ## Nguyen, Bhatti & Henry (2017): US contagion into Vietnam and China in extreme events
 
-Nguyen, C., Bhatti, M.I. & Henry, D. (2017). Are Vietnam and Chinese stock markets out of the US contagion effect in extreme events? *Physica A*. **DOI 10.1016/j.physa.2017.02.045: verified.** The text is the accepted manuscript, so volume and pages must be taken from the published version before citing. File: `us-vn-spillover/`.
+Nguyen, C., Bhatti, M.I. & Henry, D. (2017). Are Vietnam and Chinese stock markets out of the US contagion effect in extreme events? *Physica A*. **DOI 10.1016/j.physa.2017.02.045: verified.** Published version: *Physica A* 480, 10–21 (Crossref, 2026-11-26). File: `us-vn-spillover/`.
 
 - **Data:** daily VN-Index, Shanghai, Shenzhen and S&P 500 (DataStream), 2003–2011. The start date is given three different ways.
 - **Alignment:** never stated, so almost certainly same-date pairs. Vietnam's day t closes before the US day t opens, so the channel that matters (US t−1 to Vietnam t) is not modelled.

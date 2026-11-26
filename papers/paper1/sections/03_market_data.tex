@@ -21,11 +21,14 @@ and compute the band for each stock-day. Where the reference was a volume-weight
 data cannot reconstruct, the limit is recorded as unknown and is never guessed.
 
 \paragraph{Settlement and short sales} Equity trades settled T+3 until the trades of 31 December
-2015 and T+2 from 4 January 2016. Short selling of individual stocks is not generally available, so
-the trading test in Section~\ref{sec:trading} is long-only.
+2015 and T+2 from 4 January 2016. Short selling of individual stocks was not available on the cash market during the sample:
+the authorities planned controlled short selling for 2026--2028, and in June 2026 the depository
+still expected it no earlier than the second half of 2026, and most likely in 2027 or 2028
+\citep{TheInvestor2025,NguoiQuanSat2026}. The trading test in Section~\ref{sec:trading} is
+therefore long-only.
 
 \paragraph{Market upgrade} FTSE Russell announced on 7 October 2025 that Vietnam would be
-reclassified from Frontier to Secondary Emerging status, effective 21 September 2026.\todo{cite FTSE release} This
+reclassified from Frontier to Secondary Emerging status, effective 21 September 2026 \citep{FTSE2025}.\todo{verify exact release title} This
 event dates the exploratory test of H4.
 
 \subsection{Universe and sample}\label{sec:universe}
@@ -66,7 +69,7 @@ test rows (2017--2026) are scored only by the final walk-forward run.}\label{tab
 \subsection{Price data}\label{sec:prices}
 
 Daily open, high, low, close and volume come from the bulk end-of-day archives of CafeF, a
-Vietnamese financial portal.\todo{cite CafeF} Every download is stored
+Vietnamese financial portal \citep{CafeF2026}. Every download is stored
 unchanged before parsing. Where the bulk archive lacks a stock's history before a change of venue,
 it is filled from CafeF's per-ticker history; on the stock-days both sources cover, the two agree on
 all five fields on every day (\gen{PriceOverlapDays} stock-days). After the fill, the sample covers
