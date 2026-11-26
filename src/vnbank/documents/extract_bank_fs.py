@@ -58,7 +58,13 @@ def _one(key: str, meta: dict | None = None) -> dict:
         row["members"] = " | ".join(n for n, _ in pdfs)
     else:
         return {**row, "status": "not_pdf"}
-    lq = find_loan_quality(pages)
+    period_end = None
+    if row.get("period") and row.get("year"):
+        from vnbank.research.survival.features.fundamentals import QUARTER, quarter_end
+
+        if row["period"] in QUARTER:
+            period_end = quarter_end(int(row["year"]), QUARTER[row["period"]])
+    lq = find_loan_quality(pages, period_end)
     row.update({"n_pages": len(pages), "ocr_s": round(time.time() - t0, 1)})
     if lq is None:
         return {**row, "status": "no_table"}

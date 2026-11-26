@@ -45,6 +45,22 @@ def documents(store) -> pd.DataFrame:
     return d.sort_values("raw_key").drop_duplicates("name").drop(columns="name")
 
 
+def drop_mislabelled(docs: pd.DataFrame) -> pd.DataFrame:
+    """D-023 clarification 8: a file created within the 12 months before its quarter's end
+    cannot be that quarter's statement (CafeF mislabel). Older creation dates are broken PDF
+    metadata and are kept (the filing deadline governs publication time)."""
+    from vnbank.research.survival.features.fundamentals import QUARTER, quarter_end
+
+    qend = pd.to_datetime([quarter_end(int(y), QUARTER[p]) if p in QUARTER else pd.NaT
+                           for y, p in zip(docs.year, docs.period, strict=True)])  # fmt: skip
+    created = pd.to_datetime(docs.created)
+    bad = created.notna() & (created < qend) & (created >= qend - pd.Timedelta(days=365))
+    if bad.any():
+        print(f"{int(bad.sum())} mislabelled file(s) excluded:",
+              docs.loc[bad, ["symbol", "year", "period", "kind"]].to_dict("records"))  # fmt: skip
+    return docs[~bad.to_numpy()]
+
+
 def npl_values(fr: pd.DataFrame) -> pd.DataFrame:
     ocr = pd.read_parquet(EXTRACTED / "loan_quality.parquet")[["raw_key", "status", "npl_ratio"]]
     out = fr.merge(ocr, on="raw_key", how="left")
@@ -107,14 +123,15 @@ def main(argv: list[str] | None = None) -> int:
     load_dotenv(["S3_"])
     store = S3RawStore.from_env()
     docs = documents(store)
-    # D-023 clarification 4: creation dates decide between versions of the same kind
+    # creation dates of every candidate: versions (clarification 4) and mislabels (clarification 8)
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(8) as ex:
+        docs["created"] = list(ex.map(lambda k: document_created(store.get(k)), docs.raw_key))
     dup = docs.duplicated(["symbol", "year", "period", "kind"], keep=False)
-    docs["created"] = None
-    docs.loc[dup, "created"] = [document_created(store.get(k)) for k in docs.raw_key[dup]]
     print(f"{int(dup.sum())} files share a bank-quarter and kind with another file")
+    docs = drop_mislabelled(docs)
     fr = first_release(docs)
-    fr["created"] = [c if c is not None and not pd.isna(c) else document_created(store.get(k))
-                     for c, k in zip(fr.created, fr.raw_key, strict=True)]  # fmt: skip
     vals = quarterly_values(npl_values(fr), sess)
     vals.to_parquet(EXTRACTED / "block_e_npl.parquet", index=False)
     print(pd.crosstab(vals.symbol, vals.value_source.fillna("none"), margins=True).to_string())

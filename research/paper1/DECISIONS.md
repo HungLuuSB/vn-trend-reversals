@@ -767,6 +767,29 @@ The model-shape table and the test results do not change.
   5. M.
   - In the development data the only case is ACB Q4/2014, where HN exists and still wins, so the D-023 development results do not change.
 
+**Clarification 6 (2026-11-26, full-period OCR; before any 2017–2026 block E value is joined to an outcome): percentage columns in loan tables.**
+- Some banks print a share next to each amount (amount, %, amount, %), e.g. TCB: `Nợ đủ tiêu chuẩn 711.706.750 98,34 594.272.007 98,10`. The parser read "98,34" as the integer 9834 and took the wrong pair of numbers, so every TCB table failed the sum check.
+- **Rule:** a number token whose last separator is followed by only 1–2 digits is a decimal (a percentage), not an amount, and is ignored. Amounts always end in a 3-digit group.
+- The sum check is unchanged: every table must still add up to its printed total.
+- **Check, before the values are used:** every statement is re-parsed from the OCR cache. Every value the old parser accepted must be identical, and the number of newly read tables is reported.
+
+**Clarification 7 (2026-11-26, same stage as clarification 6): "of which" rows and wide credit-risk tables.**
+- **"Of which" rows.** MBB prints a sub-row inside group 1 (`+ Trong đó các khoản cho vay tại MBS …`). The parser read it as group 2 under its unreadable-label rule. Rows whose label begins with "trong đó" (of which), or with a "+" marker, are now skipped; they are parts of the row above, not loan groups.
+- **Wide tables.** From about 2019 VIB prints one table of credit-risk assets per date, with one column per asset class (customer loans, purchased bonds, investment securities, deposits at other banks, total).
+  - When the usual two-column reading fails the sum check, the parser reads the **first** amount of each row as the current value, with no comparison column.
+  - This applies only if the header lines just above the table name customer loans ("cho vay khách hàng") **before** any other asset class (deposits, securities, bonds).
+  - The first column must still sum to the first amount of the total row.
+- The check of clarification 6 is repeated: every value accepted before must be identical, and the new tables are reported per bank.
+
+**Clarification 8 (2026-11-26, same stage): values from the wrong period.**
+- **Mislabelled files.** CafeF lists a CTG file as the Q1 2024 statement, but it was created on 2024-03-29, before Q1 ended, and its table shows 31/12/2023 data. Under clarification 4 (earliest creation date wins) it would have been chosen as Q1's first release.
+  - **Rule:** a file whose PDF creation date falls within the 12 months before its quarter's end is not that quarter's statement and is excluded.
+  - A creation date more than 12 months earlier is broken PDF metadata (six such files, with dates in 2000–2016). It is ignored, as clarification 3 already does for publication timing.
+  - Creation dates are now read for every candidate file, not only for duplicated ones.
+- **Wide tables (clarification 7).** VIB's wide tables come in two blocks, one for the current date and one for the comparison date. Where OCR garbled the current block, the comparison block was accepted (VIB 2023 Q3 and 2025 Q1 repeated the previous year-end's values).
+  - **Rule:** a wide table is read only if the header lines above it show the statement's own period-end date (dd/mm/yyyy, dd.mm.yyyy or "dd tháng mm năm yyyy").
+- **Checks:** all accepted values are re-compared with the previous parse, and no value may repeat a different quarter's total for the same bank, except where two versions of the same quarter's statement exist.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.

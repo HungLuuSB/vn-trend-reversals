@@ -28,6 +28,7 @@ GROUPS = [
 MAX_EXTRA = 2  # rows printed between group 5 and the total (D-023 clarification)
 MAX_ROWS = 30  # look-ahead in lines (OCR often inserts blank lines between table rows)
 _NUM = re.compile(r"\d[\d.,]*\d|\d")
+_DECIMAL = re.compile(r"[.,]\d{1,2}$")
 
 
 def fold(s: str) -> str:
@@ -40,8 +41,11 @@ def fold(s: str) -> str:
 def numbers(line: str) -> list[int]:
     """Integers written with . or , thousands separators, in order. Tolerant of OCR that
     drops a separator ("5371348.825.425"): separators are removed, not validated. A misread
-    cannot pass silently because every table must sum to its printed total."""
-    return [int(re.sub(r"[.,]", "", m)) for m in _NUM.findall(line)]
+    cannot pass silently because every table must sum to its printed total. Decimals such as
+    percentage columns ("98,34", "0,53", "100,00") are skipped: amounts always end in a 3-digit
+    group (D-023 clarification 6)."""
+    return [int(re.sub(r"[.,]", "", m)) for m in _NUM.findall(line)
+            if not _DECIMAL.search(m)]  # fmt: skip
 
 
 def sums_to(parts: list[int], total: int) -> bool:
@@ -78,12 +82,36 @@ def _group(folded_line: str) -> int | None:
     return next((k for p, k in GROUPS if p in compact), None)
 
 
-def parse_page(text: str, page: int) -> LoanQuality | None:
+WIDE_OTHERS = ("tiengui", "chungkhoan", "traiphieu")  # other asset-class column headers
+
+
+def _customer_loans_first(folded: list[str], start: int) -> bool:
+    """Wide credit-risk tables (D-023 clarification 7): the header just above the table names
+    customer loans before any other asset class, so the first amount column is customer loans."""
+    head = re.sub(r"[^a-z]", "", " ".join(folded[max(0, start - 15) : start]))
+    i = head.find("chovay")  # column names wrap over lines ("Cho vay" / "khách hàng")
+    return (i >= 0 and "khachhang" in head
+            and all(head.find(k) < 0 or i < head.find(k) for k in WIDE_OTHERS))  # fmt: skip
+
+
+def _shows_date(folded: list[str], start: int, period_end) -> bool:
+    """The header lines above a table show the statement's period-end date (clarification 8)."""
+    head = re.sub(r"\s", "", " ".join(folded[max(0, start - 15) : start]))
+    d, m, y = period_end.day, period_end.month, period_end.year
+    forms = {f"{d:02d}/{m:02d}/{y}", f"{d}/{m}/{y}", f"{d:02d}.{m:02d}.{y}", f"{d:02d}{m:02d}{y}",
+             f"{d}thang{m:02d}nam{y}", f"{d}thang{m}nam{y}", f"{d:02d}-{m:02d}-{y}"}  # fmt: skip
+    return any(f in head for f in forms)
+
+
+def parse_page(text: str, page: int, wide: bool = False, period_end=None) -> LoanQuality | None:
     """Find a run of the five group lines (each with two amounts) followed by a total line.
     Headings vary by bank and year ("Phân tích chất lượng nợ cho vay", "Phân tích theo nhóm"),
     so the table is located by its rows, not its heading. Every later line with an amount is
     tried as the total (OCR may garble the first "Tổng" line); the current column must sum
-    to it, and the comparison column too whenever its total is legible."""
+    to it, and the comparison column too whenever its total is legible.
+    wide=True reads the first amount of each row as the current value with no comparison
+    column (wide credit-risk tables whose first column is customer loans; clarification 7).
+    "Of which" rows ("Trong đó …", "+ …") are parts of the row above and are skipped."""
     lines = text.splitlines()
     folded = [fold(x) for x in lines]
 
@@ -100,6 +128,9 @@ def parse_page(text: str, page: int) -> LoanQuality | None:
         unreadable_first = g0 is None and re.search(r"[a-z]", f) and _next_group(start) == 2
         if g0 != 1 and not unreadable_first:
             continue
+        if wide and not (_customer_loans_first(folded, start) and period_end is not None
+                         and _shows_date(folded, start, period_end)):  # fmt: skip
+            continue
         found: dict[int, tuple[int, int]] = {}
         extras: list[tuple[int, int]] = []
         for j in range(start, min(start + MAX_ROWS, len(lines))):
@@ -108,6 +139,12 @@ def parse_page(text: str, page: int) -> LoanQuality | None:
             big = [n for n in numbers(lines[j]) if n >= 1000]
             g = _group(folded[j])
             if len(found) < 5:
+                label = re.sub(r"[^a-z]", "", folded[j])
+                if label.startswith("trongdo") or lines[j].lstrip().startswith("+"):
+                    continue  # "of which" sub-row (MBB: loans at MBS), clarification 7
+                if wide and big and g == len(found) + 1:
+                    found[g] = (big[0], 0)
+                    continue
                 if len(big) >= 2:
                     compact = re.sub(r"[^a-z]", "", folded[j])
                     nxt = len(found) + 1
@@ -121,6 +158,10 @@ def parse_page(text: str, page: int) -> LoanQuality | None:
             groups = tuple(found[k] for k in range(1, 6))
             cur = [gr[0] for gr in groups]
             prev = [gr[1] for gr in groups]
+            if wide:
+                if sums_to(cur, big[0]):
+                    return LoanQuality(page, groups, (big[0], None))
+                continue
             total = (big[-2], big[-1]) if len(big) >= 2 else (big[0], None)
             if sums_to(cur, total[0]) and (total[1] is None or sums_to(prev, total[1])):
                 return LoanQuality(page, groups, total)
@@ -135,14 +176,19 @@ def parse_page(text: str, page: int) -> LoanQuality | None:
     return None
 
 
-def find_loan_quality(pages: list[str]) -> LoanQuality | None:
-    """First table in the document whose groups add up to its printed total."""
+def find_loan_quality(pages: list[str], period_end=None) -> LoanQuality | None:
+    """First table in the document whose groups add up to its printed total. Wide tables are
+    read only when the statement's period_end (a date) is known and shown above the table."""
     for i, text in enumerate(pages, start=1):
         lq = parse_page(text, i)
         if lq:
             return lq
     for i in range(1, len(pages)):  # then tables that run over a page break
         lq = parse_page(pages[i - 1] + "\n" + pages[i], i)
+        if lq:
+            return lq
+    for i, text in enumerate(pages, start=1):  # last: wide credit-risk tables (clarification 7)
+        lq = parse_page(text, i, wide=True, period_end=period_end)
         if lq:
             return lq
     return None
