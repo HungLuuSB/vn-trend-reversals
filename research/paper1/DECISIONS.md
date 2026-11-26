@@ -767,6 +767,12 @@ The model-shape table and the test results do not change.
   5. M.
   - In the development data the only case is ACB Q4/2014, where HN exists and still wins, so the D-023 development results do not change.
 
+**Clarification 6 (2026-11-26, full-period OCR; before any 2017–2026 block E value is joined to an outcome): percentage columns in loan tables.**
+- Some banks print a share next to each amount (amount, %, amount, %), e.g. TCB: `Nợ đủ tiêu chuẩn 711.706.750 98,34 594.272.007 98,10`. The parser read "98,34" as the integer 9834 and took the wrong pair of numbers, so every TCB table failed the sum check.
+- **Rule:** a number token whose last separator is followed by only 1–2 digits is a decimal (a percentage), not an amount, and is ignored. Amounts always end in a 3-digit group.
+- The sum check is unchanged: every table must still add up to its printed total.
+- **Check, before the values are used:** every statement is re-parsed from the OCR cache. Every value the old parser accepted must be identical, and the number of newly read tables is reported.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.

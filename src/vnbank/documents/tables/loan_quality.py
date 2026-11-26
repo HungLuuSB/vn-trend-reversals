@@ -28,6 +28,7 @@ GROUPS = [
 MAX_EXTRA = 2  # rows printed between group 5 and the total (D-023 clarification)
 MAX_ROWS = 30  # look-ahead in lines (OCR often inserts blank lines between table rows)
 _NUM = re.compile(r"\d[\d.,]*\d|\d")
+_DECIMAL = re.compile(r"[.,]\d{1,2}$")
 
 
 def fold(s: str) -> str:
@@ -40,8 +41,11 @@ def fold(s: str) -> str:
 def numbers(line: str) -> list[int]:
     """Integers written with . or , thousands separators, in order. Tolerant of OCR that
     drops a separator ("5371348.825.425"): separators are removed, not validated. A misread
-    cannot pass silently because every table must sum to its printed total."""
-    return [int(re.sub(r"[.,]", "", m)) for m in _NUM.findall(line)]
+    cannot pass silently because every table must sum to its printed total. Decimals such as
+    percentage columns ("98,34", "0,53", "100,00") are skipped: amounts always end in a 3-digit
+    group (D-023 clarification 6)."""
+    return [int(re.sub(r"[.,]", "", m)) for m in _NUM.findall(line)
+            if not _DECIMAL.search(m)]  # fmt: skip
 
 
 def sums_to(parts: list[int], total: int) -> bool:

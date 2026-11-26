@@ -220,3 +220,24 @@ Nợ có khả năng mất vốn 4.769.707 3.552.210
     split = first.split("Nợ nghi ngờ")
     lq = find_loan_quality([split[0] + "Trang 14", "Nợ nghi ngờ" + split[1]])
     assert lq is not None and lq.page == 1
+
+
+def test_percentage_columns_are_not_amounts():
+    """TCB prints a share next to each amount (D-023 clarification 6)."""
+    from vnbank.documents.tables.loan_quality import numbers, parse_page
+
+    assert numbers("Nợ đủ tiêu chuan 711.706.750 98,34 594.272.007 98,10") == [711706750, 594272007]
+    assert numbers("Nợ cần chú ý 3.852.272 0,53 4.440.911 0,73") == [3852272, 4440911]
+    text = """9.1 Phân tich chất lượng nợ cho vay
+31/12/2025 31/12/2024
+triệu dong % triệu dong %
+Nợ đủ tiêu chuan 711.706.750 98,34 594.272.007 98,10
+Nợ cần chú ý 3.852.272 0,53 4.440.911 0,73
+Nợ dưới tiêu chuan 918.063 0,13 1.365.655 0,22
+Nợ nghi ngờ 1.339.119 0,18 2.465.618 0,41
+Nợ có khả năng mắt vén 5.941.193 0,82 3.269.527 0,54
+723.757.397 100,00 605.813.718 100,00"""
+    lq = parse_page(text, 45)
+    assert lq is not None and lq.total == (723757397, 605813718)
+    assert lq.groups[0] == (711706750, 594272007)
+    assert abs(lq.npl_ratio - (918063 + 1339119 + 5941193) / 723757397) < 1e-12
