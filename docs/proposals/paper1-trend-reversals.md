@@ -1,6 +1,6 @@
 # When Do Trends Reverse? A Survival Analysis of Price Swings in the Vietnamese Stock Market Under Global Shocks
 
-Research proposal · Nov 24, 2026 · @Hung
+Research proposal · Nov 24, 2026 · @Hung · Nhat Hao Pham Ngo (co-author, added Nov 26, 2026)
 
 ## Abstract
 
