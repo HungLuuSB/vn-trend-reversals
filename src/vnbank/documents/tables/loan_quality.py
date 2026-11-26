@@ -94,7 +94,16 @@ def _customer_loans_first(folded: list[str], start: int) -> bool:
             and all(head.find(k) < 0 or i < head.find(k) for k in WIDE_OTHERS))  # fmt: skip
 
 
-def parse_page(text: str, page: int, wide: bool = False) -> LoanQuality | None:
+def _shows_date(folded: list[str], start: int, period_end) -> bool:
+    """The header lines above a table show the statement's period-end date (clarification 8)."""
+    head = re.sub(r"\s", "", " ".join(folded[max(0, start - 15) : start]))
+    d, m, y = period_end.day, period_end.month, period_end.year
+    forms = {f"{d:02d}/{m:02d}/{y}", f"{d}/{m}/{y}", f"{d:02d}.{m:02d}.{y}", f"{d:02d}{m:02d}{y}",
+             f"{d}thang{m:02d}nam{y}", f"{d}thang{m}nam{y}", f"{d:02d}-{m:02d}-{y}"}  # fmt: skip
+    return any(f in head for f in forms)
+
+
+def parse_page(text: str, page: int, wide: bool = False, period_end=None) -> LoanQuality | None:
     """Find a run of the five group lines (each with two amounts) followed by a total line.
     Headings vary by bank and year ("Phân tích chất lượng nợ cho vay", "Phân tích theo nhóm"),
     so the table is located by its rows, not its heading. Every later line with an amount is
@@ -119,7 +128,8 @@ def parse_page(text: str, page: int, wide: bool = False) -> LoanQuality | None:
         unreadable_first = g0 is None and re.search(r"[a-z]", f) and _next_group(start) == 2
         if g0 != 1 and not unreadable_first:
             continue
-        if wide and not _customer_loans_first(folded, start):
+        if wide and not (_customer_loans_first(folded, start) and period_end is not None
+                         and _shows_date(folded, start, period_end)):  # fmt: skip
             continue
         found: dict[int, tuple[int, int]] = {}
         extras: list[tuple[int, int]] = []
@@ -166,8 +176,9 @@ def parse_page(text: str, page: int, wide: bool = False) -> LoanQuality | None:
     return None
 
 
-def find_loan_quality(pages: list[str]) -> LoanQuality | None:
-    """First table in the document whose groups add up to its printed total."""
+def find_loan_quality(pages: list[str], period_end=None) -> LoanQuality | None:
+    """First table in the document whose groups add up to its printed total. Wide tables are
+    read only when the statement's period_end (a date) is known and shown above the table."""
     for i, text in enumerate(pages, start=1):
         lq = parse_page(text, i)
         if lq:
@@ -177,7 +188,7 @@ def find_loan_quality(pages: list[str]) -> LoanQuality | None:
         if lq:
             return lq
     for i, text in enumerate(pages, start=1):  # last: wide credit-risk tables (clarification 7)
-        lq = parse_page(text, i, wide=True)
+        lq = parse_page(text, i, wide=True, period_end=period_end)
         if lq:
             return lq
     return None

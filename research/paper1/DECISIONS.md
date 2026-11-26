@@ -781,6 +781,15 @@ The model-shape table and the test results do not change.
   - The first column must still sum to the first amount of the total row.
 - The check of clarification 6 is repeated: every value accepted before must be identical, and the new tables are reported per bank.
 
+**Clarification 8 (2026-11-26, same stage): values from the wrong period.**
+- **Mislabelled files.** CafeF lists a CTG file as the Q1 2024 statement, but it was created on 2024-03-29, before Q1 ended, and its table shows 31/12/2023 data. Under clarification 4 (earliest creation date wins) it would have been chosen as Q1's first release.
+  - **Rule:** a file whose PDF creation date falls within the 12 months before its quarter's end is not that quarter's statement and is excluded.
+  - A creation date more than 12 months earlier is broken PDF metadata (six such files, with dates in 2000–2016). It is ignored, as clarification 3 already does for publication timing.
+  - Creation dates are now read for every candidate file, not only for duplicated ones.
+- **Wide tables (clarification 7).** VIB's wide tables come in two blocks, one for the current date and one for the comparison date. Where OCR garbled the current block, the comparison block was accepted (VIB 2023 Q3 and 2025 Q1 repeated the previous year-end's values).
+  - **Rule:** a wide table is read only if the header lines above it show the statement's own period-end date (dd/mm/yyyy, dd.mm.yyyy or "dd tháng mm năm yyyy").
+- **Checks:** all accepted values are re-compared with the previous parse, and no value may repeat a different quarter's total for the same bank, except where two versions of the same quarter's statement exist.
+
 **Comparison** (D-014 protocol: folds 2014–2016, purge, embargo, nested tuning, logistic hazard). Fitted and evaluated **on bank rows only**:
 - `ABCDx` vs `ABCDx + E`: the primary block E test;
 - `M` vs `M + E`: block E beyond the mechanics.

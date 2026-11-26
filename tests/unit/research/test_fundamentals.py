@@ -103,3 +103,15 @@ def test_ocr_only_drops_visual_values_and_recomputes_changes():
     out = ocr_only(npl)
     assert np.isnan(out.npl_ratio.iloc[1])
     assert out.npl_change.isna().all()  # each change needs two OCR quarters in a row
+
+
+def test_mislabelled_files_created_before_quarter_end_are_dropped():
+    """D-023 clarification 8: CTG's 'Q1 2024' file created 2024-03-29 is excluded; a broken
+    2010 creation date is kept (deadline governs)."""
+    from vnbank.research.survival.features.block_e import drop_mislabelled
+
+    docs = pd.DataFrame({"symbol": ["CTG", "CTG", "EIB"], "year": [2024, 2024, 2023],
+                         "period": ["Q1", "Q1", "Q3"], "kind": ["HN"] * 3,
+                         "created": [date(2024, 3, 29), date(2024, 4, 26), date(2010, 12, 6)],
+                         "raw_key": ["a", "b", "c"]})  # fmt: skip
+    assert drop_mislabelled(docs).raw_key.tolist() == ["b", "c"]

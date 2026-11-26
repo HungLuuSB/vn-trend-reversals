@@ -278,10 +278,23 @@ def test_wide_table_reads_the_customer_loans_column():
     from vnbank.documents.tables.loan_quality import find_loan_quality, parse_page
 
     assert parse_page(VIB_WIDE, 52) is None  # the two-column reading fails the sum check
-    lq = find_loan_quality(["no table here", VIB_WIDE])
+    from datetime import date
+
+    lq = find_loan_quality(["no table here", VIB_WIDE], date(2023, 6, 30))
     assert lq is not None and lq.page == 2 and lq.total == (234678172, None)
     assert lq.groups[0][0] == 211091954 and lq.npl_ratio_prior is None
     assert abs(lq.npl_ratio - (3149028 + 3539332 + 1840418) / 234678172) < 1e-12
     # a wide table whose first column is NOT customer loans is never read
     other_first = VIB_WIDE.replace("Cho vay Muang", "Tiền gửi Muang")
-    assert find_loan_quality([other_first]) is None
+    assert find_loan_quality([other_first], date(2023, 6, 30)) is None
+
+
+def test_wide_table_needs_the_statements_own_date():
+    """A wide block for another date (the comparison block) is not read (clarification 8)."""
+    from datetime import date
+
+    from vnbank.documents.tables.loan_quality import find_loan_quality
+
+    assert find_loan_quality([VIB_WIDE], date(2023, 6, 30)) is not None
+    assert find_loan_quality([VIB_WIDE], date(2023, 9, 30)) is None  # block shows 30/06/2023
+    assert find_loan_quality([VIB_WIDE]) is None  # period unknown: wide tables not read
