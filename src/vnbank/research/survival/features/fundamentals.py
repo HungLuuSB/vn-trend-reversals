@@ -90,7 +90,12 @@ def quarterly_values(fr: pd.DataFrame, sessions: np.ndarray,
     prev = out[["symbol", "qidx", "npl_ratio", "available_at"]].assign(qidx=lambda x: x.qidx + 1)
     out = out.merge(prev, on=["symbol", "qidx"], how="left", suffixes=("", "_prev"))
     out["npl_change"] = out.npl_ratio - out.npl_ratio_prev
-    out["change_available_at"] = out[["available_at", "available_at_prev"]].max(axis=1)
+    # a change is public only once BOTH quarters are: if either has no available_at (never
+    # public in the sample), neither has the change. max() would skip the NaT and date the
+    # change by the other quarter alone (look-ahead; found by the pre-freeze audit).
+    out["change_available_at"] = out[["available_at", "available_at_prev"]].max(
+        axis=1, skipna=False
+    )
     return out.drop(columns=["npl_ratio_prev", "available_at_prev"])
 
 
@@ -100,9 +105,14 @@ def decision_utc(decision_date: pd.Series) -> pd.Series:
 
 
 def _asof(rows: pd.DataFrame, vals: pd.DataFrame, value: str, at: str) -> pd.Series:
-    """Latest vals[value] per symbol with vals[at] strictly before the row's decision time."""
-    v = vals.dropna(subset=[value, at]).sort_values(at)[["symbol", at, value]]
+    """Latest vals[value] per symbol with vals[at] strictly before the row's decision time.
+    Values that became public at the same moment (e.g. Q1 and Q2 of 2011, both first usable at
+    the start of the session calendar) resolve to the latest quarter (qidx), deterministically:
+    merge_asof takes the last of tied rows, so the order among ties must not depend on which
+    other rows are present."""
+    v = vals.dropna(subset=[value, at])[["symbol", at, value, "qidx"]].copy()
     v[at] = pd.to_datetime(v[at], utc=True).astype("datetime64[ns, UTC]")  # parquet may give us
+    v = v.sort_values([at, "qidx"], kind="stable").drop(columns="qidx")
     r = rows.sort_values("_t")
     r["_t"] = pd.to_datetime(r["_t"], utc=True).astype("datetime64[ns, UTC]")
     m = pd.merge_asof(r, v.rename(columns={at: "_t", "symbol": "ticker"}), on="_t", by="ticker",

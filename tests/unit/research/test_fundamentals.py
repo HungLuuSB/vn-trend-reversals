@@ -81,6 +81,42 @@ def test_npl_features_strictly_before_decision_time_and_bank_rows_only():
     assert np.isnan(out.npl_ratio.iloc[4])  # not a bank
 
 
+def test_change_is_never_public_if_either_quarter_never_is():
+    """A quarter whose available_at falls after the sessions calendar (NaT) must not lend its
+    value to npl_change through the other quarter's timestamp."""
+    fr = pd.DataFrame({"symbol": ["EIB"] * 3, "year": [2025, 2025, 2026], "q": [3, 4, 1],
+                       "kind": ["HN"] * 3, "npl_ratio": [0.020, 0.029, 0.025],
+                       "created": [None, date(2027, 1, 31), None]})  # fmt: skip
+    vals = quarterly_values(fr, pd.bdate_range("2025-10-01", "2026-07-31").to_numpy())
+    assert pd.isna(vals.available_at.iloc[1])  # Q4: created after the calendar ends
+    assert vals.change_available_at.iloc[1:].isna().all()  # Q4-Q3 and Q1-Q4: never public
+    ds = pd.DataFrame({"ticker": ["EIB"] * 2, "decision_date": pd.to_datetime(["2025-12-01",
+                       "2026-07-01"]), "is_bank": [True] * 2})  # fmt: skip
+    out = add_npl_features(ds, vals)
+    assert out.npl_change.isna().all()
+    assert out.npl_ratio.tolist() == [0.020, 0.025]
+
+
+def test_tied_publication_times_resolve_to_the_latest_quarter_whatever_the_row_order():
+    """Q1 and Q2 public at the same moment: the later quarter wins, and adding or reordering
+    unrelated rows (here: a later value and a NaN value) does not change the answer."""
+    at = pd.Timestamp("2011-10-07 02:00", tz="UTC")
+    base = pd.DataFrame({"symbol": ["CTG"] * 2, "qidx": [8044, 8045], "npl_ratio": [0.007, 0.016],
+                         "available_at": [at, at]})  # fmt: skip
+    extra = pd.DataFrame({"symbol": ["CTG", "ACB"], "qidx": [8046, 8045],
+                          "npl_ratio": [np.nan, 0.01], "available_at": [at, at]})  # fmt: skip
+    ds = pd.DataFrame({"ticker": ["CTG"], "decision_date": pd.to_datetime(["2011-10-10"]),
+                       "is_bank": [True]})  # fmt: skip
+    for vals in (
+        base,
+        base.iloc[::-1],
+        pd.concat([extra, base]),
+        pd.concat([base, extra]).iloc[::-1],
+    ):
+        vals = vals.assign(npl_change=np.nan, change_available_at=vals.available_at)
+        assert add_npl_features(ds, vals).npl_ratio.tolist() == [0.016]
+
+
 def test_npl_features_accept_mixed_timestamp_resolutions():
     """Values read back from parquet can be datetime64[us]; decision times are [ns]."""
     fr = pd.DataFrame({"symbol": ["ACB"], "year": [2014], "q": [4], "kind": ["HN"],
