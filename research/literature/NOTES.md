@@ -354,3 +354,24 @@ Primary sources for Paper 1's introduction and market section. PDFs are in `mark
   - This is consistent with HOSE's official 10.38% foreign share (foreign institutions 10.1% plus foreign individuals).
   - Cite as "SHS Research (2025), using FiinProX data", alongside the HOSE figure.
   - It is a broker report, not an official source.
+
+## Literature check of 2026-11-26 (papers from the co-author's search; all read in full)
+
+Files are in `trend-duration/` and `methods/`. A search tool's descriptions of several of these were wrong; the notes below come from the full texts.
+
+| Paper | What it does | Relation to Paper 1 |
+|---|---|---|
+| Gao, Bu, Liu, Cao & Wu (2015), BESC 2015 (IEEE), pp. 116–122, doi 10.1109/BESC.2015.7365968 | Cox models for six Shanghai stocks, daily 2007–2015. Event: a single day with return ≥ +1% (or ≤ −1%); spell = days since the last such day; censoring handled. Technical-indicator covariates. 5-fold CV (not chronological), accuracy 0.52–0.57 (Table III), no costs, baselines ARIMA/logit/ANN. | Earliest survival model for stock trade timing we know of. Event is a one-day move, not a trend reversal; not out of sample in time. Cited in strand 2. |
+| Sarwar, Mateus & Todorovic (2018), IJBAF 9(2), 192–224, doi 10.1504/IJBAAF.2018.092134 | Kaplan–Meier curves for monthly momentum runs (≥ 2 same-sign months, end at sign change) of six UK style portfolios, 1980–2014, vs RW and ARMA simulations (fitted on the full sample). No covariates, no censored spells. Exit rule from mean survival, trading test 2001–2014, break-even costs only. Table counts look internally inconsistent (spell lengths exceed observations). | Unconditional survival of trends with a random-walk comparison. Cited in strand 1. The "Bayes Business School" attribution in the search result was wrong. |
+| Adegboye, Kampouridis & Otero (2023), AI Review 56(6), 5619–5644, doi 10.1007/s10462-022-10307-0 | Predicts DC trend reversal points (classifier + symbolic regression of overshoot length), combines fixed thresholds by a GA into a trading strategy; 10-minute FX, 20 pairs; 70:30 split; 0.025% cost. | Closest DC reversal-timing work: FX, fixed θ, completed trends only. Cited in strand 3. |
+| Long, Kampouridis & Papastylianou (2026), AI Review 59:39, doi 10.1007/s10462-025-11390-9 | Multi-objective GP trading rules from DC and TA indicators; 10 markets (US, India, Taiwan, Germany, Japan, UK), daily 2010–2020; fixed θ; single 60/20/20 split. | **No Vietnamese data** (search claim false). One clause in strand 3. |
+| Ma, Xiong, He & Zhang (2017), Physica A 471, 169–180, doi 10.1016/j.physa.2016.11.113 | DC on the Shanghai Composite index, daily 2004–2013; fixed θ re-estimated yearly; descriptive statistics and a trading rule; no costs. | DC on an Asian equity index; no reversal-timing model. Cited in strand 3. |
+| Aloud & Alkhamees (2021), IEEE Access 9, 114659–114671, doi 10.1109/ACCESS.2021.3105259 | Q-learning trader with DC states; "dynamic" threshold from previous-day and overnight price changes (formula in Alkhamees & Fasli 2017); three US indices 2015–2020; no split, no costs. | Non-fixed threshold, not volatility-scaled. Cited in strand 3. |
+| Wu & Han (2023), arXiv 2309.15383 (preprint) | Asymmetric up/down DC thresholds chosen by Bayesian optimisation, HMM regime filter; FX tick data 2019–2020; no costs. | **FX only** (search claim of Asian equities false). Cited in strand 3. |
+| Tran, Nguyen & Pham (2023), SOICT 2023 (ACM), pp. 213–220, doi 10.1145/3628797.3629018 | LSTM/GRU forecasts + DQN or TA rules on Google (GOOG) only, 2010–2020; 80/10/10 split; no costs; 100% win rates on 3–13 trades. | **No DC, no Vietnamese data** (search claim false). Not cited. |
+| Nguyen & Paientko (2024), Strategies in Accounting and Management 4(5), doi 10.31031/SIAM.2024.04.000598 | auto.arima on the VN30 index level; daily model selected is a random walk; prediction-interval check at one origin. | Not cited; at most weak support that daily VN30 looks like a random walk. |
+| Hu & Zhou (2024), re-read | They state that survival data from different stocks are not i.i.d. and pool them only because spells start from the same trading signal (p. 3482); C-index 0.58–0.60 and IBS 0.18–0.19 in 2022; no purge/embargo stated. | The paper's earlier sentence ("cannot be pooled") was corrected. |
+
+**Not found:** "A Guide to Survival of Momentum" as a Bayes Business School paper (it is Sarwar et al. 2018 above). "Improved Directional Change" exists (Wu & Han 2023) but is FX only.
+
+**Verdict:** none contradicts the claim with all its qualifiers: individual stocks, DC swings with a volatility-scaled threshold, censored time-to-event, out-of-sample walk-forward. A bare "no study predicts DC reversal timing" would be false (Adegboye et al.).

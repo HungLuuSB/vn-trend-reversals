@@ -18,7 +18,13 @@ finds positive duration dependence in bear markets and in 93\% of bull markets, 
 bull hazard above. His dating uses a two-sided window, so turning points are known only after the
 fact. Minimum phase durations also push hazards at young ages toward zero.
 
-Both studies model the hazard as a function of phase age alone, at the index level and in sample.
+Survival curves have also been estimated for momentum. \citet{Sarwar2018} define a trend in six UK
+style portfolios as two or more months of same-sign returns, ending at the first sign change, and
+estimate Kaplan--Meier curves for 1980--2014. Positive runs survive longer than in random-walk and
+ARMA simulations, and an exit rule built on mean survival times earns higher Sharpe ratios than
+buy-and-hold out of sample, before costs. The analysis has no covariates and no censored spells.
+
+These studies model the hazard as a function of phase age alone, at the index level and in sample.
 Under a filter-type definition, age is tied mechanically to how far the price is from the trigger,
 so an age-only hazard averages over that distance. We condition on the distance to the reversal
 threshold and test, out of sample and for individual stocks, whether swing age adds information
@@ -35,15 +41,22 @@ shift the reversal rate in sample. On a two-year holdout, however, the models' B
 worse than both a random walk and the empirical survival curve at every horizon from 1 to 9 days.
 The authors read this as consistent with weak-form efficiency.
 
+\citet{Gao2015} use Cox models to time trades in six Shanghai stocks from 2007 to 2015. The event
+is a single day with a return of at least $+1\%$ (or at most $-1\%$), and the covariates are
+technical indicators. They evaluate by five-fold cross-validation, so training folds include days
+that follow the test days, and report accuracy of 0.52 to 0.57 with no trading costs.
+
 Survival models also appear in stock trading, but with a different event. \citet{HuZhou2024} study
 about 380 S\&P~500 stocks over 2018--2022. Their event is a return of $+5\%$ (or $-5\%$) within 22
 days after a moving-average convergence divergence (MACD) or relative strength index (RSI) signal.
 Deep survival models then filter the signals. The filtered strategies improve on the raw signals in
-both a bear and a bull half of 2022, their only test year. The authors argue that survival data from
-different stocks cannot be pooled.
+both a bear and a bull half of 2022, their only test year. The authors note that survival data from
+different stocks are not identically distributed, and pool them only because every spell starts
+from the same kind of trading signal.
 
-Both survival studies leave open the choice of unit. Daily runs end on one opposite day, so their length is
-dominated by noise, and a target return after a signal is not the end of a trend. Our swings end only
+These survival studies leave open the choice of unit. A daily run ends on one opposite day and a
+one-day move of 1\% is a single event, so both are dominated by noise; a target return after a
+signal is not the end of a trend either. Our swings end only
 when the price moves $\theta$ against its running extreme, with $\theta$ scaled by each stock's
 trailing volatility. This makes swings comparable across stocks, so they can be pooled. We
 replace a single holdout with a walk-forward test over 2017--2026, and compare against a
@@ -70,11 +83,21 @@ use 10-minute data on 20 currency pairs with fixed-percentage thresholds. They f
 a DC event is followed by an overshoot, with an accuracy of 0.817. They then predict the overshoot
 length from the length of the DC event alone, by genetic programming. The gain in overshoot error
 over genetic programming without the classifier is not statistically significant (Hommel-adjusted
-$p = 0.327$).
+$p = 0.327$). \citet{Adegboye2023} combine such predictions from several fixed thresholds into a
+trading strategy, again on intraday FX data, and DC indicators also feed genetic-programming
+trading rules for stocks and indices \citep{Long2026}.
 
-This work learns from completed trends only. On any prediction day the current trend is still open,
-so its length is right-censored, and the prediction is not updated as the trend ages. Its only
-predictor, DC length, is close to our mechanical baseline of swing age and distance. We treat open
+Applications to equities and to non-fixed thresholds are fewer. \citet{Ma2017} apply DC with a fixed
+threshold, re-estimated each year, to the Shanghai Composite index and study the size of moves and
+a trading rule; they do not predict reversal timing. \citet{AloudAlkhamees2021} let the threshold
+depend on the previous day's and the overnight price changes of US indices and use DC states in a
+reinforcement-learning trader. \citet{WuHan2023} choose separate up and down thresholds by Bayesian
+optimisation on FX tick data. None of these ties the threshold to a trailing measure of the
+asset's own volatility.
+
+The DC prediction studies learn from completed trends only. On any prediction day the current trend is still open,
+so its length is right-censored, and the prediction is not updated as the trend ages. The only
+predictor of \citet{AdegboyeKampouridis2021}, DC length, is close to our mechanical baseline of swing age and distance. We treat open
 swings as censored spells, update the hazard at each session with landmark models, scale $\theta$ by
 volatility and study equities.
 
