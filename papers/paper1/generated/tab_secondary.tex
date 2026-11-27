@@ -1,27 +1,27 @@
 % GENERATED FILE: do not edit by hand. Source: vnbank.research.survival.report
-\begin{tabular}{llcccc}
+\begin{tabular}{llccccc}
 \toprule
-Comparison & Models & $\Delta C$ (95\% CI) & $\Delta$IBS (95\% CI) & Improves & Clark--West $p$ \\
+Comparison & Models & $\Delta C$ (95\% CI) & $\Delta$IBS (95\% CI) & Improves & Clark--West $p$ & Diebold--Mariano $p$ \\
 \midrule
-Local features vs mechanical & \texttt{ABCx} $-$ \texttt{M} & \ensuremath{[0.006, 0.027]} & \ensuremath{[-0.0043, -0.0007]} & Yes & \ensuremath{<0.001} \\
-Main model vs mechanical & \texttt{ABCDx} $-$ \texttt{M} & \ensuremath{[0.002, 0.025]} & \ensuremath{[-0.0037, 0.0005]} & No & \ensuremath{<0.001} \\
-Neural vs mechanical & \texttt{nn\_seq\_ABCD} $-$ \texttt{M} & \ensuremath{[0.000, 0.022]} & \ensuremath{[-0.0059, -0.0024]} & Yes & \textemdash{} \\
-Main model vs boosted mechanical & \texttt{ABCDx} $-$ \texttt{M\_flex} & \ensuremath{[0.006, 0.028]} & \ensuremath{[-0.0016, 0.0026]} & No & \textemdash{} \\
-Main model vs random walk & \texttt{ABCDx} $-$ \texttt{RW} & \ensuremath{[0.014, 0.040]} & \ensuremath{[-0.0092, -0.0015]} & Yes & \textemdash{} \\
-Boosted mechanical vs random walk & \texttt{M\_flex} $-$ \texttt{RW} & \ensuremath{[-0.004, 0.024]} & \ensuremath{[-0.0091, -0.0022]} & No & \textemdash{} \\
-Linear vs boosted mechanical & \texttt{M} $-$ \texttt{M\_flex} & \ensuremath{[0.001, 0.007]} & \ensuremath{[0.0018, 0.0028]} & No & \textemdash{} \\
-Distance only vs Kaplan--Meier & \texttt{DIST} $-$ \texttt{km} & \ensuremath{[0.093, 0.108]} & \ensuremath{[-0.0107, -0.0088]} & Yes & \ensuremath{<0.001} \\
-Age only vs Kaplan--Meier & \texttt{AGE} $-$ \texttt{km} & \ensuremath{[0.014, 0.038]} & \ensuremath{[-0.0010, 0.0000]} & Yes & \ensuremath{<0.001} \\
-Age added to distance (linear) & \texttt{M} $-$ \texttt{DIST} & \ensuremath{[-0.001, 0.003]} & \ensuremath{[-0.0002, 0.0002]} & No & \ensuremath{0.384} \\
-Global block, mechanical base & \texttt{MBCDx} $-$ \texttt{MBCx} & \ensuremath{[-0.008, 0.001]} & \ensuremath{[-0.0004, 0.0016]} & No & \ensuremath{0.033} \\
-Global block, no direction terms & \texttt{ABCD} $-$ \texttt{ABC} & \ensuremath{[-0.004, 0.001]} & \ensuremath{[-0.0003, 0.0008]} & No & \ensuremath{0.349} \\
-Global block, Cox & \texttt{cox\_ABCDx} $-$ \texttt{cox\_ABCx} & \ensuremath{[-0.009, 0.000]} & \ensuremath{[-0.0001, 0.0023]} & No & \ensuremath{0.082} \\
-Global block, boosted hazard & \texttt{gbm\_ABCD} $-$ \texttt{gbm\_ABC} & \ensuremath{[-0.024, -0.009]} & \ensuremath{[0.0024, 0.0055]} & No & \ensuremath{0.425} \\
-Global block, random survival forest & \texttt{rsf\_ABCD} $-$ \texttt{rsf\_ABC} & \ensuremath{[-0.012, 0.000]} & \ensuremath{[0.0008, 0.0026]} & No & \ensuremath{0.674} \\
-Global block, neural & \texttt{nn\_seq\_ABCD} $-$ \texttt{nn\_seq\_ABC} & \ensuremath{[-0.008, 0.001]} & \ensuremath{[0.0003, 0.0020]} & No & \ensuremath{0.158} \\
-Bank interactions & \texttt{ABCDx\_bank} $-$ \texttt{ABCDx} & \ensuremath{[-0.001, 0.001]} & \ensuremath{[-0.0002, 0.0002]} & No & \ensuremath{0.175} \\
-Price sequence in the neural model & \texttt{nn\_seq\_ABCD} $-$ \texttt{nn\_static\_ABCD} & \ensuremath{[-0.005, 0.002]} & \ensuremath{[-0.0007, 0.0007]} & No & \ensuremath{0.077} \\
-Neural vs main model & \texttt{nn\_seq\_ABCD} $-$ \texttt{ABCDx} & \ensuremath{[-0.007, 0.005]} & \ensuremath{[-0.0035, -0.0016]} & No & \textemdash{} \\
-Foreign flows added & \texttt{ABCDx\_ff} $-$ \texttt{ABCDx} & \ensuremath{[-0.001, 0.000]} & \ensuremath{[0.0004, 0.0017]} & No & \ensuremath{0.760} \\
+Local features vs mechanical & \relax \texttt{ABCx} $-$ \texttt{M} & \ensuremath{[0.006, 0.027]} & \ensuremath{[-0.0043, -0.0007]} & Yes & \ensuremath{<0.001} & \ensuremath{<0.001} \\
+Main model vs mechanical & \relax \texttt{ABCDx} $-$ \texttt{M} & \ensuremath{[0.002, 0.025]} & \ensuremath{[-0.0037, 0.0005]} & No & \ensuremath{<0.001} & \ensuremath{0.001} \\
+Neural vs mechanical & \relax \texttt{nn\_seq\_ABCD} $-$ \texttt{M} & \ensuremath{[0.000, 0.022]} & \ensuremath{[-0.0059, -0.0024]} & Yes & \textemdash{} & \ensuremath{<0.001} \\
+Main model vs boosted mechanical & \relax \texttt{ABCDx} $-$ \texttt{M\_flex} & \ensuremath{[0.006, 0.028]} & \ensuremath{[-0.0016, 0.0026]} & No & \textemdash{} & \ensuremath{<0.001} \\
+Main model vs random walk & \relax \texttt{ABCDx} $-$ \texttt{RW} & \ensuremath{[0.014, 0.040]} & \ensuremath{[-0.0092, -0.0015]} & Yes & \textemdash{} & \ensuremath{0.223} \\
+Boosted mechanical vs random walk & \relax \texttt{M\_flex} $-$ \texttt{RW} & \ensuremath{[-0.004, 0.024]} & \ensuremath{[-0.0091, -0.0022]} & No & \textemdash{} & \ensuremath{<0.001} \\
+Linear vs boosted mechanical & \relax \texttt{M} $-$ \texttt{M\_flex} & \ensuremath{[0.001, 0.007]} & \ensuremath{[0.0018, 0.0028]} & No & \textemdash{} & \ensuremath{<0.001} \\
+Distance only vs Kaplan--Meier & \relax \texttt{DIST} $-$ KM & \ensuremath{[0.093, 0.108]} & \ensuremath{[-0.0107, -0.0088]} & Yes & \ensuremath{<0.001} & \ensuremath{<0.001} \\
+Age only vs Kaplan--Meier & \relax \texttt{AGE} $-$ KM & \ensuremath{[0.014, 0.038]} & \ensuremath{[-0.0010, 0.0000]} & Yes & \ensuremath{<0.001} & \ensuremath{<0.001} \\
+Age added to distance (linear) & \relax \texttt{M} $-$ \texttt{DIST} & \ensuremath{[-0.001, 0.003]} & \ensuremath{[-0.0002, 0.0002]} & No & \ensuremath{0.384} & \ensuremath{0.517} \\
+Global block, mechanical base & \relax \texttt{MBCDx} $-$ \texttt{MBCx} & \ensuremath{[-0.008, 0.001]} & \ensuremath{[-0.0004, 0.0016]} & No & \ensuremath{0.033} & \ensuremath{0.882} \\
+Global block, no direction terms & \relax \texttt{ABCD} $-$ \texttt{ABC} & \ensuremath{[-0.004, 0.001]} & \ensuremath{[-0.0003, 0.0008]} & No & \ensuremath{0.349} & \ensuremath{0.513} \\
+Global block, Cox & \relax \texttt{cox\_ABCDx} $-$ \texttt{cox\_ABCx} & \ensuremath{[-0.009, 0.000]} & \ensuremath{[-0.0001, 0.0023]} & No & \ensuremath{0.082} & \ensuremath{0.509} \\
+Global block, boosted hazard & \relax \texttt{gbm\_ABCD} $-$ \texttt{gbm\_ABC} & \ensuremath{[-0.024, -0.009]} & \ensuremath{[0.0024, 0.0055]} & No & \ensuremath{0.425} & \ensuremath{<0.001} \\
+Global block, random survival forest & \relax \texttt{rsf\_ABCD} $-$ \texttt{rsf\_ABC} & \ensuremath{[-0.012, 0.000]} & \ensuremath{[0.0008, 0.0026]} & No & \ensuremath{0.674} & \ensuremath{<0.001} \\
+Global block, neural & \relax \texttt{nn\_seq\_ABCD} $-$ \texttt{nn\_seq\_ABC} & \ensuremath{[-0.008, 0.001]} & \ensuremath{[0.0003, 0.0020]} & No & \ensuremath{0.158} & \ensuremath{0.061} \\
+Bank interactions & \relax \texttt{ABCDx\_bank} $-$ \texttt{ABCDx} & \ensuremath{[-0.001, 0.001]} & \ensuremath{[-0.0002, 0.0002]} & No & \ensuremath{0.175} & \ensuremath{0.916} \\
+Price sequence in the neural model & \relax \texttt{nn\_seq\_ABCD} $-$ \texttt{nn\_static\_ABCD} & \ensuremath{[-0.005, 0.002]} & \ensuremath{[-0.0007, 0.0007]} & No & \ensuremath{0.077} & \ensuremath{0.367} \\
+Neural vs main model & \relax \texttt{nn\_seq\_ABCD} $-$ \texttt{ABCDx} & \ensuremath{[-0.007, 0.005]} & \ensuremath{[-0.0035, -0.0016]} & No & \textemdash{} & \ensuremath{<0.001} \\
+Foreign flows added & \relax \texttt{ABCDx\_ff} $-$ \texttt{ABCDx} & \ensuremath{[-0.001, 0.000]} & \ensuremath{[0.0004, 0.0017]} & No & \ensuremath{0.760} & \ensuremath{0.011} \\
 \bottomrule
 \end{tabular}

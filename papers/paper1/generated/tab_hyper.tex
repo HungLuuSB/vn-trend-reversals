@@ -1,30 +1,40 @@
 % GENERATED FILE: do not edit by hand. Source: vnbank.research.survival.report
-\begin{tabular}{L{0.3\linewidth}L{0.25\linewidth}L{0.38\linewidth}}
+\begin{longtable}{@{}L{0.36\linewidth}L{0.58\linewidth}@{}}
 \toprule
-Model & Grid & Chosen (number of test years) \\
+Model & Chosen setting (number of test years) \\
 \midrule
-\relax Age only (\texttt{AGE}) & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 1, l1\_ratio 0 (5); C 0.01, l1\_ratio 0.5 (2); C 0.01, l1\_ratio 0 (2); C 0.1, l1\_ratio 0 (1) \\
-\relax Distance only (\texttt{DIST}) & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 1, l1\_ratio 0 (7); C 0.01, l1\_ratio 0.5 (2); C 1, l1\_ratio 0.5 (1) \\
-\relax Age and distance (\texttt{M}) & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 1, l1\_ratio 0 (7); C 0.01, l1\_ratio 0.5 (3) \\
-\relax Boosted age and distance (\texttt{M\_flex}) & \relax learning\_rate 0.03/0.1; max\_leaf\_nodes 15/31 & \relax learning\_rate 0.03, max\_leaf\_nodes 15 (10) \\
-\relax Spline distance (\texttt{DIST\_s}) & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 0.01, l1\_ratio 0 (3); C 0.01, l1\_ratio 0.5 (2); C 0.1, l1\_ratio 0.5 (2); C 1, l1\_ratio 0 (2); C 0.1, l1\_ratio 0 (1) \\
-\relax Spline distance and age (\texttt{M\_s}) & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 0.01, l1\_ratio 0 (4); C 0.1, l1\_ratio 0 (2); C 0.01, l1\_ratio 0.5 (2); C 1, l1\_ratio 0 (1); C 1, l1\_ratio 0.5 (1) \\
-\relax \texttt{ABC} & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 1, l1\_ratio 0 (3); C 0.01, l1\_ratio 0.5 (3); C 0.1, l1\_ratio 0 (1); C 0.1, l1\_ratio 0.5 (1); C 0.01, l1\_ratio 0 (1); C 1, l1\_ratio 0.5 (1) \\
-\relax \texttt{ABCD} & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 1, l1\_ratio 0 (4); C 0.01, l1\_ratio 0.5 (4); C 0.1, l1\_ratio 0 (1); C 0.01, l1\_ratio 0 (1) \\
-\relax \texttt{ABCx} & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 0.01, l1\_ratio 0.5 (5); C 1, l1\_ratio 0 (2); C 1, l1\_ratio 0.5 (2); C 0.01, l1\_ratio 0 (1) \\
-\relax \texttt{ABCDx} (main) & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 0.01, l1\_ratio 0.5 (9); C 1, l1\_ratio 0 (1) \\
-\relax \texttt{MBCx} & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 0.01, l1\_ratio 0.5 (7); C 0.01, l1\_ratio 0 (2); C 1, l1\_ratio 0.5 (1) \\
-\relax \texttt{MBCDx} & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 0.01, l1\_ratio 0.5 (10) \\
-\relax \texttt{ABCDx\_bank} & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 0.01, l1\_ratio 0.5 (9); C 1, l1\_ratio 0 (1) \\
-\relax \texttt{ABCDx} + foreign flows & \relax C 0.01/0.1/1; l1\_ratio 0/0.5 & \relax C 0.01, l1\_ratio 0.5 (9); C 1, l1\_ratio 0 (1) \\
-\relax Cox, \texttt{ABCx} & \relax alpha 1/10/100 & \relax alpha 100 (5); alpha 1 (4); alpha 10 (1) \\
-\relax Cox, \texttt{ABCDx} & \relax alpha 1/10/100 & \relax alpha 1 (6); alpha 100 (4) \\
-\relax Boosted hazard, \texttt{ABC} & \relax learning\_rate 0.03/0.1; max\_leaf\_nodes 15/31 & \relax learning\_rate 0.03, max\_leaf\_nodes 15 (7); learning\_rate 0.03, max\_leaf\_nodes 31 (3) \\
-\relax Boosted hazard, \texttt{ABCD} & \relax learning\_rate 0.03/0.1; max\_leaf\_nodes 15/31 & \relax learning\_rate 0.03, max\_leaf\_nodes 15 (8); learning\_rate 0.03, max\_leaf\_nodes 31 (2) \\
-\relax Random survival forest, \texttt{ABC} & \relax min\_samples\_leaf 50/200 & \relax min\_samples\_leaf 50 (9); min\_samples\_leaf 200 (1) \\
-\relax Random survival forest, \texttt{ABCD} & \relax min\_samples\_leaf 50/200 & \relax min\_samples\_leaf 50 (7); min\_samples\_leaf 200 (3) \\
-\relax Neural, static, \texttt{ABCD} & \relax hidden 16/32; weight\_decay 0.0001/0.001; epochs 5/15 & \relax hidden 16, weight\_decay 0.0001, epochs 15 (3); hidden 32, weight\_decay 0.0001, epochs 15 (2); hidden 32, weight\_decay 0.0001, epochs 5 (2); hidden 16, weight\_decay 0.0001, epochs 5 (2); hidden 32, weight\_decay 0.001, epochs 15 (1) \\
-\relax Neural, sequence, \texttt{ABC} & \relax hidden 16/32; weight\_decay 0.0001/0.001; epochs 5/15 & \relax hidden 32, weight\_decay 0.0001, epochs 15 (9); hidden 16, weight\_decay 0.0001, epochs 15 (1) \\
-\relax Neural, sequence, \texttt{ABCD} & \relax hidden 16/32; weight\_decay 0.0001/0.001; epochs 5/15 & \relax hidden 32, weight\_decay 0.0001, epochs 15 (6); hidden 32, weight\_decay 0.0001, epochs 5 (2); hidden 16, weight\_decay 0.001, epochs 15 (1); hidden 16, weight\_decay 0.0001, epochs 5 (1) \\
+\endhead
+\textbf{Logistic hazards} & \textit{Grid: inverse penalty 0.01/0.1/1; l1\_ratio 0/0.5} \\* \addlinespace[4pt]
+Age only (\texttt{AGE}) & inverse penalty 1, l1\_ratio 0 (5) \newline inverse penalty 0.01, l1\_ratio 0.5 (2) \newline inverse penalty 0.01, l1\_ratio 0 (2) \newline inverse penalty 0.1, l1\_ratio 0 (1) \\ \addlinespace[7pt]
+Distance only (\texttt{DIST}) & inverse penalty 1, l1\_ratio 0 (7) \newline inverse penalty 0.01, l1\_ratio 0.5 (2) \newline inverse penalty 1, l1\_ratio 0.5 (1) \\ \addlinespace[7pt]
+Age and distance (\texttt{M}) & inverse penalty 1, l1\_ratio 0 (7) \newline inverse penalty 0.01, l1\_ratio 0.5 (3) \\ \addlinespace[7pt]
+Spline distance (\texttt{DIST\_s}) & inverse penalty 0.01, l1\_ratio 0 (3) \newline inverse penalty 0.01, l1\_ratio 0.5 (2) \newline inverse penalty 0.1, l1\_ratio 0.5 (2) \newline inverse penalty 1, l1\_ratio 0 (2) \newline inverse penalty 0.1, l1\_ratio 0 (1) \\ \addlinespace[7pt]
+Spline distance and age (\texttt{M\_s}) & inverse penalty 0.01, l1\_ratio 0 (4) \newline inverse penalty 0.1, l1\_ratio 0 (2) \newline inverse penalty 0.01, l1\_ratio 0.5 (2) \newline inverse penalty 1, l1\_ratio 0 (1) \newline inverse penalty 1, l1\_ratio 0.5 (1) \\ \addlinespace[7pt]
+\texttt{ABC} & inverse penalty 1, l1\_ratio 0 (3) \newline inverse penalty 0.01, l1\_ratio 0.5 (3) \newline inverse penalty 0.1, l1\_ratio 0 (1) \newline inverse penalty 0.1, l1\_ratio 0.5 (1) \newline inverse penalty 0.01, l1\_ratio 0 (1) \newline inverse penalty 1, l1\_ratio 0.5 (1) \\ \addlinespace[7pt]
+\texttt{ABCD} & inverse penalty 1, l1\_ratio 0 (4) \newline inverse penalty 0.01, l1\_ratio 0.5 (4) \newline inverse penalty 0.1, l1\_ratio 0 (1) \newline inverse penalty 0.01, l1\_ratio 0 (1) \\ \addlinespace[7pt]
+\texttt{ABCx} & inverse penalty 0.01, l1\_ratio 0.5 (5) \newline inverse penalty 1, l1\_ratio 0 (2) \newline inverse penalty 1, l1\_ratio 0.5 (2) \newline inverse penalty 0.01, l1\_ratio 0 (1) \\ \addlinespace[7pt]
+\texttt{ABCDx} (main) & inverse penalty 0.01, l1\_ratio 0.5 (9) \newline inverse penalty 1, l1\_ratio 0 (1) \\ \addlinespace[7pt]
+\texttt{MBCx} & inverse penalty 0.01, l1\_ratio 0.5 (7) \newline inverse penalty 0.01, l1\_ratio 0 (2) \newline inverse penalty 1, l1\_ratio 0.5 (1) \\ \addlinespace[7pt]
+\texttt{MBCDx} & inverse penalty 0.01, l1\_ratio 0.5 (10) \\ \addlinespace[7pt]
+\texttt{ABCDx\_bank} & inverse penalty 0.01, l1\_ratio 0.5 (9) \newline inverse penalty 1, l1\_ratio 0 (1) \\ \addlinespace[7pt]
+\texttt{ABCDx} + foreign flows & inverse penalty 0.01, l1\_ratio 0.5 (9) \newline inverse penalty 1, l1\_ratio 0 (1) \\ \addlinespace[7pt]
+\midrule
+\textbf{Boosted hazards} & \textit{Grid: learning\_rate 0.03/0.1; max\_leaf\_nodes 15/31} \\* \addlinespace[4pt]
+Boosted age and distance (\texttt{M\_flex}) & learning\_rate 0.03, max\_leaf\_nodes 15 (10) \\ \addlinespace[7pt]
+Boosted hazard, \texttt{ABC} & learning\_rate 0.03, max\_leaf\_nodes 15 (7) \newline learning\_rate 0.03, max\_leaf\_nodes 31 (3) \\ \addlinespace[7pt]
+Boosted hazard, \texttt{ABCD} & learning\_rate 0.03, max\_leaf\_nodes 15 (8) \newline learning\_rate 0.03, max\_leaf\_nodes 31 (2) \\ \addlinespace[7pt]
+\midrule
+\textbf{Cox} & \textit{Grid: alpha 1/10/100} \\* \addlinespace[4pt]
+Cox, \texttt{ABCx} & alpha 100 (5) \newline alpha 1 (4) \newline alpha 10 (1) \\ \addlinespace[7pt]
+Cox, \texttt{ABCDx} & alpha 1 (6) \newline alpha 100 (4) \\ \addlinespace[7pt]
+\midrule
+\textbf{Random survival forests} & \textit{Grid: min\_samples\_leaf 50/200} \\* \addlinespace[4pt]
+Random survival forest, \texttt{ABC} & min\_samples\_leaf 50 (9) \newline min\_samples\_leaf 200 (1) \\ \addlinespace[7pt]
+Random survival forest, \texttt{ABCD} & min\_samples\_leaf 50 (7) \newline min\_samples\_leaf 200 (3) \\ \addlinespace[7pt]
+\midrule
+\textbf{Neural hazards} & \textit{Grid: hidden 16/32; weight\_decay 0.0001/0.001; epochs 5/15} \\* \addlinespace[4pt]
+Neural, static, \texttt{ABCD} & hidden 16, weight\_decay 0.0001, epochs 15 (3) \newline hidden 32, weight\_decay 0.0001, epochs 15 (2) \newline hidden 32, weight\_decay 0.0001, epochs 5 (2) \newline hidden 16, weight\_decay 0.0001, epochs 5 (2) \newline hidden 32, weight\_decay 0.001, epochs 15 (1) \\ \addlinespace[7pt]
+Neural, sequence, \texttt{ABC} & hidden 32, weight\_decay 0.0001, epochs 15 (9) \newline hidden 16, weight\_decay 0.0001, epochs 15 (1) \\ \addlinespace[7pt]
+Neural, sequence, \texttt{ABCD} & hidden 32, weight\_decay 0.0001, epochs 15 (6) \newline hidden 32, weight\_decay 0.0001, epochs 5 (2) \newline hidden 16, weight\_decay 0.001, epochs 15 (1) \newline hidden 16, weight\_decay 0.0001, epochs 5 (1) \\ \addlinespace[7pt]
 \bottomrule
-\end{tabular}
+\end{longtable}
