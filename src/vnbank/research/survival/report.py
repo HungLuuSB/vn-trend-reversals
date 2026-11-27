@@ -1153,8 +1153,7 @@ def _md(text: str) -> str:
 
 
 def records(n: R.Numbers, t: dict[str, str], reg: dict) -> None:
-    """Supporting information: every development run (RUNS.md) and every design decision
-    (DECISIONS.md), with its date."""
+    """Supporting information: the development runs (RUNS.md), grouped by purpose."""
     import re
 
     dev = {p.name for p in paths.runs_dir(PAPER).iterdir()
