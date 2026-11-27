@@ -1,42 +1,62 @@
-% Paper 1 -- manuscript for the Journal of Forecasting (Wiley), free-format first submission.
-% Journal rules followed (author guidelines, read 2026-11-27): title without abbreviations, running
-% title under 40 characters, full author names and affiliations, acknowledgments (with funding),
-% abstract, up to six keywords, APA references, tables with titles, a list of figure legends,
-% statements on data availability, funding, conflicts of interest, ethics and permissions.
-% Appendices go in a separate file (supplement.tex, "Supporting Information"). Single-blind
-% review: author names stay on the title page. A LaTeX submission also needs the compiled PDF.
+% Paper 1 -- manuscript for the Journal of Forecasting (Wiley), on Wiley's LaTeX authoring template
+% (USG.cls, "Optimal Design" layout; install with scripts/setup-wiley-template.sh). Compile with
+% `tectonic -X compile main.tex` (XeLaTeX). Wiley retypesets accepted papers whatever the layout.
+% Journal rules followed (author guidelines, 2026-11-27): title without abbreviations, running
+% title under 40 characters, full author names and affiliations, co-author emails, abstract, up to
+% six keywords, APA references, tables with titles, a list of figure legends, statements on data
+% availability, funding, conflicts of interest, ethics and permissions. Appendices are a separate
+% file (supplement.tex, "Supporting Information"). Single-blind review: names stay.
 %
 % Every number comes from papers/paper1/generated/ (vnbank.research.survival.report, run on the
 % single final walk-forward run, D-024). Never type a result by hand.
-\documentclass[12pt]{article}
+\documentclass[APA]{USG}
 
-\usepackage[a4paper,margin=2.5cm]{geometry}
-\usepackage{amsmath,amssymb}
-\usepackage{booktabs}
-\usepackage{array}
-\usepackage{microtype}
-\usepackage{setspace}
-\onehalfspacing
-\usepackage[mathlines]{lineno}
-\linenumbers
-\usepackage{enumitem}
-\setlist[itemize]{itemsep=2pt,parsep=0pt,topsep=4pt}
-\setlength{\emergencystretch}{1.5em}
-% L{width}: ragged-right paragraph column
-\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
-\usepackage{graphicx}
-\usepackage{adjustbox}
+% Unicode text font: STIX Two, the class's own font, as OpenType, so Vietnamese names and titles
+% keep every diacritic; maths stays with the class's stix2 fonts.
+\usepackage[no-math]{fontspec}
+\setmainfont{STIXTwoText}[Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,
+  ItalicFont=*-Italic,BoldItalicFont=*-BoldItalic]
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
-\usepackage{caption}
-\captionsetup{font=small,labelfont=bf}
-\usepackage[natbibapa]{apacite} % APA reference style (journal requirement); keeps \citet/\citep
-\usepackage{xurl}
-\usepackage[hidelinks]{hyperref}
-\usepackage{xcolor}
-\usepackage{authblk}
+\usepackage{adjustbox}
+\usepackage[section]{placeins} % floats stay in their own section
+\usepackage[mathlines]{lineno}
 \setlength{\marginparwidth}{2cm}
 \usepackage[textsize=footnotesize]{todonotes}
+
+\makeatletter
+% The class draws the Wiley logo and an open-access badge; both are left out so that the
+% manuscript cannot be mistaken for a published article (delete these lines to restore them).
+\let\njd@includegraphics\includegraphics
+\def\njd@logo{Wiley_logo.eps}\def\njd@oa{images/openaccess}
+\renewcommand{\includegraphics}[2][]{\def\njd@file{#2}%
+  \ifx\njd@file\njd@logo\else\ifx\njd@file\njd@oa\else\njd@includegraphics[#1]{#2}\fi\fi}
+% First-page header and footer: no journal citation line, volume or DOI; a submission note.
+\def\oddhead@titlepage@info{\head@titlepage@def{\hfill}{}}
+\def\evenhead@titlepage@info{\oddhead@titlepage@info}
+\def\oddfoot@titlepage@box{\vbox{\hsize\textwidth\vskip9\p@\noindent\rule{\textwidth}{.5\p@}\par
+  \vskip2\p@\noindent{\fontsize{7}{8}\selectfont Manuscript submitted to \textit{Journal of
+  Forecasting}\hfill\thepage}}}
+\makeatother
+
+\makeatletter
+% Template fixes: the class assumes four affiliations when it places the separator bar, and puts
+% a copyright year after the journal name in the running footer.
+\renewcommand{\@@address}[2][]{\def\temp{#1}%
+\g@addto@macro\jmkaddress{\hsize=\textwidth\def\baselinestretch{1}\stepcounter{affn}%
+\xdef\@currentlabel{\theaffn}\jmkLabel{#1}%
+\addressfont\ifx#1\empty\else\@hangfrom{\textsuperscript{\smash{\theaffn}}}\fi
+#2\hphantom{1}\ifnum\theaffn=2\else\hskip-3\@p@t\authorsep\fi}}
+\def\evenhead@headings@info{\head@headings@def{\evenpage@headings@def\hfill{\pagenumfont
+  \itshape Manuscript submitted to Journal of Forecasting}}}
+\makeatother
+% paragraphs are indented (the class sets no indent and no paragraph space)
+\setlength{\parindent}{1.2em}
+% citations: the class's APA option uses apacite (classic mode); keep natbib-style commands
+\providecommand{\citet}[1]{\citeA{#1}}
+\providecommand{\citep}[1]{\cite{#1}}
+% L{width}: ragged-right paragraph column
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 % \plan{...}: drafting notes; hidden in the submitted version
 \newif\ifshowplans \showplansfalse
 \newcommand{\plan}[1]{\ifshowplans{\par\noindent\color{gray}\small\textit{Plan:} #1\par}\fi}
@@ -51,57 +71,41 @@
 % a generated table, shrunk to the text width if it is wider
 \newcommand{\gentable}[1]{\adjustbox{max width=\linewidth}{\genfile{#1}}}
 
-\title{Predictable but Mostly Mechanical: Survival Forecasts of Trend Reversals in Vietnamese
-Stocks}
+% number sections and subsections only (run-in paragraph headings stay unnumbered)
+\setcounter{secnumdepth}{2}
+
+\articletype{RESEARCH ARTICLE}
+\journal{Journal of Forecasting}
+\received{00}
+\revised{00}
+\accepted{00}
+\articledoi{}
+
+\begin{document}
+
 % Authors. First and corresponding: family name Luu, given names Thai Hung (Vietnamese: Luu Thai
 % Hung); in submission systems enter "Luu" as the family name and "Thai Hung" as the given name.
 % Second: Pham Ngo Nhat Hao, written "Nhat Hao Pham Ngo"; family name "Pham Ngo", middle name Nhat,
 % given name Hao (confirmed by him); cited as Pham Ngo, N.H.
-\author[1]{Thai Hung Luu\thanks{Corresponding author. Email:
-\href{mailto:hung.luu.research@gmail.com}{hung.luu.research@gmail.com}. ORCID:
-\href{https://orcid.org/0009-0004-2909-3359}{0009-0004-2909-3359}.}}
-\author[2]{Nhat Hao Pham Ngo\thanks{Email:
-\href{mailto:nhathao.research@gmail.com}{nhathao.research@gmail.com}. ORCID:
-\href{https://orcid.org/0009-0000-1537-6041}{0009-0000-1537-6041}.}}
-\affil[1]{Independent Researcher, Vinh Long, Vietnam}
-\affil[2]{School of Trade and International Economics, National Economics University, Hanoi,
-Vietnam}
-\date{}
+\title{Predictable but Mostly Mechanical: Survival Forecasts of Trend Reversals in Vietnamese
+Stocks}
+\author[1]{Thai Hung Luu}[https://orcid.org/0009-0004-2909-3359]
+\author[2]{Nhat Hao Pham Ngo}[https://orcid.org/0009-0000-1537-6041]
+\authormark{LUU \textsc{and} PHAM NGO}
+\titlemark{FORECASTING TREND REVERSALS}
+\address[1]{\orgname{Independent Researcher, }\orgaddress{\state{Vinh Long, }\country{Vietnam}}}
+\address[2]{\orgdiv{School of Trade and International Economics, }\orgname{National Economics
+University, }\orgaddress{\state{Hanoi, }\country{Vietnam}}}
+\corres{Thai Hung Luu (\email{hung.luu.research@gmail.com}) ~|~ Nhat Hao Pham Ngo
+(\email{nhathao.research@gmail.com})}
+\fundingInfo{This research did not receive any specific grant from funding agencies in the public,
+commercial, or not-for-profit sectors.\\\textbf{Running title:} Forecasting trend reversals}
+\keywords{directional change | forecast evaluation | price limits | survival analysis | trend
+reversal | Vietnam}
+\abstract[ABSTRACT]{\input{sections/00_abstract}}
 
-\begin{document}
-
-\begin{titlepage}
 \maketitle
-\thispagestyle{empty}
-\noindent\textbf{Running title:} Forecasting trend reversals
-
-\bigskip
-\noindent\textbf{Acknowledgments.} This research did not receive any specific grant from funding
-agencies in the public, commercial, or not-for-profit sectors.
-
-\bigskip
-\noindent\textbf{Data availability statement.} \input{sections/00_statements_data}
-
-\bigskip
-\noindent\textbf{Conflict of interest disclosure.} The authors declare no conflicts of interest.
-
-\bigskip
-\noindent\textbf{Ethics approval statement.} Not applicable: the study uses only market prices,
-published financial statements and published news, and involves no human participants.
-
-\bigskip
-\noindent\textbf{Permission to reproduce material from other sources.} Not applicable: no
-material from other sources is reproduced.
-\end{titlepage}
-
-\begin{abstract}
-\input{sections/00_abstract}
-\end{abstract}
-
-\noindent\textbf{Keywords:} directional change; forecast evaluation; price limits; survival
-analysis; trend reversal; Vietnam
-
-\clearpage
+\linenumbers
 
 \input{sections/01_introduction}
 \input{sections/02_literature}
@@ -112,12 +116,29 @@ analysis; trend reversal; Vietnam
 \input{sections/07_discussion}
 \input{sections/08_conclusion}
 
-\section*{Author contributions}
+\bmsection*{Acknowledgments}
+This research did not receive any specific grant from funding agencies in the public, commercial,
+or not-for-profit sectors.
+
+\bmsection*{Author contributions}
 \textbf{Thai Hung Luu:} Conceptualization, Methodology, Software, Data curation, Formal analysis,
 Investigation, Validation, Visualization, Writing -- original draft, Writing -- review \& editing.
 \textbf{Nhat Hao Pham Ngo:} Methodology, Validation, Data curation.
 
-\section*{Use of generative artificial intelligence}
+\bmsection*{Conflict of interest statement}
+The authors declare no conflicts of interest.
+
+\bmsection*{Data availability statement}
+\input{sections/00_statements_data}
+
+\bmsection*{Ethics approval statement}
+Not applicable: the study uses only market prices, published financial statements and published
+news, and involves no human participants.
+
+\bmsection*{Permission to reproduce material from other sources}
+Not applicable: no material from other sources is reproduced.
+
+\bmsection*{Use of generative artificial intelligence}
 % Wording approved by the first author (2026-11-25); plural since the co-author joined
 % (2026-11-26). Wiley asks authors to disclose such use; recheck against its policy at submission.
 During the preparation of this work the authors used Claude (Anthropic), an AI assistant, to write
@@ -125,20 +146,17 @@ and test the data-processing and estimation code, check bibliographic references
 DOIs, and draft and edit text. After using this tool, the authors reviewed and edited the content
 as needed and take full responsibility for the content of the article.
 
-\section*{Supporting information}
+\bmsection*{Supporting information}
 Additional supporting information can be found online in the Supporting Information section at the
 end of this article. Appendix S1 gives the hyperparameter grids and selected values, the
 development-period record, feature definitions, the extraction of bank statements and further
 tables.
 
-\bibliographystyle{apacite}
 \bibliography{refs}
 
-\clearpage
-\section*{Figure legends}
-\begin{description}[leftmargin=0pt]
-\item[Figure 1.] \FigOneLegend
-\item[Figure 2.] \FigTwoLegend
-\end{description}
+\bmsection*{Figure legends}
+\noindent\textbf{Figure 1.} \FigOneLegend
+
+\noindent\textbf{Figure 2.} \FigTwoLegend
 
 \end{document}

@@ -29,7 +29,7 @@ therefore long-only.
 
 \paragraph{Market upgrade} FTSE Russell announced on 7 October 2025 that Vietnam would be
 reclassified from Frontier to Secondary Emerging status, effective 21 September 2026, subject to an
-interim review that confirmed it on 7 April 2026 \citep{FTSE2025,FTSE2026}.\todo{verify title of FTSE2026} The release came out at 03:00 on 8
+interim review that confirmed it on 7 April 2026 \citep{FTSE2025,FTSE2026}. The release came out at 03:00 on 8
 October Vietnam time, before the 09:00 decision that follows the session of 7 October, so that
 session's row is the first after the announcement. This event dates the exploratory test of H4.
 
@@ -59,7 +59,7 @@ the HOSE calendar.
 stock has at least 250 sessions of its own price history before it, and the stock is inside an open
 swing. Table~\ref{tab:sample} reports the counts after each step.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Sample construction, 3 January 2012 to 20 November 2026. Survival rows are stock-sessions
 inside an open swing ($k=2$). Development rows (2012--2016) lie inside the first training window;
@@ -74,10 +74,9 @@ Daily open, high, low, close and volume come from the bulk end-of-day archives o
 Vietnamese financial portal \citep{CafeF2026}. Every download is stored
 unchanged before parsing. Where the bulk archive lacks a stock's history before a change of venue,
 it is filled from CafeF's per-ticker history; on the stock-days both sources cover, the two agree on
-all five fields on every day (\gen{PriceOverlapDays} stock-days). After the fill, the sample covers
-\gen{CoverageVNThirty} of VN30 member-days and \gen{CoverageBanks} of bank-days. Two VN30 members
-of 2012--2016 and one bank of 2012 have no usable history in either source; they are listed in
-Appendix S1.
+all five fields on every day (\PriceOverlapDays{} stock-days of \PriceOverlapTickers{} stocks). After the fill, the sample covers
+\gen{CoverageVNThirty} of VN30 member-days and \gen{CoverageBanks} of bank-days. The only universe stock with no usable history in either source is the bank
+HBB, which traded until August 2012.
 
 \paragraph{Raw and adjusted prices} We keep raw prices and compute adjusted prices ourselves from
 the corporate actions. Each disputed action (where our inferred ratio and a second source disagreed,
@@ -162,7 +161,7 @@ universe, \CensoredHalt{} at trading halts and \CensoredEndOfSample{} at the end
 Kaplan--Meier probability that an open swing is still unconfirmed after 5, 10 and 20 sessions is
 \KMSurvFive, \KMSurvTen{} and \KMSurvTwenty.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Swings and survival rows, $k=2$, 3 January 2012 to 20 November 2026. Swings: confirmed
 reversals, by the direction of the swing that ended; Length: median sessions between consecutive

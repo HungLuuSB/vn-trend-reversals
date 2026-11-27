@@ -62,3 +62,14 @@ papers/**/*.xdv
 papers/**/*.bbl
 papers/**/*.blg
 papers/**/*.out
+
+# Wiley LaTeX template (copyright Wiley; installed by scripts/setup-wiley-template.sh)
+papers/paper1/USG.cls
+papers/paper1/NJDapacite.sty
+papers/paper1/lettersp.sty
+papers/paper1/WileyNJD-APA.bst
+papers/paper1/images/
+
+# generated manuscript files
+papers/**/*.docx
+papers/**/*.pag
