@@ -7,8 +7,8 @@ decision).
 No model is refitted and no test-year prediction is recomputed: the per-year caches of the
 single final run (data/final_cache/vnbank/cache/main) are re-scored with the evaluation code of
 the final run (``final.evaluate``), the same year-stratified metrics, the same moving-block
-bootstrap (blocks of 20 sessions) and the same decision rule, with the 200 resamples of the
-secondary comparisons (Table 8 of the paper).
+bootstrap (blocks of 20 sessions, 1,000 resamples as for the primary tests) and the same decision
+rule.
 
 Comparisons:
 * like for like against the boosted mechanical baseline M_flex: every non-linear model of the
@@ -22,16 +22,23 @@ Writes research/paper1/runs/<UTC timestamp>-final-posthoc/{config.json, metrics.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import UTC, datetime
+from pathlib import Path
 
 from vnbank.common import paths
 from vnbank.research.shared.run_meta import code_version
 from vnbank.research.survival.final import evaluate as E
+from vnbank.research.survival.final import specs as S
 
-CACHE = paths.REPO / "data" / "final_cache" / "vnbank" / "cache" / "main"
+CACHE = Path(
+    os.environ.get(
+        "VNBANK_FINAL_CACHE", paths.REPO / "data" / "final_cache" / "vnbank" / "cache" / "main"
+    )
+)
 YEARS = list(range(2017, 2027))
-RESAMPLES = E.BOOT["resamples"]  # 200, as the secondary comparisons
+RESAMPLES = S.PRIMARY_RESAMPLES  # 1,000, as the primary tests (D-031)
 LIKE_FOR_LIKE = [("gbm_ABC", "M_flex"), ("rsf_ABC", "M_flex"), ("nn_static_ABCD", "M_flex"),
                  ("nn_seq_ABC", "M_flex"), ("nn_seq_ABCD", "M_flex"), ("gbm_ABCD", "M_flex"),
                  ("rsf_ABCD", "M_flex")]  # fmt: skip
@@ -51,7 +58,7 @@ def main(argv: list[str] | None = None) -> int:
     out.mkdir(parents=True)
     (out / "config.json").write_text(json.dumps(
         {"git_commit": commit, "created_at_utc": datetime.now(UTC).isoformat(),
-         "decision": "D-031 (post hoc)", "cache": str(CACHE.relative_to(paths.REPO)),
+         "decision": "D-031 (post hoc)", "cache": str(CACHE),
          "years": YEARS, "resamples": RESAMPLES,
          "like_for_like": LIKE_FOR_LIKE, "decomposition": DECOMPOSITION}, indent=1))  # fmt: skip
     (out / "metrics.json").write_text(json.dumps(res, indent=1))
