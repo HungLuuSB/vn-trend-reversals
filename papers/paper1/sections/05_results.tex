@@ -5,7 +5,11 @@
 
 The run passed both stop rules before any other output was read. Models trained on permuted
 outcomes ranked the test rows at chance: the mean shuffled C ranged from \ShuffledMin{} to
-\ShuffledMax{} across the four controls. No model came near the leakage threshold of 0.70; the
+\ShuffledMax{} across the four controls. The lowest, the sequence neural hazard, ranges from
+\ShuffledNnYearMin{} to \ShuffledNnYearMax{} across years and is below 0.5 in
+\ShuffledNnYearsBelow{} of the 10; a flexible model fitted to permuted outcomes can learn a
+spurious pattern that runs slightly against the true one, and leakage would push C above 0.5, not
+below it. No model came near the leakage threshold of 0.70; the
 highest year-stratified C of any model was \MaxModelC. Table~\ref{tab:primaryres} reports the
 \PrimCount{} pre-registered primary tests, each with \PrimResamples{} paired resamples (Monte Carlo
 error of the interval endpoints at most \PrimMCError). Table~\ref{tab:models} reports every model.
@@ -63,8 +67,8 @@ interval is \PrimDIBSABCxMFlex{} and contains zero. Against the random-walk null
 exclude zero ($\Delta C$ \PrimDCABCxRW, $\Delta$IBS \PrimDIBSABCxRW), so the first of the two
 conditions holds and the second fails. The comparison with the linear baseline \texttt{M} shows
 where the calibration gap comes from: \texttt{ABCx} beats \texttt{M} on both metrics ($\Delta C$
-\DCABCxM, $\Delta$IBS \DIBSABCxM), but \texttt{M\_flex} alone has a lower IBS than \texttt{M}
-($\Delta$IBS of \texttt{M} over \texttt{M\_flex} \DIBSMMFlex). Letting age and distance enter
+\DCABCxM, $\Delta$IBS \DIBSABCxM), but \texttt{M\_flex} alone also has a lower IBS than
+\texttt{M}: the IBS of \texttt{M} minus that of \texttt{M\_flex} lies in \DIBSMMFlex. Letting age and distance enter
 non-linearly gives the same calibration gain as the linear features. Section~\ref{sec:posthoc}
 shows that non-linear models of the same features do improve on \texttt{M\_flex} in both respects.
 
@@ -72,7 +76,13 @@ shows that non-linear models of the same features do improve on \texttt{M\_flex}
 predicted probability by decile. At ten sessions the deciles lie close to the diagonal (largest
 gap \CalMaxGapTen). At five sessions the predictions are too compressed: the riskiest decile
 reverses at a rate of \CalTopObsFive, while its mean prediction is lower by \CalMaxGapFive. At 20
-sessions the least risky decile still reverses at \CalBottomObsTwenty.
+sessions the least risky decile still reverses at \CalBottomObsTwenty. Table~\ref{tab:calibration} in Appendix S1 gives
+the same comparison for the baselines and the other model families. Among the fitted
+models, the linear logits are the least well calibrated at five sessions: the mean decile gap is
+\CalMeanGapFiveM{} for \texttt{M}, \CalMeanGapFiveABCx{} for \texttt{ABCx} and
+\CalMeanGapFiveABCDx{} for \texttt{ABCDx}, against \CalMeanGapFiveMFlex{} for \texttt{M\_flex}
+and \CalMeanGapFiveNnSeqABCD{} for the sequence neural hazard. This is
+consistent with the linear model's failure to improve the IBS over \texttt{M\_flex}.
 
 \begin{figure}[!htbp]
 \centering

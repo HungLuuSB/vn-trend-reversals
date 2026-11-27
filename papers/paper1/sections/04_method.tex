@@ -79,7 +79,7 @@ Each row $(i,t)$ is one stock on one session inside a swing that has not yet bee
 reversed. It describes the state after the close of $t$ and is used for a decision at the HOSE
 open, 09:00 Vietnam time, on the next session. The outcome is $D_{i,t}$, the number of the stock's
 sessions until the reversal is confirmed at a later close. A row is right-censored when the study
-ends (the 2026-11-20 close), when the stock leaves the universe, or when the stock has no price for
+ends (the close of 20 November 2026), when the stock leaves the universe, or when the stock has no price for
 five or more consecutive sessions (a trading halt). Shorter gaps are days without trades, and the
 swing continues across them. A row enters the sample only if the stock has at least 250 sessions of
 price history before $t$; this rule is applied point in time, so it does not depend on whether the
@@ -225,11 +225,11 @@ refitted on the full training window. Grids are small and fixed in advance
 
 \subsection{Walk-forward protocol}\label{sec:walkforward}
 
-The test years are 2017 to 2026, and each is one fold. The 2026 fold is a partial year that ends at the
-2026-11-20 close. For test year $y$:
+The test years are 2017 to 2026, and each is one fold. The 2026 fold is a partial year that ends at the close
+of 20 November 2026. For test year $y$:
 
 \begin{itemize}
-\item the training window holds every row from 2012-01-03 to the end of year $y-1$ (an expanding
+\item the training window holds every row from 3 January 2012 to the end of year $y-1$ (an expanding
   window, refitted each January);
 \item training rows whose swing ends on or after 1 January of $y$ are dropped (the purge), so no
   training outcome overlaps the test period;
@@ -344,7 +344,7 @@ Two questions are about the sign or the change of an effect, not about forecasti
 with full-sample estimates and say so.
 
 \paragraph{Signs of the global effects (H2, directional part)} Specification
-\texttt{ABCDx\_bank} is fitted as a landmark logit on all rows from 2012 to 2026-11-20, with a light ridge (inverse
+\texttt{ABCDx\_bank} is fitted as a landmark logit on all rows from 3 January 2012 to 20 November 2026, with a light ridge (inverse
 penalty 100) only so that it converges. Rows of one swing overlap, so standard errors are clustered
 by date and, separately, two-way by date and stock \citep{CameronGelbachMiller2011}. The larger
 $p$-value decides. The pre-registered signs are negative for the S\&P 500 and Nasdaq terms
@@ -385,7 +385,7 @@ The threshold $\tau\in\{0.25,0.30,\dots,0.60\}$ is chosen each year on the inner
 the net Sharpe ratio at the main cost; ties go to the larger $\tau$.
 
 \paragraph{Frictions} Shares bought cannot be sold before settlement: T+3 for trades up to
-2015-12-31 and T+2 from 2016-01-04. A buy does not fill if the raw open is at or above the
+31 December 2015 and T+2 from 4 January 2016. A buy does not fill if the raw open is at or above the
 ceiling, and a sell does not fill if it is at or below the floor; unfilled orders are retried at the
 next open. The limits are those in force on each date, computed from the exchange reference price.
 Where the limit cannot be computed, the order is assumed to fill and the day is flagged; a

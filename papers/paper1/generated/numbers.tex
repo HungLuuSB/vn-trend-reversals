@@ -1,6 +1,6 @@
 % GENERATED FILE: do not edit by hand (CLAUDE.md: every number comes from code).
 % generator: vnbank.research.survival.report
-% generated at commit 0707ede4080ae488812312f624768b7ab4acc354 on 2026-11-27 09:55 UTC
+% generated at commit eec6ebda3380235d049163b43d5bc779ae87f4e2+dirty on 2026-11-27 10:40 UTC
 % source runs:
 %   20261126T052329Z-labels-1f0c80b50427479e (commit 2d9966b5501a)
 %   20261126T052338Z-features-1f0c80b50427479e-k2 (commit 2d9966b5501a)
@@ -23,6 +23,9 @@
 \newcommand{\ShuffledNnSeqABCD}{\ensuremath{0.489}} % 20261126T202919Z-final-evaluate-main: stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.mean
 \newcommand{\ShuffledMax}{\ensuremath{0.503}} % 20261126T202919Z-final-evaluate-main: max shuffled mean
 \newcommand{\ShuffledMin}{\ensuremath{0.489}} % 20261126T202919Z-final-evaluate-main: min shuffled mean
+\newcommand{\ShuffledNnYearMin}{\ensuremath{0.470}} % 20261126T202919Z-final-evaluate-main: min of stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.per\_year\_mean
+\newcommand{\ShuffledNnYearMax}{\ensuremath{0.522}} % 20261126T202919Z-final-evaluate-main: max of stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.per\_year\_mean
+\newcommand{\ShuffledNnYearsBelow}{\ensuremath{8}} % 20261126T202919Z-final-evaluate-main: count < 0.5 in stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.per\_year\_mean
 \newcommand{\MaxModelC}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: max pooled uno\_c\_strat over models
 \newcommand{\CABC}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.uno\_c\_strat
 \newcommand{\IBSABC}{\ensuremath{0.1975}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.ibs\_strat
@@ -551,6 +554,11 @@
 \newcommand{\CalMaxGapTwenty}{\ensuremath{0.075}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d max |pred - obs|
 \newcommand{\CalTopObsTwenty}{\ensuremath{0.862}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d top decile observed
 \newcommand{\CalBottomObsTwenty}{\ensuremath{0.595}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d bottom decile observed
+\newcommand{\CalMeanGapFiveM}{\ensuremath{0.062}} % 20261126T202919Z-final-evaluate-main: M calibration\_5d mean |pred - obs|
+\newcommand{\CalMeanGapFiveMFlex}{\ensuremath{0.010}} % 20261126T202919Z-final-evaluate-main: M\_flex calibration\_5d mean |pred - obs|
+\newcommand{\CalMeanGapFiveABCx}{\ensuremath{0.050}} % 20261126T202919Z-final-evaluate-main: ABCx calibration\_5d mean |pred - obs|
+\newcommand{\CalMeanGapFiveABCDx}{\ensuremath{0.046}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_5d mean |pred - obs|
+\newcommand{\CalMeanGapFiveNnSeqABCD}{\ensuremath{0.010}} % 20261126T202919Z-final-evaluate-main: nn\_seq\_ABCD calibration\_5d mean |pred - obs|
 \newcommand{\BoundaryABCDxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCDx-boundary:km
 \newcommand{\BoundaryABCxM}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCx-boundary:M
 \newcommand{\BoundaryABCDxM}{No} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCDx-boundary:M
@@ -854,10 +862,10 @@
 \newcommand{\ShapNnBlockC}{\ensuremath{11.5}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.block\_share.C x100
 \newcommand{\ShapGbmBlockD}{\ensuremath{9.8}} % 20261127T091116Z-final-shap: gbm\_ABCD.block\_share.D x100
 \newcommand{\ShapNnBlockD}{\ensuremath{6.6}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.block\_share.D x100
-\newcommand{\ShapGbmAdditivity}{\ensuremath{0.000009}} % 20261127T091116Z-final-shap: gbm\_ABCD.additivity\_max\_abs\_error
+\newcommand{\ShapGbmAdditivity}{\ensuremath{8.6\times 10^{-6}}} % 20261127T091116Z-final-shap: gbm\_ABCD.additivity\_max\_abs\_error
 \newcommand{\ShapGbmMeanPred}{\ensuremath{0.271}} % 20261127T091116Z-final-shap: gbm\_ABCD.mean\_prediction
 \newcommand{\ShapGbmTopShare}{\ensuremath{55.1}} % 20261127T091116Z-final-shap: gbm\_ABCD: top feature share
-\newcommand{\ShapNnAdditivity}{\ensuremath{0.000000}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.additivity\_max\_abs\_error
+\newcommand{\ShapNnAdditivity}{\ensuremath{6.4\times 10^{-10}}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.additivity\_max\_abs\_error
 \newcommand{\ShapNnMeanPred}{\ensuremath{0.267}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.mean\_prediction
 \newcommand{\ShapNnTopShare}{\ensuremath{46.1}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD: top feature share
 \newcommand{\ShapRows}{\ensuremath{5\,000}} % 20261127T091116Z-final-shap: config rows

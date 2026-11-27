@@ -159,6 +159,13 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
         )
     n.add("ShuffledMax", R.num(max(v["mean"] for v in sh.values()), 3), run, "max shuffled mean")
     n.add("ShuffledMin", R.num(min(v["mean"] for v in sh.values()), 3), run, "min shuffled mean")
+    # the neural control sits a little below 0.5: report its per-year spread (no new estimate)
+    py = sh["shuffled:nn_seq_ABCD"]["per_year_mean"]
+    src = "stop_checks.shuffled.shuffled:nn_seq_ABCD.per_year_mean"
+    n.add("ShuffledNnYearMin", R.num(min(py.values()), 3), run, f"min of {src}")
+    n.add("ShuffledNnYearMax", R.num(max(py.values()), 3), run, f"max of {src}")
+    below = sum(v < 0.5 for v in py.values())
+    n.add("ShuffledNnYearsBelow", R.integer(below), run, f"count < 0.5 in {src}")
     n.add(
         "MaxModelC",
         R.num(max(m["uno_c_strat"] for m in pm.values()), 3),
@@ -390,6 +397,8 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
             f"ABCDx calibration_{h}d bottom decile observed",
         )
 
+    calibration_table(t, n, pm, run)
+
     # sensitivities: bootstrap block length and censoring at the fold boundary
     sens = r["pooled"]["paired_block_sensitivity"]
     rows = []
@@ -618,6 +627,36 @@ def fig_peryear(py: dict) -> str:
         lines.append(rf"\addlegendentry{{\texttt{{{lab}}}}}")
     lines += [r"\end{axis}", r"\end{tikzpicture}"]
     return "\n".join(lines) + "\n"
+
+
+CAL_MODELS = ["km", "RW", "M", "M_flex", "ABCx", "ABCDx", "gbm_ABC", "gbm_ABCD", "rsf_ABCD",
+              "nn_seq_ABC", "nn_seq_ABCD"]  # fmt: skip
+
+
+def calibration_table(t: dict, n: R.Numbers, pm: dict, run: R.Run) -> None:
+    """Decile calibration of the baselines and each model family: the mean and the largest absolute
+    gap between predicted and observed (Kaplan-Meier) reversal probability over the ten deciles."""
+    rows = []
+    for m in CAL_MODELS:
+        row = {"Model": model_label(m)}
+        for h in (5, 10, 20):
+            v = pm[m][f"calibration_{h}d"]
+            gap = np.abs(np.array(v["predicted"]) - np.array(v["observed"]))
+            row[f"mean{h}"] = R.num(float(gap.mean()), 3)
+            row[f"max{h}"] = R.num(float(gap.max()), 3)
+            if h == 5 and m in ("M", "ABCx", "ABCDx", "M_flex", "nn_seq_ABCD"):
+                n.add(
+                    R.macro("CalMeanGapFive", tok(m)),
+                    R.num(float(gap.mean()), 3),
+                    run,
+                    f"{m} calibration_5d mean |pred - obs|",
+                )
+        rows.append(row)
+    t["tab_calibration"] = R.tabular(
+        pd.DataFrame(rows),
+        align="lrrrrrr",
+        header=["Model", "Mean, 5", "Max, 5", "Mean, 10", "Max, 10", "Mean, 20", "Max, 20"],
+    )
 
 
 def fig_calibration(cal: dict) -> str:
@@ -1368,6 +1407,12 @@ SHAP_BLOCK_LABEL = {
 }
 
 
+def _sci(x: float) -> str:
+    """Small positive number in scientific notation: 8.6e-06 -> 8.6 x 10^{-6}, in maths mode."""
+    mant, exp = f"{x:.1e}".split("e")
+    return f"\\ensuremath{{{mant}\\times 10^{{{int(exp)}}}}}"
+
+
 def shap_table(n: R.Numbers, t: dict[str, str], run: R.Run, top: int = 12) -> None:
     """Supporting information: descriptive SHAP for the 2026 models (protocol 5e)."""
     from vnbank.research.survival.final.shap_explain import BLOCKS
@@ -1427,7 +1472,7 @@ def shap_table(n: R.Numbers, t: dict[str, str], run: R.Run, top: int = 12) -> No
     for mod, key in (("gbm_ABCD", "Gbm"), ("nn_seq_ABCD", "Nn")):
         n.add(
             R.macro("Shap", key, "Additivity"),
-            R.num(m[mod]["additivity_max_abs_error"], 6),
+            _sci(m[mod]["additivity_max_abs_error"]),
             run,
             f"{mod}.additivity_max_abs_error",
         )

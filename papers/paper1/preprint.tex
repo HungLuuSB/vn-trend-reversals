@@ -21,7 +21,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepackage{caption}
-\captionsetup{font=small,labelfont=bf}
+\captionsetup{font=small,labelfont=bf,singlelinecheck=false}
 \usepackage{enumitem}
 \setlist{itemsep=2pt,parsep=0pt,topsep=4pt}
 \usepackage[natbibapa]{apacite}
@@ -32,6 +32,8 @@
 \usepackage{titlesec}
 \titleformat*{\section}{\large\bfseries}
 \titleformat*{\subsection}{\normalsize\bfseries}
+\titleformat{\paragraph}[runin]{\normalfont\bfseries}{}{0pt}{}[.]
+\titlespacing*{\paragraph}{0pt}{1.4ex plus .4ex minus .2ex}{0.6em}
 \setlength{\marginparwidth}{2cm}
 \usepackage[textsize=footnotesize]{todonotes}
 
@@ -112,7 +114,7 @@ DOIs, and draft and edit text. After using this tool, the authors reviewed and e
 as needed and take full responsibility for the content of the article.
 
 \bibliographystyle{apacite}
-\bibliography{refs}
+{\raggedright\bibliography{refs}} % ragged right: long URLs are not stretched
 
 \clearpage
 \appendix
