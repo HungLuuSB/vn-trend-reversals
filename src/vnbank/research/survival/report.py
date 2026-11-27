@@ -419,8 +419,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
     rows = []
     for pair in ("ABCDx-km", "ABCx-M_flex", "ABCx-RW", "ABCDx-ABCx", "M_s-DIST_s", "ABCx-M"):
         row = {
-            "Comparison": rf"\texttt{{{R.escape(pair.split('-')[0])}}} $-$ "
-            rf"\texttt{{{R.escape(pair.split('-')[1])}}}",
+            "Comparison": pair_label(*pair.split("-", 1)),
             "b20": yes(paired["improves"][pair]),
         }
         for b in ("40", "60"):
