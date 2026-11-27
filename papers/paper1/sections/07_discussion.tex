@@ -16,16 +16,18 @@ already gives C~=~\CRW.
 \paragraph{What the features add} Beyond the mechanics, the stock's recent returns, volatility,
 price-limit hits and the state of the local market improve the ranking of swings consistently,
 in \YearsAboveABCxMFlex{} of 10 test years against the flexible baseline. In the pre-registered
-linear model they do not make the predicted probabilities more accurate; post hoc, non-linear models
-of the same features do (\PHLikePass{} of \PHLikeCount{}). The gain is small, a few thousandths in
+linear model they do not make the predicted probabilities more accurate. Post hoc and without a
+multiplicity adjustment, \PHLikePass{} of \PHLikeCount{} non-linear models do, and \PHHolmPass{}
+does after a Holm adjustment. The gain is small, a few thousandths in
 the integrated Brier score, and it depends on a model flexible enough to let the effects change
 with the horizon. Requiring both metrics to improve is what exposed this difference.
 
-\paragraph{Why outside information does not help} Overnight US returns, volatility, rates,
+\paragraph{Why outside information adds nothing detectable} Overnight US returns, volatility, rates,
 currencies, commodities and geopolitical risk bring no detectable improvement to the timing of
 reversals, and neither do bank fundamentals or news attention. The signs are often as expected: a
 fall in US technology stocks overnight raises the hazard that a Vietnamese up-swing ends in every
-yearly fit, and a nested-model test finds a very small reduction in the five-session Brier loss.
+yearly fit, and a nested-model test finds a very small reduction in the five-session Brier loss in
+\CWBlockDBelow{} of \CWBlockDCount{} model families.
 The effects are small, and we can only conjecture why. Foreign information is priced at the next
 open \citep{HamaoMasulisNg1990}, and a single day's move is small next to a threshold of twice the
 average daily range, so overnight news rarely decides whether a swing is confirmed. For banks, news
@@ -62,6 +64,12 @@ which the market rose. This is consistent with weak-form efficiency after costs.
   index, and exits can follow poor performance. Censoring affects only \CensoredPct\% of rows.
 \item \emph{Pre-registration by log.} The design was fixed in a dated decision log before the test
   years were used, not in a registry with an external timestamp.
+\item \emph{Baselines and grids.} The boosted mechanical baseline \texttt{M\_flex} is not an upper
+  bound on what age and distance can do: its C (\CMFlex) is below that of the linear \texttt{M}
+  (\CM) and the spline \texttt{M\_s} (\CMS), so part of the ranking gain over \texttt{M\_flex}
+  reflects its own weaker ranking. Several models also chose a setting at the edge of their tuning
+  grid in most years (Table~\ref{tab:hyper}), and a wider grid could change both baselines and
+  richer models.
 \end{itemize}
 
 \paragraph{What the results do not show} The study makes no causal claim about the effect of any

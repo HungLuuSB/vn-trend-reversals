@@ -29,32 +29,36 @@ models forecast when it will be confirmed as reversed, from five blocks of featu
 state, the stock's technicals, the local market, overnight global markets, and for banks, first
 released non-performing-loan ratios and news attention. All features are timed to a decision at
 the 09:00 open. Models are fitted on an expanding window, refitted each year, and tested once on
-2017--2026 after all design work used 2012--2016 only. Besides Kaplan--Meier we compare every
-model with two mechanical benchmarks: a flexible model of swing age and distance to the threshold,
-and a random-walk null that rolls the stock's own recent returns through the labelling rule.
+2017--2026 after all design work used 2012--2016 only. Besides Kaplan--Meier we compare the
+models with two benchmarks built from the labelling rule: a flexible mechanical baseline of swing age
+and distance to the threshold, and a random-walk null that rolls the stock's own recent returns
+through the rule.
 
 We ask five research questions. RQ1: is the timing of a swing's reversal predictable out of
 sample, and beyond what the labelling rule implies? RQ2: does overnight global information add to
 local information? RQ3: do trends age, that is, does a swing's age matter once its distance to the
 threshold is known? RQ4: did the sensitivity to global shocks rise after the announcement of
 Vietnam's market upgrade? RQ5: are the forecasts worth anything to a trader after costs? Each has a
-pre-registered hypothesis, H1 to H5 (Table~\ref{tab:primary}), and banks get a further test of
+pre-registered hypothesis, H1 to H5 (Table~\ref{tab:primary}); by pre-registered we mean fixed in a
+dated internal decision log before the test years were evaluated, not deposited with an external
+registry (Section~\ref{sec:prereg}). Banks get a further test of
 their fundamentals and news.
 
 The results separate what is predictable from what is mechanical. Reversal timing is predictable:
 the main model reaches a year-stratified C-index of \CABCDx{} against 0.5 for Kaplan--Meier, with a
 lower integrated Brier score, and its C-index stays between \YearMinABCDx{} and \YearMaxABCDx{} in
-every test year. But the distance to the threshold alone delivers
+every test year. But the distance to the threshold alone delivers about
 \MechShareDIST\% of that gain. Beyond the mechanics, the stock's own recent behaviour and the local
 market improve the ranking of swings in \YearsAboveABCxMFlex{} of 10 years, by \GainOverMFlex{} in C.
 In the pre-registered linear model they do not improve the predicted probabilities, so the
-pre-registered test of predictability beyond the mechanics fails; post hoc, non-linear models of the
-same features improve both ranking and probabilities by small margins. Overnight global information,
+pre-registered test of predictability beyond the mechanics fails. In post-hoc comparisons not
+adjusted for multiplicity, \PHLikePass{} of \PHLikeCount{} non-linear models improve both ranking and
+probabilities by small margins; \PHHolmPass{} does so after a Holm adjustment. Overnight global information,
 bank fundamentals and news bring no detectable improvement; nor does swing age once the distance is
 known; no change in global sensitivity is detected
 after the market-upgrade announcement of October 2025; and an exit rule based on the forecasts
 earns a Sharpe ratio of \BtOpenSharpeModel, below that of buy-and-hold (\BtOpenSharpeBh) and of
-simply following the swings.
+simply following the swings, although neither difference is significant.
 
 The paper makes four contributions.
 \begin{enumerate}
@@ -65,10 +69,11 @@ The paper makes four contributions.
   as the benchmark that such forecasts should beat.
 \item \emph{Out-of-sample evidence where earlier work found none.} Unlike daily runs of index changes
   \citep{Yao2005}, volatility-scaled swings of individual stocks are predictable out of sample over
-  ten years. We conjecture that the unit of analysis is the reason: the distance to the threshold
+  ten years, against Kaplan--Meier and against a random-walk null. We conjecture that the unit of analysis is the reason: the distance to the threshold
   is an informative state that a daily run lacks.
 \item \emph{Age versus distance.} Age-only duration dependence of the kind estimated for index phases
-  \citep{LundeTimmermann2004,Zakamulin2023} disappears once the distance to the threshold is known.
+  \citep{LundeTimmermann2004,Zakamulin2023} is not detectable in these swings once the distance to
+  the threshold is known.
 \item \emph{Global shocks in a frontier market, timed point in time.} With every global, fundamental
   and news input timed to when it was public, overnight shocks, bank fundamentals and news bring no
   detectable improvement to the timing of reversals in Vietnam, and no change is detected after its

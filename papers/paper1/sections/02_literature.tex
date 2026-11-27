@@ -68,11 +68,12 @@ direction, returns and turning points for four large stocks with a multilayer pe
 report next-day direction accuracy of 95.8--97.0\% and a test $R^2$ of about 0.9999 for daily
 returns. The data split is not stated as chronological, some targets use the full-sample minimum
 and maximum, and there is no naive baseline. Accuracy of this size on daily returns is a typical
-sign of look-ahead rather than of predictability. We rebuilt their design on our development years
-(Appendix S1). The type of split matters little: aligned correctly, the network predicts direction no
-better than the majority class under either split, whereas aligning each target with the inputs of
-the same day reproduces accuracy of the published size (\AbolRandomSameTrend{} on direction). This
-suggests that their accuracy reflects how targets and inputs were aligned, not predictability.
+sign of look-ahead rather than of predictability. We rebuilt their design on our development years,
+with our data (Appendix S1). The type of split matters little: aligned correctly, the network
+predicts direction no better than the majority class under either split, whereas aligning each
+target with the inputs of the same day reproduces accuracy of the published size
+(\AbolRandomSameTrend{} on direction). In our reconstruction, accuracy of that size arises only
+under same-day alignment; their actual alignment cannot be observed from the paper.
 
 \subsection{Directional-change methods}
 

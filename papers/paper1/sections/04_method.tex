@@ -36,7 +36,7 @@ $y$ & test year (fold), 2017--2026 \\
 \subsection{Swings: a volatility-scaled directional-change rule}\label{sec:swings}
 
 A swing ends only when the price retraces a threshold that scales with the stock's own recent
-volatility. The threshold for stock $i$ on session $t$ uses only the previous session:
+volatility. The threshold for stock $i$ on session $t$ uses data up to the previous session:
 \begin{equation}\label{eq:theta}
   \theta_{i,t} = k\,\frac{\mathrm{ATR}_{20}(i,t-1)}{P_{i,t-1}}, \qquad
   \mathrm{ATR}_{20}(i,t) = \frac{1}{20}\sum_{j=0}^{19} \mathrm{TR}_{i,t-j},
@@ -97,7 +97,8 @@ for $s,h = 1,\dots,20$. This is a landmark formulation \citep{vanHouwelingen2007
 a new prediction for the same open swing, made with what is known on that session. Each row is
 expanded into steps $s=1,\dots,\min(D_{i,t},20)$ with a binary target that equals one at the step
 of the confirmation. Censored rows contribute their steps up to censoring. For fitting only,
-durations above 21 sessions are censored at 21; no reported metric uses that cap.
+a swing that lasts longer than 20 sessions contributes 20 steps without an event, as if censored
+after step 20; no reported metric uses that cap.
 
 The landmark form matters because the strongest features describe the current position of the
 swing. A first implementation advanced only the age and held the distance $d_{i,t}$ fixed for
@@ -171,7 +172,8 @@ Part of any skill at predicting reversals follows from the label itself. A swing
 threshold ($d_{i,t}$ near $-1$) needs only a small further move to be confirmed. A model that knows
 $d_{i,t}$ and the stock's volatility can predict reversals without any behavioural content. We
 therefore separate predictability \emph{beyond the mechanics} from predictability against
-Kaplan--Meier, and use three mechanical baselines.
+Kaplan--Meier, and use two mechanical baselines (\texttt{M} and \texttt{M\_flex}) and a
+random-walk null (\texttt{RW}).
 
 \begin{enumerate}
 \item \texttt{M} is the logistic landmark hazard on age, $\log(1+a)$ and $d$, entered linearly.
@@ -213,7 +215,8 @@ We fit six model families, from no features to a sequence model.
   and its last state is joined with the static features. A hidden layer then outputs 20 step
   hazards, trained with the discrete-time likelihood \citep{KvammeBorgan2021}. The output bias
   starts at the training rows' empirical hazard. Training is deterministic on a CPU, and the final
-  model averages the survival curves of three seeds.
+  model averages the survival curves of three seeds. A static variant drops the recurrent part and
+  uses the static features only.
 \end{enumerate}
 
 Every model imputes missing values with training medians and standardises features with training
@@ -283,11 +286,12 @@ tests it is an intersection--union test, valid at the nominal level, and conserv
 \citep{Berger1982}.
 
 \paragraph{One primary test per question} Table~\ref{tab:primary} lists the primary tests. Each
-uses 1,000 paired resamples. We report its Monte Carlo error as the spread of the interval endpoints
+uses 1\,000 paired resamples. We report its Monte Carlo error as the spread of the interval endpoints
 between the two halves of the resamples. The bootstrap $p$-value of a primary is the larger of
 two one-sided shares: the resamples in which C does not rise, and those in which the IBS does not
-fall. Holm-adjusted bootstrap $p$-values across the
-confirmatory primaries are reported as a sensitivity \citep{Holm1979}. Every
+fall. Holm-adjusted bootstrap $p$-values across the five
+primaries that share this rule (H1, H1-mech, H2, H3 and the block E test) are reported as a
+sensitivity \citep{Holm1979}. Every
 other comparison is secondary or descriptive and is labelled so.
 
 \begin{table}[!htbp]
@@ -329,7 +333,7 @@ adjustment of \citet{ClarkWest2007}.
 
 \paragraph{Attribution within block D} Each of the 14 global features is dropped in turn from
 \texttt{ABCDx}, refitted with that year's \texttt{ABCDx} hyperparameters, and compared on IBS with
-2,000 resamples and \citet{Holm1979} adjustment across the 14. A separate contrast asks whether gold adds
+2\,000 resamples and \citet{Holm1979} adjustment across the 14. A separate contrast asks whether gold adds
 anything once geopolitical risk is in the model, and the reverse.
 
 \paragraph{Controls and stop rules} For \texttt{ABCD}, \texttt{ABCDx}, \texttt{M} and the neural model, the
@@ -373,7 +377,7 @@ long-only.
 
 \paragraph{Strategies} Each strategy holds at most one position per stock.
 \begin{enumerate}
-\item \emph{Model exit} (H5): buy at the open after an up-swing is confirmed. Sell at the open after
+\item \emph{Model exit} (H5): buy at the open after an up-swing is confirmed (that is, after a down-swing's reversal). Sell at the open after
   the first day on which \texttt{ABCDx}'s predicted 5-session reversal probability exceeds $\tau$,
   or after the down-reversal is confirmed, whichever comes first.
 \item \emph{Mechanical exit}: the same rule with the predictions of \texttt{M}.
@@ -405,9 +409,9 @@ configuration actually computed in the run.
 \subsection{Pre-registration and number of configurations}\label{sec:prereg}
 
 Every design decision is recorded in a dated log before it was used, with the state of the
-evidence at that moment; the record is available with the code (see the data availability
-statement). The log is kept by the authors and is not time-stamped by a third party. The development
-period produced \gen{DevRunCount} logged runs, summarised in Appendix S1; the full run log is available with the code. One
+evidence at that moment; the log is available from the corresponding author with the code (see
+the data availability statement). The log is kept by the authors and is not time-stamped by a third party. The development
+period produced \gen{DevRunCount} logged runs, summarised in Appendix S1; the full run log is available on the same terms. One
 change to the evaluation came from development results: the mechanical baseline was added after
 the distance to the threshold alone was found to carry most of the ranking skill. A second change,
 direction-specific effects, followed from the stated direction of H2. After a design review and
@@ -418,7 +422,7 @@ information, because the test years had not been evaluated.
 Four entries were made after the final per-year fits. The first fixed a crash in the evaluation code:
 a secondary metric, the C-index within dates, failed on a date with no reversal before $\tau$. The
 crash stopped the run before any metric was written, when only the shuffled-label controls of the
-stop rules had been read; the fix changed no primary metric. Two recorded checks of the
+stop rules had been read; the fix changed no primary metric. Two entries recorded checks of the
 legal sources of the market rules and the disclosure of Section~\ref{sec:datalimits}; they changed
 no input of the frozen snapshot. The last added the analyses marked \emph{post hoc} in
 Section~\ref{sec:results}, which re-score the cached test-year predictions without refitting any
