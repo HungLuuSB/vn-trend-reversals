@@ -1251,29 +1251,14 @@ def records(n: R.Numbers, t: dict[str, str], reg: dict) -> None:
         "Trading test",
     ]
     info = {g[1]: g for g in groups}
-    lines = [r"\begin{longtable}{@{}L{0.22\linewidth}cL{0.17\linewidth}L{0.47\linewidth}@{}}",
-             r"\toprule", r"Purpose & Runs & Decisions & Main development finding \\",
+    lines = [r"\begin{longtable}{@{}L{0.30\linewidth}cL{0.56\linewidth}@{}}",
+             r"\toprule", r"Purpose & Runs & Main development finding \\",
              r"\midrule", r"\endhead"]  # fmt: skip
     for lab in order:
-        _, _, dec, finding = info[lab]
-        lines.append(rf"{lab} & {count[lab]} & {dec} & {finding} \\ \addlinespace[5pt]")
-    lines += [r"\midrule", rf"Total & {len(dev)} & & \\", r"\bottomrule", r"\end{longtable}"]
+        _, _, _, finding = info[lab]
+        lines.append(rf"{lab} & {count[lab]} & {finding} \\ \addlinespace[5pt]")
+    lines += [r"\midrule", rf"Total & {len(dev)} & \\", r"\bottomrule", r"\end{longtable}"]
     t["tab_devruns"] = "\n".join(lines) + "\n"
-    dec, text = [], (paths.paper_dir(PAPER) / "DECISIONS.md").read_text()
-    for m in re.finditer(r"^## (D-\d{3}) — (.+?)$(.*?)(?=^## D-|\Z)", text, re.M | re.S):
-        date = re.search(r"\*\*Date:\*\*\s*([0-9-]{10})", m.group(3))
-        dec.append(
-            {
-                "Decision": m.group(1),
-                "Date": date.group(1) if date else "",
-                "Title": r"\relax " + _md(m.group(2)),
-            }
-        )
-    body = R.tabular(pd.DataFrame(dec), align="lll", header=["Decision", "Date", "Subject"])
-    t["tab_decisions"] = body.replace(
-        "\\begin{tabular}{lll}", "\\begin{longtable}{llL{0.68\\linewidth}}"
-    ).replace("\\end{tabular}", "\\end{longtable}")
-    n.add("DecisionCount", R.integer(len(dec)), None, "DECISIONS.md entries")
 
 
 def abolmakarem(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:

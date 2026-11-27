@@ -27,25 +27,18 @@ All design work used the development years 2012--2016, inside the first training
 test years were used once, by the final run. Table~\ref{tab:devruns} summarises all \DevRunCount{} development runs logged before the final
 snapshot was frozen, grouped by purpose, including runs that were superseded or failed; the full
 run log, with each run's configuration and code version, is available with the code.
-Table~\ref{tab:decisions} lists the \DecisionCount{} entries of the dated decision log; each records
-the evidence available when it was made, and the entries from D-024 on fix the final-run protocol
-before any test-year output existed.
+Every design decision is recorded in a dated decision log, with the evidence available when it was
+made; the log is available with the code.
 
 {\small
 \setlength{\LTpre}{0pt}
 \begin{center}
-\captionof{table}{Development runs on 2012--2016, grouped by purpose, with the decisions they
-informed and the main finding recorded at the time.}\label{tab:devruns}\addtocounter{table}{-1}% the longtable below steps the counter
+\captionof{table}{Development runs on 2012--2016, grouped by purpose, with the main finding
+recorded at the time.}\label{tab:devruns}\addtocounter{table}{-1}% the longtable below steps the counter
 \end{center}
 \genfile{tab_devruns}
 }
 
-{\small
-\begin{center}
-\captionof{table}{Design decisions and their dates (decision log).}\label{tab:decisions}\addtocounter{table}{-1}
-\end{center}
-\genfile{tab_decisions}
-}
 
 \subsection*{S1.3 Feature definitions}
 Table~\ref{tab:featdefs} defines every feature. Row $(i,t)$ describes stock $i$ after the close of
@@ -109,7 +102,7 @@ which \BlockECoverage{} yield a ratio: \BlockEOCR{} read by optical character re
 
 \begin{table}[H]
 \centering
-\caption{Attribution within the global block (D-018). Each feature is dropped from \texttt{ABCDx}
+\caption{Attribution within the global block. Each feature is dropped from \texttt{ABCDx}
 in turn and the model refitted; $\Delta$IBS is the IBS without the feature minus the IBS with it
 ($>0$ means the feature helps), with 95\% intervals from \AttribResamples{} resamples and Holm
 adjustment across the \AttribCount{} features.}\label{tab:attribution}

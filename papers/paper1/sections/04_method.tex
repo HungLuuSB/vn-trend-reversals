@@ -104,7 +104,7 @@ swing. A first implementation advanced only the age and held the distance $d_{i,
 20 sessions. That chained hazard exaggerated both high and low risk and was worse calibrated than
 Kaplan--Meier on the development folds. Estimating the hazard at each step after the decision, as
 in equation~\eqref{eq:hazard}, removes the problem and matches how the prediction is used. The
-correction was made on development data only and is logged (D-013).
+correction was made on development data only and is logged.
 
 \subsection{Features}\label{sec:features}
 
@@ -415,11 +415,11 @@ before any test-year output, the mechanical nulls \texttt{M\_flex} and \texttt{R
 metrics and the stricter H5 rule were added. None of these changes could use test-year
 information, because the test years had not been evaluated.
 
-Four entries were made after the final per-year fits. D-028 fixed a crash in the evaluation code:
+Four entries were made after the final per-year fits. The first fixed a crash in the evaluation code:
 a secondary metric, the C-index within dates, failed on a date with no reversal before $\tau$. The
 crash stopped the run before any metric was written, when only the shuffled-label controls of the
-stop rules had been read; the fix changed no primary metric. D-029 and D-030 recorded checks of the
+stop rules had been read; the fix changed no primary metric. Two recorded checks of the
 legal sources of the market rules and the disclosure of Section~\ref{sec:datalimits}; they changed
-no input of the frozen snapshot. D-031 added the analyses marked \emph{post hoc} in
+no input of the frozen snapshot. The last added the analyses marked \emph{post hoc} in
 Section~\ref{sec:results}, which re-score the cached test-year predictions without refitting any
 model and change no pre-registered decision.
