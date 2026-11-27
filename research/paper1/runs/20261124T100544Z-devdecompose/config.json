@@ -1,0 +1,96 @@
+{
+  "protocol": "D-015",
+  "features_run": "20261124T081754Z-features-b536ec69488162e0-k2",
+  "snapshot_id": "b536ec69488162e0",
+  "git_commit": "5d5c875227fe47a3f15e04c8f7a696d895d04a91",
+  "specs": {
+    "AGE": [
+      "swing_age",
+      "log_age"
+    ],
+    "A": [
+      "swing_dir",
+      "swing_age",
+      "log_age",
+      "swing_age_conf",
+      "swing_move",
+      "swing_dist",
+      "theta"
+    ],
+    "AB": [
+      "swing_dir",
+      "swing_age",
+      "log_age",
+      "swing_age_conf",
+      "swing_move",
+      "swing_dist",
+      "theta",
+      "ret_1",
+      "ret_5",
+      "ret_20",
+      "atr_pct",
+      "rsi_14",
+      "vol_rel_20",
+      "limit_up_hits_5",
+      "limit_down_hits_5",
+      "limit_known_5",
+      "close_at_limit"
+    ],
+    "ABC": [
+      "swing_dir",
+      "swing_age",
+      "log_age",
+      "swing_age_conf",
+      "swing_move",
+      "swing_dist",
+      "theta",
+      "ret_1",
+      "ret_5",
+      "ret_20",
+      "atr_pct",
+      "rsi_14",
+      "vol_rel_20",
+      "limit_up_hits_5",
+      "limit_down_hits_5",
+      "limit_known_5",
+      "close_at_limit",
+      "vnindex_ret",
+      "vn30_ret",
+      "advance_share",
+      "matched_value_rel_20",
+      "idx_swing_dir",
+      "idx_swing_age",
+      "idx_swing_dist"
+    ]
+  },
+  "diffs": [
+    [
+      "A",
+      "AGE"
+    ],
+    [
+      "AB",
+      "A"
+    ],
+    [
+      "ABC",
+      "AB"
+    ],
+    [
+      "ABC",
+      "AGE"
+    ]
+  ],
+  "folds": [
+    2014,
+    2015,
+    2016
+  ],
+  "horizons": [
+    5,
+    10,
+    20
+  ],
+  "bootstrap": 200,
+  "block": 20
+}

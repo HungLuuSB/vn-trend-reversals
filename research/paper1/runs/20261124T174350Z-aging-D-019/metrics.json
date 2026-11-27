@@ -1,0 +1,144 @@
+{
+  "empirical": [
+    {
+      "dist_group": "at_extreme",
+      "age_bucket": "1-5",
+      "share": 0.1834637964774951,
+      "n": 2044
+    },
+    {
+      "dist_group": "at_extreme",
+      "age_bucket": "6-10",
+      "share": 0.14048059149722736,
+      "n": 2705
+    },
+    {
+      "dist_group": "at_extreme",
+      "age_bucket": "11-20",
+      "share": 0.1664247701983551,
+      "n": 4134
+    },
+    {
+      "dist_group": "at_extreme",
+      "age_bucket": "21-40",
+      "share": 0.19925512104283055,
+      "n": 3759
+    },
+    {
+      "dist_group": "at_extreme",
+      "age_bucket": "41-80",
+      "share": 0.22092050209205022,
+      "n": 1195
+    },
+    {
+      "dist_group": "at_extreme",
+      "age_bucket": ">80",
+      "share": 0.18681318681318682,
+      "n": 91
+    },
+    {
+      "dist_group": "near",
+      "age_bucket": "1-5",
+      "share": 0.21604938271604937,
+      "n": 648
+    },
+    {
+      "dist_group": "near",
+      "age_bucket": "6-10",
+      "share": 0.16984328674290555,
+      "n": 2361
+    },
+    {
+      "dist_group": "near",
+      "age_bucket": "11-20",
+      "share": 0.20688134097926775,
+      "n": 4534
+    },
+    {
+      "dist_group": "near",
+      "age_bucket": "21-40",
+      "share": 0.20460806411219634,
+      "n": 3993
+    },
+    {
+      "dist_group": "near",
+      "age_bucket": "41-80",
+      "share": 0.22619899785254116,
+      "n": 1397
+    },
+    {
+      "dist_group": "near",
+      "age_bucket": ">80",
+      "share": 0.27906976744186046,
+      "n": 86
+    },
+    {
+      "dist_group": "far",
+      "age_bucket": "1-5",
+      "share": 0.4433497536945813,
+      "n": 406
+    },
+    {
+      "dist_group": "far",
+      "age_bucket": "6-10",
+      "share": 0.4105668684645019,
+      "n": 1817
+    },
+    {
+      "dist_group": "far",
+      "age_bucket": "11-20",
+      "share": 0.4413593958240782,
+      "n": 4502
+    },
+    {
+      "dist_group": "far",
+      "age_bucket": "21-40",
+      "share": 0.4256278171281391,
+      "n": 4659
+    },
+    {
+      "dist_group": "far",
+      "age_bucket": "41-80",
+      "share": 0.4191270860077022,
+      "n": 1558
+    },
+    {
+      "dist_group": "far",
+      "age_bucket": ">80",
+      "share": 0.44155844155844154,
+      "n": 77
+    }
+  ],
+  "model_shape": [
+    {
+      "age_bucket": "1-5",
+      "age_used": 3,
+      "p_reversal_5d": 0.24518561839485953
+    },
+    {
+      "age_bucket": "6-10",
+      "age_used": 8,
+      "p_reversal_5d": 0.24936697402643992
+    },
+    {
+      "age_bucket": "11-20",
+      "age_used": 15,
+      "p_reversal_5d": 0.2531381955190226
+    },
+    {
+      "age_bucket": "21-40",
+      "age_used": 30,
+      "p_reversal_5d": 0.25910699454849717
+    },
+    {
+      "age_bucket": "41-80",
+      "age_used": 60,
+      "p_reversal_5d": 0.2687407646137384
+    },
+    {
+      "age_bucket": ">80",
+      "age_used": 120,
+      "p_reversal_5d": 0.28597198266356194
+    }
+  ]
+}

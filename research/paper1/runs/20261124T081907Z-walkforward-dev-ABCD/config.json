@@ -1,0 +1,61 @@
+{
+  "mode": "dev",
+  "features_run": "20261124T081754Z-features-b536ec69488162e0-k2",
+  "snapshot_id": "b536ec69488162e0",
+  "git_commit": "bd519cd6f95dfda5aa7d1c37b42aef226cac9f71",
+  "blocks": "ABCD",
+  "features": [
+    "swing_dir",
+    "swing_age",
+    "log_age",
+    "swing_age_conf",
+    "swing_move",
+    "swing_dist",
+    "theta",
+    "ret_1",
+    "ret_5",
+    "ret_20",
+    "atr_pct",
+    "rsi_14",
+    "vol_rel_20",
+    "limit_up_hits_5",
+    "limit_down_hits_5",
+    "limit_known_5",
+    "close_at_limit",
+    "vnindex_ret",
+    "vn30_ret",
+    "advance_share",
+    "matched_value_rel_20",
+    "idx_swing_dir",
+    "idx_swing_age",
+    "idx_swing_dist",
+    "spx_ret",
+    "nasdaq_ret",
+    "vix_chg",
+    "vix_level",
+    "ust10_chg",
+    "dxy_ret",
+    "gold_ret",
+    "brent_ret",
+    "hsi_ret",
+    "sse_ret",
+    "usdvnd_ret",
+    "usdcny_ret",
+    "gpr_level",
+    "gpr_chg"
+  ],
+  "folds": [
+    2014,
+    2015,
+    2016
+  ],
+  "embargo_sessions": 20,
+  "tau": 20,
+  "model": {
+    "logistic_hazard": {
+      "C": 1.0,
+      "l1_ratio": 0.5
+    }
+  },
+  "seed": 0
+}

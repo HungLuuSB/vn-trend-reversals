@@ -1,0 +1,23 @@
+{
+ "git_commit": "8b5b580fc014235823fbf72387b11a9ccb3cb3d3",
+ "created_at_utc": "2026-11-27T09:11:16.682714+00:00",
+ "protocol": "FINAL_RUN_PROTOCOL.md 5e",
+ "year": 2026,
+ "rows": 5000,
+ "background_rows": 100,
+ "max_evals": 401,
+ "seed": 20261127,
+ "features_run": "20261126T052338Z-features-1f0c80b50427479e-k2",
+ "snapshot_id": "1f0c80b50427479e",
+ "models": [
+  "gbm_ABCD",
+  "nn_seq_ABCD"
+ ],
+ "output": "1 - S(5 | x)",
+ "reused": {
+  "gbm_ABCD": {
+   "run": "20261127T083744Z-final-shap",
+   "git_commit": "ff481b720ea1cac37f728f4d50fa805ff2caa5cd"
+  }
+ }
+}

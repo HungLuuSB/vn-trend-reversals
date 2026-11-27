@@ -1,0 +1,89 @@
+{
+  "protocol": "D-014",
+  "features_run": "20261124T081754Z-features-b536ec69488162e0-k2",
+  "snapshot_id": "b536ec69488162e0",
+  "git_commit": "a972a70c5eead0780b466a4e85d85dbe71ec8bb8",
+  "models": [
+    "km",
+    "logit",
+    "gbm",
+    "cox",
+    "rsf"
+  ],
+  "grids": {
+    "km": [
+      {}
+    ],
+    "logit": [
+      {
+        "C": 0.01,
+        "l1_ratio": 0.0
+      },
+      {
+        "C": 0.01,
+        "l1_ratio": 0.5
+      },
+      {
+        "C": 0.1,
+        "l1_ratio": 0.0
+      },
+      {
+        "C": 0.1,
+        "l1_ratio": 0.5
+      },
+      {
+        "C": 1.0,
+        "l1_ratio": 0.0
+      },
+      {
+        "C": 1.0,
+        "l1_ratio": 0.5
+      }
+    ],
+    "gbm": [
+      {
+        "learning_rate": 0.03,
+        "max_leaf_nodes": 15
+      },
+      {
+        "learning_rate": 0.03,
+        "max_leaf_nodes": 31
+      },
+      {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 15
+      },
+      {
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 31
+      }
+    ],
+    "cox": [
+      {
+        "alpha": 1.0
+      },
+      {
+        "alpha": 10.0
+      },
+      {
+        "alpha": 100.0
+      }
+    ],
+    "rsf": [
+      {
+        "min_samples_leaf": 50
+      },
+      {
+        "min_samples_leaf": 200
+      }
+    ]
+  },
+  "folds": [
+    2014,
+    2015,
+    2016
+  ],
+  "bootstrap": 200,
+  "block": 20,
+  "shuffle_seeds": 10
+}

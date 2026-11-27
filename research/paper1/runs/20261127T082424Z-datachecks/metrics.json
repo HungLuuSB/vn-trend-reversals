@@ -1,0 +1,18 @@
+{
+ "cafef_overlap": {
+  "tickers": 12,
+  "overlap_days": 8251,
+  "ohlc_equal": 8251,
+  "volume_equal": 8251,
+  "all_five_equal": 8251,
+  "first_date": "2012-01-03",
+  "last_date": "2026-11-20"
+ },
+ "block_e_news": {
+  "statements": 1150,
+  "with_result_news": 1057,
+  "news_before_available": 1056,
+  "median_lead_days": 35.765972222222224,
+  "news_files": 1305
+ }
+}

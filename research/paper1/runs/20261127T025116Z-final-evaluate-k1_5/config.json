@@ -1,0 +1,214 @@
+{
+  "git_commit": "8807ed112369e2e324afd8f1f48f682d164b3654",
+  "cache": "cache/k1_5",
+  "years": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "year_commits": {
+    "2017": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2018": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2019": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2020": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2021": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2022": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2023": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2024": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2025": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7",
+    "2026": "44393b4e6e0ccf29eaf8bf02bcf29eb8c50126c7"
+  },
+  "snapshot_id": {
+    "2017": "1f0c80b50427479e",
+    "2018": "1f0c80b50427479e",
+    "2019": "1f0c80b50427479e",
+    "2020": "1f0c80b50427479e",
+    "2021": "1f0c80b50427479e",
+    "2022": "1f0c80b50427479e",
+    "2023": "1f0c80b50427479e",
+    "2024": "1f0c80b50427479e",
+    "2025": "1f0c80b50427479e",
+    "2026": "1f0c80b50427479e"
+  },
+  "machines": {
+    "2017": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2018": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2019": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2020": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2021": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2022": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2023": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2024": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2025": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    },
+    "2026": {
+      "host": "1f852b9cab04",
+      "platform": "Linux-6.8.0-149-generic-x86_64-with-glibc2.35",
+      "cpus": 64,
+      "python": "3.12.16",
+      "numpy": "2.5.5",
+      "pandas": "3.1.1",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+      "torch": "2.14.1+cpu",
+      "mem_total": "131748336 kB",
+      "cpu_model": "AMD EPYC 7502 32-Core Processor",
+      "threads_env": {
+        "OMP_NUM_THREADS": "6",
+        "MKL_NUM_THREADS": "6"
+      }
+    }
+  },
+  "audit_cleared": null,
+  "protocol": "D-026 / D-027"
+}

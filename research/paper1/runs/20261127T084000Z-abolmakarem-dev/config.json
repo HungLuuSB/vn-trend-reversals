@@ -1,0 +1,42 @@
+{
+ "git_commit": "04e47f2c50b5ad586c311857d62ed5b330927233",
+ "created_at_utc": "2026-11-27T08:40:00.178365+00:00",
+ "protocol": "FINAL_RUN_PROTOCOL.md 5d",
+ "snapshot_id": "1f0c80b50427479e",
+ "years": [
+  "2012-01-03",
+  "2016-12-31"
+ ],
+ "hidden": 40,
+ "seed": 0,
+ "features": [
+  "r1",
+  "r2",
+  "r3",
+  "r4",
+  "r5",
+  "r6",
+  "r7",
+  "r8",
+  "r9",
+  "r10",
+  "r11",
+  "r12",
+  "r13",
+  "r14",
+  "r15",
+  "rsi",
+  "momentum",
+  "tr",
+  "atr",
+  "psar",
+  "cci",
+  "sma",
+  "wma",
+  "hma",
+  "adx",
+  "williams_r",
+  "stoch_k",
+  "stoch_d_slow"
+ ]
+}

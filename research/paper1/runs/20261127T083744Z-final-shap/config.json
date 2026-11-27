@@ -1,0 +1,17 @@
+{
+ "git_commit": "ff481b720ea1cac37f728f4d50fa805ff2caa5cd",
+ "created_at_utc": "2026-11-27T08:37:44.188448+00:00",
+ "protocol": "FINAL_RUN_PROTOCOL.md 5e",
+ "year": 2026,
+ "rows": 5000,
+ "background_rows": 100,
+ "max_evals": 401,
+ "seed": 20261127,
+ "features_run": "20261126T052338Z-features-1f0c80b50427479e-k2",
+ "snapshot_id": "1f0c80b50427479e",
+ "models": [
+  "gbm_ABCD",
+  "nn_seq_ABCD"
+ ],
+ "output": "1 - S(5 | x)"
+}

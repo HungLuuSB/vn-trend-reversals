@@ -1,0 +1,18 @@
+{
+  "k2": {
+    "rows": 139241,
+    "stocks": 88,
+    "event_rows": 136976,
+    "censored_rows": 2265,
+    "censored_by_reason": {
+      "universe_exit": 843,
+      "end_of_sample": 784,
+      "halt": 638
+    },
+    "rows_up_share": 0.534002197628572,
+    "reversals_in_study": 13980,
+    "median_duration_at_entry_event_rows": 13.0,
+    "median_swing_age_at_reversal": 26.0,
+    "share_rows_reversal_within_5d": 0.26265970511559095
+  }
+}

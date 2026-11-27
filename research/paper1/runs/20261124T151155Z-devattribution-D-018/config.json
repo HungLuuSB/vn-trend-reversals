@@ -1,0 +1,39 @@
+{
+  "protocol": "D-018",
+  "features_run": "20261124T081754Z-features-b536ec69488162e0-k2",
+  "from_run": "20261124T133305Z-devdecompose-D-017",
+  "snapshot_id": "b536ec69488162e0",
+  "git_commit": "dfd9e1ad961c599d9f6dfaa20734c3eed1d4b885",
+  "full": "ABCDx",
+  "variants": [
+    "ABCDx",
+    "-spx_ret",
+    "-nasdaq_ret",
+    "-vix_chg",
+    "-vix_level",
+    "-ust10_chg",
+    "-dxy_ret",
+    "-gold_ret",
+    "-brent_ret",
+    "-hsi_ret",
+    "-sse_ret",
+    "-usdvnd_ret",
+    "-usdcny_ret",
+    "-gpr_level",
+    "-gpr_chg",
+    "-gold-gpr"
+  ],
+  "bootstrap": 2000,
+  "block": 20,
+  "c_resamples": 200,
+  "c_models": [
+    "ABCDx",
+    "-gold_ret",
+    "-gold-gpr"
+  ],
+  "folds": [
+    2014,
+    2015,
+    2016
+  ]
+}

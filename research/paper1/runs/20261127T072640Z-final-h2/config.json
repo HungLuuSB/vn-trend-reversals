@@ -1,0 +1,13 @@
+{
+  "git_commit": "8807ed112369e2e324afd8f1f48f682d164b3654",
+  "features_run": "20261126T052338Z-features-1f0c80b50427479e-k2",
+  "snapshot_id": "1f0c80b50427479e",
+  "evaluate_run": "20261126T202919Z-final-evaluate-main",
+  "signs": {
+    "spx_ret_xdir": -1,
+    "nasdaq_ret_xdir": -1,
+    "vix_chg_xdir": 1
+  },
+  "ridge_C": 100.0,
+  "protocol": "D-027 item 5"
+}

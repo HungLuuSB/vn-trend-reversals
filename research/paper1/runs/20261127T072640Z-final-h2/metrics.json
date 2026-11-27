@@ -1,0 +1,175 @@
+{
+ "signs": {
+  "spx_ret_xdir": {
+   "coef": -0.016335329492872922,
+   "date": {
+    "se": 0.032972789987471274,
+    "z": 0.49541847987628235,
+    "p": 0.3101523763559354
+   },
+   "two_way": {
+    "se": 0.03208523368025835,
+    "z": 0.509122970886257,
+    "p": 0.3053330157507682
+   },
+   "p": 0.3101523763559354,
+   "z": 0.49541847987628235,
+   "p_holm": 0.36853006140304156,
+   "supported": false
+  },
+  "nasdaq_ret_xdir": {
+   "coef": -0.04243706366443749,
+   "date": {
+    "se": 0.030562700546708947,
+    "z": 1.3885246691332451,
+    "p": 0.08248866909996122
+   },
+   "two_way": {
+    "se": 0.0301513634655749,
+    "z": 1.407467483614454,
+    "p": 0.0796444063431963
+   },
+   "p": 0.08248866909996122,
+   "z": 1.3885246691332451,
+   "p_holm": 0.24746600729988366,
+   "supported": false
+  },
+  "vix_chg_xdir": {
+   "coef": 0.014774563852223307,
+   "date": {
+    "se": 0.016430235521704497,
+    "z": 0.8992301925742919,
+    "p": 0.18426503070152078
+   },
+   "two_way": {
+    "se": 0.016085164071461155,
+    "z": 0.9185211780610208,
+    "p": 0.1791730383562264
+   },
+   "p": 0.18426503070152078,
+   "z": 0.8992301925742919,
+   "p_holm": 0.36853006140304156,
+   "supported": false
+  }
+ },
+ "bank_joint": {
+  "date": {
+   "wald": 5.735386828031228,
+   "df": 6,
+   "p": 0.4534753430677242
+  },
+  "two_way": {
+   "wald": 5.923373702128705,
+   "df": 6,
+   "p": 0.4318283999110577
+  },
+  "p": 0.4534753430677242
+ },
+ "bank_terms": [
+  "bank_x_ust10_chg",
+  "bank_x_dxy_ret",
+  "bank_x_usdvnd_ret",
+  "bank_x_ust10_chg_xdir",
+  "bank_x_dxy_ret_xdir",
+  "bank_x_usdvnd_ret_xdir"
+ ],
+ "rows": 139241,
+ "coef_std": {
+  "swing_dir": 0.13047,
+  "swing_age": -0.131278,
+  "log_age": 0.020867,
+  "swing_age_conf": 0.028593,
+  "swing_move": 0.079508,
+  "swing_dist": -0.402246,
+  "theta": 0.153455,
+  "ret_1": 0.00272,
+  "ret_5": -0.023104,
+  "ret_20": -0.031659,
+  "atr_pct": -0.26351,
+  "rsi_14": -0.014778,
+  "vol_rel_20": 0.011166,
+  "limit_up_hits_5": 0.027605,
+  "limit_down_hits_5": -0.014536,
+  "limit_known_5": 0.024602,
+  "close_at_limit": 0.0207,
+  "ret_1_xdir": 0.067393,
+  "ret_5_xdir": 0.039874,
+  "ret_20_xdir": 0.051957,
+  "atr_pct_xdir": -0.023259,
+  "rsi_14_xdir": 0.029955,
+  "vol_rel_20_xdir": -0.011637,
+  "limit_up_hits_5_xdir": 0.005026,
+  "limit_down_hits_5_xdir": -0.002794,
+  "limit_known_5_xdir": -0.024405,
+  "close_at_limit_xdir": -0.0098,
+  "vnindex_ret": 0.000656,
+  "vn30_ret": 0.002087,
+  "advance_share": -0.02,
+  "matched_value_rel_20": 0.004507,
+  "idx_swing_dir": -0.023704,
+  "idx_swing_age": 0.014438,
+  "idx_swing_dist": 0.014858,
+  "vnindex_ret_xdir": -0.000601,
+  "vn30_ret_xdir": 0.002434,
+  "advance_share_xdir": -0.061138,
+  "matched_value_rel_20_xdir": -0.022021,
+  "idx_swing_dir_xdir": -0.004308,
+  "idx_swing_age_xdir": 0.095007,
+  "idx_swing_dist_xdir": 0.003505,
+  "spx_ret": -0.005359,
+  "nasdaq_ret": -0.011602,
+  "vix_chg": 0.011785,
+  "vix_level": -0.021972,
+  "ust10_chg": 0.006851,
+  "dxy_ret": 0.008002,
+  "gold_ret": 0.000366,
+  "brent_ret": 0.002307,
+  "hsi_ret": -0.002934,
+  "sse_ret": 0.001379,
+  "usdvnd_ret": -0.000653,
+  "usdcny_ret": -0.000702,
+  "gpr_level": 0.005686,
+  "gpr_chg": -0.011016,
+  "spx_ret_xdir": -0.016335,
+  "nasdaq_ret_xdir": -0.042437,
+  "vix_chg_xdir": 0.014775,
+  "vix_level_xdir": -0.179699,
+  "ust10_chg_xdir": 0.011911,
+  "dxy_ret_xdir": 0.018724,
+  "gold_ret_xdir": -0.001809,
+  "brent_ret_xdir": -0.006787,
+  "hsi_ret_xdir": -0.021515,
+  "sse_ret_xdir": 0.016813,
+  "usdvnd_ret_xdir": -0.001187,
+  "usdcny_ret_xdir": 0.019985,
+  "gpr_level_xdir": -0.010257,
+  "gpr_chg_xdir": -0.002055,
+  "is_bank": -0.018846,
+  "bank_x_ust10_chg": -0.006868,
+  "bank_x_dxy_ret": 0.001457,
+  "bank_x_usdvnd_ret": 0.001436,
+  "bank_x_ust10_chg_xdir": 0.006499,
+  "bank_x_dxy_ret_xdir": 0.009421,
+  "bank_x_usdvnd_ret_xdir": 7.5e-05
+ },
+ "yearly_signs": {
+  "spx_ret_xdir": {
+   "predicted_sign_years": 6,
+   "nonzero_years": 6,
+   "years": 10,
+   "binomial_p": 0.015625
+  },
+  "nasdaq_ret_xdir": {
+   "predicted_sign_years": 10,
+   "nonzero_years": 10,
+   "years": 10,
+   "binomial_p": 0.0009765625
+  },
+  "vix_chg_xdir": {
+   "predicted_sign_years": 6,
+   "nonzero_years": 10,
+   "years": 10,
+   "binomial_p": 0.376953125
+  }
+ }
+}

@@ -3,6 +3,7 @@ message: "If you use this code, please cite the paper and this software."
 title: "Code for: Predictable but Mostly Mechanical: Survival Forecasts of Trend Reversals in Vietnamese Stocks"
 type: software
 license: MIT
+doi: "10.5281/zenodo.24589608"
 repository-code: "https://github.com/HungLuuSB/vn-trend-reversals"
 authors:
   - family-names: Luu
