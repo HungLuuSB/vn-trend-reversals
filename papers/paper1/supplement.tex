@@ -1,0 +1,27 @@
+% Supporting Information for Paper 1 (separate file, as the journal requires for appendices).
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,microtype}
+\usepackage{adjustbox}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\setlength{\marginparwidth}{2cm}
+\usepackage[textsize=footnotesize]{todonotes}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\IfFileExists{generated/numbers.tex}{\input{generated/numbers.tex}}{}
+\newcommand{\gen}[1]{\ifcsname #1\endcsname\csname #1\endcsname\else\textbf{\textcolor{red}{[#1]}}\fi}
+\newcommand{\genfile}[1]{\IfFileExists{generated/#1.tex}{\input{generated/#1.tex}}{\gen{#1}}}
+% a generated table, shrunk to the text width if it is wider
+\newcommand{\gentable}[1]{\adjustbox{max width=\linewidth}{\genfile{#1}}}
+
+\title{Supporting Information for ``Predictable but Mostly Mechanical: Survival Forecasts of Trend
+Reversals in Vietnamese Stocks''}
+\author{Thai Hung Luu and Nhat Hao Pham Ngo}
+\date{}
+
+\begin{document}
+\maketitle
+\input{sections/A_appendix}
+\end{document}

@@ -1,12 +1,72 @@
 \section{Introduction}\label{sec:intro}
-% Written after Results (skill order). One line per planned paragraph:
-%
-\plan{when a price swing ends is what a trader, a risk manager and a regulator of a retail-dominated market need to know. Vietnam: individual investors 81.2\% of HOSE trading value in 2024 \citep{SHS2025}, foreign investors only 10.38\% \citep{HOSE2025}; 9.3 million securities accounts, about 9\% of the population \citep{SSC2025}; daily price limits; T+2 settlement.}
-\plan{survival analysis of reversals has been tried on daily index runs and failed out of sample \citep{Yao2005}; duration dependence of index bull/bear phases is documented in-sample \citep{LundeTimmermann2004,Zakamulin2023}; ML predicts directional-change reversals in FX without censoring \citep{AdegboyeKampouridis2021}; survival models filter trading signals for US stocks \citep{HuZhou2024}.}
-\plan{no study models the reversal of volatility-scaled swings of individual stocks as censored spells, out of sample, in an emerging market with daily price limits, with global and bank-fundamental information timed to what was public.}
-\plan{DC swings with theta = 2 ATR20/price; landmark discrete-time hazards and four other model families; point-in-time features; walk-forward 2017-2026 with purging, embargo, a mechanical baseline and shuffled-label controls; a trading test with frictions.}
-\plan{RQ1-RQ5 answers (after the final run).}
-\plan{ (1) unit of analysis: volatility-scaled stock swings vs daily runs / index phases / FX DC; (2) out-of-sample evidence where Yao et al. found none (if the final run confirms); (3) age vs distance: duration dependence disappears given distance to the threshold (D-019); (4) global shocks and reversal timing in a frontier/emerging market (RQ2, RQ4); (5) a leakage-controlled, reproducible pipeline (snapshot hash, pre-registered decisions).}
-\plan{roadmap of the paper.}
+% Written after the results (skill order). Market facts are cited; every result is a generated
+% macro from the single final run.
 
-\todo[inline]{Introduction: drafted after Sections~\ref{sec:data}--\ref{sec:robust}.}
+When does a price trend end? Traders ask it to time an exit, risk managers to size a position, and
+regulators of retail-dominated markets ask it because many investors trade on signals that claim
+to know. Vietnam is such a market. Individual investors account for 81.2\% of trading value on its
+main exchange in 2024 \citep{SHS2025}, foreign investors for about a tenth \citep{HOSE2025}, and
+9.3 million securities accounts were open by 2024, about 9\% of the population \citep{SSC2025}.
+Daily price limits, settlement delays and the absence of short selling shape how prices move and
+what an investor can do about it.
+
+What is known about the question is mixed. Survival analysis of price reversals has been tried on
+runs of daily index changes, and its forecasts were worse than a random walk out of sample
+\citep{Yao2005}. Duration dependence of index bull and bear phases is well documented, but in
+sample and with phase age as the only variable \citep{LundeTimmermann2004,Zakamulin2023}.
+Machine-learning studies of directional-change events forecast trend lengths in currency markets
+without treating open trends as censored \citep{AdegboyeKampouridis2021}, and survival models have
+been used to filter trading signals for US stocks \citep{HuZhou2024}. Studies that report very high
+accuracy for turning points use evaluation designs that can allow look-ahead
+\citep{Abolmakarem2024}. What is missing is a test of whether the end of a stock's trend can be
+forecast out of sample, with every input timed to when it became public, and with a benchmark that
+tells apart real information from what the definition of a trend implies by itself.
+
+This paper provides that test. We define a swing by a directional-change rule whose threshold is
+twice the stock's trailing average true range, so swings of quiet and volatile stocks are measured
+in the same units. Every open swing on every session is a censored spell, and landmark hazard
+models forecast when it will be confirmed as reversed, from five blocks of features: the swing's
+state, the stock's technicals, the local market, overnight global markets, and for banks, first
+released non-performing-loan ratios and news attention. All features are timed to a decision at
+the 09:00 open. Models are fitted on an expanding window, refitted each year, and tested once on
+2017--2026 after all design work used 2012--2016 only. Besides Kaplan--Meier we compare every
+model with two mechanical benchmarks: a flexible model of swing age and distance to the threshold,
+and a random-walk null that rolls the stock's own recent returns through the labelling rule.
+
+The results separate what is predictable from what is mechanical. Reversal timing is predictable:
+the main model reaches a year-stratified C-index of \CABCDx{} against 0.5 for Kaplan--Meier, with a
+lower integrated Brier score, and its C-index stays between \YearMinABCDx{} and \YearMaxABCDx{} in
+every test year. But the distance to the threshold alone delivers
+\MechShareDIST\% of that gain. Beyond the mechanics, the stock's own recent behaviour and the local
+market improve the ranking of swings in \YearsAboveABCxMFlex{} of 10 years, by \GainOverMFlex{} in C,
+but they do not improve the predicted probabilities, so the pre-registered test of predictability
+beyond the mechanics fails. Overnight global information, bank fundamentals and news add nothing;
+swing age adds nothing once the distance is known; no change in global sensitivity is detected
+after the market-upgrade announcement of October 2025; and an exit rule based on the forecasts
+earns a Sharpe ratio of \BtOpenSharpeModel, below that of buy-and-hold (\BtOpenSharpeBh) and of
+simply following the swings.
+
+The paper makes four contributions.
+\begin{enumerate}
+\item \emph{A benchmark for turning-point forecasts.} Earlier survival and machine-learning studies
+  compare their models with naive or unconditional baselines
+  \citep{Yao2005,AdegboyeKampouridis2021,HuZhou2024}. We show that a mechanical baseline built from
+  the labelling rule explains most of the apparent skill, and propose it, with a random-walk null,
+  as the benchmark that such forecasts should beat.
+\item \emph{Out-of-sample evidence where earlier work found none.} Unlike daily runs of index changes
+  \citep{Yao2005}, volatility-scaled swings of individual stocks are predictable out of sample over
+  ten years, and the reason is the unit of analysis: the distance to the threshold is an informative
+  state that a daily run lacks.
+\item \emph{Age versus distance.} Age-only duration dependence of the kind estimated for index phases
+  \citep{LundeTimmermann2004,Zakamulin2023} disappears once the distance to the threshold is known.
+\item \emph{Global shocks in a frontier market, timed point in time.} With every global, fundamental
+  and news input timed to when it was public, overnight shocks, bank fundamentals and news add
+  nothing to the timing of reversals in Vietnam, before or after its market-upgrade announcement.
+\end{enumerate}
+The whole design was fixed in a dated decision log before the test years were used, and every
+result comes from one run on a frozen data snapshot.
+
+Section~\ref{sec:lit} reviews the literature, Section~\ref{sec:data} describes the market and the
+data, Section~\ref{sec:method} the method, Section~\ref{sec:results} the results and
+Section~\ref{sec:robust} the robustness checks. Section~\ref{sec:discussion} discusses the
+findings and their limits, and Section~\ref{sec:conclusion} concludes.

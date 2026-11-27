@@ -1,0 +1,12 @@
+% GENERATED FILE: do not edit by hand. Source: vnbank.research.survival.report
+\begin{tikzpicture}
+\begin{axis}[width=0.62\linewidth,height=0.62\linewidth,xmin=0,xmax=1,ymin=0,ymax=1,xlabel={Predicted probability of reversal},ylabel={Observed (Kaplan--Meier)},legend pos=south east,legend style={font=\small},grid=major,grid style={gray!25}]
+\addplot[gray,dashed,domain=0:1] {x}; \addlegendentry{perfect calibration}
+\addplot+[mark=*] coordinates {(0.1518,0.1039) (0.1884,0.1382) (0.2088,0.1597) (0.2263,0.1718) (0.2440,0.1962) (0.2643,0.2329) (0.2895,0.2820) (0.3228,0.3418) (0.3698,0.4224) (0.4629,0.5651)};
+\addlegendentry{5 sessions}
+\addplot+[mark=square*] coordinates {(0.2948,0.2818) (0.3584,0.3553) (0.3924,0.3812) (0.4206,0.4058) (0.4483,0.4194) (0.4792,0.4528) (0.5163,0.5007) (0.5631,0.5533) (0.6246,0.6019) (0.7290,0.7177)};
+\addlegendentry{10 sessions}
+\addplot+[mark=triangle*] coordinates {(0.5200,0.5954) (0.6083,0.6536) (0.6509,0.6679) (0.6842,0.6925) (0.7152,0.7113) (0.7477,0.7282) (0.7841,0.7530) (0.8255,0.7789) (0.8730,0.8060) (0.9334,0.8615)};
+\addlegendentry{20 sessions}
+\end{axis}
+\end{tikzpicture}
