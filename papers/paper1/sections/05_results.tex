@@ -104,10 +104,12 @@ of the six terms, $p=\HTwoBankP$).
 
 The signs of the effects are mostly as predicted, but small (Table~\ref{tab:h2signs}). The Nasdaq
 return multiplied by the swing direction has the predicted negative sign in all
-\HTwoYearsNasdaqRetXdir{} yearly fits (binomial $p=\HTwoBinomPNasdaqRetXdir$): a fall in US
-technology stocks overnight raises the hazard that a Vietnamese up-swing ends. In the full-sample
-fit, however, the one-sided test gives $p=\HTwoPNasdaqRetXdir$ (Holm $p=\HTwoHolmNasdaqRetXdir$),
-and neither the S\&P~500 nor the VIX term is significant. The Clark--West test, which allows for the
+\HTwoYearsNasdaqRetXdir{} yearly fits: a fall in US technology stocks overnight raises the hazard
+that a Vietnamese up-swing ends. The yearly fits use expanding windows that share most of their
+data, so this count is not ten independent confirmations. In the full-sample fit the one-sided test
+gives $p=\HTwoPNasdaqRetXdir$ (Holm $p=\HTwoHolmNasdaqRetXdir$), and neither the S\&P~500 nor the
+VIX term is significant. These in-sample standard errors are, if anything, too small (see the
+placebo dispersion in Section~\ref{sec:rq4}), so the signs are best read as descriptive. The Clark--West test, which allows for the
 noise of estimating nested models, finds a small reduction in the five-session Brier loss from
 block D ($p=\CWPABCDxABCx$, one-sided). This is a descriptive test, and the gain is too small to
 show in either primary metric.
@@ -127,8 +129,9 @@ pairs.}\label{tab:secondary}
 \centering
 \caption{Signs of the global effects (H2, directional part), in-sample. Coefficients on
 standardised features in the landmark logit fitted on all \HTwoRows{} rows; $z$ and one-sided
-$p$ use the more conservative of date-clustered and two-way clustered errors; Holm across the
-three terms. The last column counts the yearly \texttt{ABCDx} fits whose coefficient has the
+$p$ use the more conservative of date-clustered and two-way clustered errors, and $z$ is positive
+when the estimate has the predicted sign; Holm across the three terms. The placebo dispersion in
+Table~\ref{tab:rq4} suggests that these errors are still too small. The last column counts the yearly \texttt{ABCDx} fits whose coefficient has the
 predicted sign, among those where the penalty left it non-zero.}\label{tab:h2signs}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -137,10 +140,12 @@ predicted sign, among those where the penalty left it non-zero.}\label{tab:h2sig
 
 \subsection{RQ3: Do trends age?}\label{sec:rq3}
 
-Not once the distance to the threshold is known. On its own, swing age carries information: the
+Not detectably, once the distance to the threshold is known. On its own, swing age carries
+information: the
 age-only hazard beats Kaplan--Meier on both metrics (C~=~\CAGE; $\Delta C$ \DCAGEKm). Given a
 flexible function of the distance, adding age changes C by \PrimDCMSDISTS{} and IBS by
-\PrimDIBSMSDISTS, so H3 is not supported. The linear comparison of \texttt{M} with \texttt{DIST}
+\PrimDIBSMSDISTS, so H3 is not supported; any gain from age is at most of the size of the upper
+bound of the C interval. The linear comparison of \texttt{M} with \texttt{DIST}
 gives the same answer ($\Delta C$ \DCMDIST). The share of rows that reverse within five sessions varies
 much less across age buckets within a distance group than between distance groups (Appendix S1). Age-only duration dependence of the kind estimated for index bull and bear
 phases is, for these swings, the distance to the threshold seen through age.
@@ -152,15 +157,18 @@ the global index is \HFourCoef{} ($z=\HFourZ$, one-sided $p=\HFourP$), the wrong
 real announcement ranks \HFourRank{} among itself and \HFourPlacebos{} placebo dates
 (Table~\ref{tab:rq4}), and the joint test of ten post-announcement interactions gives
 $p=\HFourWaldP$. The placebo estimates vary widely, from strongly negative to significantly
-positive, so a single post-window of \HFourPostRows{} rows cannot separate a change in sensitivity
-from ordinary variation. We report RQ4 as not detected, with low power.
+positive: five of the eight placebo dates give $|z|>2$. The date-clustered standard errors
+therefore understate the uncertainty, and the placebo distribution is the more reliable reference;
+the real estimate lies inside it. A single post-window of \HFourPostRows{} rows cannot separate a
+change in sensitivity from ordinary variation. We report RQ4 as not detected, with low power.
 
 \begin{table}[!htbp]
 \centering
 \caption{Market-upgrade test (H4, exploratory, in-sample). $\hat\lambda$ is the coefficient on the
 post-announcement indicator times the global linear index of \texttt{ABCDx}; one-sided $p$ for
 $\lambda>0$ with date-clustered errors. Placebos use the same design at earlier dates, with
-windows that end before the real announcement.}\label{tab:rq4}
+windows that end before the real announcement. The real date is ranked among the placebos by
+$z$.}\label{tab:rq4}
 \footnotesize
 \gentable{tab_rq4}
 \end{table}
@@ -193,7 +201,8 @@ column 7 executes at the close of the session after the signal.}\label{tab:tradi
 
 \subsection{Banks: fundamentals and news attention}\label{sec:banks}
 
-Block E adds nothing on bank rows. On the \BECBankABCDx{} C of \texttt{ABCDx} for banks, adding the
+Block E brings no detectable improvement on bank rows. The bank-row model \texttt{ABCDx}, fitted on
+bank rows only, reaches C~=~\BECBankABCDx; adding the
 first-released non-performing-loan ratio and news attention changes C by
 \PrimDCBankABCDxEBankABCDx{} and IBS by \PrimDIBSBankABCDxEBankABCDx; the IBS gets slightly worse.
 The result is the same without the visually transcribed statements, with publication margins of 0

@@ -139,6 +139,16 @@ def summarise(values: np.ndarray, base: np.ndarray, X: pd.DataFrame, pred: np.nd
 
 
 def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument(
+        "--reuse-run",
+        help="earlier -final-shap run whose finished models are copied "
+        "(same sample and settings), so only the missing ones are computed",
+    )
+    ap.add_argument("--workers", type=int, default=WORKERS)
+    args = ap.parse_args(argv)
     commit = code_version()
     if commit.endswith("+dirty"):
         raise SystemExit("working tree is dirty: reported results come from committed code")
@@ -170,10 +180,25 @@ def main(argv: list[str] | None = None) -> int:
            "models": ["gbm_ABCD", "nn_seq_ABCD"], "output": "1 - S(5 | x)"}  # fmt: skip
     (out / "config.json").write_text(json.dumps(cfg, indent=1))
     metrics = {}
+    reused = {}
+    if args.reuse_run:
+        prev = paths.runs_dir(1) / args.reuse_run
+        pcfg = json.loads((prev / "config.json").read_text())
+        for k in ("year", "rows", "background_rows", "max_evals", "seed", "features_run"):
+            if pcfg[k] != cfg[k]:
+                raise SystemExit(f"--reuse-run differs in {k}: {pcfg[k]} vs {cfg[k]}")
+        metrics = json.loads((prev / "metrics.json").read_text())
+        for name in metrics:
+            reused[name] = {"run": prev.name, "git_commit": pcfg["git_commit"]}
+            (out / f"shap_{name}.parquet").write_bytes((prev / f"shap_{name}.parquet").read_bytes())
+        cfg["reused"] = reused
+        (out / "config.json").write_text(json.dumps(cfg, indent=1))
     for name, seq in (("gbm_ABCD", None), ("nn_seq_ABCD", seq_cols)):
+        if name in metrics:
+            continue
         model = pickle.loads((CACHE / "models" / f"{name}.pkl").read_bytes())
         print(f"{name}: explaining {len(rows)} rows", flush=True)
-        values, base = explain_parallel(name, rows, bg, feats, seq, WORKERS)
+        values, base = explain_parallel(name, rows, bg, feats, seq, args.workers)
         pred = risk(model, rows[feats + (seq or [])])
         metrics[name] = summarise(values, base, rows, pred, feats)
         pd.DataFrame(values, columns=feats).assign(base=base, pred=pred).to_parquet(

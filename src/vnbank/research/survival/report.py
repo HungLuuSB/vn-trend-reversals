@@ -100,7 +100,7 @@ SLICE_LABEL = {
     "banks": "Banks",
     "vn30_non_banks": "VN30, non-banks",
     "no_upcom_banks": "Without UPCoM-only banks",
-    "no_limit_close": "Without closes at the price limit",
+    "no_limit_close": "Known limits, no close at the limit",
 }
 K_LABEL = {"k1_5": "1.5", "k2": "2", "k3": "3"}
 
@@ -112,6 +112,15 @@ def registry() -> dict:
 def tok(model: str) -> str:
     """Macro-safe token for a model or pair id ("nn_seq_ABCD-M" -> "NnSeqABCDM")."""
     return R.macro(*[p for p in model.replace("-", "_").split("_") if p])
+
+
+def model_label(m: str) -> str:
+    """Kaplan-Meier prints as KM, every other specification in typewriter type."""
+    return "KM" if m in ("km", "bank_km") else rf"\texttt{{{R.escape(m)}}}"
+
+
+def pair_label(a: str, b: str) -> str:
+    return r"\relax " + model_label(a) + " $-$ " + model_label(b)
 
 
 def pval(p: float) -> str:
@@ -211,7 +220,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
             rows.append(
                 {
                     "Hypothesis": lab if i == 0 else "",
-                    "Comparison": rf"\texttt{{{R.escape(a)}}} $-$ \texttt{{{R.escape(b)}}}",
+                    "Comparison": pair_label(a, b),
                     "dC": ci_c(d["c"]),
                     "dIBS": ci_ibs(d["ibs"]),
                     "p": pval(d["p"]),
@@ -287,7 +296,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
         rows.append(
             {
                 "Comparison": lab,
-                "Models": rf"\texttt{{{R.escape(a)}}} $-$ \texttt{{{R.escape(b)}}}",
+                "Models": pair_label(a, b),
                 "dC": ci_c(paired["ci"][f"{pair}:uno_c"]),
                 "dIBS": ci_ibs(paired["ci"][f"{pair}:ibs"]),
                 "Imp": yes(paired["improves"][pair]),
@@ -454,7 +463,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
         rows.append(
             {
                 "Variant": variant.replace("_", " "),
-                "Comparison": rf"\texttt{{{R.escape(a)}}} $-$ \texttt{{{R.escape(b)}}}",
+                "Comparison": pair_label(a, b),
                 "dC": ci_c(be["paired"]["ci"][f"{pair}:uno_c"]),
                 "dIBS": ci_ibs(be["paired"]["ci"][f"{pair}:ibs"]),
                 "imp": yes(ok),
@@ -484,7 +493,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
     for k, v in sorted(a["leave_one_out"].items(), key=lambda kv: -kv[1]["d_ibs"]):
         rows.append(
             {
-                "Dropped": R.escape(k.removeprefix("loo-")),
+                "Dropped": k.removeprefix("loo-"),
                 "d": R.num(1e4 * v["d_ibs"], 2, signed=True),
                 "ci": R.interval(1e4 * v["d_ibs_lo"], 1e4 * v["d_ibs_hi"], 2),
                 "p": pval(v["p_ibs_holm"]),
@@ -590,7 +599,7 @@ def fig_peryear(py: dict) -> str:
     lines = [
         r"\begin{tikzpicture}",
         r"\begin{axis}[width=0.95\linewidth,height=6.2cm,xlabel={Test year},"
-        r"ylabel={Uno's $C$ (within year)},xtick={2017,...,2026},"
+        r"ylabel={Year-stratified $C$},xtick={2017,...,2026},"
         r"x tick label style={/pgf/number format/1000 sep={}},"
         r"legend style={at={(0.5,1.03)},anchor=south,legend columns=3,font=\small},"
         r"ymajorgrids,grid style={gray!25}]",

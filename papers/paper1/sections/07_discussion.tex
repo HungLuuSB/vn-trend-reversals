@@ -19,21 +19,24 @@ age and distance do not already give. This difference between ranking and calibr
 required both metrics to improve before counting a gain.
 
 \paragraph{Why outside information does not help} Overnight US returns, volatility, rates,
-currencies, commodities and geopolitical risk add nothing to the timing of reversals, and neither
-do bank fundamentals or news attention. The signs are often as expected: a fall in US technology
-stocks overnight raises the hazard that a Vietnamese up-swing ends in every yearly fit. The
-effects are small and, we think, already in the prices that our features use. Foreign information
-is priced at the open \citep{HamaoMasulisNg1990}, so by the time a swing's state is measured, the
-global news of the night is part of it. News reports a bank's results before its statement becomes usable
-under our timing rule, and the news count itself is mostly attention that the price already
-reflects. The null result for block E holds when the statements are dated with margins of 0 or 20
-sessions, so it does not come from our conservative timing rule.
+currencies, commodities and geopolitical risk bring no detectable improvement to the timing of
+reversals, and neither do bank fundamentals or news attention. The signs are often as expected: a
+fall in US technology stocks overnight raises the hazard that a Vietnamese up-swing ends in every
+yearly fit, and a nested-model test finds a very small reduction in the five-session Brier loss.
+The effects are small, and we can only conjecture why. Foreign information is priced at the next
+open \citep{HamaoMasulisNg1990}, and a single day's move is small next to a threshold of twice the
+average daily range, so overnight news rarely decides whether a swing is confirmed. For banks, news
+reports a bank's results a median of \BlockENewsLeadDays{} days before its statement becomes usable
+under our timing rule, so by then the content of the statement may already be in prices. Our test
+therefore concerns the statement as dated, not the information it contains; the null result holds
+with publication margins of 0 and 20 sessions.
 
-\paragraph{Why our result differs from earlier survival studies} \citet{Yao2005} found no out-of-sample skill in
-runs of daily index changes. Their unit ends on the first opposite day, so most of its variation is
-daily noise. A volatility-scaled swing ends only after a move that is large for the stock, and the
-distance to that threshold is an informative state variable that a daily run does not have. The
-gain we find is real, but it comes from the unit of analysis as much as from the models.
+\paragraph{Why our result differs from earlier survival studies} \citet{Yao2005} found no
+out-of-sample skill in runs of daily index changes. Their unit ends on the first opposite day, so
+most of its variation is daily noise. A volatility-scaled swing ends only after a move that is large
+for the stock, and the distance to that threshold is an informative state variable that a daily run
+does not have. We conjecture that the gain we find comes from this choice of unit as much as from
+the models; we did not test the daily-run unit on our data.
 
 \paragraph{No trading value} The ranking gain does not survive the frictions of the Vietnamese
 market. Long-only trading, settlement delays and price limits leave little room for an exit rule to
