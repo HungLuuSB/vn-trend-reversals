@@ -109,7 +109,8 @@ def flatten(figdir: Path) -> str:
     front = (
         "Thai Hung Luu (Independent Researcher, Vinh Long, Vietnam; hung.luu.research@gmail.com; "
         "ORCID 0009-0004-2909-3359) and Nhat Hao Pham Ngo (School of Trade and International "
-        "Economics, National Economics University, Hanoi, Vietnam; phamngo.nhathao.research@gmail.com; "
+        "Economics, National Economics University, Hanoi, Vietnam; "
+        "phamngo.nhathao.research@gmail.com; "
         "ORCID 0009-0000-1537-6041)\n\nRunning title: Forecasting trend reversals\n\n"
         f"\\section*{{Abstract}}\n{abstract}\n\n\\textbf{{Keywords:}} {keywords.strip()}\n\n"
     )
