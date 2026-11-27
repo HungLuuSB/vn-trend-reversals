@@ -1015,3 +1015,21 @@ The model-shape table and the test results do not change.
 - **What happened:** `final.evaluate` on `cache/main` (commit `44393b4`) crashed in the secondary date-stratified C (`uno_c_date_strat`, pooled metrics), after the primaries and the per-year metrics had been computed in memory and before any output was written. On some test date every row ending before τ = 20 was censored; `sksurv` refuses to compute censoring weights for a set with no event ("all samples are censored").
 - **Fix:** `c_parts` returns (0, 0) for such a stratum. With no event before τ no pair can be comparable, so this is exactly the stratum's contribution under the definition already in use (the same value the existing no-comparable-pair branch returns). No metric definition, resample count, seed or test changes; year-stratified primaries are unaffected (every test year has events). A unit test covers the case.
 - **Rerun:** the same caches are evaluated again with the fixed commit. The crashed run folder is kept and listed in `RUNS.md`.
+
+## D-029 — Section C source checks by the co-author (after the final per-year runs)
+
+- **Date:** 2026-11-27
+- **Source:** Nhat Hao Pham Ngo's spreadsheet "Paper 1 – Mục C kết quả xác nhận và nguồn" (legal texts and exchange notices read in full; links and quotes per row).
+- **Status:** the final per-year runs and the k = 1.5 and k = 3 evaluations exist; the main evaluation is running. Nothing below changes a value used for any row in the study period, the frozen snapshot `1f0c80b50427479e` or any final-run result.
+
+**Confirmed, seed provenance upgraded to official sources (values unchanged):**
+- First VN30 basket (30 stocks, effective 2012-02-06), the 2013-H2 change (DIG, PNJ out; PET, PPC in, effective 2013-07-22) and the PVF → PVT replacement (effective 2013-09-24): HOSE notices.
+- HOSE limits: ±5% from 2008-08-18 (HOSE notice 14/08/2008), ±7% from 2013-01-15 (QĐ 01/2013/QĐ-SGDHCM, read in the scanned original).
+- HNX reference price = previous close from 2013-07-29 (QĐ 345/QĐ-SGDHN); HNX stock tick 100 VND from 2013-07-29 (QĐ 345 rules Art 23.1). The tick seed's 2016-09-12 boundary marked only a change of source, not of value; the row is split at 2013-07-29 to show what is verified.
+- FTSE Russell: release title, the March 2026 interim review (confirmed 2026-04-07). The release came out at 03:00 on 2025-10-08 Vietnam time, before the 09:00 decision after the 2025-10-07 session, so `rq4`'s `post = trade_date >= 2025-10-07` is correct.
+
+**Corrected (no effect on the sample):** UPCoM ±40% band after more than 25 sessions without trades starts on **2011-04-04** (QĐ 131/QĐ-SGDHN Art 2), not 2011-04-01. Both dates precede the price history used (from October 2011).
+
+**Open finding, decision pending (block E timing):** the fundamentals rule makes a statement usable at 09:00 on the fifth session after the later of a legal deadline and the PDF's creation date, with deadlines quarter + 45, half-year + 45 and year + 90 days. The texts give longer limits in some cases: half-year reports of parent companies (consolidated) 60 days (TT 52/2012 Art 10.2; TT 96/2020 Art 14.2.c), and under TT 155/2015 extensions to 60 days (half-year) and 100 days (annual) on request. Listed banks with subsidiaries are parent companies. Where a file was created before day 60 (or 100) but published later, the feature could enter a few sessions early. This affects only the bank-row block E hypothesis. Any check is post hoc and will be labelled so; the main specification is not changed.
+
+**Still open (co-author):** HNX documents for 2008 (±7%) and January 2013 (QĐ 18/QĐ-SGDHN, TB 18/TB-SGDHN); HNX reference-price phases before 2013-07-29 (QĐ 54/2012); HOSE ticks 2007–2012 (QĐ 124/2007); TT 09/2010 (before June 2012).
