@@ -7,7 +7,8 @@ decision).
 No model is refitted and no test-year prediction is recomputed: the per-year caches of the
 single final run (data/final_cache/vnbank/cache/main) are re-scored with the evaluation code of
 the final run (``final.evaluate``), the same year-stratified metrics, the same moving-block
-bootstrap (blocks of 20 sessions, 1,000 resamples) and the same decision rule.
+bootstrap (blocks of 20 sessions) and the same decision rule, with the 200 resamples of the
+secondary comparisons (Table 8 of the paper).
 
 Comparisons:
 * like for like against the boosted mechanical baseline M_flex: every non-linear model of the
@@ -27,10 +28,10 @@ from datetime import UTC, datetime
 from vnbank.common import paths
 from vnbank.research.shared.run_meta import code_version
 from vnbank.research.survival.final import evaluate as E
-from vnbank.research.survival.final import specs as S
 
 CACHE = paths.REPO / "data" / "final_cache" / "vnbank" / "cache" / "main"
 YEARS = list(range(2017, 2027))
+RESAMPLES = E.BOOT["resamples"]  # 200, as the secondary comparisons
 LIKE_FOR_LIKE = [("gbm_ABC", "M_flex"), ("rsf_ABC", "M_flex"), ("nn_static_ABCD", "M_flex"),
                  ("nn_seq_ABC", "M_flex"), ("nn_seq_ABCD", "M_flex"), ("gbm_ABCD", "M_flex"),
                  ("rsf_ABCD", "M_flex")]  # fmt: skip
@@ -45,13 +46,13 @@ def main(argv: list[str] | None = None) -> int:
     keys, preds = c["keys"], c["preds"]
     ctx = E.context(c, YEARS)
     tests = {f"{a}-{b}": [(a, b)] for a, b in LIKE_FOR_LIKE + DECOMPOSITION}
-    res = E.primaries(ctx, keys, preds, tests, n=S.PRIMARY_RESAMPLES)
+    res = E.primaries(ctx, keys, preds, tests, n=RESAMPLES)
     out = paths.runs_dir(1) / f"{datetime.now(UTC):%Y%m%dT%H%M%SZ}-final-posthoc"
     out.mkdir(parents=True)
     (out / "config.json").write_text(json.dumps(
         {"git_commit": commit, "created_at_utc": datetime.now(UTC).isoformat(),
          "decision": "D-031 (post hoc)", "cache": str(CACHE.relative_to(paths.REPO)),
-         "years": YEARS, "resamples": S.PRIMARY_RESAMPLES,
+         "years": YEARS, "resamples": RESAMPLES,
          "like_for_like": LIKE_FOR_LIKE, "decomposition": DECOMPOSITION}, indent=1))  # fmt: skip
     (out / "metrics.json").write_text(json.dumps(res, indent=1))
     for k, v in res.items():
