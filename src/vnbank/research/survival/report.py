@@ -290,7 +290,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
     )
 
     # secondary comparisons
-    cw, rows = r["pooled"]["clark_west"], []
+    cw, dm, rows = r["pooled"]["clark_west"], r["pooled"]["diebold_mariano"], []
     for pair, lab in SECONDARY:
         a, b = pair.split("-")
         rows.append(
@@ -301,11 +301,12 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
                 "dIBS": ci_ibs(paired["ci"][f"{pair}:ibs"]),
                 "Imp": yes(paired["improves"][pair]),
                 "CW": pval(cw[pair]["p_one_sided"]) if pair in cw else r"\textemdash{}",
+                "DM": pval(dm[pair]["p"]) if pair in dm else r"\textemdash{}",
             }
         )
     t["tab_secondary"] = R.tabular(
         pd.DataFrame(rows),
-        align="llcccc",
+        align="llccccc",
         header=[
             "Comparison",
             "Models",
@@ -313,6 +314,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
             r"$\Delta$IBS (95\% CI)",
             "Improves",
             "Clark--West $p$",
+            "Diebold--Mariano $p$",
         ],
     )
     for pair, v in cw.items():
@@ -560,8 +562,10 @@ def hyper(t: dict[str, str], r: dict) -> None:
                 return f
         return "logit"
 
+    alias = {"C": "inverse penalty"}  # not to be confused with the concordance index C
+
     def fmt(d: dict) -> str:
-        return ", ".join(f"{k} {v:g}" for k, v in d.items())
+        return ", ".join(f"{alias.get(k, k)} {v:g}" for k, v in d.items())
 
     rows = []
     for m, _, lab in MODELS:
@@ -570,7 +574,9 @@ def hyper(t: dict[str, str], r: dict) -> None:
         c = Counter(fmt(r["chosen"][str(y)][m]) for y in YEARS)
         sel = "; ".join(f"{k} ({v})" for k, v in c.most_common())
         g = grids[family(m)]
-        grid = "; ".join(f"{k} " + "/".join(f"{x:g}" for x in v) for k, v in g.items())
+        grid = "; ".join(
+            f"{alias.get(k, k)} " + "/".join(f"{x:g}" for x in v) for k, v in g.items()
+        )
         rows.append(
             {
                 "Model": r"\relax " + lab,
@@ -1168,11 +1174,17 @@ def records(n: R.Numbers, t: dict[str, str], reg: dict) -> None:
     if {r["Run"] for r in rows} and len(rows) != len(dev):
         missing = dev - {re.sub(r".*nolinkurl\{|\}$", "", r["Run"]) for r in rows}
         raise R.ReportError(f"development runs missing from RUNS.md: {sorted(missing)}")
-    body = R.tabular(pd.DataFrame(rows), align="lll", header=["Run", "What", "Outcome"])
-    t["tab_devruns"] = body.replace(
-        "\\begin{tabular}{lll}",
-        "\\begin{longtable}{L{0.27\\linewidth}L{0.33\\linewidth}L{0.33\\linewidth}}",
-    ).replace("\\end{tabular}", "\\end{longtable}")
+    # one block per run (a three-column table of long verbatim text is hard to read)
+    blocks = []
+    for i, r in enumerate(rows, 1):
+        blocks.append(
+            rf"\noindent\textbf{{{i}.}} {r['Run'].removeprefix(chr(92) + 'relax')}\\"
+            + "\n"
+            + rf"\textit{{Purpose:}} {r['What'].removeprefix(chr(92) + 'relax ')}\\"
+            + "\n"
+            + rf"\textit{{Outcome:}} {r['Status'].removeprefix(chr(92) + 'relax ')}\par\smallskip"
+        )
+    t["tab_devruns"] = "\n\n".join(blocks) + "\n"
     dec, text = [], (paths.paper_dir(PAPER) / "DECISIONS.md").read_text()
     for m in re.finditer(r"^## (D-\d{3}) — (.+?)$(.*?)(?=^## D-|\Z)", text, re.M | re.S):
         date = re.search(r"\*\*Date:\*\*\s*([0-9-]{10})", m.group(3))
