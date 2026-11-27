@@ -19,3 +19,5 @@ h2: 20261127T072640Z-final-h2
 dev_runs_before: 20261126T052329Z
 data_checks: 20261127T082424Z-datachecks   # CafeF overlap and block E news timing (data section)
 abolmakarem: 20261127T084000Z-abolmakarem-dev   # protocol 5d: random vs chronological split (development years)
+posthoc: 20261127T095123Z-final-posthoc   # D-031 post hoc: like-for-like vs M_flex, decomposition (cached predictions, 1,000 resamples)
+shap: 20261127T091116Z-final-shap   # protocol 5e (nn_seq_ABCD here; gbm_ABCD reused from 20261127T083744Z-final-shap)

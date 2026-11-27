@@ -1315,6 +1315,51 @@ def abolmakarem(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
     n.add("AbolStocks", R.integer(m["stocks"]), run, "stocks")
 
 
+def posthoc(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
+    """D-031, post hoc: like-for-like comparisons with M_flex and the stepwise decomposition."""
+    m = run.json("metrics.json")
+    cfg = run.config
+    groups = [
+        (
+            "Like for like: non-linear models of the same blocks against \\texttt{M\\_flex}",
+            cfg["like_for_like"],
+        ),
+        ("Decomposition: each step against the previous one", cfg["decomposition"]),
+    ]
+    rows, passed, seen = [], 0, set()
+    for title, pairs in groups:
+        rows.append({"c": rf"\multicolumn{{5}}{{@{{}}l}}{{\textit{{{title}}}}}"})
+        for a, b in pairs:
+            k = f"{a}-{b}"
+            d = m[k]["pairs"][k]
+            tk = tok(k)
+            if k not in seen:  # a pair can appear in both groups
+                seen.add(k)
+                n.add(R.macro("PH", "DC", tk), ci_c(d["c"]), run, f"{k}.c")
+                n.add(R.macro("PH", "DIBS", tk), ci_ibs(d["ibs"]), run, f"{k}.ibs")
+                n.add(R.macro("PH", "Improves", tk), yes(d["improves"]), run, f"{k}.improves")
+            if [a, b] in [list(x) for x in cfg["like_for_like"]]:
+                passed += d["improves"]
+            rows.append(
+                {
+                    "c": r"\quad " + pair_label(a, b),
+                    "dc": ci_c(d["c"]),
+                    "di": ci_ibs(d["ibs"]),
+                    "p": pval(d["p"]),
+                    "imp": yes(d["improves"]),
+                }
+            )
+    n.add("PHLikePass", R.integer(passed), run, "like-for-like pairs that improve")
+    n.add("PHLikeCount", R.integer(len(cfg["like_for_like"])), run, "like-for-like pairs")
+    n.add("PHResamples", R.integer(cfg["resamples"]), run, "resamples")
+    body = R.tabular(pd.DataFrame(rows).fillna(""), align="lcccc",
+                     header=["Comparison", r"$\Delta C$ (95\% CI)", r"$\Delta$IBS (95\% CI)",
+                             "$p$", "Improves"])  # fmt: skip
+    t["tab_posthoc"] = "\n".join(
+        ln.split(" & ")[0] + r" \\" if ln.startswith(r"\multicolumn") else ln
+        for ln in body.splitlines()) + "\n"  # fmt: skip
+
+
 SHAP_BLOCK_LABEL = {
     "A": "A. Swing state",
     "B": "B. Stock technicals",
@@ -1434,6 +1479,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     records(n, t, reg)
     abolmakarem(n, t, R.Run.load(PAPER, reg["abolmakarem"]))
+    if "posthoc" in reg:
+        posthoc(n, t, R.Run.load(PAPER, reg["posthoc"]))
     if "shap" in reg:
         shap_table(n, t, R.Run.load(PAPER, reg["shap"]))
     n.add("SnapshotId", R.escape(reg["snapshot"]), None, "report.yaml snapshot")
