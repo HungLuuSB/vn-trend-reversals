@@ -1,8 +1,3 @@
-<!-- Cover letter for the Journal of Forecasting submission. Numbers are the paper's generated
-values (papers/paper1/generated/numbers.tex): C-index 0.616 (ABCDx), 0.5 (Kaplan-Meier), 88%
-(share from distance); update them if the paper is regenerated. Before sending: check the date,
-and whether a preprint has been posted. -->
-
 Thai Hung Luu
 Independent Researcher, Vinh Long, Vietnam
 hung.luu.research@gmail.com · ORCID 0009-0004-2909-3359
