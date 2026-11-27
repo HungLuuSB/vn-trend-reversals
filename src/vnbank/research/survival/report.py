@@ -1338,7 +1338,7 @@ def posthoc(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
                 n.add(R.macro("PH", "DC", tk), ci_c(d["c"]), run, f"{k}.c")
                 n.add(R.macro("PH", "DIBS", tk), ci_ibs(d["ibs"]), run, f"{k}.ibs")
                 n.add(R.macro("PH", "Improves", tk), yes(d["improves"]), run, f"{k}.improves")
-            if [a, b] in [list(x) for x in cfg["like_for_like"]]:
+            if title.startswith("Like"):  # count each like-for-like pair once
                 passed += d["improves"]
             rows.append(
                 {
