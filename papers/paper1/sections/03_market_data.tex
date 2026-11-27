@@ -63,7 +63,10 @@ swing. Table~\ref{tab:sample} reports the counts after each step.
 \centering
 \caption{Sample construction, 3 January 2012 to 20 November 2026. Survival rows are stock-sessions
 inside an open swing ($k=2$). Development rows (2012--2016) lie inside the first training window;
-test rows (2017--2026) are scored only by the final walk-forward run.}\label{tab:sample}
+test rows (2017--2026) are scored only by the final walk-forward run. The Banks and VN30 columns
+overlap: banks in the VN30 count in both. Three universe stocks have no survival rows: the bank
+HBB (no prices) and two stocks that entered the universe in August 2026, the bank PCB and the VN30
+member MCH.}\label{tab:sample}
 \small
 \gentable{tab_sample}
 \end{table}
@@ -88,7 +91,10 @@ level, such as the price bands and the fill checks of the trading test, uses raw
 
 \subsection{Global and local market data}\label{sec:global}
 
-Block D uses fourteen series observed before the Vietnamese open (Table~\ref{tab:features}). US
+Block D uses fourteen series observed before the Vietnamese open (Table~\ref{tab:features}).
+We call it the overnight block for short: every value becomes public after the HOSE close of $t$ or,
+for the Hang Seng and the Shanghai Composite, on the same afternoon, and in all cases before the
+next open. US
 equity indices, the dollar index, gold and Brent futures, the Hang Seng, the Shanghai Composite and
 the exchange rates come from Yahoo Finance; the VIX and the US 10-year Treasury yield come from the
 Federal Reserve Bank of St.\ Louis (FRED); and the daily geopolitical risk index comes from
@@ -161,7 +167,9 @@ The sample has \SurvivalRows{} survival rows from \StockCount{} stocks
 (Table~\ref{tab:sample}), \TestRows{} of them in the test years. Table~\ref{tab:desc} describes the
 swings. Across the \SwingsConfirmed{} confirmed reversals, the median swing lasts
 \SwingLengthMedian{} sessions from extreme to extreme, and a reversal is confirmed a median of
-\ConfirmLagMedian{} sessions after its turning point. Up- and down-swings behave alike. Censoring is
+\ConfirmLagMedian{} sessions after its turning point. The swing counts cover every session of the
+sample stocks, while survival rows exist only on universe days with enough price history, so the
+rows are fewer than the swings' total length. Up- and down-swings behave alike. Censoring is
 rare (\CensoredPct\% of rows): \CensoredUniverseExit{} rows are censored when the stock leaves the
 universe, \CensoredHalt{} at trading halts and \CensoredEndOfSample{} at the end of the sample. The
 Kaplan--Meier probability that an open swing is still unconfirmed after 5, 10 and 20 sessions is

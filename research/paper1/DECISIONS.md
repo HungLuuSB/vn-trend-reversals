@@ -450,7 +450,7 @@ Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS 
 - Descriptive follow-up: each block-A feature used alone as a raw risk score, with no fitting. Report the 5-day td-AUC on the pooled development validation rows (2014–2016); a feature scoring below 0.5 is flipped and its sign reported.
 - This only describes where the signal sits. It does not change the model or the feature sets.
 
-## D-016 — Mechanical baseline for incremental claims (approved by the user 2026-11-24)
+## D-016 — Mechanical baseline for incremental claims (approved by the first author 2026-11-24)
 
 - **Date:** 2026-11-24
 - **Type:** change to how the pre-specified design is evaluated. Labels, features, splits, test years and the main model are unchanged.

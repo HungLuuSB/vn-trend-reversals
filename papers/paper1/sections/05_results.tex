@@ -18,8 +18,9 @@ against Kaplan--Meier, but no primary test beyond that passes the decision rule.
 paired differences of the first model over the second in the year-stratified C-index and
 integrated Brier score (IBS), with 95\% moving-block bootstrap intervals (blocks of 20 sessions).
 A hypothesis is supported only if the $\Delta C$ interval lies above zero and the $\Delta$IBS
-interval lies below zero; H1-mech requires both of its comparisons. Holm $p$-values adjust across
-the primaries. KM: Kaplan--Meier.}\label{tab:primaryres}
+interval lies below zero; H1-mech requires both of its comparisons. $p$: the larger of the two
+one-sided bootstrap shares in which C does not rise or the IBS does not fall; Holm $p$-values adjust
+across the primaries. KM: Kaplan--Meier.}\label{tab:primaryres}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \gentable{tab_primary}
@@ -118,8 +119,9 @@ show in either primary metric.
 \centering
 \caption{Secondary paired comparisons, test years 2017--2026, with 95\% intervals from
 \PairedResamples{} moving-block resamples. ``Improves'' applies the decision rule of the primary
-tests. Clark--West: one-sided test on the daily five-session Brier loss for nested
-pairs.}\label{tab:secondary}
+tests; with 200 resamples, interval bounds that print as 0.000 lie on the stated side of zero before
+rounding. Clark--West: one-sided test on the daily five-session Brier loss for nested pairs;
+Diebold--Mariano: two-sided test on the same loss, with Newey--West variances.}\label{tab:secondary}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \gentable{tab_secondary}
