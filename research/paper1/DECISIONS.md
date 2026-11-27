@@ -1050,3 +1050,11 @@ The model-shape table and the test results do not change.
 - **Data availability:** code, decision log, run configurations and extracted NPL ratios are "available from the corresponding author upon reasonable request"; no public repository for now. Price data are third-party (CafeF, Yahoo Finance) and are not redistributed.
 - **Manuscript language check:** Wiley's Manuscript Language Checker rejected the Word file twice ("word count could not be calculated"); skipped for now.
 
+## D-031 — Post-hoc analyses after the referee-style review (labelled post hoc)
+
+- **Date:** 2026-11-27
+- **Status:** after the final run and after an independent referee-style review of the manuscript. Nothing here changes a pre-registered test or decision; every result is reported as post hoc.
+- **Why:** the pre-registered H1-mech pair is the linear `ABCx` against the boosted `M_flex`. The review noted that the non-linear models of the same blocks beat `M_flex` on both metrics in point estimates, so the paper's general statement "better ranking, not better probabilities" may reflect the linear hazard's form (feature effects constant across horizon steps) rather than the features.
+- **What:** re-score the cached final-run predictions (no refit) with the final evaluation code, 1,000 paired moving-block resamples, the same decision rule: (a) every non-linear model of blocks A–C or A–D minus `M_flex`; (b) the decomposition KM → RW → `M_flex` → `ABCx` / `nn_seq_ABC` on C and IBS. Module `vnbank.research.survival.final.posthoc`.
+- **How it is used:** the paper keeps the pre-registered H1-mech verdict and narrows its general wording to what (a) shows.
+
