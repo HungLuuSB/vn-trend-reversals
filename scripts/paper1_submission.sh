@@ -51,6 +51,36 @@ cp -r "$out/latex/." "$check/"
 if grep -qE "Reference .* undefined" "$check/main.log"; then echo "bundle has undefined references" >&2; exit 1; fi
 rm -rf -- "${check:?}"
 
+# the upload files: one flat archive of the LaTeX sources (the "Main Manuscript" box) and the
+# cover letter as .docx and as a one-page PDF (line breaks kept)
+(cd "$out/latex" && python3 -c "import os,zipfile
+with zipfile.ZipFile('../latex_sources.zip','w',zipfile.ZIP_DEFLATED) as z:
+    [z.write(f,f) for f in sorted(os.listdir('.'))]")
+letter=$(mktemp -d)
+(cd "$repo" && uv run --quiet --with pypandoc-binary python -c "import pypandoc,sys
+pypandoc.convert_file(sys.argv[1],'docx',format='markdown+hard_line_breaks',outputfile=sys.argv[2])
+pypandoc.convert_file(sys.argv[1],'latex',format='markdown+hard_line_breaks',outputfile=sys.argv[3])" \
+  "$src/cover_letter.md" "$out/cover_letter.docx" "$letter/body.tex")
+cat > "$letter/letter.tex" <<'TEX'
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[no-math]{fontspec}
+\setmainfont{STIXTwoText}[Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,BoldItalicFont=*-BoldItalic]
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\setlist{itemsep=3pt,topsep=4pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em}
+\pagestyle{empty}
+\providecommand{\tightlist}{\setlength{\itemsep}{3pt}\setlength{\parskip}{0pt}}
+\begin{document}
+\input{body}
+\end{document}
+TEX
+(cd "$letter" && tectonic -X compile letter.tex >/dev/null) && cp "$letter/letter.pdf" "$out/cover_letter.pdf"
+rm -rf -- "${letter:?}"
+
 git -C "$repo" rev-parse --short HEAD > "$out/COMMIT"
 python3 -c "import shutil,sys; shutil.make_archive(sys.argv[1], 'zip', sys.argv[2], sys.argv[3])" \
   "$out" "$(dirname "$out")" "$(basename "$out")"
