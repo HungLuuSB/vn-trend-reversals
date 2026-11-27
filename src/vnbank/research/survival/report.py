@@ -1128,6 +1128,202 @@ def sample(n: R.Numbers, t: dict[str, str], reg: dict) -> None:
     n.add("DevRunCount", R.integer(len(dev)), None, "run folders before the final snapshot")
 
 
+def _md(text: str) -> str:
+    """Markdown cell -> LaTeX text (bold and code marks dropped, special characters escaped)."""
+    import re
+
+    return R.escape(re.sub(r"\*\*|`", "", text).strip())
+
+
+def records(n: R.Numbers, t: dict[str, str], reg: dict) -> None:
+    """Supporting information: every development run (RUNS.md) and every design decision
+    (DECISIONS.md), with its date."""
+    import re
+
+    dev = {p.name for p in paths.runs_dir(PAPER).iterdir()
+           if p.is_dir() and p.name < reg["dev_runs_before"]}  # fmt: skip
+    rows = []
+    for line in (paths.runs_dir(PAPER) / "RUNS.md").read_text().splitlines():
+        cells = [c for c in line.split("|")[1:-1]]
+        if len(cells) < 5:
+            continue
+        name = cells[0].strip().strip("`")
+        if name in dev:
+            rows.append(
+                {
+                    "Run": r"\relax\nolinkurl{" + name + "}",  # breakable (xurl)
+                    "What": r"\relax " + _md(cells[3]),
+                    "Status": r"\relax " + _md(cells[4]),
+                }
+            )
+    if {r["Run"] for r in rows} and len(rows) != len(dev):
+        missing = dev - {re.sub(r".*nolinkurl\{|\}$", "", r["Run"]) for r in rows}
+        raise R.ReportError(f"development runs missing from RUNS.md: {sorted(missing)}")
+    body = R.tabular(pd.DataFrame(rows), align="lll", header=["Run", "What", "Outcome"])
+    t["tab_devruns"] = body.replace(
+        "\\begin{tabular}{lll}",
+        "\\begin{longtable}{L{0.27\\linewidth}L{0.33\\linewidth}L{0.33\\linewidth}}",
+    ).replace("\\end{tabular}", "\\end{longtable}")
+    dec, text = [], (paths.paper_dir(PAPER) / "DECISIONS.md").read_text()
+    for m in re.finditer(r"^## (D-\d{3}) — (.+?)$(.*?)(?=^## D-|\Z)", text, re.M | re.S):
+        date = re.search(r"\*\*Date:\*\*\s*([0-9-]{10})", m.group(3))
+        dec.append(
+            {
+                "Decision": m.group(1),
+                "Date": date.group(1) if date else "",
+                "Title": r"\relax " + _md(m.group(2)),
+            }
+        )
+    body = R.tabular(pd.DataFrame(dec), align="lll", header=["Decision", "Date", "Subject"])
+    t["tab_decisions"] = body.replace(
+        "\\begin{tabular}{lll}", "\\begin{longtable}{llL{0.68\\linewidth}}"
+    ).replace("\\end{tabular}", "\\end{longtable}")
+    n.add("DecisionCount", R.integer(len(dec)), None, "DECISIONS.md entries")
+
+
+def abolmakarem(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
+    """Supporting information: their design on our development years (protocol 5d)."""
+    m = run.json("metrics.json")
+    res = m["results"]
+    rows = []
+    for how, hl in (("random", "Random"), ("chronological", "Chronological")):
+        for al, alab in (("next", "next day (correct)"), ("same", "same day")):
+            g = lambda k, how=how, al=al: res[f"{how}:{al}:{k}"]  # noqa: E731
+            rows.append(
+                {
+                    "Split": hl,
+                    "Target": alab,
+                    "tr": R.num(g("trend")["accuracy"], 3),
+                    "trb": R.num(g("trend")["majority_class"], 3),
+                    "pk": R.num(g("pk")["accuracy"], 3),
+                    "pkb": R.num(g("pk")["majority_class"], 3),
+                    "r2": R.num(g("ret")["r2"], 4),
+                }
+            )
+            for k, key in (("trend", "accuracy"), ("pk", "accuracy"), ("ret", "r2")):
+                n.add(
+                    R.macro("Abol", how, al, k),
+                    R.num(g(k)[key], 3 if key == "accuracy" else 4),
+                    run,
+                    f"results.{how}:{al}:{k}.{key}",
+                )
+            n.add(
+                R.macro("Abol", how, al, "TrendBase"),
+                R.num(g("trend")["majority_class"], 3),
+                run,
+                f"results.{how}:{al}:trend.majority_class",
+            )
+            n.add(
+                R.macro("Abol", how, al, "PkBase"),
+                R.num(g("pk")["majority_class"], 3),
+                run,
+                f"results.{how}:{al}:pk.majority_class",
+            )
+    t["tab_abol"] = R.tabular(
+        pd.DataFrame(rows),
+        align="llccccc",
+        header=[
+            "Split",
+            "Inputs of day $t$ predict the target of",
+            "Trend: accuracy",
+            "majority class",
+            "Peak: accuracy",
+            "majority class",
+            r"Return: $R^2$",
+        ],
+    )
+    n.add("AbolRows", R.integer(m["rows"]), run, "rows")
+    n.add("AbolStocks", R.integer(m["stocks"]), run, "stocks")
+
+
+SHAP_BLOCK_LABEL = {
+    "A": "A. Swing state",
+    "B": "B. Stock technicals",
+    "C": "C. Local market",
+    "D": "D. Global, overnight",
+}
+
+
+def shap_table(n: R.Numbers, t: dict[str, str], run: R.Run, top: int = 12) -> None:
+    """Supporting information: descriptive SHAP for the 2026 models (protocol 5e)."""
+    from vnbank.research.survival.final.shap_explain import BLOCKS
+
+    m = run.json("metrics.json")
+    cfg = run.config
+    block_of = {c: b for b, cs in BLOCKS.items() for c in cs}
+    rows = []
+    for b, lab in SHAP_BLOCK_LABEL.items():
+        rows.append(
+            {
+                "f": r"\relax\textit{" + lab + "}",
+                "g": R.num(100 * m["gbm_ABCD"]["block_share"][b], 1),
+                "nn": R.num(100 * m["nn_seq_ABCD"]["block_share"][b], 1),
+            }
+        )
+        for key, mod in (("Gbm", "gbm_ABCD"), ("Nn", "nn_seq_ABCD")):
+            n.add(
+                R.macro("Shap", key, "Block", b),
+                R.num(100 * m[mod]["block_share"][b], 1),
+                run,
+                f"{mod}.block_share.{b} x100",
+            )
+    t["tab_shap_blocks"] = R.tabular(
+        pd.DataFrame(rows),
+        align="lcc",
+        header=["Feature block", r"Boosted hazard (\% of total)", r"Sequence neural (\% of total)"],
+    )
+    rank = {
+        mod: sorted(m[mod]["mean_abs_shap"].items(), key=lambda kv: -kv[1])
+        for mod in ("gbm_ABCD", "nn_seq_ABCD")
+    }
+    rows = []
+    for i in range(top):
+        row = {"r": str(i + 1)}
+        for mod, k in (("gbm_ABCD", "g"), ("nn_seq_ABCD", "n")):
+            f, v = rank[mod][i]
+            d = m[mod]["direction_corr"].get(f)
+            sign = "" if d is None else ("$+$" if d > 0 else "$-$")
+            row[k] = rf"\relax\texttt{{{R.escape(f)}}} ({block_of[f]})"
+            row[k + "v"] = R.num(100 * v, 2)
+            row[k + "d"] = r"\relax " + sign if sign else r"\textemdash{}"
+        rows.append(row)
+    t["tab_shap_top"] = R.tabular(
+        pd.DataFrame(rows),
+        align="rlcclcc",
+        header=[
+            "Rank",
+            "Boosted hazard",
+            "Mean $|\\phi|$",
+            "Dir.",
+            "Sequence neural",
+            "Mean $|\\phi|$",
+            "Dir.",
+        ],
+    )
+    for mod, key in (("gbm_ABCD", "Gbm"), ("nn_seq_ABCD", "Nn")):
+        n.add(
+            R.macro("Shap", key, "Additivity"),
+            R.num(m[mod]["additivity_max_abs_error"], 6),
+            run,
+            f"{mod}.additivity_max_abs_error",
+        )
+        n.add(
+            R.macro("Shap", key, "MeanPred"),
+            R.num(m[mod]["mean_prediction"], 3),
+            run,
+            f"{mod}.mean_prediction",
+        )
+        f, v = rank[mod][0]
+        n.add(
+            R.macro("Shap", key, "TopShare"),
+            R.num(100 * v / sum(x for _, x in rank[mod]), 1),
+            run,
+            f"{mod}: top feature share",
+        )
+    n.add("ShapRows", R.integer(cfg["rows"]), run, "config rows")
+    n.add("ShapBackground", R.integer(cfg["background_rows"]), run, "config background_rows")
+
+
 def main(argv: list[str] | None = None) -> int:
     reg = registry()
     n, t = R.Numbers(PAPER), {}
@@ -1157,6 +1353,10 @@ def main(argv: list[str] | None = None) -> int:
     n.add(
         "BlockENewsLeadDays", R.num(b["median_lead_days"], 0), dc, "block_e_news.median_lead_days"
     )
+    records(n, t, reg)
+    abolmakarem(n, t, R.Run.load(PAPER, reg["abolmakarem"]))
+    if "shap" in reg:
+        shap_table(n, t, R.Run.load(PAPER, reg["shap"]))
     n.add("SnapshotId", R.escape(reg["snapshot"]), None, "report.yaml snapshot")
     n.add("FinalCommit", R.escape(ev["k2"].commit[:7]), ev["k2"], "config git_commit")
     commit = code_version()
