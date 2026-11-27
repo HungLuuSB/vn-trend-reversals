@@ -1176,17 +1176,89 @@ def records(n: R.Numbers, t: dict[str, str], reg: dict) -> None:
     if {r["Run"] for r in rows} and len(rows) != len(dev):
         missing = dev - {re.sub(r".*nolinkurl\{|\}$", "", r["Run"]) for r in rows}
         raise R.ReportError(f"development runs missing from RUNS.md: {sorted(missing)}")
-    # one block per run (a three-column table of long verbatim text is hard to read)
-    blocks = []
-    for i, r in enumerate(rows, 1):
-        blocks.append(
-            rf"\noindent\textbf{{{i}.}} {r['Run'].removeprefix(chr(92) + 'relax')}\\"
-            + "\n"
-            + rf"\textit{{Purpose:}} {r['What'].removeprefix(chr(92) + 'relax ')}\\"
-            + "\n"
-            + rf"\textit{{Outcome:}} {r['Status'].removeprefix(chr(92) + 'relax ')}\par\smallskip"
-        )
-    t["tab_devruns"] = "\n\n".join(blocks) + "\n"
+    # grouped summary (no run identifiers): purpose, number of runs, decisions, main finding,
+    # from the run index entries; the full log is available with the code
+    groups = [
+        (
+            ("labels-", "features-"),
+            "Swing labels and feature datasets",
+            "D-009, D-011",
+            "Builds of the labels and the development dataset; superseded builds differed only in "
+            "metadata.",
+        ),
+        (
+            ("walkforward-dev", "devcompare"),
+            "Walk-forward runner and model families",
+            "D-013, D-014",
+            "The first hazard specification was badly calibrated and was replaced by landmark "
+            "hazards. Every model family beat Kaplan--Meier, shuffled-label controls stayed at "
+            "chance, and the global block did not improve on blocks A--C.",
+        ),
+        (
+            ("devdecompose-D-022", "devdecompose-D-023"),
+            "Neural hazard and block E",
+            "D-022, D-023",
+            "The neural hazard improved the IBS but not the ranking. Bank fundamentals and news "
+            "improved on the mechanical baseline but added nothing beyond blocks A--D.",
+        ),
+        (
+            ("devdecompose",),
+            "Nested feature sets and the mechanical baseline",
+            "D-015 to D-017, D-019, D-020",
+            "Most of the ranking skill sat in the swing state, mainly the distance to the "
+            "threshold, which led to the mechanical baseline. Direction-specific terms, bank "
+            "interactions and swing age added nothing beyond it.",
+        ),
+        (
+            ("devattribution", "aging"),
+            "Attribution and the shape of age effects",
+            "D-018, D-019",
+            "No single global feature was informative; within distance groups the reversal rate "
+            "was nearly flat in age.",
+        ),
+        (
+            ("diag-", "devcheck-"),
+            "Controls and checks",
+            "D-022, D-027",
+            "The neural model's shuffled-label control sat at chance; the random-walk null ranked "
+            "about as well as the linear mechanical baseline.",
+        ),
+        (
+            ("devbacktest",),
+            "Trading test",
+            "D-021",
+            "The model exit did not beat the benchmarks (H5 not supported in development).",
+        ),
+    ]
+    count = {g[1]: 0 for g in groups}
+    for name in dev:
+        kind = name.split("-", 1)[1]  # drop the timestamp
+        for prefixes, lab, _, _ in groups:  # first match wins (specific prefixes come first)
+            if kind.startswith(prefixes):
+                count[lab] += 1
+                break
+        else:
+            raise R.ReportError(f"development run {name} fits no group")
+    if sum(count.values()) != len(dev):
+        raise R.ReportError("development run groups do not add up")
+    order = [
+        "Swing labels and feature datasets",
+        "Walk-forward runner and model families",
+        "Nested feature sets and the mechanical baseline",
+        "Neural hazard and block E",
+        "Attribution and the shape of age effects",
+        "Controls and checks",
+        "Trading test",
+    ]
+    info = {g[1]: g for g in groups}
+    lines = [r"\begin{longtable}{@{}L{0.22\linewidth}cL{0.17\linewidth}L{0.47\linewidth}@{}}",
+             r"\toprule", r"Purpose & Runs & Decisions & Main development finding \\",
+             r"\midrule", r"\endhead"]  # fmt: skip
+    for lab in order:
+        _, _, dec, finding = info[lab]
+        lines.append(rf"{lab} & {count[lab]} & {dec} & {finding} \\ \addlinespace[5pt]")
+    lines += [r"\midrule", rf"Total & {len(dev)} & & \\", r"\bottomrule", r"\end{longtable}"]
+    t["tab_devruns"] = "\n".join(lines) + "\n"
     dec, text = [], (paths.paper_dir(PAPER) / "DECISIONS.md").read_text()
     for m in re.finditer(r"^## (D-\d{3}) — (.+?)$(.*?)(?=^## D-|\Z)", text, re.M | re.S):
         date = re.search(r"\*\*Date:\*\*\s*([0-9-]{10})", m.group(3))
