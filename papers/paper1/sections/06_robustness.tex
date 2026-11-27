@@ -1,4 +1,65 @@
 \section{Robustness}\label{sec:robust}
-% Each check: what could break the main result, and whether it does.
-\plan{ - threshold k = 1.5 and 3 (labels change); - decision at the HOSE close instead of 09:00; - horizons 10 and 20 sessions; - model families (Cox, RSF, GBM, GRU) for the same comparisons; - price-limit handling (limit\_status != computed rows), exchanges separately; - block E without visually transcribed values; strict vs all news aliases; - costs 0.2\% / 0.8\% in the trading test.}
-\todo[inline]{Robustness (final run).}
+% Each check states what could break the main result and whether it does. All numbers from the
+% final run (generated/numbers.tex).
+
+\paragraph{Threshold size} A different $k$ changes the labels themselves, since swings are defined
+by the threshold. Table~\ref{tab:k} repeats the main comparisons with $k=1.5$ and $k=3$, with labels
+and features rebuilt from the same snapshot. Predictability against Kaplan--Meier holds for every
+$k$, and it rises with $k$: larger thresholds give longer, smoother swings whose distance to the
+threshold is more informative (C of \texttt{M}: \KOneFiveCM, \KTwoCM{} and \KThreeCM). The gain of
+\texttt{ABCDx} over \texttt{M} shrinks as $k$ grows. At $k=1.5$, \texttt{ABCDx} has the higher C in
+all \KOneFiveYearsAboveABCDxM{} test years, but its IBS interval still includes zero
+(\KOneFiveDIBSABCDxM); at $k=3$ even the C interval includes zero (\KThreeDCABCDxM). The shuffled
+controls stay at chance (at most \KOneFiveShuffledMax{} and \KThreeShuffledMax). The trading result
+does not change: the model exit never beats the plain directional-change exit (Sharpe ratios
+\KOneFiveSharpeModel{} against \KOneFiveSharpeDC{} at $k=1.5$, \KThreeSharpeModel{} against
+\KThreeSharpeDC{} at $k=3$).
+
+\begin{table}[t]
+\centering
+\caption{Robustness to the threshold multiple $k$ in $\theta=k\,\mathrm{ATR}_{20}/P$, test years
+2017--2026. Columns 2--5: year-stratified C. $\Delta C$ and $\Delta$IBS: \texttt{ABCDx} over
+\texttt{M}, 95\% intervals from \PairedResamples{} resamples. Shuffled: highest mean C of the
+shuffled-outcome controls. Last two columns: Sharpe ratios of the model exit and of buy-and-hold
+(B\&H) at 0.40\% costs.}\label{tab:k}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\gentable{tab_k}
+\end{table}
+
+\paragraph{Bootstrap block length} Rows of one swing overlap for longer than 20 sessions. With
+blocks of 40 and 60 sessions, the decisions on H1, H1-mech, H2 and H3, and the comparison of
+\texttt{ABCx} with \texttt{M}, are unchanged (Appendix S1).
+
+\paragraph{Censoring at the fold boundary} The purge drops training swings that end after the
+training window. Censoring them at the boundary instead keeps their early rows. The main decisions
+are unchanged: \texttt{ABCDx} beats Kaplan--Meier (\BoundaryABCDxKm), \texttt{ABCx} beats
+\texttt{M} (\BoundaryABCxM), and \texttt{ABCDx} neither beats \texttt{M} (\BoundaryABCDxM) nor
+\texttt{ABCx} (\BoundaryABCDxABCx).
+
+\paragraph{Sub-periods and subsamples} Table~\ref{tab:slices} splits the test rows. \texttt{ABCDx}
+beats Kaplan--Meier in \SlicesBeatKM{} of the \SlicesCount{} slices; the exception is 2022, a year of
+steep market decline, when \texttt{M} ranked better than the full model.
+\texttt{ABCDx} beats \texttt{M} under the decision rule in 2017--2019 and in 2020--2021, but not
+in 2022 or 2023--2026. Results for banks and for other VN30 stocks are similar; dropping banks
+registered only on UPCoM, or rows that closed at the price limit, changes nothing.
+
+\begin{table}[t]
+\centering
+\caption{Sub-periods and subsamples of the test rows, main specification. ``Beats'' applies the
+decision rule of the primary tests to \texttt{ABCDx} against \texttt{M} and against Kaplan--Meier
+(KM) within the slice.}\label{tab:slices}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\gentable{tab_slices}
+\end{table}
+
+\paragraph{Foreign flows} Net foreign buying is missing for \ForeignMissingSessions{} sessions and
+is left out of the main specification. Adding it with a missing indicator makes the IBS worse
+($\Delta$IBS \DIBSABCDxFfABCDx).
+
+\paragraph{Trading frictions} The trading result does not depend on the execution price or the
+cost level (Table~\ref{tab:trading}). Forbidding trades on days whose price limit cannot be
+computed leaves the model exit below the directional-change exit (Sharpe ratios \BtOpenSharpeModelSkip{}
+against \BtOpenSharpeDcSkip), and so does assuming that a sell at a close on the floor never fills
+(\BtOpenSharpeModelFloor{} against \BtOpenSharpeDcFloor).

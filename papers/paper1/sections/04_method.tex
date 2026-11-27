@@ -6,7 +6,7 @@
 
 This section defines the swings, turns each open swing into survival data, describes the
 features and models, and states the evaluation protocol and the tests. Every element was fixed
-before the test years were used. Each choice is logged with its date in a public decision record
+before the test years were used. Each choice is logged with its date in a decision record
 (Section~\ref{sec:prereg}). Table~\ref{tab:notation} collects the notation.
 
 \begin{table}[htbp]
@@ -117,7 +117,7 @@ data pipeline enforces this with an automated test (Section~\ref{sec:data}).
 \caption{Feature blocks. All features are computed for row $(i,t)$ and used at 09:00 on the next
 session. Returns and changes in blocks B--D also enter multiplied by the swing direction
 $\delta_{i,t}$ in the linear models (Section~\ref{sec:features}). Full definitions and availability
-rules: \ref{sec:appendix}.}\label{tab:features}
+rules: Appendix S1.}\label{tab:features}
 \small
 \begin{tabular}{L{0.21\linewidth}L{0.72\linewidth}}
 \toprule
@@ -220,7 +220,7 @@ moments. Hyperparameters are tuned by nested validation inside each training win
 year before the test year is the inner validation year, with the same purge and embargo as the outer
 split (Section~\ref{sec:walkforward}). The grid point with the lowest inner integrated Brier score is
 refitted on the full training window. Grids are small and fixed in advance
-(\ref{sec:appendix}).
+(Appendix S1).
 
 \subsection{Walk-forward protocol}\label{sec:walkforward}
 
@@ -282,7 +282,7 @@ tests it is an intersection--union test, valid at the nominal level without adju
 
 \paragraph{One primary test per question} Table~\ref{tab:primary} lists the primary tests. Each
 uses 1,000 paired resamples. We report its Monte Carlo error as the spread of the interval endpoints
-between the two halves of the resamples. Holm-adjusted bootstrap $p$-values across the six
+between the two halves of the resamples. Holm-adjusted bootstrap $p$-values across the
 confirmatory primaries are reported as a sensitivity \citep{Holm1979}. Every
 other comparison is secondary or descriptive and is labelled so.
 
@@ -401,8 +401,9 @@ configuration actually computed in the run.
 \subsection{Pre-registration and number of configurations}\label{sec:prereg}
 
 Every design decision is recorded in a dated log before it was used, with the state of the
-evidence at that moment.\todo{repo URL} The development
-period produced \gen{DevRunCount} logged runs, all reported in \ref{sec:appendix}. One
+evidence at that moment; the record is released with the code (see the data availability
+statement). The development
+period produced \gen{DevRunCount} logged runs, all reported in Appendix S1. One
 change to the evaluation came from development results: the mechanical baseline was added after
 the distance to the threshold alone was found to carry most of the ranking skill. A second change,
 direction-specific effects, followed from the stated direction of H2. After a design review and

@@ -1,86 +1,107 @@
-% Paper 1 -- skeleton (2026-11-25). Planned content per section is in the % PLAN comments of each
-% sections/*.tex file. Every number comes from papers/paper1/generated/ (CLAUDE.md); final results
-% wait for the single walk-forward run on the frozen snapshot (D-024). Never type a result by hand.
-\documentclass[preprint,12pt,authoryear]{elsarticle}
+% Paper 1 -- manuscript for the Journal of Forecasting (Wiley), free-format first submission.
+% Journal rules followed (author guidelines, read 2026-11-27): title without abbreviations, running
+% title under 40 characters, full author names and affiliations, acknowledgments (with funding),
+% abstract, up to six keywords, APA references, tables with titles, a list of figure legends,
+% statements on data availability, funding, conflicts of interest, ethics and permissions.
+% Appendices go in a separate file (supplement.tex, "Supporting Information"). Single-blind
+% review: author names stay on the title page. A LaTeX submission also needs the compiled PDF.
+%
+% Every number comes from papers/paper1/generated/ (vnbank.research.survival.report, run on the
+% single final walk-forward run, D-024). Never type a result by hand.
+\documentclass[12pt]{article}
 
+\usepackage[a4paper,margin=2.5cm]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage[mathlines]{lineno}
+\linenumbers
 \usepackage{enumitem}
 \setlist[itemize]{itemsep=2pt,parsep=0pt,topsep=4pt}
-% lets TeX stretch a line a little instead of running a word into the margin
 \setlength{\emergencystretch}{1.5em}
-% L{width}: ragged-right paragraph column (no hyphenation or stretched spaces in narrow cells)
+% L{width}: ragged-right paragraph column
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{graphicx}
-\usepackage{xurl} % long URLs in the references may break at any character
+\usepackage{adjustbox}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage[natbibapa]{apacite} % APA reference style (journal requirement); keeps \citet/\citep
+\usepackage{xurl}
 \usepackage[hidelinks]{hyperref}
 \usepackage{xcolor}
-% Skeleton plans: visible in drafts; set \showplansfalse to hide every plan at once.
-\newif\ifshowplans \showplanstrue
-\newcommand{\plan}[1]{\ifshowplans{\par\noindent\color{gray}\small\textit{Plan:} #1\par}\fi}
+\usepackage{authblk}
 \setlength{\marginparwidth}{2cm}
 \usepackage[textsize=footnotesize]{todonotes}
+% \plan{...}: drafting notes; hidden in the submitted version
+\newif\ifshowplans \showplansfalse
+\newcommand{\plan}[1]{\ifshowplans{\par\noindent\color{gray}\small\textit{Plan:} #1\par}\fi}
 
-% generated numbers (vnbank.research.<paper1 builder>, not written yet: results are not final)
+% generated numbers (vnbank.research.survival.report)
 \IfFileExists{generated/numbers.tex}{\input{generated/numbers.tex}}{}
-% \gen{Name}: a generated number. Until generated/numbers.tex defines \Name, it prints a visible
-% bold placeholder, so no number is ever typed by hand into the text.
+% \gen{Name}: a generated number; a visible red placeholder until generated/numbers.tex defines it
 \newcommand{\gen}[1]{\ifcsname #1\endcsname\csname #1\endcsname\else\textbf{\textcolor{red}{[#1]}}\fi}
+\input{sections/00_legends}
+% a generated table or figure body, or a visible placeholder
+\newcommand{\genfile}[1]{\IfFileExists{generated/#1.tex}{\input{generated/#1.tex}}{\gen{#1}}}
+% a generated table, shrunk to the text width if it is wider
+\newcommand{\gentable}[1]{\adjustbox{max width=\linewidth}{\genfile{#1}}}
 
-\journal{Journal of Forecasting}
-% Target: Journal of Forecasting (Wiley; research/journals.md). Free-format first submission is
-% accepted, so elsarticle is fine now; at revision switch to APA references and separate figure
-% files. Running title (< 40 characters): "When do trends reverse?". At most 6 keywords.
-
-% elsarticle defines \appendixname as "Appendix " (trailing space) and then adds ~, which
-% prints "Appendix  A" with a double space.
-\def\appendixname{Appendix}
+\title{Predictable but Mostly Mechanical: Survival Forecasts of Trend Reversals in Vietnamese
+Stocks}
+% Authors. First and corresponding: family name Luu, given names Thai Hung (Vietnamese: Luu Thai
+% Hung); in submission systems enter "Luu" as the family name and "Thai Hung" as the given name.
+% Second: Pham Ngo Nhat Hao, written "Nhat Hao Pham Ngo"; family name "Pham Ngo", middle name Nhat,
+% given name Hao (confirmed by him); cited as Pham Ngo, N.H.
+\author[1]{Thai Hung Luu\thanks{Corresponding author. Email:
+\href{mailto:hung.luu.research@gmail.com}{hung.luu.research@gmail.com}. ORCID:
+\href{https://orcid.org/0009-0004-2909-3359}{0009-0004-2909-3359}.}}
+\author[2]{Nhat Hao Pham Ngo\thanks{Email:
+\href{mailto:nhathao.research@gmail.com}{nhathao.research@gmail.com}. ORCID:
+\href{https://orcid.org/0009-0000-1537-6041}{0009-0000-1537-6041}.}}
+\affil[1]{Independent Researcher, Vinh Long, Vietnam}
+\affil[2]{School of Trade and International Economics, National Economics University, Hanoi,
+Vietnam}
+\date{}
 
 \begin{document}
 
-\begin{frontmatter}
+\begin{titlepage}
+\maketitle
+\thispagestyle{empty}
+\noindent\textbf{Running title:} Forecasting trend reversals
 
-\title{When Do Trends Reverse? A Survival Analysis of Price Swings in the Vietnamese Stock
-Market Under Global Shocks}
-% PLAN: keep a finding out of the title until the final run supports it (skill rule).
+\bigskip
+\noindent\textbf{Acknowledgments.} This research did not receive any specific grant from funding
+agencies in the public, commercial, or not-for-profit sectors.
 
-% Authors. First and corresponding: family name Luu, given names Thai Hung (Vietnamese: Lưu Thái
-% Hưng); in submission systems enter "Luu" as the family name and "Thai Hung" as the given name.
-% Second: Phạm Ngô Nhật Hào, written "Nhat Hao Pham Ngo"; added 2026-11-26. Confirmed by him:
-% family name "Pham Ngo" (Phạm Ngô), middle name Nhat, given name Hao. In submission systems
-% enter "Pham Ngo" as the family name and "Nhat Hao" as the given name (cited as Pham Ngo, N.H.).
-\author[inst1]{Thai Hung Luu\corref{cor1}\fnref{orcid1}}
-\ead{hung.luu.research@gmail.com}
-\cortext[cor1]{Corresponding author.}
-\fntext[orcid1]{ORCID: \href{https://orcid.org/0009-0004-2909-3359}{0009-0004-2909-3359}}
-\affiliation[inst1]{organization={Independent Researcher}, city={Vinh Long}, country={Vietnam}}
+\bigskip
+\noindent\textbf{Data availability statement.} \input{sections/00_statements_data}
 
-\author[inst2]{Nhat Hao Pham Ngo\fnref{orcid2}}
-\ead{nhathao.research@gmail.com}
-\fntext[orcid2]{ORCID: \href{https://orcid.org/0009-0000-1537-6041}{0009-0000-1537-6041}}
-\affiliation[inst2]{organization={School of Trade and International Economics, National Economics
-University}, city={Hanoi}, country={Vietnam}}
+\bigskip
+\noindent\textbf{Conflict of interest disclosure.} The authors declare no conflicts of interest.
+
+\bigskip
+\noindent\textbf{Ethics approval statement.} Not applicable: the study uses only market prices,
+published financial statements and published news, and involves no human participants.
+
+\bigskip
+\noindent\textbf{Permission to reproduce material from other sources.} Not applicable: no
+material from other sources is reproduced.
+\end{titlepage}
 
 \begin{abstract}
-% PLAN (written last): problem -> gap -> method -> data -> main result with number and
-% uncertainty -> implication. 150-250 words, no citations.
-\todo[inline]{Abstract: written after the final run.}
+\input{sections/00_abstract}
 \end{abstract}
 
-\begin{highlights}
-% PLAN: 3-5 findings, <= 85 characters each, written after the final run.
-\item \todo[inline]{Highlights: written after the final run.}
-\end{highlights}
+\noindent\textbf{Keywords:} directional change; forecast evaluation; price limits; survival
+analysis; trend reversal; Vietnam
 
-\begin{keyword}
-Survival analysis \sep Directional change \sep Trend reversal \sep Emerging markets \sep
-Price limits \sep Vietnam
-\JEL G12 \sep G14 \sep G17 \sep C41 \sep C53
-\end{keyword}
-
-\end{frontmatter}
+\clearpage
 
 \input{sections/01_introduction}
 \input{sections/02_literature}
@@ -91,39 +112,33 @@ Price limits \sep Vietnam
 \input{sections/07_discussion}
 \input{sections/08_conclusion}
 
-\section*{Data and code availability}
-% PLAN: state that the code was written with an AI assistant (see the AI declaration), reviewed by
-% the authors, and is fully tested and reproducible from the snapshot hash.
-% PLAN: snapshot hash (research/snapshots.md), git commit of the final run, repository URL;
-% third-party data terms (CafeF, Yahoo, FRED, GPR) and what can / cannot be redistributed.
-\todo[inline]{Data and code availability statement.}
+\section*{Author contributions}
+\textbf{Thai Hung Luu:} Conceptualization, Methodology, Software, Data curation, Formal analysis,
+Investigation, Validation, Visualization, Writing -- original draft, Writing -- review \& editing.
+\textbf{Nhat Hao Pham Ngo:} Methodology, Validation, Data curation.
 
-\section*{Declarations}
-\paragraph{Funding} This research did not receive any specific grant from funding agencies in the
-public, commercial, or not-for-profit sectors.
+\section*{Use of generative artificial intelligence}
+% Wording approved by the first author (2026-11-25); plural since the co-author joined
+% (2026-11-26). Wiley asks authors to disclose such use; recheck against its policy at submission.
+During the preparation of this work the authors used Claude (Anthropic), an AI assistant, to write
+and test the data-processing and estimation code, check bibliographic references against their
+DOIs, and draft and edit text. After using this tool, the authors reviewed and edited the content
+as needed and take full responsibility for the content of the article.
 
-\paragraph{Declaration of competing interest} The authors declare no known competing financial
-interests or personal relationships that could have appeared to influence the work reported in
-this paper.
+\section*{Supporting information}
+Additional supporting information can be found online in the Supporting Information section at the
+end of this article. Appendix S1 gives the hyperparameter grids and selected values, the
+development-period record, feature definitions, the extraction of bank statements and further
+tables.
 
-\paragraph{CRediT authorship contribution statement} \textbf{Thai Hung Luu:} Conceptualization,
-Methodology, Software, Data curation, Formal analysis, Investigation, Validation, Visualization,
-Writing -- original draft, Writing -- review \& editing. \textbf{Nhat Hao Pham Ngo:} Methodology,
-Validation, Data curation.
-
-\section*{Declaration of generative AI and AI-assisted technologies in the writing process}
-% Wording approved by the first author (2026-11-25); "author" made plural on 2026-11-26 when the
-% co-author was added. Recheck against the target journal's policy
-% before submission.
-During the preparation of this work the authors used Claude (Anthropic), an AI assistant, in order
-to write and test the data-processing and estimation code, check bibliographic references against
-their DOIs, and draft and edit text. After using this tool, the authors reviewed and edited the
-content as needed and takes full responsibility for the content of the published article.
-
-\appendix
-\input{sections/A_appendix}
-
-\bibliographystyle{elsarticle-harv}
+\bibliographystyle{apacite}
 \bibliography{refs}
+
+\clearpage
+\section*{Figure legends}
+\begin{description}[leftmargin=0pt]
+\item[Figure 1.] \FigOneLegend
+\item[Figure 2.] \FigTwoLegend
+\end{description}
 
 \end{document}

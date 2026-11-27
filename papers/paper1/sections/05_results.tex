@@ -1,33 +1,211 @@
 \section{Results}\label{sec:results}
-% One subsection per RQ; each opens with the answer, then the evidence, effect sizes and
-% uncertainty. ALL numbers from the single final walk-forward run (D-024). The development
-% results below are what the plan expects to test, not results to report as final.
+% Every number below comes from the single final walk-forward run (D-024) through
+% generated/numbers.tex. Order: the pre-registered primaries (Table 4), then one subsection per
+% research question, each opening with its answer.
 
-\subsection{RQ1: Is reversal timing predictable out of sample?}
-\plan{models vs Kaplan-Meier (H1) and vs the mechanical baseline M (D-016); per-year and pooled C, IBS, td-AUC with bootstrap CIs; shuffled-label control near 0.5.}
-% DEV (2014-16, Finding 12/14): pooled C ~0.60 vs KM 0.50; M alone 0.593; A-C beats M on C only.
-\todo[inline]{RQ1 results (final run).}
+The run passed both stop rules before any other output was read. Models trained on permuted
+outcomes ranked the test rows at chance: the mean shuffled C ranged from \ShuffledMin{} to
+\ShuffledMax{} across the four controls. No model came near the leakage threshold of 0.70; the
+highest year-stratified C of any model was \MaxModelC. Table~\ref{tab:primaryres} reports the
+\PrimCount{} pre-registered primary tests, each with \PrimResamples{} paired resamples (Monte Carlo
+error of the interval endpoints at most \PrimMCError). Table~\ref{tab:models} reports every model.
+Of the \PrimCount{} primaries, \PrimSupportedCount{} is supported: reversal timing is predictable
+against Kaplan--Meier, but no primary test beyond that passes the decision rule.
 
-\subsection{RQ2: Do overnight global signals add information?}
-\plan{block-D ablation, additive and direction-specific; bank x global interactions (D-020).}
-% DEV (Findings 12, 15-17, 20): no gain in any form; slightly harmful in 2016.
-\todo[inline]{RQ2 results (final run).}
+\begin{table}[t]
+\centering
+\caption{Pre-registered primary tests, test years 2017--2026. $\Delta C$ and $\Delta$IBS are the
+paired differences of the first model over the second in the year-stratified C-index and
+integrated Brier score (IBS), with 95\% moving-block bootstrap intervals (blocks of 20 sessions).
+A hypothesis is supported only if the $\Delta C$ interval lies above zero and the $\Delta$IBS
+interval lies below zero; H1-mech requires both of its comparisons. Holm $p$-values adjust across
+the primaries. KM: Kaplan--Meier.}\label{tab:primaryres}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\gentable{tab_primary}
+\end{table}
 
-\subsection{RQ3: Do trends age?}
-\plan{age-only hazard first (life table by direction, like bull/bear), then the age effect given swing\_dist (D-015, D-019) -- the duration-dependence comparison with Lunde \& Timmermann.}
-% DEV (Finding 18): age adds nothing once distance is known.
-\todo[inline]{RQ3 results (final run).}
+\subsection{RQ1: Is reversal timing predictable out of sample?}\label{sec:rq1}
 
-\subsection{RQ4: Has global sensitivity risen with market upgrading?}
-\plan{interaction with the post-announcement indicator (2025-10-07) and placebo dates; exploratory (short post period).}
-\todo[inline]{RQ4 results (final run).}
+\paragraph{Against Kaplan--Meier: yes} The main specification \texttt{ABCDx} reaches a
+year-stratified C of \CABCDx{} against \CKm{} for Kaplan--Meier, and an IBS of \IBSABCDx{} against
+\IBSKm. Both intervals of H1 exclude zero ($\Delta C$ \PrimDCABCDxKm, $\Delta$IBS
+\PrimDIBSABCDxKm), so H1 is supported. Every fitted model beats Kaplan--Meier on both metrics. The time-dependent AUC of \texttt{ABCDx} at five sessions is \AUCFiveABCDx, and its C
+within dates, which uses only cross-sectional pairs, is \CDateABCDx, close to the year-stratified
+value. The ranking skill is therefore not a by-product of differences in reversal rates between
+dates.
 
-\subsection{RQ5: Is the predictability worth anything after costs?}
-\plan{Sharpe, drawdown, deflated Sharpe vs buy-and-hold and fixed DC (D-021).}
-% DEV (Finding 19): not supported (Sharpe 0.28 vs 0.26 DC vs 0.34 B&H; DSR 0.09).
-\todo[inline]{RQ5 results (final run).}
+\begin{table}[p]
+\centering
+\caption{Out-of-sample accuracy of every model, test years 2017--2026 (\TestRows{} survival rows).
+C: Uno's concordance index truncated at 20 sessions, computed within each test year and summed
+(primary). IBS: integrated Brier score over days 1--20, row-weighted mean of the yearly scores
+(primary; lower is better). C within dates: concordance over pairs from the same date only.
+AUC($h$): time-dependent area under the ROC curve at $h$ sessions, pooled. Specification names:
+blocks A--E as in Table~\ref{tab:features}; ``x'' adds direction-specific terms.}\label{tab:models}
+\footnotesize
+\gentable{tab_models}
+\end{table}
 
-\subsection{Banks: fundamentals and news attention}
-\plan{block E on bank rows (D-023): vs ABCDx (primary) and vs M; robustness without the visual transcription tier.}
-% DEV (Finding 22): beats M on both metrics; adds nothing beyond A-D.
-\todo[inline]{Block E results (final run).}
+\paragraph{Most of the skill is mechanical} The distance to the threshold alone (\texttt{DIST})
+reaches C~=~\CDIST. That single variable delivers \MechShareDIST\% of the gain of \texttt{ABCDx}
+over Kaplan--Meier (\GainOverKM{} in C). A swing whose price has already retraced most of the way
+to its threshold needs only a small further move to be confirmed, and every model sees this. The
+random-walk null, which fits nothing and only rolls each stock's own recent returns through the
+labelling rule, reaches C~=~\CRW.
+
+\paragraph{Beyond the mechanics: better ranking, not better probabilities} H1-mech is not
+supported. The features of blocks A--C rank swings better than the flexible mechanical baseline:
+\texttt{ABCx} exceeds \texttt{M\_flex} by \GainOverMFlex{} in C, with interval \PrimDCABCxMFlex,
+and in \YearsAboveABCxMFlex{} of the 10 test years. They do not improve the probabilities: the IBS
+interval is \PrimDIBSABCxMFlex{} and contains zero. Against the random-walk null both intervals
+exclude zero ($\Delta C$ \PrimDCABCxRW, $\Delta$IBS \PrimDIBSABCxRW), so the first of the two
+conditions holds and the second fails. The comparison with the linear baseline \texttt{M}
+explains the gap. \texttt{ABCx} beats \texttt{M} on both metrics ($\Delta C$ \DCABCxM, $\Delta$IBS
+\DIBSABCxM), but \texttt{M\_flex} has a lower IBS than \texttt{M} by itself ($\Delta$IBS of
+\texttt{M} over \texttt{M\_flex} \DIBSMMFlex). The calibration gain of the richer models over
+\texttt{M} is matched by letting age and distance enter non-linearly. What the features add beyond
+that is ranking.
+
+\paragraph{Calibration} Figure~\ref{fig:calibration} plots the observed reversal rate against the
+predicted probability by decile. At ten sessions the deciles lie close to the diagonal (largest
+gap \CalMaxGapTen). At five sessions the predictions are too compressed: the riskiest decile
+reverses at a rate of \CalTopObsFive, while its mean prediction is lower by \CalMaxGapFive. At 20
+sessions the least risky decile still reverses at \CalBottomObsTwenty.
+
+\begin{figure}[t]
+\centering
+\IfFileExists{generated/fig_calibration.tex}{\input{generated/fig_calibration.tex}}{\gen{figcalibration}}
+\caption{\FigOneLegend}\label{fig:calibration}
+\end{figure}
+
+\paragraph{Stable across years} Figure~\ref{fig:peryear} shows the C of the key models in each
+test year. \texttt{ABCDx} ranges from \YearMinABCDx{} to \YearMaxABCDx, with no trend and no
+collapse in the COVID-19 years or in 2022. It exceeds \texttt{M} in \YearsAboveABCDxM{} of the 10
+years. The random-walk null is the least stable benchmark (\YearMinRW{} to \YearMaxRW).
+
+\begin{figure}[t]
+\centering
+\IfFileExists{generated/fig_peryear.tex}{\input{generated/fig_peryear.tex}}{\gen{figperyear}}
+\caption{\FigTwoLegend}\label{fig:peryear}
+\end{figure}
+
+\subsection{RQ2: Does overnight global information add to local information?}\label{sec:rq2}
+
+No. Adding block D to \texttt{ABCx} changes C by \PrimDCABCDxABCx{} and IBS by \PrimDIBSABCDxABCx,
+so H2 is not supported; \texttt{ABCDx} has the higher C in only \YearsAboveABCDxABCx{} of the 10
+years. The result holds in every model family (Table~\ref{tab:secondary}). Without the direction
+terms the change is \DCABCDABC{} in C; in the boosted hazard and the random survival forest the
+global block makes both metrics worse ($\Delta$IBS \DIBSGbmABCDGbmABC{} and \DIBSRsfABCDRsfABC).
+Dropping the global features one at a time, none of the \AttribCount{} is informative after Holm
+adjustment (\AttribInformative{} of \AttribCount; Appendix S1). The bank interactions with US
+rates, the dollar and the dong add nothing either ($\Delta C$ \DCABCDxBankABCDx; joint Wald test
+of the six terms, $p=\HTwoBankP$).
+
+The signs of the effects are mostly as predicted, but small (Table~\ref{tab:h2signs}). The Nasdaq
+return multiplied by the swing direction has the predicted negative sign in all
+\HTwoYearsNasdaqRetXdir{} yearly fits (binomial $p=\HTwoBinomPNasdaqRetXdir$): a fall in US
+technology stocks overnight raises the hazard that a Vietnamese up-swing ends. In the full-sample
+fit, however, the one-sided test gives $p=\HTwoPNasdaqRetXdir$ (Holm $p=\HTwoHolmNasdaqRetXdir$),
+and neither the S\&P~500 nor the VIX term is significant. The Clark--West test, which allows for the
+noise of estimating nested models, finds a small reduction in the five-session Brier loss from
+block D ($p=\CWPABCDxABCx$, one-sided). This is a descriptive test, and the gain is too small to
+show in either primary metric.
+
+\begin{table}[t]
+\centering
+\caption{Secondary paired comparisons, test years 2017--2026, with 95\% intervals from
+\PairedResamples{} moving-block resamples. ``Improves'' applies the decision rule of the primary
+tests. Clark--West: one-sided test on the daily five-session Brier loss for nested
+pairs.}\label{tab:secondary}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\gentable{tab_secondary}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Signs of the global effects (H2, directional part), in-sample. Coefficients on
+standardised features in the landmark logit fitted on all \HTwoRows{} rows; $z$ and one-sided
+$p$ use the more conservative of date-clustered and two-way clustered errors; Holm across the
+three terms. The last column counts the yearly \texttt{ABCDx} fits whose coefficient has the
+predicted sign, among those where the penalty left it non-zero.}\label{tab:h2signs}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\gentable{tab_h2signs}
+\end{table}
+
+\subsection{RQ3: Do trends age?}\label{sec:rq3}
+
+Not once the distance to the threshold is known. On its own, swing age carries information: the
+age-only hazard beats Kaplan--Meier on both metrics (C~=~\CAGE; $\Delta C$ \DCAGEKm). Given a
+flexible function of the distance, adding age changes C by \PrimDCMSDISTS{} and IBS by
+\PrimDIBSMSDISTS, so H3 is not supported. The linear comparison of \texttt{M} with \texttt{DIST}
+gives the same answer ($\Delta C$ \DCMDIST). The share of rows that reverse within five sessions varies
+much less across age buckets within a distance group than between distance groups (Appendix S1). Age-only duration dependence of the kind estimated for index bull and bear
+phases is, for these swings, the distance to the threshold seen through age.
+
+\subsection{RQ4: Has global sensitivity risen since the market-upgrade announcement?}\label{sec:rq4}
+
+No change is detected. The coefficient on the product of the post-announcement indicator with
+the global index is \HFourCoef{} ($z=\HFourZ$, one-sided $p=\HFourP$), the wrong sign for H4. The
+real announcement ranks \HFourRank{} among itself and \HFourPlacebos{} placebo dates
+(Table~\ref{tab:rq4}), and the joint test of ten post-announcement interactions gives
+$p=\HFourWaldP$. The placebo estimates vary widely, from strongly negative to significantly
+positive, so a single post-window of \HFourPostRows{} rows cannot separate a change in sensitivity
+from ordinary variation. We report RQ4 as not detected, with low power.
+
+\begin{table}[t]
+\centering
+\caption{Market-upgrade test (H4, exploratory, in-sample). $\hat\lambda$ is the coefficient on the
+post-announcement indicator times the global linear index of \texttt{ABCDx}; one-sided $p$ for
+$\lambda>0$ with date-clustered errors. Placebos use the same design at earlier dates, with
+windows that end before the real announcement.}\label{tab:rq4}
+\footnotesize
+\gentable{tab_rq4}
+\end{table}
+
+\subsection{RQ5: Is the predictability worth anything after costs?}\label{sec:rq5}
+
+No. The model exit earns a Sharpe ratio of \BtOpenSharpeModel{} at 0.40\% round-trip costs,
+below the mechanical exit (\BtOpenSharpeMech), the plain directional-change exit
+(\BtOpenSharpeDc) and buy-and-hold (\BtOpenSharpeBh; Table~\ref{tab:trading}). None of the
+differences is significant: the interval of the model's Sharpe ratio minus that of the
+directional-change exit is \BtOpenSDModelDc, and minus buy-and-hold \BtOpenSDModelBh. H5 is not
+supported. The deflated Sharpe ratio of the model exit is \BtOpenDSRModel{} with the
+pre-registered \BtOpenDSRTrials{} trials, and \BtOpenDSRNNineSix{} when every trading configuration
+computed in the run is counted. The exit
+strategies halve the maximum drawdown (\BtOpenMDDModel\% against \BtOpenMDDBh\% for
+buy-and-hold), but only because they are out of the market much of the time; their returns fall by
+more. The ranking is the same at the close (\BtCloseSharpeModel{} against \BtCloseSharpeBh) and at
+costs of 0.20\% and 0.80\%.
+
+\begin{table}[t]
+\centering
+\caption{Trading test, test years 2017--2026, long-only, equal-weighted across the day's
+universe, executed at the next open with T+2 settlement and price limits. Return: annualised; the
+Sharpe ratio uses a zero risk-free rate. Columns 5--6 vary the round-trip cost (main: 0.40\%);
+column 7 executes at the close of the session after the signal.}\label{tab:trading}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\gentable{tab_trading}
+\end{table}
+
+\subsection{Banks: fundamentals and news attention}\label{sec:banks}
+
+Block E adds nothing on bank rows. On the \BECBankABCDx{} C of \texttt{ABCDx} for banks, adding the
+first-released non-performing-loan ratio and news attention changes C by
+\PrimDCBankABCDxEBankABCDx{} and IBS by \PrimDIBSBankABCDxEBankABCDx; the IBS gets slightly worse.
+The result is the same without the visually transcribed statements, with publication margins of 0
+and 20 sessions, and with all news aliases (Appendix S1). Added to the
+mechanical baseline instead, block E does not help either.
+
+\subsection{Model families}\label{sec:families}
+
+The neural hazards have the lowest IBS of all models (\IBSNnSeqABC{} for the sequence model on
+blocks A--C, against \IBSABCDx{} for \texttt{ABCDx}), and the sequence model on blocks A--D beats
+\texttt{M} on both metrics ($\Delta C$ \DCNnSeqABCDM, $\Delta$IBS \DIBSNnSeqABCDM). This comparison
+is secondary, and its C gain over \texttt{M} is the same size as that of \texttt{ABCDx}. Reading
+the last 60 sessions of prices adds nothing to the static neural model ($\Delta C$
+\DCNnSeqABCDNnStaticABCD). Trees do not rank better than the logistic hazard: the boosted hazard and
+the random survival forest on blocks A--C reach C of \CGbmABC{} and \CRsfABC.

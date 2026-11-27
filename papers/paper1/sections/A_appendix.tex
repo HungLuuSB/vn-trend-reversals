@@ -1,6 +1,92 @@
-\section{Design details and development results}\label{sec:appendix}
-\plan{hyperparameter grids (configs/main.yaml tuning\_grids) and the selected values per fold.}
-\plan{development-period results (2012-2016) reported in full, labelled as development, with the list of decisions D-001..D-024 and when each was made (pre-registration record).}
-\plan{feature definitions with availability rules (table).}
-\plan{block E extraction (OCR, visual-transcription tier, sum checks, coverage by bank).}
-\todo[inline]{Appendix.}
+% Appendix S1 (Supporting Information): input by supplement.tex, a separate file as the journal
+% requires. Tables come from generated/ (vnbank.research.survival.report).
+\section*{Appendix S1. Design details and further results}
+\setcounter{table}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\subsection*{S1.1 Hyperparameters}
+Each model is tuned in each test year on the inner validation year (the last full year before the
+test year), by the lowest inner integrated Brier score, and refitted on the full training window.
+Table~\ref{tab:hyper} lists the grids, fixed before the development work, and how often each
+setting was chosen across the 10 test years.
+
+\begin{table}[h]
+\centering
+\caption{Tuning grids and chosen settings, test years 2017--2026. Logistic models: inverse penalty
+$C$ and elastic-net mixing \texttt{l1\_ratio}; boosted models: learning rate and maximum leaf
+nodes; Cox: ridge penalty; random survival forest: minimum leaf size; neural models: hidden units,
+weight decay and epochs.}\label{tab:hyper}
+\scriptsize
+\gentable{tab_hyper}
+\end{table}
+
+\subsection*{S1.2 Development record}
+All design work used the development years 2012--2016. It produced \DevRunCount{} logged runs before
+the final snapshot was frozen; each is listed, with its configuration, code version and metrics,
+in the run index released with the code. Every design decision is recorded with its date and the
+evidence available when it was made.
+\todo[inline]{Summarise the development results (RUNS.md) and list decisions D-001 to D-029 with
+their dates.}
+
+\subsection*{S1.3 Feature definitions and coverage}
+\todo[inline]{Feature table with exact definitions and availability rules (configs/main.yaml and
+the dbt models); the VN30 members and the bank without usable price history.}
+
+\subsection*{S1.4 Extraction of bank statements}
+Non-performing-loan ratios come from \BlockEStatements{} first-release quarterly statements, of
+which \BlockECoverage{} yield a ratio: \BlockEOCR{} read by optical character recognition and
+\BlockEVisual{} transcribed from page images under the stricter sum check described in the main text
+(Section 4.3).
+
+\subsection*{S1.5 Further results}
+
+\begin{table}[h]
+\centering
+\caption{Attribution within the global block (D-018). Each feature is dropped from \texttt{ABCDx}
+in turn and the model refitted; $\Delta$IBS is the IBS without the feature minus the IBS with it
+($>0$ means the feature helps), with 95\% intervals from \AttribResamples{} resamples and Holm
+adjustment across the \AttribCount{} features.}\label{tab:attribution}
+\footnotesize
+\gentable{tab_attribution}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Share of test rows whose swing reverses within five sessions, by swing age and by the
+distance to the threshold (at the extreme: $d=0$; near and far: the upper and lower halves of the
+remaining rows). Row counts in parentheses.}\label{tab:shape}
+\footnotesize
+\gentable{tab_shape}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Decision rule under moving-block bootstraps with blocks of 20 (main), 40 and 60
+sessions: ``Yes'' if the C interval lies above zero and the IBS interval below zero.}\label{tab:blocks}
+\footnotesize
+\gentable{tab_blocks}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Block E on bank rows, main comparison and variants: values read by optical character
+recognition only, publication margins of 0 and 20 sessions, and news counted with all
+aliases.}\label{tab:blocke}
+\footnotesize
+\gentable{tab_blocke}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Year-stratified C-index by test year, selected models.}\label{tab:peryear}
+\footnotesize
+\gentable{tab_peryear}
+\end{table}
+
+\subsection*{S1.6 Random versus chronological splits}
+\todo[inline]{Pre-registered (FINAL\_RUN\_PROTOCOL 5d): rebuild the targets of Abolmakarem et al.
+(2024) on the development years and compare a random split with a chronological one. Not yet run.}
+
+\subsection*{S1.7 Feature contributions}
+\todo[inline]{Pre-registered (5e), descriptive: SHAP values for the boosted hazard and the sequence
+neural model on the 2026 refit, 5,000 test rows. Not yet run.}

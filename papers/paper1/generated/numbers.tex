@@ -1,0 +1,786 @@
+% GENERATED FILE: do not edit by hand (CLAUDE.md: every number comes from code).
+% generator: vnbank.research.survival.report
+% generated at commit 37a16301e009c96eaa6663006d0d44f253c83634 on 2026-11-27 07:57 UTC
+% source runs:
+%   20261126T052329Z-labels-1f0c80b50427479e (commit 2d9966b5501a)
+%   20261126T052338Z-features-1f0c80b50427479e-k2 (commit 2d9966b5501a)
+%   20261126T202919Z-final-evaluate-main (commit 8807ed112369)
+%   20261127T025116Z-final-evaluate-k1_5 (commit 8807ed112369)
+%   20261127T025116Z-final-evaluate-k3 (commit 8807ed112369)
+%   20261127T035823Z-final-backtest-k3 (commit 8807ed112369)
+%   20261127T035918Z-final-backtest-k1_5 (commit 8807ed112369)
+%   20261127T071908Z-final-backtest-k2 (commit 8807ed112369)
+%   20261127T072220Z-final-rq4 (commit 8807ed112369)
+%   20261127T072640Z-final-h2 (commit 8807ed112369)
+
+\newcommand{\ShuffledABCD}{\ensuremath{0.502}} % 20261126T202919Z-final-evaluate-main: stop\_checks.shuffled.shuffled:ABCD.mean
+\newcommand{\ShuffledABCDx}{\ensuremath{0.503}} % 20261126T202919Z-final-evaluate-main: stop\_checks.shuffled.shuffled:ABCDx.mean
+\newcommand{\ShuffledM}{\ensuremath{0.503}} % 20261126T202919Z-final-evaluate-main: stop\_checks.shuffled.shuffled:M.mean
+\newcommand{\ShuffledNnSeqABCD}{\ensuremath{0.489}} % 20261126T202919Z-final-evaluate-main: stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.mean
+\newcommand{\ShuffledMax}{\ensuremath{0.503}} % 20261126T202919Z-final-evaluate-main: max shuffled mean
+\newcommand{\ShuffledMin}{\ensuremath{0.489}} % 20261126T202919Z-final-evaluate-main: min shuffled mean
+\newcommand{\MaxModelC}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: max pooled uno\_c\_strat over models
+\newcommand{\CABC}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.uno\_c\_strat
+\newcommand{\IBSABC}{\ensuremath{0.1975}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.ibs\_strat
+\newcommand{\CDateABC}{\ensuremath{0.621}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.uno\_c\_date\_strat
+\newcommand{\AUCFiveABC}{\ensuremath{0.701}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.td\_auc.5
+\newcommand{\AUCTenABC}{\ensuremath{0.642}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.td\_auc.10
+\newcommand{\AUCTwentyABC}{\ensuremath{0.612}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.td\_auc.20
+\newcommand{\CABCD}{\ensuremath{0.618}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCD.uno\_c\_strat
+\newcommand{\IBSABCD}{\ensuremath{0.1978}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCD.ibs\_strat
+\newcommand{\CDateABCD}{\ensuremath{0.621}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCD.uno\_c\_date\_strat
+\newcommand{\AUCFiveABCD}{\ensuremath{0.698}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCD.td\_auc.5
+\newcommand{\AUCTenABCD}{\ensuremath{0.639}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCD.td\_auc.10
+\newcommand{\AUCTwentyABCD}{\ensuremath{0.610}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCD.td\_auc.20
+\newcommand{\CABCDx}{\ensuremath{0.616}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx.uno\_c\_strat
+\newcommand{\IBSABCDx}{\ensuremath{0.1980}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx.ibs\_strat
+\newcommand{\CDateABCDx}{\ensuremath{0.617}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx.uno\_c\_date\_strat
+\newcommand{\AUCFiveABCDx}{\ensuremath{0.695}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx.td\_auc.5
+\newcommand{\AUCTenABCDx}{\ensuremath{0.639}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx.td\_auc.10
+\newcommand{\AUCTwentyABCDx}{\ensuremath{0.608}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx.td\_auc.20
+\newcommand{\CABCDxBank}{\ensuremath{0.616}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_bank.uno\_c\_strat
+\newcommand{\IBSABCDxBank}{\ensuremath{0.1980}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_bank.ibs\_strat
+\newcommand{\CDateABCDxBank}{\ensuremath{0.617}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_bank.uno\_c\_date\_strat
+\newcommand{\AUCFiveABCDxBank}{\ensuremath{0.695}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_bank.td\_auc.5
+\newcommand{\AUCTenABCDxBank}{\ensuremath{0.639}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_bank.td\_auc.10
+\newcommand{\AUCTwentyABCDxBank}{\ensuremath{0.608}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_bank.td\_auc.20
+\newcommand{\CABCDxFf}{\ensuremath{0.615}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_ff.uno\_c\_strat
+\newcommand{\IBSABCDxFf}{\ensuremath{0.1990}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_ff.ibs\_strat
+\newcommand{\CDateABCDxFf}{\ensuremath{0.617}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_ff.uno\_c\_date\_strat
+\newcommand{\AUCFiveABCDxFf}{\ensuremath{0.689}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_ff.td\_auc.5
+\newcommand{\AUCTenABCDxFf}{\ensuremath{0.634}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_ff.td\_auc.10
+\newcommand{\AUCTwentyABCDxFf}{\ensuremath{0.603}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx\_ff.td\_auc.20
+\newcommand{\CABCx}{\ensuremath{0.619}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCx.uno\_c\_strat
+\newcommand{\IBSABCx}{\ensuremath{0.1974}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCx.ibs\_strat
+\newcommand{\CDateABCx}{\ensuremath{0.618}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCx.uno\_c\_date\_strat
+\newcommand{\AUCFiveABCx}{\ensuremath{0.699}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCx.td\_auc.5
+\newcommand{\AUCTenABCx}{\ensuremath{0.643}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCx.td\_auc.10
+\newcommand{\AUCTwentyABCx}{\ensuremath{0.613}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCx.td\_auc.20
+\newcommand{\CAGE}{\ensuremath{0.523}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.AGE.uno\_c\_strat
+\newcommand{\IBSAGE}{\ensuremath{0.2092}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.AGE.ibs\_strat
+\newcommand{\CDateAGE}{\ensuremath{0.523}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.AGE.uno\_c\_date\_strat
+\newcommand{\AUCFiveAGE}{\ensuremath{0.536}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.AGE.td\_auc.5
+\newcommand{\AUCTenAGE}{\ensuremath{0.524}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.AGE.td\_auc.10
+\newcommand{\AUCTwentyAGE}{\ensuremath{0.513}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.AGE.td\_auc.20
+\newcommand{\CDIST}{\ensuremath{0.601}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST.uno\_c\_strat
+\newcommand{\IBSDIST}{\ensuremath{0.1998}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST.ibs\_strat
+\newcommand{\CDateDIST}{\ensuremath{0.610}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST.uno\_c\_date\_strat
+\newcommand{\AUCFiveDIST}{\ensuremath{0.684}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST.td\_auc.5
+\newcommand{\AUCTenDIST}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST.td\_auc.10
+\newcommand{\AUCTwentyDIST}{\ensuremath{0.583}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST.td\_auc.20
+\newcommand{\CDISTS}{\ensuremath{0.601}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST\_s.uno\_c\_strat
+\newcommand{\IBSDISTS}{\ensuremath{0.1989}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST\_s.ibs\_strat
+\newcommand{\CDateDISTS}{\ensuremath{0.608}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST\_s.uno\_c\_date\_strat
+\newcommand{\AUCFiveDISTS}{\ensuremath{0.685}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST\_s.td\_auc.5
+\newcommand{\AUCTenDISTS}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST\_s.td\_auc.10
+\newcommand{\AUCTwentyDISTS}{\ensuremath{0.580}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.DIST\_s.td\_auc.20
+\newcommand{\CM}{\ensuremath{0.602}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M.uno\_c\_strat
+\newcommand{\IBSM}{\ensuremath{0.1998}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M.ibs\_strat
+\newcommand{\CDateM}{\ensuremath{0.610}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M.uno\_c\_date\_strat
+\newcommand{\AUCFiveM}{\ensuremath{0.684}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M.td\_auc.5
+\newcommand{\AUCTenM}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M.td\_auc.10
+\newcommand{\AUCTwentyM}{\ensuremath{0.584}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M.td\_auc.20
+\newcommand{\CMBCDx}{\ensuremath{0.616}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCDx.uno\_c\_strat
+\newcommand{\IBSMBCDx}{\ensuremath{0.1979}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCDx.ibs\_strat
+\newcommand{\CDateMBCDx}{\ensuremath{0.618}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCDx.uno\_c\_date\_strat
+\newcommand{\AUCFiveMBCDx}{\ensuremath{0.695}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCDx.td\_auc.5
+\newcommand{\AUCTenMBCDx}{\ensuremath{0.639}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCDx.td\_auc.10
+\newcommand{\AUCTwentyMBCDx}{\ensuremath{0.607}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCDx.td\_auc.20
+\newcommand{\CMBCx}{\ensuremath{0.619}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCx.uno\_c\_strat
+\newcommand{\IBSMBCx}{\ensuremath{0.1973}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCx.ibs\_strat
+\newcommand{\CDateMBCx}{\ensuremath{0.618}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCx.uno\_c\_date\_strat
+\newcommand{\AUCFiveMBCx}{\ensuremath{0.700}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCx.td\_auc.5
+\newcommand{\AUCTenMBCx}{\ensuremath{0.643}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCx.td\_auc.10
+\newcommand{\AUCTwentyMBCx}{\ensuremath{0.613}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.MBCx.td\_auc.20
+\newcommand{\CMFlex}{\ensuremath{0.598}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_flex.uno\_c\_strat
+\newcommand{\IBSMFlex}{\ensuremath{0.1975}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_flex.ibs\_strat
+\newcommand{\CDateMFlex}{\ensuremath{0.605}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_flex.uno\_c\_date\_strat
+\newcommand{\AUCFiveMFlex}{\ensuremath{0.685}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_flex.td\_auc.5
+\newcommand{\AUCTenMFlex}{\ensuremath{0.618}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_flex.td\_auc.10
+\newcommand{\AUCTwentyMFlex}{\ensuremath{0.579}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_flex.td\_auc.20
+\newcommand{\CMS}{\ensuremath{0.603}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_s.uno\_c\_strat
+\newcommand{\IBSMS}{\ensuremath{0.1989}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_s.ibs\_strat
+\newcommand{\CDateMS}{\ensuremath{0.609}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_s.uno\_c\_date\_strat
+\newcommand{\AUCFiveMS}{\ensuremath{0.684}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_s.td\_auc.5
+\newcommand{\AUCTenMS}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_s.td\_auc.10
+\newcommand{\AUCTwentyMS}{\ensuremath{0.584}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M\_s.td\_auc.20
+\newcommand{\CRW}{\ensuremath{0.588}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.RW.uno\_c\_strat
+\newcommand{\IBSRW}{\ensuremath{0.2032}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.RW.ibs\_strat
+\newcommand{\CDateRW}{\ensuremath{0.602}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.RW.uno\_c\_date\_strat
+\newcommand{\AUCFiveRW}{\ensuremath{0.683}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.RW.td\_auc.5
+\newcommand{\AUCTenRW}{\ensuremath{0.629}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.RW.td\_auc.10
+\newcommand{\AUCTwentyRW}{\ensuremath{0.599}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.RW.td\_auc.20
+\newcommand{\CCoxABCDx}{\ensuremath{0.614}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCDx.uno\_c\_strat
+\newcommand{\IBSCoxABCDx}{\ensuremath{0.1984}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCDx.ibs\_strat
+\newcommand{\CDateCoxABCDx}{\ensuremath{0.616}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCDx.uno\_c\_date\_strat
+\newcommand{\AUCFiveCoxABCDx}{\ensuremath{0.692}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCDx.td\_auc.5
+\newcommand{\AUCTenCoxABCDx}{\ensuremath{0.637}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCDx.td\_auc.10
+\newcommand{\AUCTwentyCoxABCDx}{\ensuremath{0.606}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCDx.td\_auc.20
+\newcommand{\CCoxABCx}{\ensuremath{0.619}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCx.uno\_c\_strat
+\newcommand{\IBSCoxABCx}{\ensuremath{0.1974}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCx.ibs\_strat
+\newcommand{\CDateCoxABCx}{\ensuremath{0.618}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCx.uno\_c\_date\_strat
+\newcommand{\AUCFiveCoxABCx}{\ensuremath{0.699}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCx.td\_auc.5
+\newcommand{\AUCTenCoxABCx}{\ensuremath{0.643}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCx.td\_auc.10
+\newcommand{\AUCTwentyCoxABCx}{\ensuremath{0.614}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.cox\_ABCx.td\_auc.20
+\newcommand{\CGbmABC}{\ensuremath{0.612}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABC.uno\_c\_strat
+\newcommand{\IBSGbmABC}{\ensuremath{0.1957}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABC.ibs\_strat
+\newcommand{\CDateGbmABC}{\ensuremath{0.609}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABC.uno\_c\_date\_strat
+\newcommand{\AUCFiveGbmABC}{\ensuremath{0.707}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABC.td\_auc.5
+\newcommand{\AUCTenGbmABC}{\ensuremath{0.643}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABC.td\_auc.10
+\newcommand{\AUCTwentyGbmABC}{\ensuremath{0.609}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABC.td\_auc.20
+\newcommand{\CGbmABCD}{\ensuremath{0.597}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABCD.uno\_c\_strat
+\newcommand{\IBSGbmABCD}{\ensuremath{0.1995}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABCD.ibs\_strat
+\newcommand{\CDateGbmABCD}{\ensuremath{0.602}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABCD.uno\_c\_date\_strat
+\newcommand{\AUCFiveGbmABCD}{\ensuremath{0.695}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABCD.td\_auc.5
+\newcommand{\AUCTenGbmABCD}{\ensuremath{0.621}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABCD.td\_auc.10
+\newcommand{\AUCTwentyGbmABCD}{\ensuremath{0.579}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.gbm\_ABCD.td\_auc.20
+\newcommand{\CKm}{\ensuremath{0.500}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.km.uno\_c\_strat
+\newcommand{\IBSKm}{\ensuremath{0.2096}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.km.ibs\_strat
+\newcommand{\CDateKm}{\ensuremath{0.500}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.km.uno\_c\_date\_strat
+\newcommand{\AUCFiveKm}{\ensuremath{0.497}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.km.td\_auc.5
+\newcommand{\AUCTenKm}{\ensuremath{0.490}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.km.td\_auc.10
+\newcommand{\AUCTwentyKm}{\ensuremath{0.485}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.km.td\_auc.20
+\newcommand{\CNnSeqABC}{\ensuremath{0.617}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABC.uno\_c\_strat
+\newcommand{\IBSNnSeqABC}{\ensuremath{0.1943}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABC.ibs\_strat
+\newcommand{\CDateNnSeqABC}{\ensuremath{0.617}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABC.uno\_c\_date\_strat
+\newcommand{\AUCFiveNnSeqABC}{\ensuremath{0.711}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABC.td\_auc.5
+\newcommand{\AUCTenNnSeqABC}{\ensuremath{0.648}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABC.td\_auc.10
+\newcommand{\AUCTwentyNnSeqABC}{\ensuremath{0.616}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABC.td\_auc.20
+\newcommand{\CNnSeqABCD}{\ensuremath{0.614}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABCD.uno\_c\_strat
+\newcommand{\IBSNnSeqABCD}{\ensuremath{0.1954}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABCD.ibs\_strat
+\newcommand{\CDateNnSeqABCD}{\ensuremath{0.618}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABCD.uno\_c\_date\_strat
+\newcommand{\AUCFiveNnSeqABCD}{\ensuremath{0.708}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABCD.td\_auc.5
+\newcommand{\AUCTenNnSeqABCD}{\ensuremath{0.642}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABCD.td\_auc.10
+\newcommand{\AUCTwentyNnSeqABCD}{\ensuremath{0.606}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_seq\_ABCD.td\_auc.20
+\newcommand{\CNnStaticABCD}{\ensuremath{0.614}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_static\_ABCD.uno\_c\_strat
+\newcommand{\IBSNnStaticABCD}{\ensuremath{0.1955}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_static\_ABCD.ibs\_strat
+\newcommand{\CDateNnStaticABCD}{\ensuremath{0.617}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_static\_ABCD.uno\_c\_date\_strat
+\newcommand{\AUCFiveNnStaticABCD}{\ensuremath{0.708}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_static\_ABCD.td\_auc.5
+\newcommand{\AUCTenNnStaticABCD}{\ensuremath{0.642}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_static\_ABCD.td\_auc.10
+\newcommand{\AUCTwentyNnStaticABCD}{\ensuremath{0.603}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.nn\_static\_ABCD.td\_auc.20
+\newcommand{\CRsfABC}{\ensuremath{0.611}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABC.uno\_c\_strat
+\newcommand{\IBSRsfABC}{\ensuremath{0.1953}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABC.ibs\_strat
+\newcommand{\CDateRsfABC}{\ensuremath{0.608}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABC.uno\_c\_date\_strat
+\newcommand{\AUCFiveRsfABC}{\ensuremath{0.707}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABC.td\_auc.5
+\newcommand{\AUCTenRsfABC}{\ensuremath{0.643}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABC.td\_auc.10
+\newcommand{\AUCTwentyRsfABC}{\ensuremath{0.608}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABC.td\_auc.20
+\newcommand{\CRsfABCD}{\ensuremath{0.605}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABCD.uno\_c\_strat
+\newcommand{\IBSRsfABCD}{\ensuremath{0.1969}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABCD.ibs\_strat
+\newcommand{\CDateRsfABCD}{\ensuremath{0.608}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABCD.uno\_c\_date\_strat
+\newcommand{\AUCFiveRsfABCD}{\ensuremath{0.698}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABCD.td\_auc.5
+\newcommand{\AUCTenRsfABCD}{\ensuremath{0.629}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABCD.td\_auc.10
+\newcommand{\AUCTwentyRsfABCD}{\ensuremath{0.593}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.rsf\_ABCD.td\_auc.20
+\newcommand{\DCABCDxKm}{\ensuremath{[0.106, 0.126]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-km:uno\_c
+\newcommand{\DIBSABCDxKm}{\ensuremath{[-0.0137, -0.0094]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-km:ibs
+\newcommand{\ImprovesABCDxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx-km
+\newcommand{\DCABCxM}{\ensuremath{[0.006, 0.027]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCx-M:uno\_c
+\newcommand{\DIBSABCxM}{\ensuremath{[-0.0043, -0.0007]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCx-M:ibs
+\newcommand{\ImprovesABCxM}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCx-M
+\newcommand{\DCABCDxM}{\ensuremath{[0.002, 0.025]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-M:uno\_c
+\newcommand{\DIBSABCDxM}{\ensuremath{[-0.0037, 0.0005]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-M:ibs
+\newcommand{\ImprovesABCDxM}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx-M
+\newcommand{\DCNnSeqABCDM}{\ensuremath{[0.000, 0.022]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-M:uno\_c
+\newcommand{\DIBSNnSeqABCDM}{\ensuremath{[-0.0059, -0.0024]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-M:ibs
+\newcommand{\ImprovesNnSeqABCDM}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.nn\_seq\_ABCD-M
+\newcommand{\DCABCDxABCx}{\ensuremath{[-0.008, 0.001]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-ABCx:uno\_c
+\newcommand{\DIBSABCDxABCx}{\ensuremath{[-0.0003, 0.0018]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-ABCx:ibs
+\newcommand{\ImprovesABCDxABCx}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx-ABCx
+\newcommand{\DCMBCDxMBCx}{\ensuremath{[-0.008, 0.001]}} % 20261126T202919Z-final-evaluate-main: paired.ci.MBCDx-MBCx:uno\_c
+\newcommand{\DIBSMBCDxMBCx}{\ensuremath{[-0.0004, 0.0016]}} % 20261126T202919Z-final-evaluate-main: paired.ci.MBCDx-MBCx:ibs
+\newcommand{\ImprovesMBCDxMBCx}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.MBCDx-MBCx
+\newcommand{\DCABCDABC}{\ensuremath{[-0.004, 0.001]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCD-ABC:uno\_c
+\newcommand{\DIBSABCDABC}{\ensuremath{[-0.0003, 0.0008]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCD-ABC:ibs
+\newcommand{\ImprovesABCDABC}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCD-ABC
+\newcommand{\DCCoxABCDxCoxABCx}{\ensuremath{[-0.009, 0.000]}} % 20261126T202919Z-final-evaluate-main: paired.ci.cox\_ABCDx-cox\_ABCx:uno\_c
+\newcommand{\DIBSCoxABCDxCoxABCx}{\ensuremath{[-0.0001, 0.0023]}} % 20261126T202919Z-final-evaluate-main: paired.ci.cox\_ABCDx-cox\_ABCx:ibs
+\newcommand{\ImprovesCoxABCDxCoxABCx}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.cox\_ABCDx-cox\_ABCx
+\newcommand{\DCGbmABCDGbmABC}{\ensuremath{[-0.024, -0.009]}} % 20261126T202919Z-final-evaluate-main: paired.ci.gbm\_ABCD-gbm\_ABC:uno\_c
+\newcommand{\DIBSGbmABCDGbmABC}{\ensuremath{[0.0024, 0.0055]}} % 20261126T202919Z-final-evaluate-main: paired.ci.gbm\_ABCD-gbm\_ABC:ibs
+\newcommand{\ImprovesGbmABCDGbmABC}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.gbm\_ABCD-gbm\_ABC
+\newcommand{\DCRsfABCDRsfABC}{\ensuremath{[-0.012, 0.000]}} % 20261126T202919Z-final-evaluate-main: paired.ci.rsf\_ABCD-rsf\_ABC:uno\_c
+\newcommand{\DIBSRsfABCDRsfABC}{\ensuremath{[0.0008, 0.0026]}} % 20261126T202919Z-final-evaluate-main: paired.ci.rsf\_ABCD-rsf\_ABC:ibs
+\newcommand{\ImprovesRsfABCDRsfABC}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.rsf\_ABCD-rsf\_ABC
+\newcommand{\DCNnSeqABCDNnSeqABC}{\ensuremath{[-0.008, 0.001]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-nn\_seq\_ABC:uno\_c
+\newcommand{\DIBSNnSeqABCDNnSeqABC}{\ensuremath{[0.0003, 0.0020]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-nn\_seq\_ABC:ibs
+\newcommand{\ImprovesNnSeqABCDNnSeqABC}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.nn\_seq\_ABCD-nn\_seq\_ABC
+\newcommand{\DCABCDxBankABCDx}{\ensuremath{[-0.001, 0.001]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_bank-ABCDx:uno\_c
+\newcommand{\DIBSABCDxBankABCDx}{\ensuremath{[-0.0002, 0.0002]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_bank-ABCDx:ibs
+\newcommand{\ImprovesABCDxBankABCDx}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx\_bank-ABCDx
+\newcommand{\DCMDIST}{\ensuremath{[-0.001, 0.003]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M-DIST:uno\_c
+\newcommand{\DIBSMDIST}{\ensuremath{[-0.0002, 0.0002]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M-DIST:ibs
+\newcommand{\ImprovesMDIST}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.M-DIST
+\newcommand{\DCAGEKm}{\ensuremath{[0.014, 0.038]}} % 20261126T202919Z-final-evaluate-main: paired.ci.AGE-km:uno\_c
+\newcommand{\DIBSAGEKm}{\ensuremath{[-0.0010, 0.0000]}} % 20261126T202919Z-final-evaluate-main: paired.ci.AGE-km:ibs
+\newcommand{\ImprovesAGEKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.AGE-km
+\newcommand{\DCDISTKm}{\ensuremath{[0.093, 0.108]}} % 20261126T202919Z-final-evaluate-main: paired.ci.DIST-km:uno\_c
+\newcommand{\DIBSDISTKm}{\ensuremath{[-0.0107, -0.0088]}} % 20261126T202919Z-final-evaluate-main: paired.ci.DIST-km:ibs
+\newcommand{\ImprovesDISTKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.DIST-km
+\newcommand{\DCNnSeqABCDNnStaticABCD}{\ensuremath{[-0.005, 0.002]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-nn\_static\_ABCD:uno\_c
+\newcommand{\DIBSNnSeqABCDNnStaticABCD}{\ensuremath{[-0.0007, 0.0007]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-nn\_static\_ABCD:ibs
+\newcommand{\ImprovesNnSeqABCDNnStaticABCD}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.nn\_seq\_ABCD-nn\_static\_ABCD
+\newcommand{\DCNnSeqABCDABCDx}{\ensuremath{[-0.007, 0.005]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-ABCDx:uno\_c
+\newcommand{\DIBSNnSeqABCDABCDx}{\ensuremath{[-0.0035, -0.0016]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-ABCDx:ibs
+\newcommand{\ImprovesNnSeqABCDABCDx}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.nn\_seq\_ABCD-ABCDx
+\newcommand{\DCABCDxFfABCDx}{\ensuremath{[-0.001, 0.000]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_ff-ABCDx:uno\_c
+\newcommand{\DIBSABCDxFfABCDx}{\ensuremath{[0.0004, 0.0017]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_ff-ABCDx:ibs
+\newcommand{\ImprovesABCDxFfABCDx}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx\_ff-ABCDx
+\newcommand{\DCABCDxFfM}{\ensuremath{[0.002, 0.024]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_ff-M:uno\_c
+\newcommand{\DIBSABCDxFfM}{\ensuremath{[-0.0030, 0.0017]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_ff-M:ibs
+\newcommand{\ImprovesABCDxFfM}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx\_ff-M
+\newcommand{\DCABCxMFlex}{\ensuremath{[0.010, 0.030]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCx-M\_flex:uno\_c
+\newcommand{\DIBSABCxMFlex}{\ensuremath{[-0.0020, 0.0015]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCx-M\_flex:ibs
+\newcommand{\ImprovesABCxMFlex}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCx-M\_flex
+\newcommand{\DCABCxRW}{\ensuremath{[0.019, 0.042]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCx-RW:uno\_c
+\newcommand{\DIBSABCxRW}{\ensuremath{[-0.0093, -0.0025]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCx-RW:ibs
+\newcommand{\ImprovesABCxRW}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCx-RW
+\newcommand{\DCMSDISTS}{\ensuremath{[-0.002, 0.007]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M\_s-DIST\_s:uno\_c
+\newcommand{\DIBSMSDISTS}{\ensuremath{[-0.0003, 0.0002]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M\_s-DIST\_s:ibs
+\newcommand{\ImprovesMSDISTS}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.M\_s-DIST\_s
+\newcommand{\DCABCDxMFlex}{\ensuremath{[0.006, 0.028]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-M\_flex:uno\_c
+\newcommand{\DIBSABCDxMFlex}{\ensuremath{[-0.0016, 0.0026]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-M\_flex:ibs
+\newcommand{\ImprovesABCDxMFlex}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx-M\_flex
+\newcommand{\DCABCDxRW}{\ensuremath{[0.014, 0.040]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-RW:uno\_c
+\newcommand{\DIBSABCDxRW}{\ensuremath{[-0.0092, -0.0015]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx-RW:ibs
+\newcommand{\ImprovesABCDxRW}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx-RW
+\newcommand{\DCMMFlex}{\ensuremath{[0.001, 0.007]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M-M\_flex:uno\_c
+\newcommand{\DIBSMMFlex}{\ensuremath{[0.0018, 0.0028]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M-M\_flex:ibs
+\newcommand{\ImprovesMMFlex}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.M-M\_flex
+\newcommand{\DCMFlexRW}{\ensuremath{[-0.004, 0.024]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M\_flex-RW:uno\_c
+\newcommand{\DIBSMFlexRW}{\ensuremath{[-0.0091, -0.0022]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M\_flex-RW:ibs
+\newcommand{\ImprovesMFlexRW}{No} % 20261126T202919Z-final-evaluate-main: paired.improves.M\_flex-RW
+\newcommand{\DCMKm}{\ensuremath{[0.095, 0.109]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M-km:uno\_c
+\newcommand{\DIBSMKm}{\ensuremath{[-0.0108, -0.0088]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M-km:ibs
+\newcommand{\ImprovesMKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.M-km
+\newcommand{\DCABCKm}{\ensuremath{[0.111, 0.129]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABC-km:uno\_c
+\newcommand{\DIBSABCKm}{\ensuremath{[-0.0137, -0.0103]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABC-km:ibs
+\newcommand{\ImprovesABCKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABC-km
+\newcommand{\DCABCDKm}{\ensuremath{[0.110, 0.127]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCD-km:uno\_c
+\newcommand{\DIBSABCDKm}{\ensuremath{[-0.0135, -0.0100]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCD-km:ibs
+\newcommand{\ImprovesABCDKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCD-km
+\newcommand{\DCABCxKm}{\ensuremath{[0.109, 0.128]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCx-km:uno\_c
+\newcommand{\DIBSABCxKm}{\ensuremath{[-0.0143, -0.0101]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCx-km:ibs
+\newcommand{\ImprovesABCxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCx-km
+\newcommand{\DCMBCxKm}{\ensuremath{[0.109, 0.129]}} % 20261126T202919Z-final-evaluate-main: paired.ci.MBCx-km:uno\_c
+\newcommand{\DIBSMBCxKm}{\ensuremath{[-0.0144, -0.0101]}} % 20261126T202919Z-final-evaluate-main: paired.ci.MBCx-km:ibs
+\newcommand{\ImprovesMBCxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.MBCx-km
+\newcommand{\DCMBCDxKm}{\ensuremath{[0.106, 0.127]}} % 20261126T202919Z-final-evaluate-main: paired.ci.MBCDx-km:uno\_c
+\newcommand{\DIBSMBCDxKm}{\ensuremath{[-0.0137, -0.0093]}} % 20261126T202919Z-final-evaluate-main: paired.ci.MBCDx-km:ibs
+\newcommand{\ImprovesMBCDxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.MBCDx-km
+\newcommand{\DCABCDxBankKm}{\ensuremath{[0.105, 0.126]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_bank-km:uno\_c
+\newcommand{\DIBSABCDxBankKm}{\ensuremath{[-0.0138, -0.0093]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_bank-km:ibs
+\newcommand{\ImprovesABCDxBankKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx\_bank-km
+\newcommand{\DCABCDxFfKm}{\ensuremath{[0.105, 0.125]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_ff-km:uno\_c
+\newcommand{\DIBSABCDxFfKm}{\ensuremath{[-0.0126, -0.0081]}} % 20261126T202919Z-final-evaluate-main: paired.ci.ABCDx\_ff-km:ibs
+\newcommand{\ImprovesABCDxFfKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.ABCDx\_ff-km
+\newcommand{\DCMFlexKm}{\ensuremath{[0.090, 0.106]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M\_flex-km:uno\_c
+\newcommand{\DIBSMFlexKm}{\ensuremath{[-0.0134, -0.0108]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M\_flex-km:ibs
+\newcommand{\ImprovesMFlexKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.M\_flex-km
+\newcommand{\DCDISTSKm}{\ensuremath{[0.093, 0.108]}} % 20261126T202919Z-final-evaluate-main: paired.ci.DIST\_s-km:uno\_c
+\newcommand{\DIBSDISTSKm}{\ensuremath{[-0.0116, -0.0096]}} % 20261126T202919Z-final-evaluate-main: paired.ci.DIST\_s-km:ibs
+\newcommand{\ImprovesDISTSKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.DIST\_s-km
+\newcommand{\DCMSKm}{\ensuremath{[0.095, 0.110]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M\_s-km:uno\_c
+\newcommand{\DIBSMSKm}{\ensuremath{[-0.0116, -0.0097]}} % 20261126T202919Z-final-evaluate-main: paired.ci.M\_s-km:ibs
+\newcommand{\ImprovesMSKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.M\_s-km
+\newcommand{\DCCoxABCxKm}{\ensuremath{[0.109, 0.128]}} % 20261126T202919Z-final-evaluate-main: paired.ci.cox\_ABCx-km:uno\_c
+\newcommand{\DIBSCoxABCxKm}{\ensuremath{[-0.0145, -0.0101]}} % 20261126T202919Z-final-evaluate-main: paired.ci.cox\_ABCx-km:ibs
+\newcommand{\ImprovesCoxABCxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.cox\_ABCx-km
+\newcommand{\DCCoxABCDxKm}{\ensuremath{[0.104, 0.124]}} % 20261126T202919Z-final-evaluate-main: paired.ci.cox\_ABCDx-km:uno\_c
+\newcommand{\DIBSCoxABCDxKm}{\ensuremath{[-0.0135, -0.0089]}} % 20261126T202919Z-final-evaluate-main: paired.ci.cox\_ABCDx-km:ibs
+\newcommand{\ImprovesCoxABCDxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.cox\_ABCDx-km
+\newcommand{\DCGbmABCKm}{\ensuremath{[0.101, 0.124]}} % 20261126T202919Z-final-evaluate-main: paired.ci.gbm\_ABC-km:uno\_c
+\newcommand{\DIBSGbmABCKm}{\ensuremath{[-0.0158, -0.0117]}} % 20261126T202919Z-final-evaluate-main: paired.ci.gbm\_ABC-km:ibs
+\newcommand{\ImprovesGbmABCKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.gbm\_ABC-km
+\newcommand{\DCGbmABCDKm}{\ensuremath{[0.085, 0.108]}} % 20261126T202919Z-final-evaluate-main: paired.ci.gbm\_ABCD-km:uno\_c
+\newcommand{\DIBSGbmABCDKm}{\ensuremath{[-0.0127, -0.0074]}} % 20261126T202919Z-final-evaluate-main: paired.ci.gbm\_ABCD-km:ibs
+\newcommand{\ImprovesGbmABCDKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.gbm\_ABCD-km
+\newcommand{\DCRsfABCKm}{\ensuremath{[0.100, 0.123]}} % 20261126T202919Z-final-evaluate-main: paired.ci.rsf\_ABC-km:uno\_c
+\newcommand{\DIBSRsfABCKm}{\ensuremath{[-0.0162, -0.0126]}} % 20261126T202919Z-final-evaluate-main: paired.ci.rsf\_ABC-km:ibs
+\newcommand{\ImprovesRsfABCKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.rsf\_ABC-km
+\newcommand{\DCRsfABCDKm}{\ensuremath{[0.093, 0.118]}} % 20261126T202919Z-final-evaluate-main: paired.ci.rsf\_ABCD-km:uno\_c
+\newcommand{\DIBSRsfABCDKm}{\ensuremath{[-0.0145, -0.0108]}} % 20261126T202919Z-final-evaluate-main: paired.ci.rsf\_ABCD-km:ibs
+\newcommand{\ImprovesRsfABCDKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.rsf\_ABCD-km
+\newcommand{\DCNnSeqABCDKm}{\ensuremath{[0.102, 0.126]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-km:uno\_c
+\newcommand{\DIBSNnSeqABCDKm}{\ensuremath{[-0.0159, -0.0122]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABCD-km:ibs
+\newcommand{\ImprovesNnSeqABCDKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.nn\_seq\_ABCD-km
+\newcommand{\DCNnSeqABCKm}{\ensuremath{[0.106, 0.126]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABC-km:uno\_c
+\newcommand{\DIBSNnSeqABCKm}{\ensuremath{[-0.0171, -0.0135]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_seq\_ABC-km:ibs
+\newcommand{\ImprovesNnSeqABCKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.nn\_seq\_ABC-km
+\newcommand{\DCNnStaticABCDKm}{\ensuremath{[0.103, 0.126]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_static\_ABCD-km:uno\_c
+\newcommand{\DIBSNnStaticABCDKm}{\ensuremath{[-0.0157, -0.0124]}} % 20261126T202919Z-final-evaluate-main: paired.ci.nn\_static\_ABCD-km:ibs
+\newcommand{\ImprovesNnStaticABCDKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.nn\_static\_ABCD-km
+\newcommand{\DCRWKm}{\ensuremath{[0.076, 0.101]}} % 20261126T202919Z-final-evaluate-main: paired.ci.RW-km:uno\_c
+\newcommand{\DIBSRWKm}{\ensuremath{[-0.0099, -0.0027]}} % 20261126T202919Z-final-evaluate-main: paired.ci.RW-km:ibs
+\newcommand{\ImprovesRWKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired.improves.RW-km
+\newcommand{\PairedResamples}{\ensuremath{200}} % 20261126T202919Z-final-evaluate-main: paired.resamples
+\newcommand{\PairedBlock}{\ensuremath{20}} % 20261126T202919Z-final-evaluate-main: paired.block
+\newcommand{\PrimHOneSupported}{Yes} % 20261126T202919Z-final-evaluate-main: primary.H1.supported
+\newcommand{\PrimHOneP}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: primary.H1.p
+\newcommand{\PrimHOneHolm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: primary\_holm.H1
+\newcommand{\PrimDCABCDxKm}{\ensuremath{[0.105, 0.126]}} % 20261126T202919Z-final-evaluate-main: primary.H1.pairs.ABCDx-km.c
+\newcommand{\PrimDIBSABCDxKm}{\ensuremath{[-0.0139, -0.0094]}} % 20261126T202919Z-final-evaluate-main: primary.H1.pairs.ABCDx-km.ibs
+\newcommand{\PrimPABCDxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: primary.H1.pairs.ABCDx-km.p
+\newcommand{\PrimHOneMechSupported}{No} % 20261126T202919Z-final-evaluate-main: primary.H1\_mech.supported
+\newcommand{\PrimHOneMechP}{\ensuremath{0.440}} % 20261126T202919Z-final-evaluate-main: primary.H1\_mech.p
+\newcommand{\PrimHOneMechHolm}{\ensuremath{1.000}} % 20261126T202919Z-final-evaluate-main: primary\_holm.H1\_mech
+\newcommand{\PrimDCABCxMFlex}{\ensuremath{[0.009, 0.030]}} % 20261126T202919Z-final-evaluate-main: primary.H1\_mech.pairs.ABCx-M\_flex.c
+\newcommand{\PrimDIBSABCxMFlex}{\ensuremath{[-0.0020, 0.0015]}} % 20261126T202919Z-final-evaluate-main: primary.H1\_mech.pairs.ABCx-M\_flex.ibs
+\newcommand{\PrimPABCxMFlex}{\ensuremath{0.440}} % 20261126T202919Z-final-evaluate-main: primary.H1\_mech.pairs.ABCx-M\_flex.p
+\newcommand{\PrimDCABCxRW}{\ensuremath{[0.018, 0.044]}} % 20261126T202919Z-final-evaluate-main: primary.H1\_mech.pairs.ABCx-RW.c
+\newcommand{\PrimDIBSABCxRW}{\ensuremath{[-0.0094, -0.0023]}} % 20261126T202919Z-final-evaluate-main: primary.H1\_mech.pairs.ABCx-RW.ibs
+\newcommand{\PrimPABCxRW}{\ensuremath{0.002}} % 20261126T202919Z-final-evaluate-main: primary.H1\_mech.pairs.ABCx-RW.p
+\newcommand{\PrimHTwoSupported}{No} % 20261126T202919Z-final-evaluate-main: primary.H2.supported
+\newcommand{\PrimHTwoP}{\ensuremath{0.909}} % 20261126T202919Z-final-evaluate-main: primary.H2.p
+\newcommand{\PrimHTwoHolm}{\ensuremath{1.000}} % 20261126T202919Z-final-evaluate-main: primary\_holm.H2
+\newcommand{\PrimDCABCDxABCx}{\ensuremath{[-0.008, 0.001]}} % 20261126T202919Z-final-evaluate-main: primary.H2.pairs.ABCDx-ABCx.c
+\newcommand{\PrimDIBSABCDxABCx}{\ensuremath{[-0.0003, 0.0018]}} % 20261126T202919Z-final-evaluate-main: primary.H2.pairs.ABCDx-ABCx.ibs
+\newcommand{\PrimPABCDxABCx}{\ensuremath{0.909}} % 20261126T202919Z-final-evaluate-main: primary.H2.pairs.ABCDx-ABCx.p
+\newcommand{\PrimHThreeSupported}{No} % 20261126T202919Z-final-evaluate-main: primary.H3.supported
+\newcommand{\PrimHThreeP}{\ensuremath{0.514}} % 20261126T202919Z-final-evaluate-main: primary.H3.p
+\newcommand{\PrimHThreeHolm}{\ensuremath{1.000}} % 20261126T202919Z-final-evaluate-main: primary\_holm.H3
+\newcommand{\PrimDCMSDISTS}{\ensuremath{[-0.002, 0.006]}} % 20261126T202919Z-final-evaluate-main: primary.H3.pairs.M\_s-DIST\_s.c
+\newcommand{\PrimDIBSMSDISTS}{\ensuremath{[-0.0002, 0.0003]}} % 20261126T202919Z-final-evaluate-main: primary.H3.pairs.M\_s-DIST\_s.ibs
+\newcommand{\PrimPMSDISTS}{\ensuremath{0.514}} % 20261126T202919Z-final-evaluate-main: primary.H3.pairs.M\_s-DIST\_s.p
+\newcommand{\PrimESupported}{No} % 20261126T202919Z-final-evaluate-main: primary.E.supported
+\newcommand{\PrimEP}{\ensuremath{0.985}} % 20261126T202919Z-final-evaluate-main: primary.E.p
+\newcommand{\PrimEHolm}{\ensuremath{1.000}} % 20261126T202919Z-final-evaluate-main: primary\_holm.E
+\newcommand{\PrimDCBankABCDxEBankABCDx}{\ensuremath{[-0.006, 0.000]}} % 20261126T202919Z-final-evaluate-main: primary.E.pairs.bank\_ABCDx\_E-bank\_ABCDx.c
+\newcommand{\PrimDIBSBankABCDxEBankABCDx}{\ensuremath{[0.0001, 0.0017]}} % 20261126T202919Z-final-evaluate-main: primary.E.pairs.bank\_ABCDx\_E-bank\_ABCDx.ibs
+\newcommand{\PrimPBankABCDxEBankABCDx}{\ensuremath{0.985}} % 20261126T202919Z-final-evaluate-main: primary.E.pairs.bank\_ABCDx\_E-bank\_ABCDx.p
+\newcommand{\PrimResamples}{\ensuremath{1\,000}} % 20261126T202919Z-final-evaluate-main: primary.H1.pairs.*.c.n
+\newcommand{\PrimMCError}{\ensuremath{0.0011}} % 20261126T202919Z-final-evaluate-main: max primary mc\_error
+\newcommand{\PrimCount}{\ensuremath{5}} % 20261126T202919Z-final-evaluate-main: number of primary tests
+\newcommand{\PrimSupportedCount}{\ensuremath{1}} % 20261126T202919Z-final-evaluate-main: primaries supported
+\newcommand{\CWABCDxKm}{\ensuremath{29.66}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx-km.cw
+\newcommand{\CWPABCDxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx-km.p\_one\_sided
+\newcommand{\CWABCxM}{\ensuremath{8.56}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCx-M.cw
+\newcommand{\CWPABCxM}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCx-M.p\_one\_sided
+\newcommand{\CWABCDxM}{\ensuremath{7.98}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx-M.cw
+\newcommand{\CWPABCDxM}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx-M.p\_one\_sided
+\newcommand{\CWABCDxABCx}{\ensuremath{1.70}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx-ABCx.cw
+\newcommand{\CWPABCDxABCx}{\ensuremath{0.044}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx-ABCx.p\_one\_sided
+\newcommand{\CWMBCDxMBCx}{\ensuremath{1.84}} % 20261126T202919Z-final-evaluate-main: clark\_west.MBCDx-MBCx.cw
+\newcommand{\CWPMBCDxMBCx}{\ensuremath{0.033}} % 20261126T202919Z-final-evaluate-main: clark\_west.MBCDx-MBCx.p\_one\_sided
+\newcommand{\CWABCDABC}{\ensuremath{0.39}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCD-ABC.cw
+\newcommand{\CWPABCDABC}{\ensuremath{0.349}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCD-ABC.p\_one\_sided
+\newcommand{\CWCoxABCDxCoxABCx}{\ensuremath{1.39}} % 20261126T202919Z-final-evaluate-main: clark\_west.cox\_ABCDx-cox\_ABCx.cw
+\newcommand{\CWPCoxABCDxCoxABCx}{\ensuremath{0.082}} % 20261126T202919Z-final-evaluate-main: clark\_west.cox\_ABCDx-cox\_ABCx.p\_one\_sided
+\newcommand{\CWGbmABCDGbmABC}{\ensuremath{0.19}} % 20261126T202919Z-final-evaluate-main: clark\_west.gbm\_ABCD-gbm\_ABC.cw
+\newcommand{\CWPGbmABCDGbmABC}{\ensuremath{0.425}} % 20261126T202919Z-final-evaluate-main: clark\_west.gbm\_ABCD-gbm\_ABC.p\_one\_sided
+\newcommand{\CWRsfABCDRsfABC}{\ensuremath{-0.45}} % 20261126T202919Z-final-evaluate-main: clark\_west.rsf\_ABCD-rsf\_ABC.cw
+\newcommand{\CWPRsfABCDRsfABC}{\ensuremath{0.674}} % 20261126T202919Z-final-evaluate-main: clark\_west.rsf\_ABCD-rsf\_ABC.p\_one\_sided
+\newcommand{\CWNnSeqABCDNnSeqABC}{\ensuremath{1.00}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABCD-nn\_seq\_ABC.cw
+\newcommand{\CWPNnSeqABCDNnSeqABC}{\ensuremath{0.158}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABCD-nn\_seq\_ABC.p\_one\_sided
+\newcommand{\CWABCDxBankABCDx}{\ensuremath{0.93}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_bank-ABCDx.cw
+\newcommand{\CWPABCDxBankABCDx}{\ensuremath{0.175}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_bank-ABCDx.p\_one\_sided
+\newcommand{\CWMDIST}{\ensuremath{0.29}} % 20261126T202919Z-final-evaluate-main: clark\_west.M-DIST.cw
+\newcommand{\CWPMDIST}{\ensuremath{0.384}} % 20261126T202919Z-final-evaluate-main: clark\_west.M-DIST.p\_one\_sided
+\newcommand{\CWAGEKm}{\ensuremath{5.62}} % 20261126T202919Z-final-evaluate-main: clark\_west.AGE-km.cw
+\newcommand{\CWPAGEKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.AGE-km.p\_one\_sided
+\newcommand{\CWDISTKm}{\ensuremath{34.13}} % 20261126T202919Z-final-evaluate-main: clark\_west.DIST-km.cw
+\newcommand{\CWPDISTKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.DIST-km.p\_one\_sided
+\newcommand{\CWNnSeqABCDNnStaticABCD}{\ensuremath{1.43}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABCD-nn\_static\_ABCD.cw
+\newcommand{\CWPNnSeqABCDNnStaticABCD}{\ensuremath{0.077}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABCD-nn\_static\_ABCD.p\_one\_sided
+\newcommand{\CWABCDxFfABCDx}{\ensuremath{-0.71}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_ff-ABCDx.cw
+\newcommand{\CWPABCDxFfABCDx}{\ensuremath{0.760}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_ff-ABCDx.p\_one\_sided
+\newcommand{\CWABCDxFfM}{\ensuremath{8.04}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_ff-M.cw
+\newcommand{\CWPABCDxFfM}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_ff-M.p\_one\_sided
+\newcommand{\CWMSDISTS}{\ensuremath{1.22}} % 20261126T202919Z-final-evaluate-main: clark\_west.M\_s-DIST\_s.cw
+\newcommand{\CWPMSDISTS}{\ensuremath{0.111}} % 20261126T202919Z-final-evaluate-main: clark\_west.M\_s-DIST\_s.p\_one\_sided
+\newcommand{\CWMKm}{\ensuremath{33.05}} % 20261126T202919Z-final-evaluate-main: clark\_west.M-km.cw
+\newcommand{\CWPMKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.M-km.p\_one\_sided
+\newcommand{\CWABCKm}{\ensuremath{34.89}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABC-km.cw
+\newcommand{\CWPABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABC-km.p\_one\_sided
+\newcommand{\CWABCDKm}{\ensuremath{35.35}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCD-km.cw
+\newcommand{\CWPABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCD-km.p\_one\_sided
+\newcommand{\CWABCxKm}{\ensuremath{31.32}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCx-km.cw
+\newcommand{\CWPABCxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCx-km.p\_one\_sided
+\newcommand{\CWMBCxKm}{\ensuremath{31.68}} % 20261126T202919Z-final-evaluate-main: clark\_west.MBCx-km.cw
+\newcommand{\CWPMBCxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.MBCx-km.p\_one\_sided
+\newcommand{\CWMBCDxKm}{\ensuremath{30.24}} % 20261126T202919Z-final-evaluate-main: clark\_west.MBCDx-km.cw
+\newcommand{\CWPMBCDxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.MBCDx-km.p\_one\_sided
+\newcommand{\CWABCDxBankKm}{\ensuremath{30.46}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_bank-km.cw
+\newcommand{\CWPABCDxBankKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_bank-km.p\_one\_sided
+\newcommand{\CWABCDxFfKm}{\ensuremath{29.92}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_ff-km.cw
+\newcommand{\CWPABCDxFfKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx\_ff-km.p\_one\_sided
+\newcommand{\CWMFlexKm}{\ensuremath{35.58}} % 20261126T202919Z-final-evaluate-main: clark\_west.M\_flex-km.cw
+\newcommand{\CWPMFlexKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.M\_flex-km.p\_one\_sided
+\newcommand{\CWDISTSKm}{\ensuremath{36.61}} % 20261126T202919Z-final-evaluate-main: clark\_west.DIST\_s-km.cw
+\newcommand{\CWPDISTSKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.DIST\_s-km.p\_one\_sided
+\newcommand{\CWMSKm}{\ensuremath{35.52}} % 20261126T202919Z-final-evaluate-main: clark\_west.M\_s-km.cw
+\newcommand{\CWPMSKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.M\_s-km.p\_one\_sided
+\newcommand{\CWCoxABCxKm}{\ensuremath{32.29}} % 20261126T202919Z-final-evaluate-main: clark\_west.cox\_ABCx-km.cw
+\newcommand{\CWPCoxABCxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.cox\_ABCx-km.p\_one\_sided
+\newcommand{\CWCoxABCDxKm}{\ensuremath{30.23}} % 20261126T202919Z-final-evaluate-main: clark\_west.cox\_ABCDx-km.cw
+\newcommand{\CWPCoxABCDxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.cox\_ABCDx-km.p\_one\_sided
+\newcommand{\CWGbmABCKm}{\ensuremath{36.96}} % 20261126T202919Z-final-evaluate-main: clark\_west.gbm\_ABC-km.cw
+\newcommand{\CWPGbmABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.gbm\_ABC-km.p\_one\_sided
+\newcommand{\CWGbmABCDKm}{\ensuremath{33.57}} % 20261126T202919Z-final-evaluate-main: clark\_west.gbm\_ABCD-km.cw
+\newcommand{\CWPGbmABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.gbm\_ABCD-km.p\_one\_sided
+\newcommand{\CWRsfABCKm}{\ensuremath{37.21}} % 20261126T202919Z-final-evaluate-main: clark\_west.rsf\_ABC-km.cw
+\newcommand{\CWPRsfABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.rsf\_ABC-km.p\_one\_sided
+\newcommand{\CWRsfABCDKm}{\ensuremath{33.64}} % 20261126T202919Z-final-evaluate-main: clark\_west.rsf\_ABCD-km.cw
+\newcommand{\CWPRsfABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.rsf\_ABCD-km.p\_one\_sided
+\newcommand{\CWNnSeqABCDKm}{\ensuremath{39.18}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABCD-km.cw
+\newcommand{\CWPNnSeqABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABCD-km.p\_one\_sided
+\newcommand{\CWNnSeqABCKm}{\ensuremath{39.35}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABC-km.cw
+\newcommand{\CWPNnSeqABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABC-km.p\_one\_sided
+\newcommand{\CWNnStaticABCDKm}{\ensuremath{39.23}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_static\_ABCD-km.cw
+\newcommand{\CWPNnStaticABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_static\_ABCD-km.p\_one\_sided
+\newcommand{\DMABCDxKm}{\ensuremath{-20.72}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-km.dm
+\newcommand{\DMPABCDxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-km.p
+\newcommand{\DMABCxM}{\ensuremath{-4.02}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-M.dm
+\newcommand{\DMPABCxM}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-M.p
+\newcommand{\DMABCDxM}{\ensuremath{-3.24}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-M.dm
+\newcommand{\DMPABCDxM}{\ensuremath{0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-M.p
+\newcommand{\DMNnSeqABCDM}{\ensuremath{-10.84}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-M.dm
+\newcommand{\DMPNnSeqABCDM}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-M.p
+\newcommand{\DMABCDxABCx}{\ensuremath{0.32}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-ABCx.dm
+\newcommand{\DMPABCDxABCx}{\ensuremath{0.748}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-ABCx.p
+\newcommand{\DMMBCDxMBCx}{\ensuremath{0.15}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.MBCDx-MBCx.dm
+\newcommand{\DMPMBCDxMBCx}{\ensuremath{0.882}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.MBCDx-MBCx.p
+\newcommand{\DMABCDABC}{\ensuremath{0.65}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCD-ABC.dm
+\newcommand{\DMPABCDABC}{\ensuremath{0.513}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCD-ABC.p
+\newcommand{\DMCoxABCDxCoxABCx}{\ensuremath{0.66}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.cox\_ABCDx-cox\_ABCx.dm
+\newcommand{\DMPCoxABCDxCoxABCx}{\ensuremath{0.509}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.cox\_ABCDx-cox\_ABCx.p
+\newcommand{\DMGbmABCDGbmABC}{\ensuremath{3.49}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.gbm\_ABCD-gbm\_ABC.dm
+\newcommand{\DMPGbmABCDGbmABC}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.gbm\_ABCD-gbm\_ABC.p
+\newcommand{\DMRsfABCDRsfABC}{\ensuremath{3.98}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.rsf\_ABCD-rsf\_ABC.dm
+\newcommand{\DMPRsfABCDRsfABC}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.rsf\_ABCD-rsf\_ABC.p
+\newcommand{\DMNnSeqABCDNnSeqABC}{\ensuremath{1.88}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-nn\_seq\_ABC.dm
+\newcommand{\DMPNnSeqABCDNnSeqABC}{\ensuremath{0.061}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-nn\_seq\_ABC.p
+\newcommand{\DMABCDxBankABCDx}{\ensuremath{0.11}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_bank-ABCDx.dm
+\newcommand{\DMPABCDxBankABCDx}{\ensuremath{0.916}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_bank-ABCDx.p
+\newcommand{\DMMDIST}{\ensuremath{0.65}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M-DIST.dm
+\newcommand{\DMPMDIST}{\ensuremath{0.517}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M-DIST.p
+\newcommand{\DMAGEKm}{\ensuremath{-3.85}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.AGE-km.dm
+\newcommand{\DMPAGEKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.AGE-km.p
+\newcommand{\DMDISTKm}{\ensuremath{-27.50}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.DIST-km.dm
+\newcommand{\DMPDISTKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.DIST-km.p
+\newcommand{\DMNnSeqABCDNnStaticABCD}{\ensuremath{0.90}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-nn\_static\_ABCD.dm
+\newcommand{\DMPNnSeqABCDNnStaticABCD}{\ensuremath{0.367}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-nn\_static\_ABCD.p
+\newcommand{\DMNnSeqABCDABCDx}{\ensuremath{-9.63}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-ABCDx.dm
+\newcommand{\DMPNnSeqABCDABCDx}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-ABCDx.p
+\newcommand{\DMABCDxFfABCDx}{\ensuremath{2.54}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_ff-ABCDx.dm
+\newcommand{\DMPABCDxFfABCDx}{\ensuremath{0.011}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_ff-ABCDx.p
+\newcommand{\DMABCDxFfM}{\ensuremath{-2.28}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_ff-M.dm
+\newcommand{\DMPABCDxFfM}{\ensuremath{0.023}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_ff-M.p
+\newcommand{\DMABCxMFlex}{\ensuremath{5.83}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-M\_flex.dm
+\newcommand{\DMPABCxMFlex}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-M\_flex.p
+\newcommand{\DMABCxRW}{\ensuremath{-1.38}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-RW.dm
+\newcommand{\DMPABCxRW}{\ensuremath{0.168}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-RW.p
+\newcommand{\DMMSDISTS}{\ensuremath{-0.09}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M\_s-DIST\_s.dm
+\newcommand{\DMPMSDISTS}{\ensuremath{0.925}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M\_s-DIST\_s.p
+\newcommand{\DMABCDxMFlex}{\ensuremath{5.18}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-M\_flex.dm
+\newcommand{\DMPABCDxMFlex}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-M\_flex.p
+\newcommand{\DMABCDxRW}{\ensuremath{-1.22}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-RW.dm
+\newcommand{\DMPABCDxRW}{\ensuremath{0.223}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-RW.p
+\newcommand{\DMMMFlex}{\ensuremath{13.12}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M-M\_flex.dm
+\newcommand{\DMPMMFlex}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M-M\_flex.p
+\newcommand{\DMMFlexRW}{\ensuremath{-4.55}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M\_flex-RW.dm
+\newcommand{\DMPMFlexRW}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M\_flex-RW.p
+\newcommand{\DMMKm}{\ensuremath{-26.58}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M-km.dm
+\newcommand{\DMPMKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M-km.p
+\newcommand{\DMABCKm}{\ensuremath{-24.82}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABC-km.dm
+\newcommand{\DMPABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABC-km.p
+\newcommand{\DMABCDKm}{\ensuremath{-25.57}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCD-km.dm
+\newcommand{\DMPABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCD-km.p
+\newcommand{\DMABCxKm}{\ensuremath{-22.39}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-km.dm
+\newcommand{\DMPABCxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-km.p
+\newcommand{\DMMBCxKm}{\ensuremath{-23.91}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.MBCx-km.dm
+\newcommand{\DMPMBCxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.MBCx-km.p
+\newcommand{\DMMBCDxKm}{\ensuremath{-22.00}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.MBCDx-km.dm
+\newcommand{\DMPMBCDxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.MBCDx-km.p
+\newcommand{\DMABCDxBankKm}{\ensuremath{-21.34}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_bank-km.dm
+\newcommand{\DMPABCDxBankKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_bank-km.p
+\newcommand{\DMABCDxFfKm}{\ensuremath{-19.52}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_ff-km.dm
+\newcommand{\DMPABCDxFfKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx\_ff-km.p
+\newcommand{\DMMFlexKm}{\ensuremath{-21.48}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M\_flex-km.dm
+\newcommand{\DMPMFlexKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M\_flex-km.p
+\newcommand{\DMDISTSKm}{\ensuremath{-29.24}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.DIST\_s-km.dm
+\newcommand{\DMPDISTSKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.DIST\_s-km.p
+\newcommand{\DMMSKm}{\ensuremath{-28.37}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M\_s-km.dm
+\newcommand{\DMPMSKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.M\_s-km.p
+\newcommand{\DMCoxABCxKm}{\ensuremath{-23.54}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.cox\_ABCx-km.dm
+\newcommand{\DMPCoxABCxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.cox\_ABCx-km.p
+\newcommand{\DMCoxABCDxKm}{\ensuremath{-21.25}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.cox\_ABCDx-km.dm
+\newcommand{\DMPCoxABCDxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.cox\_ABCDx-km.p
+\newcommand{\DMGbmABCKm}{\ensuremath{-21.78}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.gbm\_ABC-km.dm
+\newcommand{\DMPGbmABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.gbm\_ABC-km.p
+\newcommand{\DMGbmABCDKm}{\ensuremath{-18.07}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.gbm\_ABCD-km.dm
+\newcommand{\DMPGbmABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.gbm\_ABCD-km.p
+\newcommand{\DMRsfABCKm}{\ensuremath{-25.11}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.rsf\_ABC-km.dm
+\newcommand{\DMPRsfABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.rsf\_ABC-km.p
+\newcommand{\DMRsfABCDKm}{\ensuremath{-23.66}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.rsf\_ABCD-km.dm
+\newcommand{\DMPRsfABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.rsf\_ABCD-km.p
+\newcommand{\DMNnSeqABCDKm}{\ensuremath{-22.15}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-km.dm
+\newcommand{\DMPNnSeqABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABCD-km.p
+\newcommand{\DMNnSeqABCKm}{\ensuremath{-22.19}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABC-km.dm
+\newcommand{\DMPNnSeqABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_seq\_ABC-km.p
+\newcommand{\DMNnStaticABCDKm}{\ensuremath{-23.23}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_static\_ABCD-km.dm
+\newcommand{\DMPNnStaticABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.nn\_static\_ABCD-km.p
+\newcommand{\DMRWKm}{\ensuremath{-8.94}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.RW-km.dm
+\newcommand{\DMPRWKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.RW-km.p
+\newcommand{\MechShareDIST}{\ensuremath{88}} % 20261126T202919Z-final-evaluate-main: 100 (C\_DIST - C\_km) / (C\_ABCDx - C\_km)
+\newcommand{\MechShareMFlex}{\ensuremath{85}} % 20261126T202919Z-final-evaluate-main: 100 (C\_M\_flex - C\_km) / (C\_ABCDx - C\_km)
+\newcommand{\GainOverMFlex}{\ensuremath{0.020}} % 20261126T202919Z-final-evaluate-main: C\_ABCx - C\_M\_flex
+\newcommand{\GainOverKM}{\ensuremath{0.116}} % 20261126T202919Z-final-evaluate-main: C\_ABCDx - C\_km
+\newcommand{\YearsAboveABCDxM}{\ensuremath{8}} % 20261126T202919Z-final-evaluate-main: per\_year C ABCDx > M
+\newcommand{\YearsAboveABCxMFlex}{\ensuremath{9}} % 20261126T202919Z-final-evaluate-main: per\_year C ABCx > M\_flex
+\newcommand{\YearsAboveABCxRW}{\ensuremath{9}} % 20261126T202919Z-final-evaluate-main: per\_year C ABCx > RW
+\newcommand{\YearsAboveABCDxABCx}{\ensuremath{1}} % 20261126T202919Z-final-evaluate-main: per\_year C ABCDx > ABCx
+\newcommand{\YearsAboveNnSeqABCDM}{\ensuremath{8}} % 20261126T202919Z-final-evaluate-main: per\_year C nn\_seq\_ABCD > M
+\newcommand{\YearsAboveMFlexRW}{\ensuremath{7}} % 20261126T202919Z-final-evaluate-main: per\_year C M\_flex > RW
+\newcommand{\YearMinABCDx}{\ensuremath{0.599}} % 20261126T202919Z-final-evaluate-main: min per-year C ABCDx
+\newcommand{\YearMaxABCDx}{\ensuremath{0.632}} % 20261126T202919Z-final-evaluate-main: max per-year C ABCDx
+\newcommand{\YearMinM}{\ensuremath{0.583}} % 20261126T202919Z-final-evaluate-main: min per-year C M
+\newcommand{\YearMaxM}{\ensuremath{0.619}} % 20261126T202919Z-final-evaluate-main: max per-year C M
+\newcommand{\YearMinMFlex}{\ensuremath{0.575}} % 20261126T202919Z-final-evaluate-main: min per-year C M\_flex
+\newcommand{\YearMaxMFlex}{\ensuremath{0.612}} % 20261126T202919Z-final-evaluate-main: max per-year C M\_flex
+\newcommand{\YearMinRW}{\ensuremath{0.561}} % 20261126T202919Z-final-evaluate-main: min per-year C RW
+\newcommand{\YearMaxRW}{\ensuremath{0.631}} % 20261126T202919Z-final-evaluate-main: max per-year C RW
+\newcommand{\CalMaxGapFive}{\ensuremath{0.102}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_5d max |pred - obs|
+\newcommand{\CalTopObsFive}{\ensuremath{0.565}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_5d top decile observed
+\newcommand{\CalBottomObsFive}{\ensuremath{0.104}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_5d bottom decile observed
+\newcommand{\CalMaxGapTen}{\ensuremath{0.029}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_10d max |pred - obs|
+\newcommand{\CalTopObsTen}{\ensuremath{0.718}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_10d top decile observed
+\newcommand{\CalBottomObsTen}{\ensuremath{0.282}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_10d bottom decile observed
+\newcommand{\CalMaxGapTwenty}{\ensuremath{0.075}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d max |pred - obs|
+\newcommand{\CalTopObsTwenty}{\ensuremath{0.862}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d top decile observed
+\newcommand{\CalBottomObsTwenty}{\ensuremath{0.595}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d bottom decile observed
+\newcommand{\BoundaryABCDxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCDx-boundary:km
+\newcommand{\BoundaryABCxM}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCx-boundary:M
+\newcommand{\BoundaryABCDxM}{No} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCDx-boundary:M
+\newcommand{\BoundaryABCDxABCx}{No} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCDx-boundary:ABCx
+\newcommand{\BoundaryMKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:M-boundary:km
+\newcommand{\BoundaryABCxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCx-boundary:km
+\newcommand{\SlicesBeatKM}{\ensuremath{7}} % 20261126T202919Z-final-evaluate-main: slices where ABCDx beats KM
+\newcommand{\SlicesCount}{\ensuremath{8}} % 20261126T202919Z-final-evaluate-main: number of slices
+\newcommand{\BEBankABCDxEBankABCDx}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_ABCDx\_E-bank\_ABCDx
+\newcommand{\BEBankMEBankM}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_M\_E-bank\_M
+\newcommand{\BEBankABCDxBankKm}{Yes} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_ABCDx-bank\_km
+\newcommand{\BEBankMBankKm}{Yes} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_M-bank\_km
+\newcommand{\BEBankABCDxEOcrOnlyBankABCDx}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_ABCDx\_E@ocr\_only-bank\_ABCDx
+\newcommand{\BEBankMEOcrOnlyBankM}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_M\_E@ocr\_only-bank\_M
+\newcommand{\BEBankABCDxEMarginZeroBankABCDx}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_ABCDx\_E@margin0-bank\_ABCDx
+\newcommand{\BEBankMEMarginZeroBankM}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_M\_E@margin0-bank\_M
+\newcommand{\BEBankABCDxEMarginTwoZeroBankABCDx}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_ABCDx\_E@margin20-bank\_ABCDx
+\newcommand{\BEBankMEMarginTwoZeroBankM}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_M\_E@margin20-bank\_M
+\newcommand{\BEBankABCDxEAllAliasesBankABCDx}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_ABCDx\_E@all\_aliases-bank\_ABCDx
+\newcommand{\BEBankMEAllAliasesBankM}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_M\_E@all\_aliases-bank\_M
+\newcommand{\BECBankABCDx}{\ensuremath{0.615}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_ABCDx
+\newcommand{\BEIBSBankABCDx}{\ensuremath{0.1979}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_ABCDx
+\newcommand{\BECBankABCDxE}{\ensuremath{0.613}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_ABCDx\_E
+\newcommand{\BEIBSBankABCDxE}{\ensuremath{0.1988}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_ABCDx\_E
+\newcommand{\BECBankM}{\ensuremath{0.603}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_M
+\newcommand{\BEIBSBankM}{\ensuremath{0.1987}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_M
+\newcommand{\BECBankME}{\ensuremath{0.605}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_M\_E
+\newcommand{\BEIBSBankME}{\ensuremath{0.1995}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_M\_E
+\newcommand{\BECBankKm}{\ensuremath{0.500}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_km
+\newcommand{\BEIBSBankKm}{\ensuremath{0.2093}} % 20261126T202919Z-final-evaluate-main: block\_e.metrics.bank\_km
+\newcommand{\AttribInformative}{\ensuremath{0}} % 20261126T202919Z-final-evaluate-main: attribution informative count
+\newcommand{\AttribCount}{\ensuremath{14}} % 20261126T202919Z-final-evaluate-main: attribution features
+\newcommand{\AttribResamples}{\ensuremath{2\,000}} % 20261126T202919Z-final-evaluate-main: attribution ibs\_resamples
+\newcommand{\KOneFiveImprovesABCDxKm}{Yes} % 20261127T025116Z-final-evaluate-k1\_5: improves ABCDx-km
+\newcommand{\KOneFiveCKm}{\ensuremath{0.500}} % 20261127T025116Z-final-evaluate-k1\_5: pooled.metrics.km.uno\_c\_strat
+\newcommand{\KOneFiveCRW}{\ensuremath{0.570}} % 20261127T025116Z-final-evaluate-k1\_5: pooled.metrics.RW.uno\_c\_strat
+\newcommand{\KOneFiveCM}{\ensuremath{0.583}} % 20261127T025116Z-final-evaluate-k1\_5: pooled.metrics.M.uno\_c\_strat
+\newcommand{\KOneFiveCABCDx}{\ensuremath{0.601}} % 20261127T025116Z-final-evaluate-k1\_5: pooled.metrics.ABCDx.uno\_c\_strat
+\newcommand{\KOneFiveDCABCDxM}{\ensuremath{[0.009, 0.029]}} % 20261127T025116Z-final-evaluate-k1\_5: ABCDx-M:uno\_c
+\newcommand{\KOneFiveDIBSABCDxM}{\ensuremath{[-0.0034, 0.0001]}} % 20261127T025116Z-final-evaluate-k1\_5: ABCDx-M:ibs
+\newcommand{\KOneFiveImprovesABCDxM}{No} % 20261127T025116Z-final-evaluate-k1\_5: improves
+\newcommand{\KOneFiveShuffledMax}{\ensuremath{0.501}} % 20261127T025116Z-final-evaluate-k1\_5: max shuffled mean
+\newcommand{\KOneFiveSharpeModel}{\ensuremath{0.08}} % 20261127T035918Z-final-backtest-k1\_5: open.pooled
+\newcommand{\KOneFiveSharpeMech}{\ensuremath{0.38}} % 20261127T035918Z-final-backtest-k1\_5: open.pooled
+\newcommand{\KOneFiveSharpeDC}{\ensuremath{0.52}} % 20261127T035918Z-final-backtest-k1\_5: open.pooled
+\newcommand{\KOneFiveCWPABCDxM}{\ensuremath{<0.001}} % 20261127T025116Z-final-evaluate-k1\_5: clark\_west.ABCDx-M
+\newcommand{\KOneFiveYearsAboveABCDxM}{\ensuremath{10}} % 20261127T025116Z-final-evaluate-k1\_5: per\_year ABCDx > M
+\newcommand{\KTwoImprovesABCDxKm}{Yes} % 20261126T202919Z-final-evaluate-main: improves ABCDx-km
+\newcommand{\KTwoCKm}{\ensuremath{0.500}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.km.uno\_c\_strat
+\newcommand{\KTwoCRW}{\ensuremath{0.588}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.RW.uno\_c\_strat
+\newcommand{\KTwoCM}{\ensuremath{0.602}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.M.uno\_c\_strat
+\newcommand{\KTwoCABCDx}{\ensuremath{0.616}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABCDx.uno\_c\_strat
+\newcommand{\KTwoDCABCDxM}{\ensuremath{[0.002, 0.025]}} % 20261126T202919Z-final-evaluate-main: ABCDx-M:uno\_c
+\newcommand{\KTwoDIBSABCDxM}{\ensuremath{[-0.0037, 0.0005]}} % 20261126T202919Z-final-evaluate-main: ABCDx-M:ibs
+\newcommand{\KTwoImprovesABCDxM}{No} % 20261126T202919Z-final-evaluate-main: improves
+\newcommand{\KTwoShuffledMax}{\ensuremath{0.503}} % 20261126T202919Z-final-evaluate-main: max shuffled mean
+\newcommand{\KTwoSharpeModel}{\ensuremath{0.39}} % 20261127T071908Z-final-backtest-k2: open.pooled
+\newcommand{\KTwoSharpeMech}{\ensuremath{0.43}} % 20261127T071908Z-final-backtest-k2: open.pooled
+\newcommand{\KTwoSharpeDC}{\ensuremath{0.53}} % 20261127T071908Z-final-backtest-k2: open.pooled
+\newcommand{\KTwoCWPABCDxM}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx-M
+\newcommand{\KTwoYearsAboveABCDxM}{\ensuremath{8}} % 20261126T202919Z-final-evaluate-main: per\_year ABCDx > M
+\newcommand{\KThreeImprovesABCDxKm}{Yes} % 20261127T025116Z-final-evaluate-k3: improves ABCDx-km
+\newcommand{\KThreeCKm}{\ensuremath{0.500}} % 20261127T025116Z-final-evaluate-k3: pooled.metrics.km.uno\_c\_strat
+\newcommand{\KThreeCRW}{\ensuremath{0.638}} % 20261127T025116Z-final-evaluate-k3: pooled.metrics.RW.uno\_c\_strat
+\newcommand{\KThreeCM}{\ensuremath{0.646}} % 20261127T025116Z-final-evaluate-k3: pooled.metrics.M.uno\_c\_strat
+\newcommand{\KThreeCABCDx}{\ensuremath{0.654}} % 20261127T025116Z-final-evaluate-k3: pooled.metrics.ABCDx.uno\_c\_strat
+\newcommand{\KThreeDCABCDxM}{\ensuremath{[-0.004, 0.018]}} % 20261127T025116Z-final-evaluate-k3: ABCDx-M:uno\_c
+\newcommand{\KThreeDIBSABCDxM}{\ensuremath{[-0.0022, 0.0014]}} % 20261127T025116Z-final-evaluate-k3: ABCDx-M:ibs
+\newcommand{\KThreeImprovesABCDxM}{No} % 20261127T025116Z-final-evaluate-k3: improves
+\newcommand{\KThreeShuffledMax}{\ensuremath{0.499}} % 20261127T025116Z-final-evaluate-k3: max shuffled mean
+\newcommand{\KThreeSharpeModel}{\ensuremath{0.51}} % 20261127T035823Z-final-backtest-k3: open.pooled
+\newcommand{\KThreeSharpeMech}{\ensuremath{0.46}} % 20261127T035823Z-final-backtest-k3: open.pooled
+\newcommand{\KThreeSharpeDC}{\ensuremath{0.63}} % 20261127T035823Z-final-backtest-k3: open.pooled
+\newcommand{\KThreeCWPABCDxM}{\ensuremath{<0.001}} % 20261127T025116Z-final-evaluate-k3: clark\_west.ABCDx-M
+\newcommand{\KThreeYearsAboveABCDxM}{\ensuremath{6}} % 20261127T025116Z-final-evaluate-k3: per\_year ABCDx > M
+\newcommand{\BtOpenHFiveSupported}{No} % 20261127T071908Z-final-backtest-k2: open.h5\_supported
+\newcommand{\BtOpenSharpeModel}{\ensuremath{0.39}} % 20261127T071908Z-final-backtest-k2: open.pooled.model.sharpe
+\newcommand{\BtOpenRetModel}{\ensuremath{3.5}} % 20261127T071908Z-final-backtest-k2: open.pooled.model.ann\_return x100
+\newcommand{\BtOpenMDDModel}{\ensuremath{-22.7}} % 20261127T071908Z-final-backtest-k2: open.pooled.model.max\_drawdown x100
+\newcommand{\BtOpenSharpeModelLow}{\ensuremath{0.52}} % 20261127T071908Z-final-backtest-k2: open.pooled.model@0.2\.sharpe
+\newcommand{\BtOpenSharpeModelHigh}{\ensuremath{0.13}} % 20261127T071908Z-final-backtest-k2: open.pooled.model@0.8\.sharpe
+\newcommand{\BtOpenSharpeMech}{\ensuremath{0.43}} % 20261127T071908Z-final-backtest-k2: open.pooled.mech.sharpe
+\newcommand{\BtOpenRetMech}{\ensuremath{4.1}} % 20261127T071908Z-final-backtest-k2: open.pooled.mech.ann\_return x100
+\newcommand{\BtOpenMDDMech}{\ensuremath{-23.7}} % 20261127T071908Z-final-backtest-k2: open.pooled.mech.max\_drawdown x100
+\newcommand{\BtOpenSharpeMechLow}{\ensuremath{0.57}} % 20261127T071908Z-final-backtest-k2: open.pooled.mech@0.2\.sharpe
+\newcommand{\BtOpenSharpeMechHigh}{\ensuremath{0.17}} % 20261127T071908Z-final-backtest-k2: open.pooled.mech@0.8\.sharpe
+\newcommand{\BtOpenSharpeDc}{\ensuremath{0.53}} % 20261127T071908Z-final-backtest-k2: open.pooled.dc.sharpe
+\newcommand{\BtOpenRetDc}{\ensuremath{5.6}} % 20261127T071908Z-final-backtest-k2: open.pooled.dc.ann\_return x100
+\newcommand{\BtOpenMDDDc}{\ensuremath{-23.7}} % 20261127T071908Z-final-backtest-k2: open.pooled.dc.max\_drawdown x100
+\newcommand{\BtOpenSharpeDcLow}{\ensuremath{0.65}} % 20261127T071908Z-final-backtest-k2: open.pooled.dc@0.2\.sharpe
+\newcommand{\BtOpenSharpeDcHigh}{\ensuremath{0.29}} % 20261127T071908Z-final-backtest-k2: open.pooled.dc@0.8\.sharpe
+\newcommand{\BtOpenSharpeBh}{\ensuremath{0.70}} % 20261127T071908Z-final-backtest-k2: open.pooled.bh.sharpe
+\newcommand{\BtOpenRetBh}{\ensuremath{13.9}} % 20261127T071908Z-final-backtest-k2: open.pooled.bh.ann\_return x100
+\newcommand{\BtOpenMDDBh}{\ensuremath{-45.5}} % 20261127T071908Z-final-backtest-k2: open.pooled.bh.max\_drawdown x100
+\newcommand{\BtOpenSharpeBhLow}{\ensuremath{0.70}} % 20261127T071908Z-final-backtest-k2: open.pooled.bh@0.2\.sharpe
+\newcommand{\BtOpenSharpeBhHigh}{\ensuremath{0.69}} % 20261127T071908Z-final-backtest-k2: open.pooled.bh@0.8\.sharpe
+\newcommand{\BtOpenSDModelDc}{\ensuremath{[-0.36, 0.09]}} % 20261127T071908Z-final-backtest-k2: open.sharpe\_diffs.model-dc
+\newcommand{\BtOpenSDModelBh}{\ensuremath{[-0.64, 0.16]}} % 20261127T071908Z-final-backtest-k2: open.sharpe\_diffs.model-bh
+\newcommand{\BtOpenSDModelMech}{\ensuremath{[-0.21, 0.12]}} % 20261127T071908Z-final-backtest-k2: open.sharpe\_diffs.model-mech
+\newcommand{\BtOpenSDMechDc}{\ensuremath{[-0.31, 0.07]}} % 20261127T071908Z-final-backtest-k2: open.sharpe\_diffs.mech-dc
+\newcommand{\BtOpenSDDcBh}{\ensuremath{[-0.49, 0.28]}} % 20261127T071908Z-final-backtest-k2: open.sharpe\_diffs.dc-bh
+\newcommand{\BtOpenDSRModel}{\ensuremath{0.58}} % 20261127T071908Z-final-backtest-k2: open.dsr.model.dsr
+\newcommand{\BtOpenPSRModel}{\ensuremath{0.89}} % 20261127T071908Z-final-backtest-k2: open.psr.model
+\newcommand{\BtOpenDSRMech}{\ensuremath{0.63}} % 20261127T071908Z-final-backtest-k2: open.dsr.mech.dsr
+\newcommand{\BtOpenPSRMech}{\ensuremath{0.91}} % 20261127T071908Z-final-backtest-k2: open.psr.mech
+\newcommand{\BtOpenDSRTrials}{\ensuremath{16}} % 20261127T071908Z-final-backtest-k2: open.n\_trials
+\newcommand{\BtOpenDSRNOneSix}{\ensuremath{0.55}} % 20261127T071908Z-final-backtest-k2: open.dsr\_n.16
+\newcommand{\BtOpenDSRNThreeTwo}{\ensuremath{0.48}} % 20261127T071908Z-final-backtest-k2: open.dsr\_n.32
+\newcommand{\BtOpenDSRNNineSix}{\ensuremath{0.38}} % 20261127T071908Z-final-backtest-k2: open.dsr\_n.96
+\newcommand{\BtOpenSubTwoZeroOneSevenTwoZeroOneNineModel}{\ensuremath{0.31}} % 20261127T071908Z-final-backtest-k2: open.subperiod\_sharpe.2017-2019.model
+\newcommand{\BtOpenSubTwoZeroOneSevenTwoZeroOneNineBh}{\ensuremath{0.74}} % 20261127T071908Z-final-backtest-k2: open.subperiod\_sharpe.2017-2019.bh
+\newcommand{\BtOpenSubTwoZeroTwoZeroTwoZeroTwoOneModel}{\ensuremath{1.30}} % 20261127T071908Z-final-backtest-k2: open.subperiod\_sharpe.2020-2021.model
+\newcommand{\BtOpenSubTwoZeroTwoZeroTwoZeroTwoOneBh}{\ensuremath{1.42}} % 20261127T071908Z-final-backtest-k2: open.subperiod\_sharpe.2020-2021.bh
+\newcommand{\BtOpenSubTwoZeroTwoTwoModel}{\ensuremath{-0.76}} % 20261127T071908Z-final-backtest-k2: open.subperiod\_sharpe.2022.model
+\newcommand{\BtOpenSubTwoZeroTwoTwoBh}{\ensuremath{-1.08}} % 20261127T071908Z-final-backtest-k2: open.subperiod\_sharpe.2022.bh
+\newcommand{\BtOpenSubTwoZeroTwoThreeTwoZeroTwoSixModel}{\ensuremath{0.08}} % 20261127T071908Z-final-backtest-k2: open.subperiod\_sharpe.2023-2026.model
+\newcommand{\BtOpenSubTwoZeroTwoThreeTwoZeroTwoSixBh}{\ensuremath{0.94}} % 20261127T071908Z-final-backtest-k2: open.subperiod\_sharpe.2023-2026.bh
+\newcommand{\BtOpenSharpeModelSkip}{\ensuremath{0.42}} % 20261127T071908Z-final-backtest-k2: open.pooled.model@skip\_unknown\_limits.sharpe
+\newcommand{\BtOpenSharpeModelFloor}{\ensuremath{0.33}} % 20261127T071908Z-final-backtest-k2: open.pooled.model@fail\_on\_floor\_close.sharpe
+\newcommand{\BtOpenSharpeDcSkip}{\ensuremath{0.55}} % 20261127T071908Z-final-backtest-k2: open.pooled.dc@skip\_unknown\_limits.sharpe
+\newcommand{\BtOpenSharpeDcFloor}{\ensuremath{0.47}} % 20261127T071908Z-final-backtest-k2: open.pooled.dc@fail\_on\_floor\_close.sharpe
+\newcommand{\BtOpenSharpeBhSkip}{\ensuremath{0.67}} % 20261127T071908Z-final-backtest-k2: open.pooled.bh@skip\_unknown\_limits.sharpe
+\newcommand{\BtOpenSharpeBhFloor}{\ensuremath{0.70}} % 20261127T071908Z-final-backtest-k2: open.pooled.bh@fail\_on\_floor\_close.sharpe
+\newcommand{\BtOpenTradesModel}{\ensuremath{2\,627}} % 20261127T071908Z-final-backtest-k2: open.folds.*.model.trades
+\newcommand{\BtCloseHFiveSupported}{No} % 20261127T071908Z-final-backtest-k2: close.h5\_supported
+\newcommand{\BtCloseSharpeModel}{\ensuremath{0.46}} % 20261127T071908Z-final-backtest-k2: close.pooled.model.sharpe
+\newcommand{\BtCloseRetModel}{\ensuremath{3.4}} % 20261127T071908Z-final-backtest-k2: close.pooled.model.ann\_return x100
+\newcommand{\BtCloseMDDModel}{\ensuremath{-22.4}} % 20261127T071908Z-final-backtest-k2: close.pooled.model.max\_drawdown x100
+\newcommand{\BtCloseSharpeModelLow}{\ensuremath{0.64}} % 20261127T071908Z-final-backtest-k2: close.pooled.model@0.2\.sharpe
+\newcommand{\BtCloseSharpeModelHigh}{\ensuremath{0.12}} % 20261127T071908Z-final-backtest-k2: close.pooled.model@0.8\.sharpe
+\newcommand{\BtCloseSharpeMech}{\ensuremath{0.48}} % 20261127T071908Z-final-backtest-k2: close.pooled.mech.sharpe
+\newcommand{\BtCloseRetMech}{\ensuremath{4.0}} % 20261127T071908Z-final-backtest-k2: close.pooled.mech.ann\_return x100
+\newcommand{\BtCloseMDDMech}{\ensuremath{-22.9}} % 20261127T071908Z-final-backtest-k2: close.pooled.mech.max\_drawdown x100
+\newcommand{\BtCloseSharpeMechLow}{\ensuremath{0.64}} % 20261127T071908Z-final-backtest-k2: close.pooled.mech@0.2\.sharpe
+\newcommand{\BtCloseSharpeMechHigh}{\ensuremath{0.17}} % 20261127T071908Z-final-backtest-k2: close.pooled.mech@0.8\.sharpe
+\newcommand{\BtCloseSharpeDc}{\ensuremath{0.61}} % 20261127T071908Z-final-backtest-k2: close.pooled.dc.sharpe
+\newcommand{\BtCloseRetDc}{\ensuremath{5.9}} % 20261127T071908Z-final-backtest-k2: close.pooled.dc.ann\_return x100
+\newcommand{\BtCloseMDDDc}{\ensuremath{-22.4}} % 20261127T071908Z-final-backtest-k2: close.pooled.dc.max\_drawdown x100
+\newcommand{\BtCloseSharpeDcLow}{\ensuremath{0.75}} % 20261127T071908Z-final-backtest-k2: close.pooled.dc@0.2\.sharpe
+\newcommand{\BtCloseSharpeDcHigh}{\ensuremath{0.34}} % 20261127T071908Z-final-backtest-k2: close.pooled.dc@0.8\.sharpe
+\newcommand{\BtCloseSharpeBh}{\ensuremath{0.67}} % 20261127T071908Z-final-backtest-k2: close.pooled.bh.sharpe
+\newcommand{\BtCloseRetBh}{\ensuremath{11.9}} % 20261127T071908Z-final-backtest-k2: close.pooled.bh.ann\_return x100
+\newcommand{\BtCloseMDDBh}{\ensuremath{-44.2}} % 20261127T071908Z-final-backtest-k2: close.pooled.bh.max\_drawdown x100
+\newcommand{\BtCloseSharpeBhLow}{\ensuremath{0.68}} % 20261127T071908Z-final-backtest-k2: close.pooled.bh@0.2\.sharpe
+\newcommand{\BtCloseSharpeBhHigh}{\ensuremath{0.66}} % 20261127T071908Z-final-backtest-k2: close.pooled.bh@0.8\.sharpe
+\newcommand{\BtCloseSDModelDc}{\ensuremath{[-0.51, 0.15]}} % 20261127T071908Z-final-backtest-k2: close.sharpe\_diffs.model-dc
+\newcommand{\BtCloseSDModelBh}{\ensuremath{[-0.65, 0.30]}} % 20261127T071908Z-final-backtest-k2: close.sharpe\_diffs.model-bh
+\newcommand{\BtCloseSDModelMech}{\ensuremath{[-0.28, 0.23]}} % 20261127T071908Z-final-backtest-k2: close.sharpe\_diffs.model-mech
+\newcommand{\BtCloseSDMechDc}{\ensuremath{[-0.36, 0.05]}} % 20261127T071908Z-final-backtest-k2: close.sharpe\_diffs.mech-dc
+\newcommand{\BtCloseSDDcBh}{\ensuremath{[-0.44, 0.42]}} % 20261127T071908Z-final-backtest-k2: close.sharpe\_diffs.dc-bh
+\newcommand{\BtCloseDSRModel}{\ensuremath{0.62}} % 20261127T071908Z-final-backtest-k2: close.dsr.model.dsr
+\newcommand{\BtClosePSRModel}{\ensuremath{0.92}} % 20261127T071908Z-final-backtest-k2: close.psr.model
+\newcommand{\BtCloseDSRMech}{\ensuremath{0.64}} % 20261127T071908Z-final-backtest-k2: close.dsr.mech.dsr
+\newcommand{\BtClosePSRMech}{\ensuremath{0.93}} % 20261127T071908Z-final-backtest-k2: close.psr.mech
+\newcommand{\BtCloseDSRTrials}{\ensuremath{16}} % 20261127T071908Z-final-backtest-k2: close.n\_trials
+\newcommand{\BtCloseDSRNOneSix}{\ensuremath{0.64}} % 20261127T071908Z-final-backtest-k2: close.dsr\_n.16
+\newcommand{\BtCloseDSRNThreeTwo}{\ensuremath{0.57}} % 20261127T071908Z-final-backtest-k2: close.dsr\_n.32
+\newcommand{\BtCloseDSRNNineSix}{\ensuremath{0.47}} % 20261127T071908Z-final-backtest-k2: close.dsr\_n.96
+\newcommand{\BtCloseSubTwoZeroOneSevenTwoZeroOneNineModel}{\ensuremath{0.37}} % 20261127T071908Z-final-backtest-k2: close.subperiod\_sharpe.2017-2019.model
+\newcommand{\BtCloseSubTwoZeroOneSevenTwoZeroOneNineBh}{\ensuremath{0.72}} % 20261127T071908Z-final-backtest-k2: close.subperiod\_sharpe.2017-2019.bh
+\newcommand{\BtCloseSubTwoZeroTwoZeroTwoZeroTwoOneModel}{\ensuremath{1.50}} % 20261127T071908Z-final-backtest-k2: close.subperiod\_sharpe.2020-2021.model
+\newcommand{\BtCloseSubTwoZeroTwoZeroTwoZeroTwoOneBh}{\ensuremath{1.56}} % 20261127T071908Z-final-backtest-k2: close.subperiod\_sharpe.2020-2021.bh
+\newcommand{\BtCloseSubTwoZeroTwoTwoModel}{\ensuremath{-0.52}} % 20261127T071908Z-final-backtest-k2: close.subperiod\_sharpe.2022.model
+\newcommand{\BtCloseSubTwoZeroTwoTwoBh}{\ensuremath{-1.45}} % 20261127T071908Z-final-backtest-k2: close.subperiod\_sharpe.2022.bh
+\newcommand{\BtCloseSubTwoZeroTwoThreeTwoZeroTwoSixModel}{\ensuremath{-0.06}} % 20261127T071908Z-final-backtest-k2: close.subperiod\_sharpe.2023-2026.model
+\newcommand{\BtCloseSubTwoZeroTwoThreeTwoZeroTwoSixBh}{\ensuremath{0.92}} % 20261127T071908Z-final-backtest-k2: close.subperiod\_sharpe.2023-2026.bh
+\newcommand{\BtCloseSharpeModelSkip}{\ensuremath{0.54}} % 20261127T071908Z-final-backtest-k2: close.pooled.model@skip\_unknown\_limits.sharpe
+\newcommand{\BtCloseSharpeModelFloor}{\ensuremath{0.46}} % 20261127T071908Z-final-backtest-k2: close.pooled.model@fail\_on\_floor\_close.sharpe
+\newcommand{\BtCloseSharpeDcSkip}{\ensuremath{0.64}} % 20261127T071908Z-final-backtest-k2: close.pooled.dc@skip\_unknown\_limits.sharpe
+\newcommand{\BtCloseSharpeDcFloor}{\ensuremath{0.61}} % 20261127T071908Z-final-backtest-k2: close.pooled.dc@fail\_on\_floor\_close.sharpe
+\newcommand{\BtCloseSharpeBhSkip}{\ensuremath{0.63}} % 20261127T071908Z-final-backtest-k2: close.pooled.bh@skip\_unknown\_limits.sharpe
+\newcommand{\BtCloseSharpeBhFloor}{\ensuremath{0.67}} % 20261127T071908Z-final-backtest-k2: close.pooled.bh@fail\_on\_floor\_close.sharpe
+\newcommand{\BtCloseTradesModel}{\ensuremath{2\,621}} % 20261127T071908Z-final-backtest-k2: close.folds.*.model.trades
+\newcommand{\BtTauMin}{\ensuremath{0.25}} % 20261127T071908Z-final-backtest-k2: open.folds.*.tau.model min
+\newcommand{\BtTauMax}{\ensuremath{0.60}} % 20261127T071908Z-final-backtest-k2: open.folds.*.tau.model max
+\newcommand{\HTwoCoefSpxRetXdir}{\ensuremath{-0.016}} % 20261127T072640Z-final-h2: signs.spx\_ret\_xdir.coef
+\newcommand{\HTwoPSpxRetXdir}{\ensuremath{0.310}} % 20261127T072640Z-final-h2: signs.spx\_ret\_xdir.p
+\newcommand{\HTwoHolmSpxRetXdir}{\ensuremath{0.369}} % 20261127T072640Z-final-h2: signs.spx\_ret\_xdir.p\_holm
+\newcommand{\HTwoYearsSpxRetXdir}{\ensuremath{6}} % 20261127T072640Z-final-h2: yearly\_signs.spx\_ret\_xdir.predicted\_sign\_years
+\newcommand{\HTwoNonzeroSpxRetXdir}{\ensuremath{6}} % 20261127T072640Z-final-h2: yearly\_signs.spx\_ret\_xdir.nonzero\_years
+\newcommand{\HTwoBinomPSpxRetXdir}{\ensuremath{0.016}} % 20261127T072640Z-final-h2: yearly\_signs.spx\_ret\_xdir.binomial\_p
+\newcommand{\HTwoCoefNasdaqRetXdir}{\ensuremath{-0.042}} % 20261127T072640Z-final-h2: signs.nasdaq\_ret\_xdir.coef
+\newcommand{\HTwoPNasdaqRetXdir}{\ensuremath{0.082}} % 20261127T072640Z-final-h2: signs.nasdaq\_ret\_xdir.p
+\newcommand{\HTwoHolmNasdaqRetXdir}{\ensuremath{0.247}} % 20261127T072640Z-final-h2: signs.nasdaq\_ret\_xdir.p\_holm
+\newcommand{\HTwoYearsNasdaqRetXdir}{\ensuremath{10}} % 20261127T072640Z-final-h2: yearly\_signs.nasdaq\_ret\_xdir.predicted\_sign\_years
+\newcommand{\HTwoNonzeroNasdaqRetXdir}{\ensuremath{10}} % 20261127T072640Z-final-h2: yearly\_signs.nasdaq\_ret\_xdir.nonzero\_years
+\newcommand{\HTwoBinomPNasdaqRetXdir}{\ensuremath{0.001}} % 20261127T072640Z-final-h2: yearly\_signs.nasdaq\_ret\_xdir.binomial\_p
+\newcommand{\HTwoCoefVixChgXdir}{\ensuremath{+0.015}} % 20261127T072640Z-final-h2: signs.vix\_chg\_xdir.coef
+\newcommand{\HTwoPVixChgXdir}{\ensuremath{0.184}} % 20261127T072640Z-final-h2: signs.vix\_chg\_xdir.p
+\newcommand{\HTwoHolmVixChgXdir}{\ensuremath{0.369}} % 20261127T072640Z-final-h2: signs.vix\_chg\_xdir.p\_holm
+\newcommand{\HTwoYearsVixChgXdir}{\ensuremath{6}} % 20261127T072640Z-final-h2: yearly\_signs.vix\_chg\_xdir.predicted\_sign\_years
+\newcommand{\HTwoNonzeroVixChgXdir}{\ensuremath{10}} % 20261127T072640Z-final-h2: yearly\_signs.vix\_chg\_xdir.nonzero\_years
+\newcommand{\HTwoBinomPVixChgXdir}{\ensuremath{0.377}} % 20261127T072640Z-final-h2: yearly\_signs.vix\_chg\_xdir.binomial\_p
+\newcommand{\HTwoBankWald}{\ensuremath{5.74}} % 20261127T072640Z-final-h2: bank\_joint.date.wald
+\newcommand{\HTwoBankDf}{\ensuremath{6}} % 20261127T072640Z-final-h2: bank\_joint.date.df
+\newcommand{\HTwoBankP}{\ensuremath{0.453}} % 20261127T072640Z-final-h2: bank\_joint.p
+\newcommand{\HTwoRows}{\ensuremath{139\,241}} % 20261127T072640Z-final-h2: rows
+\newcommand{\HFourCoef}{\ensuremath{-0.058}} % 20261127T072220Z-final-rq4: primary\_single\_index.real.coef
+\newcommand{\HFourZ}{\ensuremath{-1.42}} % 20261127T072220Z-final-rq4: primary\_single\_index.real.z (conservative)
+\newcommand{\HFourP}{\ensuremath{0.922}} % 20261127T072220Z-final-rq4: primary\_single\_index.real.p
+\newcommand{\HFourPostRows}{\ensuremath{11\,916}} % 20261127T072220Z-final-rq4: real.post\_rows
+\newcommand{\HFourRows}{\ensuremath{55\,703}} % 20261127T072220Z-final-rq4: real.rows
+\newcommand{\HFourRank}{\ensuremath{4}} % 20261127T072220Z-final-rq4: rank\_of\_real
+\newcommand{\HFourPlacebos}{\ensuremath{8}} % 20261127T072220Z-final-rq4: number of placebos
+\newcommand{\HFourSupported}{No} % 20261127T072220Z-final-rq4: h4\_supported
+\newcommand{\HFourWaldP}{\ensuremath{0.733}} % 20261127T072220Z-final-rq4: secondary\_wald\_10.real max(date, two\_way) p
+\newcommand{\SurvivalRows}{\ensuremath{139\,241}} % 20261126T052338Z-features-1f0c80b50427479e-k2: dataset.parquet rows
+\newcommand{\TestRows}{\ensuremath{99\,040}} % 20261126T052338Z-features-1f0c80b50427479e-k2: dataset rows from 2017
+\newcommand{\DevRows}{\ensuremath{40\,201}} % 20261126T052338Z-features-1f0c80b50427479e-k2: dataset rows before 2017
+\newcommand{\StockCount}{\ensuremath{88}} % 20261126T052338Z-features-1f0c80b50427479e-k2: distinct tickers
+\newcommand{\UniverseStockDays}{\ensuremath{146\,555}} % snapshot:1f0c80b50427479e universe\_daily in study period
+\newcommand{\SwingsConfirmed}{\ensuremath{13\,980}} % 20261126T052329Z-labels-1f0c80b50427479e: reversals\_k2 in study period
+\newcommand{\SwingLengthMedian}{\ensuremath{14}} % 20261126T052329Z-labels-1f0c80b50427479e: median sessions between extremes
+\newcommand{\ConfirmLagMedian}{\ensuremath{6}} % 20261126T052329Z-labels-1f0c80b50427479e: median sessions extreme to confirmation
+\newcommand{\CensoredPct}{\ensuremath{1.6}} % 20261126T052338Z-features-1f0c80b50427479e-k2: 100 (1 - mean event)
+\newcommand{\DMedian}{\ensuremath{11}} % 20261126T052338Z-features-1f0c80b50427479e-k2: median duration, event rows
+\newcommand{\KMSurvFive}{\ensuremath{0.737}} % 20261126T052338Z-features-1f0c80b50427479e-k2: Kaplan-Meier S(5) of survival rows
+\newcommand{\KMSurvTen}{\ensuremath{0.530}} % 20261126T052338Z-features-1f0c80b50427479e-k2: Kaplan-Meier S(10) of survival rows
+\newcommand{\KMSurvTwenty}{\ensuremath{0.271}} % 20261126T052338Z-features-1f0c80b50427479e-k2: Kaplan-Meier S(20) of survival rows
+\newcommand{\CensoredUniverseExit}{\ensuremath{843}} % 20261126T052338Z-features-1f0c80b50427479e-k2: censor\_reason == universe\_exit
+\newcommand{\CensoredEndOfSample}{\ensuremath{784}} % 20261126T052338Z-features-1f0c80b50427479e-k2: censor\_reason == end\_of\_sample
+\newcommand{\CensoredHalt}{\ensuremath{638}} % 20261126T052338Z-features-1f0c80b50427479e-k2: censor\_reason == halt
+\newcommand{\UpRowsPct}{\ensuremath{53.4}} % 20261126T052338Z-features-1f0c80b50427479e-k2: share of up-swing rows
+\newcommand{\VNThirtyStocks}{\ensuremath{77}} % snapshot:1f0c80b50427479e vn30\_membership tickers
+\newcommand{\VNThirtyChanges}{\ensuremath{61}} % snapshot:1f0c80b50427479e vn30\_membership spells starting after the launch
+\newcommand{\VNThirtyBaskets}{\ensuremath{32}} % seed vn30\_baskets.csv distinct basket dates
+\newcommand{\BankCount}{\ensuremath{29}} % snapshot:1f0c80b50427479e bank\_spells tickers
+\newcommand{\CoverageVNThirty}{\ensuremath{99.9}\%} % snapshot:1f0c80b50427479e universe\_daily has\_price share, in\_vn30
+\newcommand{\CoverageBanks}{\ensuremath{99.0}\%} % snapshot:1f0c80b50427479e universe\_daily has\_price share, is\_bank
+\newcommand{\ForeignMissingSessions}{\ensuremath{569}} % snapshot:1f0c80b50427479e local\_market foreign\_net\_value\_vnd missing
+\newcommand{\BlockECoverage}{\ensuremath{1\,151}} % snapshot:1f0c80b50427479e block\_e\_npl with npl\_ratio
+\newcommand{\BlockEOCR}{\ensuremath{889}} % snapshot:1f0c80b50427479e value\_source ocr
+\newcommand{\BlockEVisual}{\ensuremath{262}} % snapshot:1f0c80b50427479e value\_source visual
+\newcommand{\BlockEStatements}{\ensuremath{1\,195}} % snapshot:1f0c80b50427479e block\_e\_npl rows
+\newcommand{\DevRunCount}{\ensuremath{25}} % run folders before the final snapshot
+\newcommand{\SnapshotId}{1f0c80b50427479e} % report.yaml snapshot
+\newcommand{\FinalCommit}{8807ed1} % 20261126T202919Z-final-evaluate-main: config git\_commit
