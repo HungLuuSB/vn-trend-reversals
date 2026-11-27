@@ -2,7 +2,7 @@
 # Build the Journal of Forecasting submission bundle for Paper 1 (Wiley free-format, LaTeX route).
 #   scripts/paper1_submission.sh            -> data/submission/paper1-<date>/ and a .zip of it
 # Upload (Research Exchange): main.tex as "Main Document - LaTeX .tex File", main.pdf as
-# "Main Document - LaTeX PDF", every other file of latex/ as "LaTeX Supplementary File", and
+# "Main Document - LaTeX PDF", every other file of latex/ (one flat folder) as "LaTeX Supplementary File", and
 # supplement.pdf as Supporting Information. The cover letter goes in its own field.
 # Requires the Wiley template (scripts/setup-wiley-template.sh) and committed sources.
 set -euo pipefail
@@ -33,10 +33,13 @@ fi
 
 cp "$src/main.tex" "$src/refs.bib" "$build/main.bbl" "$build/supplement.aux" "$out/latex/"
 cp "$src/USG.cls" "$src/NJDapacite.sty" "$src/lettersp.sty" "$src/WileyNJD-APA.bst" "$out/latex/"
-mkdir -p "$out/latex/sections" "$out/latex/generated" "$out/latex/images"
-cp "$src"/sections/0*.tex "$out/latex/sections/"
-cp "$src"/generated/*.tex "$out/latex/generated/"
-cp "$src"/images/ORCID_Logo.pdf "$out/latex/images/"
+# flat: every file in one folder (submission systems may drop subfolders); the copies'
+# paths to sections/, generated/ and images/ are rewritten to match
+cp "$src"/sections/0*.tex "$src"/generated/*.tex "$src"/images/ORCID_Logo.pdf "$out/latex/"
+sed -i -E 's#(sections|generated|images)/##g' "$out"/latex/*.tex "$out/latex/USG.cls"
+if [ "$(find "$out/latex" -type f | sed 's#.*/##' | sort | uniq -d)" ]; then
+  echo "file name clash in the flat bundle" >&2; exit 1
+fi
 cp "$build/main.pdf" "$out/main.pdf"
 cp "$build/supplement.pdf" "$out/supplement.pdf"
 cp "$src/cover_letter.md" "$out/cover_letter.md"
