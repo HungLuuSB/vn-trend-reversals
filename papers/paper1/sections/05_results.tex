@@ -12,7 +12,7 @@ error of the interval endpoints at most \PrimMCError). Table~\ref{tab:models} re
 Of the \PrimCount{} primaries, \PrimSupportedCount{} is supported: reversal timing is predictable
 against Kaplan--Meier, but no primary test beyond that passes the decision rule.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Pre-registered primary tests, test years 2017--2026. $\Delta C$ and $\Delta$IBS are the
 paired differences of the first model over the second in the year-stratified C-index and
@@ -35,7 +35,7 @@ within dates, which uses only cross-sectional pairs, is \CDateABCDx, close to th
 value. The ranking skill is therefore not a by-product of differences in reversal rates between
 dates.
 
-\begin{table}[p]
+\begin{table}[!htbp]
 \centering
 \caption{Out-of-sample accuracy of every model, test years 2017--2026 (\TestRows{} survival rows).
 C: Uno's concordance index truncated at 20 sessions, computed within each test year and summed
@@ -73,7 +73,7 @@ gap \CalMaxGapTen). At five sessions the predictions are too compressed: the ris
 reverses at a rate of \CalTopObsFive, while its mean prediction is lower by \CalMaxGapFive. At 20
 sessions the least risky decile still reverses at \CalBottomObsTwenty.
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \IfFileExists{generated/fig_calibration.tex}{\input{generated/fig_calibration.tex}}{\gen{figcalibration}}
 \caption{\FigOneLegend}\label{fig:calibration}
@@ -84,7 +84,7 @@ test year. \texttt{ABCDx} ranges from \YearMinABCDx{} to \YearMaxABCDx, with no 
 collapse in the COVID-19 years or in 2022. It exceeds \texttt{M} in \YearsAboveABCDxM{} of the 10
 years. The random-walk null is the least stable benchmark (\YearMinRW{} to \YearMaxRW).
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \IfFileExists{generated/fig_peryear.tex}{\input{generated/fig_peryear.tex}}{\gen{figperyear}}
 \caption{\FigTwoLegend}\label{fig:peryear}
@@ -112,7 +112,7 @@ noise of estimating nested models, finds a small reduction in the five-session B
 block D ($p=\CWPABCDxABCx$, one-sided). This is a descriptive test, and the gain is too small to
 show in either primary metric.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Secondary paired comparisons, test years 2017--2026, with 95\% intervals from
 \PairedResamples{} moving-block resamples. ``Improves'' applies the decision rule of the primary
@@ -123,7 +123,7 @@ pairs.}\label{tab:secondary}
 \gentable{tab_secondary}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Signs of the global effects (H2, directional part), in-sample. Coefficients on
 standardised features in the landmark logit fitted on all \HTwoRows{} rows; $z$ and one-sided
@@ -155,7 +155,7 @@ $p=\HFourWaldP$. The placebo estimates vary widely, from strongly negative to si
 positive, so a single post-window of \HFourPostRows{} rows cannot separate a change in sensitivity
 from ordinary variation. We report RQ4 as not detected, with low power.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Market-upgrade test (H4, exploratory, in-sample). $\hat\lambda$ is the coefficient on the
 post-announcement indicator times the global linear index of \texttt{ABCDx}; one-sided $p$ for
@@ -180,7 +180,7 @@ buy-and-hold), but only because they are out of the market much of the time; the
 more. The ranking is the same at the close (\BtCloseSharpeModel{} against \BtCloseSharpeBh) and at
 costs of 0.20\% and 0.80\%.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Trading test, test years 2017--2026, long-only, equal-weighted across the day's
 universe, executed at the next open with T+2 settlement and price limits. Return: annualised; the

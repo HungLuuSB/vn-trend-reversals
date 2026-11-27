@@ -9,7 +9,7 @@ features and models, and states the evaluation protocol and the tests. Every ele
 before the test years were used. Each choice is logged with its date in a decision record
 (Section~\ref{sec:prereg}). Table~\ref{tab:notation} collects the notation.
 
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering
 \caption{Notation.}\label{tab:notation}
 \small
@@ -112,7 +112,7 @@ The features form five blocks (Table~\ref{tab:features}). Every value carries th
 became public, and a feature may use a value only if that time is before the 09:00 decision. The
 data pipeline enforces this with an automated test (Section~\ref{sec:data}).
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Feature blocks. All features are computed for row $(i,t)$ and used at 09:00 on the next
 session. Returns and changes in blocks B--D also enter multiplied by the swing direction
@@ -160,9 +160,9 @@ recognition. Where the scan defeated it, the table was transcribed from the page
 assistant, under a stricter rule: the groups must equal the printed total exactly, in both columns.
 Block E results are also reported without these transcribed values. A statement becomes usable at
 09:00 on the fifth session after the later of its legal filing deadline and the PDF's creation
-date. This rule is conservative by construction. We checked it against the news: for
-\gen{BlockENewsLead} first-release statements, an article reporting the result appeared before
-the statement's usable time. News counts are articles mentioning the bank published from 09:00 on $t$
+date. This rule is conservative by construction. We checked it against the news: of the \BlockENewsMatched{} first-release statements whose result
+could be matched to a news article, \BlockENewsLead{} were reported in the news before the statement's
+usable time (median lead \BlockENewsLeadDays{} days). News counts are articles mentioning the bank published from 09:00 on $t$
 to 09:00 on the next session. Section~\ref{sec:data} gives the sources.
 
 \subsection{Mechanical baselines}\label{sec:mech}
@@ -286,7 +286,7 @@ between the two halves of the resamples. Holm-adjusted bootstrap $p$-values acro
 confirmatory primaries are reported as a sensitivity \citep{Holm1979}. Every
 other comparison is secondary or descriptive and is labelled so.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \caption{Hypotheses and their primary tests. ``$A-B$'' is the paired difference of model $A$ over
 model $B$ under the decision rule of Section~\ref{sec:inference}. KM: Kaplan--Meier.}\label{tab:primary}
