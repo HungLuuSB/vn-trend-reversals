@@ -584,8 +584,9 @@ def hyper(t: dict[str, str], r: dict) -> None:
                          for a, v in grids[fam].items())  # fmt: skip
         if k:
             lines.append(r"\midrule")
-        lines.append(rf"\multicolumn{{2}}{{@{{}}l}}{{\textbf{{{family_label[fam]}}}"
-                     rf" \quad \textit{{grid: {R.escape(grid)}}}}} \\")  # fmt: skip
+        # "\\\\*" keeps a family header on the same page as its first model
+        lines.append(rf"\textbf{{{family_label[fam]}}} & \textit{{Grid: {R.escape(grid)}}} \\*"
+                     r" \addlinespace[4pt]")  # fmt: skip
         for m, lab in members:
             c = Counter(fmt(r["chosen"][str(y)][m]) for y in YEARS)
             settings = r" \newline ".join(rf"{R.escape(a)} ({v})" for a, v in c.most_common())
