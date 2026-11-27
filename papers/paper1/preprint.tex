@@ -55,11 +55,12 @@
 \begin{document}
 
 \thispagestyle{plain}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
 \begin{center}
 {\LARGE\bfseries Predictable but Mostly Mechanical:\\[0.3ex] Survival Forecasts of Trend Reversals\\[0.3ex]
 in Vietnamese Stocks\par}
 \vspace{1.4em}
-{\large Thai Hung Luu\textsuperscript{a,*} \qquad Nhat Hao Pham Ngo\textsuperscript{b}\par}
+{\large Thai Hung Luu\textsuperscript{a,}\footnotemark[1] \qquad Nhat Hao Pham Ngo\textsuperscript{b,}\footnotemark[2]\par}
 \vspace{0.8em}
 {\small\textsuperscript{a}Independent Researcher, Vinh Long, Vietnam\\
 \textsuperscript{b}School of Trade and International Economics, National Economics University,
@@ -68,13 +69,11 @@ Hanoi, Vietnam\par}
 {\small Preprint, November 2026. This version: 27 November 2026.\par}
 \end{center}
 
-\vspace{0.6em}
-{\small
-\noindent\textsuperscript{*}Corresponding author:
-\href{mailto:hung.luu.research@gmail.com}{hung.luu.research@gmail.com},
-ORCID \href{https://orcid.org/0009-0004-2909-3359}{0009-0004-2909-3359}.
-Nhat Hao Pham Ngo: \href{mailto:nhathao.research@gmail.com}{nhathao.research@gmail.com},
-ORCID \href{https://orcid.org/0009-0000-1537-6041}{0009-0000-1537-6041}.\par}
+\footnotetext[1]{Corresponding author. Email:
+\href{mailto:hung.luu.research@gmail.com}{hung.luu.research@gmail.com}. ORCID:
+\href{https://orcid.org/0009-0004-2909-3359}{0009-0004-2909-3359}.}
+\footnotetext[2]{Email: \href{mailto:nhathao.research@gmail.com}{nhathao.research@gmail.com}.
+ORCID: \href{https://orcid.org/0009-0000-1537-6041}{0009-0000-1537-6041}.}
 
 \vspace{1em}
 \begin{abstract}
@@ -86,6 +85,8 @@ analysis; trend reversal; Vietnam\\
 \noindent\textbf{JEL classification:} C41, C53, G12, G14, G17
 
 \clearpage
+\setcounter{footnote}{0}
+\renewcommand{\thefootnote}{\arabic{footnote}}
 
 \input{sections/01_introduction}
 \input{sections/02_literature}
