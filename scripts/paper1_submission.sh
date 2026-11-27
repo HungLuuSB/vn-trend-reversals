@@ -18,11 +18,20 @@ mkdir -p "$out/latex"
 build=$(mktemp -d)
 trap 'rm -rf -- "${build:?}"' EXIT
 
-# compile once, keeping the .bbl so the editorial system needs no BibTeX run
-(cd "$src" && tectonic -X compile --keep-intermediates --outdir "$build" main.tex >/dev/null)
-(cd "$src" && tectonic -X compile --outdir "$build" supplement.tex >/dev/null)
+# compile in a copy of the sources, in this order: main (writes main.aux), supplement (reads it
+# for references to the main text), main again (reads supplement.aux for references to Appendix
+# S1; package xr). Keeps the .bbl so the editorial system needs no BibTeX run.
+cp -r "$src/." "$build/"
+for doc in main supplement main; do
+  (cd "$build" && tectonic -X compile --keep-intermediates --keep-logs "$doc.tex" >/dev/null)
+done
+if grep -qE "Reference .* undefined|Citation .* undefined" "$build/main.log" "$build/supplement.log"; then
+  echo "undefined references:" >&2
+  grep -hE "Reference .* undefined|Citation .* undefined" "$build/main.log" "$build/supplement.log" >&2
+  exit 1
+fi
 
-cp "$src/main.tex" "$src/refs.bib" "$build/main.bbl" "$out/latex/"
+cp "$src/main.tex" "$src/refs.bib" "$build/main.bbl" "$build/supplement.aux" "$out/latex/"
 cp "$src/USG.cls" "$src/NJDapacite.sty" "$src/lettersp.sty" "$src/WileyNJD-APA.bst" "$out/latex/"
 mkdir -p "$out/latex/sections" "$out/latex/generated" "$out/latex/images"
 cp "$src"/sections/0*.tex "$out/latex/sections/"
@@ -35,7 +44,8 @@ cp "$src/cover_letter.md" "$out/cover_letter.md"
 # the bundle must compile on its own
 check=$(mktemp -d)
 cp -r "$out/latex/." "$check/"
-(cd "$check" && tectonic -X compile main.tex >/dev/null) || { echo "bundle does not compile" >&2; exit 1; }
+(cd "$check" && tectonic -X compile --keep-logs main.tex >/dev/null) || { echo "bundle does not compile" >&2; exit 1; }
+if grep -qE "Reference .* undefined" "$check/main.log"; then echo "bundle has undefined references" >&2; exit 1; fi
 rm -rf -- "${check:?}"
 
 git -C "$repo" rev-parse --short HEAD > "$out/COMMIT"
