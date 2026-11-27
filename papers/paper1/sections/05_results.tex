@@ -55,18 +55,18 @@ to its threshold needs only a small further move to be confirmed, and every mode
 random-walk null, which fits nothing and only rolls each stock's own recent returns through the
 labelling rule, reaches C~=~\CRW.
 
-\paragraph{Beyond the mechanics: better ranking, not better probabilities} H1-mech is not
-supported. The features of blocks A--C rank swings better than the flexible mechanical baseline:
+\paragraph{Beyond the mechanics: the pre-registered test fails} H1-mech is not supported. The
+linear model on blocks A--C ranks swings better than the flexible mechanical baseline:
 \texttt{ABCx} exceeds \texttt{M\_flex} by \GainOverMFlex{} in C, with interval \PrimDCABCxMFlex,
-and in \YearsAboveABCxMFlex{} of the 10 test years. They do not improve the probabilities: the IBS
+and in \YearsAboveABCxMFlex{} of the 10 test years. It does not improve the probabilities: the IBS
 interval is \PrimDIBSABCxMFlex{} and contains zero. Against the random-walk null both intervals
 exclude zero ($\Delta C$ \PrimDCABCxRW, $\Delta$IBS \PrimDIBSABCxRW), so the first of the two
-conditions holds and the second fails. The comparison with the linear baseline \texttt{M}
-explains the gap. \texttt{ABCx} beats \texttt{M} on both metrics ($\Delta C$ \DCABCxM, $\Delta$IBS
-\DIBSABCxM), but \texttt{M\_flex} has a lower IBS than \texttt{M} by itself ($\Delta$IBS of
-\texttt{M} over \texttt{M\_flex} \DIBSMMFlex). The calibration gain of the richer models over
-\texttt{M} is matched by letting age and distance enter non-linearly. What the features add beyond
-that is ranking.
+conditions holds and the second fails. The comparison with the linear baseline \texttt{M} shows
+where the calibration gap comes from: \texttt{ABCx} beats \texttt{M} on both metrics ($\Delta C$
+\DCABCxM, $\Delta$IBS \DIBSABCxM), but \texttt{M\_flex} alone has a lower IBS than \texttt{M}
+($\Delta$IBS of \texttt{M} over \texttt{M\_flex} \DIBSMMFlex). Letting age and distance enter
+non-linearly gives the same calibration gain as the linear features. Section~\ref{sec:posthoc}
+shows that non-linear models of the same features do improve on \texttt{M\_flex} in both respects.
 
 \paragraph{Calibration} Figure~\ref{fig:calibration} plots the observed reversal rate against the
 predicted probability by decile. At ten sessions the deciles lie close to the diagonal (largest
@@ -220,3 +220,38 @@ is secondary, and its C gain over \texttt{M} is the same size as that of \texttt
 the last 60 sessions of prices adds nothing to the static neural model ($\Delta C$
 \DCNnSeqABCDNnStaticABCD). Trees do not rank better than the logistic hazard: the boosted hazard and
 the random survival forest on blocks A--C reach C of \CGbmABC{} and \CRsfABC.
+
+\subsection{Post hoc: like-for-like comparisons and a decomposition}\label{sec:posthoc}
+
+The pre-registered test of predictability beyond the mechanics compares a linear model with a
+non-linear baseline. Its feature effects are the same at every horizon step, which may limit its
+calibration rather than the features. After the final run, and labelled as post hoc, we compared
+every non-linear model of the same feature blocks with \texttt{M\_flex}, re-scoring the cached
+test-year predictions without refitting, with \PHResamples{} paired resamples and the same decision
+rule (Table~\ref{tab:posthoc}). \PHLikePass{} of the \PHLikeCount{} non-linear models improve on
+\texttt{M\_flex} on both metrics, among them the sequence neural model on blocks A--C ($\Delta C$
+\PHDCNnSeqABCMFlex, $\Delta$IBS \PHDIBSNnSeqABCMFlex) and the boosted hazard on the same blocks
+($\Delta C$ \PHDCGbmABCMFlex, $\Delta$IBS \PHDIBSGbmABCMFlex). The boosted hazard and the random
+survival forest on blocks A--D do not. These comparisons are exploratory and not adjusted for
+multiplicity, but they indicate that stock and local market features carry information about
+reversal timing beyond the swing's age and distance, and that a flexible model is needed to turn it
+into better probabilities.
+
+The decomposition in the same table separates what is mechanical from what is fitted. The
+random-walk null, which fits nothing, already improves on Kaplan--Meier on both metrics ($\Delta C$
+\PHDCRWKm, $\Delta$IBS \PHDIBSRWKm). The fitted mechanical baseline adds calibration but no
+detectable ranking to it ($\Delta C$ \PHDCMFlexRW, $\Delta$IBS \PHDIBSMFlexRW). The null resamples
+whole days independently, so it ignores volatility clustering and price limits; part of what the
+fitted baseline adds may be such regularities of the price process, rather than information in the
+labelling rule alone.
+
+\begin{table}[!htbp]
+\centering
+\caption{Post-hoc comparisons, test years 2017--2026, from the cached predictions of the final
+run (no refitting). Paired differences with 95\% intervals from \PHResamples{} moving-block
+resamples; ``Improves'' applies the decision rule of the primary tests. Not adjusted for
+multiplicity.}\label{tab:posthoc}
+\footnotesize
+\gentable{tab_posthoc}
+\end{table}
+

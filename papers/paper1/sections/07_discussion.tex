@@ -3,8 +3,11 @@
 \paragraph{What is predictable} The timing of a swing's end is predictable out of sample, and most
 of what is predictable follows from how a swing is defined. A swing that has retraced most of the
 way to its threshold is close to being confirmed, whatever happens in the economy. The distance to
-the threshold carries \MechShareDIST\% of the gain over Kaplan--Meier, and a flexible function of
-age and distance matches the probability accuracy of every richer linear model. We read this as a
+the threshold carries \MechShareDIST\% of the gain over Kaplan--Meier in C, and a flexible function of
+age and distance matches the probability accuracy of every richer linear model. We call the
+age--distance models mechanical because they use nothing but the swing's own position relative to
+its threshold; they are fitted, however, and the random-walk null, which fits nothing, captures less
+of the calibration gain (Section~\ref{sec:posthoc}). We read this as a
 warning for the literature on predicting turning points: an accuracy figure says little unless it
 is compared with what the labelling rule implies by itself. The random-walk null makes the same
 point from another side. Rolling a stock's own recent returns through the rule, in random order,
@@ -12,11 +15,11 @@ already gives C~=~\CRW.
 
 \paragraph{What the features add} Beyond the mechanics, the stock's recent returns, volatility,
 price-limit hits and the state of the local market improve the ranking of swings consistently,
-in \YearsAboveABCxMFlex{} of 10 test years against the flexible baseline. They do not make the
-predicted probabilities more accurate. A trader who only needs to know which open swings are the
-most fragile gains a little; a risk manager who needs calibrated probabilities gains nothing that
-age and distance do not already give. This difference between ranking and calibration is why we
-required both metrics to improve before counting a gain.
+in \YearsAboveABCxMFlex{} of 10 test years against the flexible baseline. In the pre-registered
+linear model they do not make the predicted probabilities more accurate; post hoc, non-linear models
+of the same features do (\PHLikePass{} of \PHLikeCount{}). The gain is small, a few thousandths in
+the integrated Brier score, and it depends on a model flexible enough to let the effects change
+with the horizon. Requiring both metrics to improve is what exposed this difference.
 
 \paragraph{Why outside information does not help} Overnight US returns, volatility, rates,
 currencies, commodities and geopolitical risk bring no detectable improvement to the timing of

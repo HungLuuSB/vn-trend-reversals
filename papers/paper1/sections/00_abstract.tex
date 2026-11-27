@@ -5,12 +5,13 @@ of Vietnamese stocks, defined by a directional-change rule whose threshold scale
 volatility, using landmark survival models and features timed to what was public before the market
 opened. Models were designed on 2012--2016 and tested once, on 2017--2026, for the members of the VN30
 index and all listed banks. Reversal timing is predictable out of sample: the main model reaches a
-concordance index of \CABCDx{} against 0.5 for the Kaplan--Meier benchmark, with a lower integrated
-Brier score. Most of this skill is mechanical. The distance to the reversal
+concordance index of \CABCDx{} against 0.5 for the Kaplan--Meier benchmark and \CRW{} for a
+random-walk null, with a lower integrated Brier score. Most of this skill is mechanical. The distance to the reversal
 threshold alone accounts for \MechShareDIST\% of the gain, and a flexible model of swing age and
-distance is as well calibrated as the richer linear models. Stock and local market features improve the
-ranking of swings by \GainOverMFlex{} in the concordance index, but not their predicted
-probabilities. Overnight global markets, bank fundamentals and news add nothing; swing age adds
-nothing once the distance is known; and an exit rule based on the forecasts earns a lower Sharpe
+distance is as well calibrated as the richer linear models. In the pre-registered linear test,
+stock and local market features improve the ranking of swings by \GainOverMFlex{} in the
+concordance index but not their predicted probabilities; post hoc, non-linear models of the same
+features improve both, by small margins. Overnight global markets, bank fundamentals and news bring
+no detectable improvement, nor does swing age once the distance is known, and an exit rule based on the forecasts earns a lower Sharpe
 ratio than buy-and-hold after costs. Turning-point forecasts should be judged against a mechanical
 benchmark built from the labelling rule.
