@@ -10,5 +10,5 @@ HSX,2016-09-12,2100-01-01,10000,50000,50,QD 341/342/QD-SGDHCM; QD 352 Art 8.4; V
 HSX,2016-09-12,2100-01-01,50000,1000000000,100,QD 341/342/QD-SGDHCM; QD 352 Art 8.4; VNX 17 App III,https://mbs.com.vn/files/uploads/2025/04/352_qd-sgdhcm_quy-che-giao-dich-ck-tai-hsx.pdf,verified-official
 HNX,2000-01-01,2013-07-28,0,1000000000,100,no contrary evidence found (QD 54/QD-SGDHN not read),,unverified
 HNX,2013-07-29,2016-09-11,0,1000000000,100,QD 345/QD-SGDHN rules Art 23.1,https://thuvienphapluat.vn/van-ban/Chung-khoan/Quyet-dinh-345-QD-SGDHN-2013-Quy-che-Giao-dich-Chung-khoan-niem-yet-Ha-Noi-248184.aspx,verified-official
-HNX,2016-09-12,2100-01-01,0,1000000000,100,QD 529/QD-SGDHN Art 23.1; VNX 17 App III 2.2,https://static1.vietstock.vn/vietstock/2016/Quychegiaodich2016_final.pdf,verified-official
+HNX,2016-09-12,2100-01-01,0,1000000000,100,QD 529/QD-SGDHN Art 23.1; VNX 17 App III 2.2 (no change in tick size: the row splits only where the legal source changes),https://static1.vietstock.vn/vietstock/2016/Quychegiaodich2016_final.pdf,verified-official
 UPCOM,2000-01-01,2100-01-01,0,1000000000,100,QD 468/2010 Art 15.1; 236/2015 Art 18; 78/2016 Art 17; VNX 34 and 23 Art 17,https://mbs.com.vn/files/uploads/2025/04/34_qd-hdtv_quy-che-dang-ky-va-quan-ly-giao-dich-ck-chua-niem-yet.pdf,verified-official
