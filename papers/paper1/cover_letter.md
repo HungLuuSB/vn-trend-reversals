@@ -1,6 +1,6 @@
 Thai Hung Luu
 Independent Researcher, Vinh Long, Vietnam
-hung.luu.research@gmail.com · ORCID 0009-0004-2909-3359
+hung.luu.research@gmail.com | ORCID 0009-0004-2909-3359
 
 27 November 2026
 
