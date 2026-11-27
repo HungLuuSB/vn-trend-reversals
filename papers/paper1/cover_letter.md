@@ -2,7 +2,7 @@ Thai Hung Luu
 Independent Researcher, Vinh Long, Vietnam
 hung.luu.research@gmail.com · ORCID 0009-0004-2909-3359
 
-[Date]
+27 November 2026
 
 The Editors
 *Journal of Forecasting*
@@ -21,7 +21,7 @@ We believe the paper suits the journal for three reasons:
 - It follows the forecasting literature's standards for honest evaluation. The paper uses pre-registered primary tests, chronological splits with purging and embargo, and shuffled-label controls. It reports every model and every failed hypothesis.
 - It adds point-in-time evidence from a retail-dominated emerging market with daily price limits, where such forecasts are widely sold to investors.
 
-The manuscript is original, has not been published elsewhere, and is not under consideration by another journal. Both authors have approved the submitted version. The authors declare no conflicts of interest, and the research received no specific funding. The use of an AI assistant for code, reference checks and editing is disclosed in the manuscript. The data availability statement describes how the data and code can be obtained.
+The manuscript is original, has not been published elsewhere, and is not under consideration by another journal. A preprint of this version has been posted on SSRN. Both authors have approved the submitted version. The authors declare no conflicts of interest, and the research received no specific funding. The use of an AI assistant for code, reference checks and editing is disclosed in the manuscript. The code, the dated decision log and the record of every run are openly available on Zenodo (https://doi.org/10.5281/zenodo.24589608); the data availability statement describes how the data can be obtained.
 
 Thank you for considering our work.
 
