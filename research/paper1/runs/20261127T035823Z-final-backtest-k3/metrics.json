@@ -1,0 +1,4072 @@
+{
+ "open": {
+  "folds": {
+   "2017": {
+    "tau": {
+     "model": 0.4,
+     "mech": 0.35
+    },
+    "inner_sharpe": {
+     "model": [
+      -0.41304291505388957,
+      -0.020315482868963737,
+      0.35609516223891563,
+      0.43312526636418214,
+      0.3356002896368701,
+      0.3690690196357198,
+      0.3609486840051821,
+      0.3609486840051821
+     ],
+     "mech": [
+      0.0852794058221855,
+      0.384424041797502,
+      0.41748232998438217,
+      0.3877479359382181,
+      0.3877479359382181,
+      0.3877479359382181,
+      0.3877479359382181,
+      0.3877479359382181
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.25469248307645387,
+      "sharpe": 2.5072093918501666,
+      "max_drawdown": -0.066090945022093,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "mech": {
+      "ann_return": 0.24705013411685983,
+      "sharpe": 2.492150272415968,
+      "max_drawdown": -0.06619303218042294,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc": {
+      "ann_return": 0.279342738353771,
+      "sharpe": 2.566803572221702,
+      "max_drawdown": -0.06851154994109265,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh": {
+      "ann_return": 0.5332057795905629,
+      "sharpe": 3.282762918266313,
+      "max_drawdown": -0.07202252081672078,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.26507913447796994,
+      "sharpe": 2.598745488890125,
+      "max_drawdown": -0.06495844429883058,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "mech@0.2%": {
+      "ann_return": 0.25737564887067865,
+      "sharpe": 2.5859165691119985,
+      "max_drawdown": -0.06385083366421651,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@0.2%": {
+      "ann_return": 0.2899304040355122,
+      "sharpe": 2.653271684342841,
+      "max_drawdown": -0.06732586958276288,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@0.2%": {
+      "ann_return": 0.5352702575483512,
+      "sharpe": 3.2911493896428055,
+      "max_drawdown": -0.07193899432092432,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@0.8%": {
+      "ann_return": 0.23417052657544501,
+      "sharpe": 2.323973602981578,
+      "max_drawdown": -0.06835217730857202,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "mech@0.8%": {
+      "ann_return": 0.22664928028041986,
+      "sharpe": 2.3045660523972433,
+      "max_drawdown": -0.07086048959738112,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@0.8%": {
+      "ann_return": 0.258423543226985,
+      "sharpe": 2.3937485653841057,
+      "max_drawdown": -0.07087877413690957,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@0.8%": {
+      "ann_return": 0.5290804333153891,
+      "sharpe": 3.265384286383287,
+      "max_drawdown": -0.07218957380831303,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.25469248307645387,
+      "sharpe": 2.5072093918501666,
+      "max_drawdown": -0.066090945022093,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.279342738353771,
+      "sharpe": 2.566803572221702,
+      "max_drawdown": -0.06851154994109265,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.5332057795905629,
+      "sharpe": 3.282762918266313,
+      "max_drawdown": -0.07202252081672078,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.2529554483122911,
+      "sharpe": 2.4933936029558144,
+      "max_drawdown": -0.0660909450220929,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.27757135937314303,
+      "sharpe": 2.5536684828476846,
+      "max_drawdown": -0.0685115499410921,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.5332057795905629,
+      "sharpe": 3.282762918266313,
+      "max_drawdown": -0.07202252081672078,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     }
+    }
+   },
+   "2018": {
+    "tau": {
+     "model": 0.55,
+     "mech": 0.6
+    },
+    "inner_sharpe": {
+     "model": [
+      2.157485358199821,
+      2.410527173018728,
+      2.6320331211153305,
+      2.6087737406200353,
+      2.5627649620048474,
+      2.6390196008904123,
+      2.6436248520362167,
+      2.566803572221702
+     ],
+     "mech": [
+      1.6368916198217704,
+      2.128928833314367,
+      2.42447871145892,
+      2.566803572221702,
+      2.566803572221702,
+      2.566803572221702,
+      2.566803572221702,
+      2.566803572221702
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.14513089964758719,
+      "sharpe": -1.3294528324138126,
+      "max_drawdown": -0.1678975852630865,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "mech": {
+      "ann_return": -0.14467750864028783,
+      "sharpe": -1.3247260863061745,
+      "max_drawdown": -0.1678975852630865,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "dc": {
+      "ann_return": -0.14467750864028783,
+      "sharpe": -1.3247260863061745,
+      "max_drawdown": -0.1678975852630865,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "bh": {
+      "ann_return": -0.081093753614505,
+      "sharpe": -0.1752534622403932,
+      "max_drawdown": -0.2744808849182444,
+      "trades": 42,
+      "assumed_fills": 2,
+      "days": 247
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": -0.13784760644213923,
+      "sharpe": -1.2556090483536135,
+      "max_drawdown": -0.16529417197921548,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "mech@0.2%": {
+      "ann_return": -0.13739038453192376,
+      "sharpe": -1.2508786250557333,
+      "max_drawdown": -0.16529417197921548,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "dc@0.2%": {
+      "ann_return": -0.13739038453192376,
+      "sharpe": -1.2508786250557333,
+      "max_drawdown": -0.16529417197921548,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "bh@0.2%": {
+      "ann_return": -0.07959105413308787,
+      "sharpe": -0.16923435714434357,
+      "max_drawdown": -0.2744602195099358,
+      "trades": 42,
+      "assumed_fills": 2,
+      "days": 247
+     },
+     "model@0.8%": {
+      "ann_return": -0.15951593915959406,
+      "sharpe": -1.4765366499311945,
+      "max_drawdown": -0.17308093212191766,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "mech@0.8%": {
+      "ann_return": -0.1590701152701247,
+      "sharpe": -1.4718186949507017,
+      "max_drawdown": -0.17308093212191766,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "dc@0.8%": {
+      "ann_return": -0.1590701152701247,
+      "sharpe": -1.4718186949507017,
+      "max_drawdown": -0.17308093212191766,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "bh@0.8%": {
+      "ann_return": -0.08409472462134093,
+      "sharpe": -0.18728418809027694,
+      "max_drawdown": -0.2745222157348607,
+      "trades": 42,
+      "assumed_fills": 2,
+      "days": 247
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.1511927626370717,
+      "sharpe": -1.4029444631610044,
+      "max_drawdown": -0.16797566653074636,
+      "trades": 145,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": -0.1511927626370717,
+      "sharpe": -1.4029444631610044,
+      "max_drawdown": -0.16797566653074636,
+      "trades": 145,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": -0.08635174936504164,
+      "sharpe": -0.19501742748390635,
+      "max_drawdown": -0.2744808849182442,
+      "trades": 41,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.1530154769051434,
+      "sharpe": -1.4054989145754715,
+      "max_drawdown": -0.1754205989030886,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": -0.1525662675865075,
+      "sharpe": -1.400786121981347,
+      "max_drawdown": -0.1754205989030886,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": -0.081093753614505,
+      "sharpe": -0.1752534622403932,
+      "max_drawdown": -0.2744808849182444,
+      "trades": 42,
+      "assumed_fills": 2,
+      "days": 247
+     }
+    }
+   },
+   "2019": {
+    "tau": {
+     "model": 0.35,
+     "mech": 0.3
+    },
+    "inner_sharpe": {
+     "model": [
+      -1.290714507458487,
+      -1.1537236409100937,
+      -1.150648779485428,
+      -1.2420619768547927,
+      -1.3424513820491797,
+      -1.3294528324138126,
+      -1.3247260863061745,
+      -1.3247260863061745
+     ],
+     "mech": [
+      -1.131078986194031,
+      -1.0889052843000053,
+      -1.2483540665010087,
+      -1.3247260863061745,
+      -1.3247260863061745,
+      -1.3247260863061745,
+      -1.3247260863061745,
+      -1.3247260863061745
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.009979599011274098,
+      "sharpe": 0.21038000616262997,
+      "max_drawdown": -0.05230587352561833,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "mech": {
+      "ann_return": 0.022633385604831746,
+      "sharpe": 0.5096250884509176,
+      "max_drawdown": -0.04315491558594908,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "dc": {
+      "ann_return": 0.024926231568470625,
+      "sharpe": 0.4400984552673881,
+      "max_drawdown": -0.05481604782598626,
+      "trades": 136,
+      "assumed_fills": 31,
+      "days": 249
+     },
+     "bh": {
+      "ann_return": 0.017672169637464208,
+      "sharpe": 0.21619709834007667,
+      "max_drawdown": -0.07785092590868625,
+      "trades": 44,
+      "assumed_fills": 2,
+      "days": 249
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.017405480306008858,
+      "sharpe": 0.34629416172821664,
+      "max_drawdown": -0.05030310094326018,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "mech@0.2%": {
+      "ann_return": 0.030156797890330322,
+      "sharpe": 0.6706453913539567,
+      "max_drawdown": -0.0412848696286543,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "dc@0.2%": {
+      "ann_return": 0.03246200391609588,
+      "sharpe": 0.5627747580557642,
+      "max_drawdown": -0.052820006668624186,
+      "trades": 136,
+      "assumed_fills": 31,
+      "days": 249
+     },
+     "bh@0.2%": {
+      "ann_return": 0.01899666671976674,
+      "sharpe": 0.22830825222382253,
+      "max_drawdown": -0.07770854571356611,
+      "trades": 44,
+      "assumed_fills": 2,
+      "days": 249
+     },
+     "model@0.8%": {
+      "ann_return": -0.004711495692284684,
+      "sharpe": -0.05974126909021031,
+      "max_drawdown": -0.06015049840528364,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "mech@0.8%": {
+      "ann_return": 0.007749436023122502,
+      "sharpe": 0.18997476706598207,
+      "max_drawdown": -0.04787867192594564,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "dc@0.8%": {
+      "ann_return": 0.010017694417575829,
+      "sharpe": 0.19560387320157044,
+      "max_drawdown": -0.058796018394293714,
+      "trades": 136,
+      "assumed_fills": 31,
+      "days": 249
+     },
+     "bh@0.8%": {
+      "ann_return": 0.01502516007023047,
+      "sharpe": 0.19195550070760972,
+      "max_drawdown": -0.07813564165073983,
+      "trades": 44,
+      "assumed_fills": 2,
+      "days": 249
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.016817764736867025,
+      "sharpe": 0.3411062178223278,
+      "max_drawdown": -0.04924313049197149,
+      "trades": 121,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.021822954648927473,
+      "sharpe": 0.39829697794167,
+      "max_drawdown": -0.053059831907536714,
+      "trades": 122,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.012140876115122934,
+      "sharpe": 0.1667937141328342,
+      "max_drawdown": -0.07568850975455554,
+      "trades": 42,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.009979599011274098,
+      "sharpe": 0.21038000616262997,
+      "max_drawdown": -0.05230587352561833,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.024926231568470625,
+      "sharpe": 0.4400984552673881,
+      "max_drawdown": -0.05481604782598626,
+      "trades": 136,
+      "assumed_fills": 31,
+      "days": 249
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.017672169637464208,
+      "sharpe": 0.21619709834007667,
+      "max_drawdown": -0.07785092590868625,
+      "trades": 44,
+      "assumed_fills": 2,
+      "days": 249
+     }
+    }
+   },
+   "2020": {
+    "tau": {
+     "model": 0.4,
+     "mech": 0.25
+    },
+    "inner_sharpe": {
+     "model": [
+      0.551544620045235,
+      0.35411530603054936,
+      0.40766605635129777,
+      0.5526399759021641,
+      0.4833192162607188,
+      0.43507289288768175,
+      0.45638022274402146,
+      0.4400984552673881
+     ],
+     "mech": [
+      0.5657535673644727,
+      0.5096250884509176,
+      0.5629073671157628,
+      0.4400984552673881,
+      0.4400984552673881,
+      0.4400984552673881,
+      0.4400984552673881,
+      0.4400984552673881
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.20871977295694188,
+      "sharpe": 1.3846691629420458,
+      "max_drawdown": -0.10493444581197697,
+      "trades": 157,
+      "assumed_fills": 31,
+      "days": 251
+     },
+     "mech": {
+      "ann_return": 0.15020153356632315,
+      "sharpe": 1.2807956157444471,
+      "max_drawdown": -0.08064325879398504,
+      "trades": 158,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "dc": {
+      "ann_return": 0.30578983270457405,
+      "sharpe": 1.6080687685708501,
+      "max_drawdown": -0.12020900690114178,
+      "trades": 159,
+      "assumed_fills": 29,
+      "days": 251
+     },
+     "bh": {
+      "ann_return": 0.2950826473259305,
+      "sharpe": 1.066649791239206,
+      "max_drawdown": -0.2935985785269807,
+      "trades": 43,
+      "assumed_fills": 3,
+      "days": 251
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.21864716267357642,
+      "sharpe": 1.444880181578091,
+      "max_drawdown": -0.10320224118089005,
+      "trades": 157,
+      "assumed_fills": 31,
+      "days": 251
+     },
+     "mech@0.2%": {
+      "ann_return": 0.15968372633425987,
+      "sharpe": 1.3561511037747422,
+      "max_drawdown": -0.0790444622343015,
+      "trades": 158,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "dc@0.2%": {
+      "ann_return": 0.316633654214562,
+      "sharpe": 1.6575146937034688,
+      "max_drawdown": -0.11836238985988501,
+      "trades": 159,
+      "assumed_fills": 29,
+      "days": 251
+     },
+     "bh@0.2%": {
+      "ann_return": 0.2966809340674206,
+      "sharpe": 1.071135631151215,
+      "max_drawdown": -0.2935256172974634,
+      "trades": 43,
+      "assumed_fills": 3,
+      "days": 251
+     },
+     "model@0.8%": {
+      "ann_return": 0.18910165056430395,
+      "sharpe": 1.2650559741560152,
+      "max_drawdown": -0.10838989283934186,
+      "trades": 157,
+      "assumed_fills": 31,
+      "days": 251
+     },
+     "mech@0.8%": {
+      "ann_return": 0.13146584174686282,
+      "sharpe": 1.1312299305489357,
+      "max_drawdown": -0.0838333210338672,
+      "trades": 158,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "dc@0.8%": {
+      "ann_return": 0.2843623579777985,
+      "sharpe": 1.5094288421238304,
+      "max_drawdown": -0.12389185342607356,
+      "trades": 159,
+      "assumed_fills": 29,
+      "days": 251
+     },
+     "bh@0.8%": {
+      "ann_return": 0.29188798373727076,
+      "sharpe": 1.0576389032099405,
+      "max_drawdown": -0.29374450098601423,
+      "trades": 43,
+      "assumed_fills": 3,
+      "days": 251
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.2155716576142277,
+      "sharpe": 1.43447434276102,
+      "max_drawdown": -0.10616411368282597,
+      "trades": 143,
+      "assumed_fills": 0,
+      "days": 251
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.30138186867471095,
+      "sharpe": 1.6074597503775034,
+      "max_drawdown": -0.12241440538402215,
+      "trades": 145,
+      "assumed_fills": 0,
+      "days": 251
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.2852978144342875,
+      "sharpe": 1.0437890479848368,
+      "max_drawdown": -0.2918859014046614,
+      "trades": 41,
+      "assumed_fills": 0,
+      "days": 251
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.19968286276807246,
+      "sharpe": 1.3306765367654336,
+      "max_drawdown": -0.10733851983116527,
+      "trades": 157,
+      "assumed_fills": 31,
+      "days": 251
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.29470941146998286,
+      "sharpe": 1.5577550757299017,
+      "max_drawdown": -0.12257041470653751,
+      "trades": 159,
+      "assumed_fills": 29,
+      "days": 251
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.2950826473259305,
+      "sharpe": 1.066649791239206,
+      "max_drawdown": -0.2935985785269807,
+      "trades": 43,
+      "assumed_fills": 3,
+      "days": 251
+     }
+    }
+   },
+   "2021": {
+    "tau": {
+     "model": 0.55,
+     "mech": 0.45
+    },
+    "inner_sharpe": {
+     "model": [
+      1.0911969203025016,
+      1.3199044768276855,
+      1.4287190932253913,
+      1.315222602183888,
+      1.327602967939436,
+      1.3846663149692018,
+      1.5400155791235906,
+      1.5386417284374885
+     ],
+     "mech": [
+      1.2807956157444471,
+      1.4931259137218766,
+      1.4214941934747647,
+      1.615774963282432,
+      1.615774963282432,
+      1.6080687685708501,
+      1.6080687685708501,
+      1.6080687685708501
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.15249275623754754,
+      "sharpe": 1.0385751298674268,
+      "max_drawdown": -0.09740802654225333,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "mech": {
+      "ann_return": 0.15275092861374873,
+      "sharpe": 1.0394287188592886,
+      "max_drawdown": -0.09734829025194669,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "dc": {
+      "ann_return": 0.15275092861374873,
+      "sharpe": 1.0394287188592886,
+      "max_drawdown": -0.09734829025194669,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "bh": {
+      "ann_return": 0.5466006132438417,
+      "sharpe": 1.8142037986512063,
+      "max_drawdown": -0.17288238875110074,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 249
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.1623581920937025,
+      "sharpe": 1.098287759005221,
+      "max_drawdown": -0.09513415584910856,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "mech@0.2%": {
+      "ann_return": 0.16261815934246826,
+      "sharpe": 1.099108426513764,
+      "max_drawdown": -0.09509822473111729,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "dc@0.2%": {
+      "ann_return": 0.16261815934246826,
+      "sharpe": 1.099108426513764,
+      "max_drawdown": -0.09509822473111729,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "bh@0.2%": {
+      "ann_return": 0.5486474791264457,
+      "sharpe": 1.819163648095366,
+      "max_drawdown": -0.17288238875110074,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 249
+     },
+     "model@0.8%": {
+      "ann_return": 0.133008863216306,
+      "sharpe": 0.9197195077977111,
+      "max_drawdown": -0.10208823432312997,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "mech@0.8%": {
+      "ann_return": 0.13326347090641466,
+      "sharpe": 0.9206428116485194,
+      "max_drawdown": -0.10188885959997263,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "dc@0.8%": {
+      "ann_return": 0.13326347090641466,
+      "sharpe": 0.9206428116485194,
+      "max_drawdown": -0.10188885959997263,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "bh@0.8%": {
+      "ann_return": 0.5425102121581602,
+      "sharpe": 1.8041979848794618,
+      "max_drawdown": -0.17288238875110074,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 249
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.16824969454908212,
+      "sharpe": 1.1235212832787167,
+      "max_drawdown": -0.09552971106453056,
+      "trades": 162,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.16851198294185377,
+      "sharpe": 1.124336949034954,
+      "max_drawdown": -0.09546985046157541,
+      "trades": 162,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.5226733123253289,
+      "sharpe": 1.7673129495729634,
+      "max_drawdown": -0.16743556331920895,
+      "trades": 47,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.1505944865768336,
+      "sharpe": 1.0256596488297494,
+      "max_drawdown": -0.09740802654225367,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.1508522337175744,
+      "sharpe": 1.0265226867070265,
+      "max_drawdown": -0.09734829025194691,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.5466006132438417,
+      "sharpe": 1.8142037986512063,
+      "max_drawdown": -0.17288238875110074,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 249
+     }
+    }
+   },
+   "2022": {
+    "tau": {
+     "model": 0.4,
+     "mech": 0.4
+    },
+    "inner_sharpe": {
+     "model": [
+      0.7068520983829345,
+      0.9437428341168392,
+      0.8896981727498475,
+      1.0769324560902132,
+      1.0587779187338298,
+      1.0516621588019945,
+      1.0385751298674268,
+      1.0420270039234418
+     ],
+     "mech": [
+      0.7823280174117255,
+      0.982801453159851,
+      1.0242740181234475,
+      1.0567748142770426,
+      1.0394287188592886,
+      1.0394287188592886,
+      1.0394287188592886,
+      1.0394287188592886
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.09840633379328301,
+      "sharpe": -0.7484202964773458,
+      "max_drawdown": -0.14548887739623229,
+      "trades": 178,
+      "assumed_fills": 29,
+      "days": 248
+     },
+     "mech": {
+      "ann_return": -0.1075748136038116,
+      "sharpe": -0.8008764283543827,
+      "max_drawdown": -0.15512558051765635,
+      "trades": 180,
+      "assumed_fills": 30,
+      "days": 248
+     },
+     "dc": {
+      "ann_return": -0.10408640937663616,
+      "sharpe": -0.7692970296196093,
+      "max_drawdown": -0.15187556951684145,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "bh": {
+      "ann_return": -0.32257013408955004,
+      "sharpe": -1.0845294370528338,
+      "max_drawdown": -0.454634897526601,
+      "trades": 47,
+      "assumed_fills": 4,
+      "days": 248
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": -0.09129616057652878,
+      "sharpe": -0.6869766152404215,
+      "max_drawdown": -0.14097241406712857,
+      "trades": 178,
+      "assumed_fills": 29,
+      "days": 248
+     },
+     "mech@0.2%": {
+      "ann_return": -0.10045948157757056,
+      "sharpe": -0.7404965314392171,
+      "max_drawdown": -0.15064120869539777,
+      "trades": 180,
+      "assumed_fills": 30,
+      "days": 248
+     },
+     "dc@0.2%": {
+      "ann_return": -0.09694426280806301,
+      "sharpe": -0.7090485235279782,
+      "max_drawdown": -0.1473748753625821,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "bh@0.2%": {
+      "ann_return": -0.3217900228975126,
+      "sharpe": -1.0808458063132986,
+      "max_drawdown": -0.4546117301450229,
+      "trades": 47,
+      "assumed_fills": 4,
+      "days": 248
+     },
+     "model@0.8%": {
+      "ann_return": -0.11246267013141964,
+      "sharpe": -0.8711452300339514,
+      "max_drawdown": -0.1544516514054517,
+      "trades": 178,
+      "assumed_fills": 29,
+      "days": 248
+     },
+     "mech@0.8%": {
+      "ann_return": -0.12163979480328779,
+      "sharpe": -0.921486874468909,
+      "max_drawdown": -0.16402438567775846,
+      "trades": 180,
+      "assumed_fills": 30,
+      "days": 248
+     },
+     "dc@0.8%": {
+      "ann_return": -0.1182044181465246,
+      "sharpe": -0.8896498132460662,
+      "max_drawdown": -0.1608067787020755,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "bh@0.8%": {
+      "ann_return": -0.3241297343494284,
+      "sharpe": -1.0918631367768261,
+      "max_drawdown": -0.4546812308135818,
+      "trades": 47,
+      "assumed_fills": 4,
+      "days": 248
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.10384312597197232,
+      "sharpe": -0.8062452474550923,
+      "max_drawdown": -0.16361023936352692,
+      "trades": 170,
+      "assumed_fills": 0,
+      "days": 248
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": -0.10536130786043063,
+      "sharpe": -0.7931116993978641,
+      "max_drawdown": -0.16453834169614345,
+      "trades": 171,
+      "assumed_fills": 0,
+      "days": 248
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": -0.32091192486144837,
+      "sharpe": -1.0785548868660373,
+      "max_drawdown": -0.4547543135928407,
+      "trades": 47,
+      "assumed_fills": 0,
+      "days": 248
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.10330054081893192,
+      "sharpe": -0.7867462390348969,
+      "max_drawdown": -0.15005406982864733,
+      "trades": 178,
+      "assumed_fills": 29,
+      "days": 248
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": -0.10895491589138329,
+      "sharpe": -0.8062117759956545,
+      "max_drawdown": -0.1564114239509028,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": -0.32257013408955004,
+      "sharpe": -1.0845294370528338,
+      "max_drawdown": -0.454634897526601,
+      "trades": 47,
+      "assumed_fills": 4,
+      "days": 248
+     }
+    }
+   },
+   "2023": {
+    "tau": {
+     "model": 0.25,
+     "mech": 0.3
+    },
+    "inner_sharpe": {
+     "model": [
+      -0.5441554109331692,
+      -0.6850564710891425,
+      -0.7650547908725486,
+      -0.7741018925383996,
+      -0.7493192412243818,
+      -0.7871897445328053,
+      -0.7865107601984379,
+      -0.78372195077746
+     ],
+     "mech": [
+      -0.6110610199655553,
+      -0.5404157898127839,
+      -0.638391388284179,
+      -0.8008764283543827,
+      -0.7692970296196093,
+      -0.7692970296196093,
+      -0.7692970296196093,
+      -0.7692970296196093
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.047100766939386696,
+      "sharpe": -0.8521553628240144,
+      "max_drawdown": -0.07183984489179607,
+      "trades": 152,
+      "assumed_fills": 29,
+      "days": 243
+     },
+     "mech": {
+      "ann_return": -0.04061241241884417,
+      "sharpe": -0.602892093234851,
+      "max_drawdown": -0.08545439007832778,
+      "trades": 153,
+      "assumed_fills": 28,
+      "days": 243
+     },
+     "dc": {
+      "ann_return": 0.032766498195964555,
+      "sharpe": 0.3871586049793008,
+      "max_drawdown": -0.1011021091972023,
+      "trades": 154,
+      "assumed_fills": 26,
+      "days": 243
+     },
+     "bh": {
+      "ann_return": 0.17081586917484226,
+      "sharpe": 0.9658237733056716,
+      "max_drawdown": -0.1777244570577975,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 243
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": -0.0403903901902013,
+      "sharpe": -0.7258672520162242,
+      "max_drawdown": -0.06908268108654703,
+      "trades": 152,
+      "assumed_fills": 29,
+      "days": 243
+     },
+     "mech@0.2%": {
+      "ann_return": -0.033803521406361114,
+      "sharpe": -0.49601695410903324,
+      "max_drawdown": -0.08277624088097868,
+      "trades": 153,
+      "assumed_fills": 28,
+      "days": 243
+     },
+     "dc@0.2%": {
+      "ann_return": 0.040169736014592505,
+      "sharpe": 0.4631644704118294,
+      "max_drawdown": -0.09874462398134176,
+      "trades": 154,
+      "assumed_fills": 26,
+      "days": 243
+     },
+     "bh@0.2%": {
+      "ann_return": 0.17212681946218034,
+      "sharpe": 0.9718833009339527,
+      "max_drawdown": -0.17772445705779694,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 243
+     },
+     "model@0.8%": {
+      "ann_return": -0.060382516172735934,
+      "sharpe": -1.1028262564305658,
+      "max_drawdown": -0.07733049350656884,
+      "trades": 152,
+      "assumed_fills": 29,
+      "days": 243
+     },
+     "mech@0.8%": {
+      "ann_return": -0.05408837081549145,
+      "sharpe": -0.8146920682092853,
+      "max_drawdown": -0.0907882149201259,
+      "trades": 153,
+      "assumed_fills": 28,
+      "days": 243
+     },
+     "dc@0.8%": {
+      "ann_return": 0.01811423689317193,
+      "sharpe": 0.236047462411556,
+      "max_drawdown": -0.10612690211431386,
+      "trades": 154,
+      "assumed_fills": 26,
+      "days": 243
+     },
+     "bh@0.8%": {
+      "ann_return": 0.1681947597367619,
+      "sharpe": 0.9536057186668159,
+      "max_drawdown": -0.17772445705779694,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 243
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.05120650248340386,
+      "sharpe": -0.8662379580629036,
+      "max_drawdown": -0.07775852218594037,
+      "trades": 141,
+      "assumed_fills": 0,
+      "days": 243
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.023515006134671612,
+      "sharpe": 0.2888204799444358,
+      "max_drawdown": -0.10640187614826213,
+      "trades": 143,
+      "assumed_fills": 0,
+      "days": 243
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.14891074447096786,
+      "sharpe": 0.8817443843045927,
+      "max_drawdown": -0.17223165622628567,
+      "trades": 46,
+      "assumed_fills": 0,
+      "days": 243
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.05011247959134113,
+      "sharpe": -0.9006994221565718,
+      "max_drawdown": -0.07466875890318425,
+      "trades": 152,
+      "assumed_fills": 29,
+      "days": 243
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.03040336524892484,
+      "sharpe": 0.3624592991659801,
+      "max_drawdown": -0.10308555284852772,
+      "trades": 154,
+      "assumed_fills": 26,
+      "days": 243
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.17081586917484226,
+      "sharpe": 0.9658237733056716,
+      "max_drawdown": -0.1777244570577975,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 243
+     }
+    }
+   },
+   "2024": {
+    "tau": {
+     "model": 0.55,
+     "mech": 0.4
+    },
+    "inner_sharpe": {
+     "model": [
+      -1.017300935618819,
+      -0.34116973253503885,
+      -0.14034339685605102,
+      0.13369661048086043,
+      0.3204903938195811,
+      0.33478542074014683,
+      0.3759070579296541,
+      0.36818721075750993
+     ],
+     "mech": [
+      -0.9070356674874828,
+      -0.602892093234851,
+      -0.022889476544257065,
+      0.39719616032774324,
+      0.3871586049793008,
+      0.3871586049793008,
+      0.3871586049793008,
+      0.3871586049793008
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.014054127322274512,
+      "sharpe": 0.2500606469714291,
+      "max_drawdown": -0.05021382233804084,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "mech": {
+      "ann_return": 0.013269073494263761,
+      "sharpe": 0.23898965378146714,
+      "max_drawdown": -0.050728865254709654,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "dc": {
+      "ann_return": 0.014054127322274512,
+      "sharpe": 0.2500606469714291,
+      "max_drawdown": -0.05021382233804084,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "bh": {
+      "ann_return": 0.165489348431187,
+      "sharpe": 1.2258085893995,
+      "max_drawdown": -0.07781783115038399,
+      "trades": 44,
+      "assumed_fills": 4,
+      "days": 249
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.021266599383891638,
+      "sharpe": 0.3613783509833313,
+      "max_drawdown": -0.048067795352529696,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "mech@0.2%": {
+      "ann_return": 0.020475175109918364,
+      "sharpe": 0.35092318929543326,
+      "max_drawdown": -0.048584626549043386,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "dc@0.2%": {
+      "ann_return": 0.021266599383891638,
+      "sharpe": 0.3613783509833313,
+      "max_drawdown": -0.048067795352529696,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "bh@0.2%": {
+      "ann_return": 0.16667143386874406,
+      "sharpe": 1.2336365500138229,
+      "max_drawdown": -0.07781783115038399,
+      "trades": 44,
+      "assumed_fills": 4,
+      "days": 249
+     },
+     "model@0.8%": {
+      "ann_return": -0.00022095953289813508,
+      "sharpe": 0.02860567933470906,
+      "max_drawdown": -0.05585150861584065,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "mech@0.8%": {
+      "ann_return": -0.000993367817729074,
+      "sharpe": 0.01628765970562078,
+      "max_drawdown": -0.05636227888532608,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "dc@0.8%": {
+      "ann_return": -0.00022095953289813508,
+      "sharpe": 0.02860567933470906,
+      "max_drawdown": -0.05585150861584065,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "bh@0.8%": {
+      "ann_return": 0.16312522038820254,
+      "sharpe": 1.2099485551981224,
+      "max_drawdown": -0.07781783115038399,
+      "trades": 44,
+      "assumed_fills": 4,
+      "days": 249
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.004232087896286485,
+      "sharpe": 0.09866161785753279,
+      "max_drawdown": -0.054645404921842555,
+      "trades": 150,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.004232087896286485,
+      "sharpe": 0.09866161785753279,
+      "max_drawdown": -0.054645404921842555,
+      "trades": 150,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.1482988714709983,
+      "sharpe": 1.1468905324739993,
+      "max_drawdown": -0.0782571860572635,
+      "trades": 44,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.014054127322274512,
+      "sharpe": 0.2500606469714291,
+      "max_drawdown": -0.05021382233804084,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.014054127322274512,
+      "sharpe": 0.2500606469714291,
+      "max_drawdown": -0.05021382233804084,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.165489348431187,
+      "sharpe": 1.2258085893995,
+      "max_drawdown": -0.07781783115038399,
+      "trades": 44,
+      "assumed_fills": 4,
+      "days": 249
+     }
+    }
+   },
+   "2025": {
+    "tau": {
+     "model": 0.6,
+     "mech": 0.6
+    },
+    "inner_sharpe": {
+     "model": [
+      -0.14561674992305107,
+      -0.2188380369446399,
+      0.010808415258648958,
+      0.12493344463736322,
+      0.2485192327138347,
+      0.24730711868761326,
+      0.2500606469714291,
+      0.2500606469714291
+     ],
+     "mech": [
+      0.06964357308129436,
+      -0.09438853492734993,
+      -0.10077055745400287,
+      0.23898965378146714,
+      0.2500606469714291,
+      0.2500606469714291,
+      0.2500606469714291,
+      0.2500606469714291
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.29922066983188156,
+      "sharpe": 1.8666303075252682,
+      "max_drawdown": -0.08128742100715691,
+      "trades": 151,
+      "assumed_fills": 19,
+      "days": 247
+     },
+     "mech": {
+      "ann_return": 0.30170041858874597,
+      "sharpe": 1.87266973161221,
+      "max_drawdown": -0.08260570890193264,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "dc": {
+      "ann_return": 0.30170041858874597,
+      "sharpe": 1.87266973161221,
+      "max_drawdown": -0.08260570890193264,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "bh": {
+      "ann_return": 0.41711610659019605,
+      "sharpe": 1.524975125538845,
+      "max_drawdown": -0.2019807605282843,
+      "trades": 45,
+      "assumed_fills": 4,
+      "days": 247
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.3085592961740511,
+      "sharpe": 1.9182143932726172,
+      "max_drawdown": -0.0785140754545749,
+      "trades": 151,
+      "assumed_fills": 19,
+      "days": 247
+     },
+     "mech@0.2%": {
+      "ann_return": 0.3110561918968202,
+      "sharpe": 1.923999383548394,
+      "max_drawdown": -0.07994325680028636,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "dc@0.2%": {
+      "ann_return": 0.3110561918968202,
+      "sharpe": 1.923999383548394,
+      "max_drawdown": -0.07994325680028636,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "bh@0.2%": {
+      "ann_return": 0.4186561712389858,
+      "sharpe": 1.5292988211887504,
+      "max_drawdown": -0.20198076052828395,
+      "trades": 45,
+      "assumed_fills": 4,
+      "days": 247
+     },
+     "model@0.8%": {
+      "ann_return": 0.28073875441169194,
+      "sharpe": 1.7636926537946038,
+      "max_drawdown": -0.0868100546886732,
+      "trades": 151,
+      "assumed_fills": 19,
+      "days": 247
+     },
+     "mech@0.8%": {
+      "ann_return": 0.283184193511129,
+      "sharpe": 1.770205944829707,
+      "max_drawdown": -0.08790841178541997,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "dc@0.8%": {
+      "ann_return": 0.283184193511129,
+      "sharpe": 1.770205944829707,
+      "max_drawdown": -0.08790841178541997,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "bh@0.8%": {
+      "ann_return": 0.41403667625073104,
+      "sharpe": 1.5162520053223716,
+      "max_drawdown": -0.2019807605282843,
+      "trades": 45,
+      "assumed_fills": 4,
+      "days": 247
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.30837810253897513,
+      "sharpe": 1.9316616091986876,
+      "max_drawdown": -0.07608591260305131,
+      "trades": 144,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.31110362229274036,
+      "sharpe": 1.938628296697086,
+      "max_drawdown": -0.0776531236626844,
+      "trades": 144,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.4036816809114201,
+      "sharpe": 1.527594175710533,
+      "max_drawdown": -0.1954878776425526,
+      "trades": 45,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.2948414264721091,
+      "sharpe": 1.8228902169534769,
+      "max_drawdown": -0.08128742100715691,
+      "trades": 151,
+      "assumed_fills": 19,
+      "days": 247
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.29731281681571087,
+      "sharpe": 1.829118719939327,
+      "max_drawdown": -0.08260570890193264,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.41711610659019605,
+      "sharpe": 1.524975125538845,
+      "max_drawdown": -0.2019807605282843,
+      "trades": 45,
+      "assumed_fills": 4,
+      "days": 247
+     }
+    }
+   },
+   "2026": {
+    "tau": {
+     "model": 0.35,
+     "mech": 0.6
+    },
+    "inner_sharpe": {
+     "model": [
+      1.9436622506353571,
+      1.8472762101577718,
+      1.9768901320093117,
+      1.889445943641498,
+      1.8767559680051078,
+      1.8751385983594053,
+      1.8666303075252682,
+      1.8666303075252682
+     ],
+     "mech": [
+      1.615731629167846,
+      1.7667986657048056,
+      1.7332846990038648,
+      1.87266973161221,
+      1.87266973161221,
+      1.87266973161221,
+      1.87266973161221,
+      1.87266973161221
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.05821953742252195,
+      "sharpe": -0.779333515544917,
+      "max_drawdown": -0.06719215941778245,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "mech": {
+      "ann_return": -0.075664346857367,
+      "sharpe": -0.9773722263872949,
+      "max_drawdown": -0.0821583364355366,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "dc": {
+      "ann_return": -0.075664346857367,
+      "sharpe": -0.9773722263872949,
+      "max_drawdown": -0.0821583364355366,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "bh": {
+      "ann_return": -0.04788236902827547,
+      "sharpe": -0.20288721310410068,
+      "max_drawdown": -0.139589954140949,
+      "trades": 46,
+      "assumed_fills": 3,
+      "days": 218
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": -0.050548777590575744,
+      "sharpe": -0.6693119154601699,
+      "max_drawdown": -0.06091289099530284,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "mech@0.2%": {
+      "ann_return": -0.068135125615717,
+      "sharpe": -0.8734017151955223,
+      "max_drawdown": -0.07597934340496171,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "dc@0.2%": {
+      "ann_return": -0.068135125615717,
+      "sharpe": -0.8734017151955223,
+      "max_drawdown": -0.07597934340496171,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "bh@0.2%": {
+      "ann_return": -0.04661125434872926,
+      "sharpe": -0.19526489820860254,
+      "max_drawdown": -0.139549059648581,
+      "trades": 46,
+      "assumed_fills": 3,
+      "days": 218
+     },
+     "model@0.8%": {
+      "ann_return": -0.07337779456608828,
+      "sharpe": -0.9988132882286606,
+      "max_drawdown": -0.0796268152104147,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "mech@0.8%": {
+      "ann_return": -0.09054302950228876,
+      "sharpe": -1.184479897937609,
+      "max_drawdown": -0.09439452608239474,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "dc@0.8%": {
+      "ann_return": -0.09054302950228876,
+      "sharpe": -1.184479897937609,
+      "max_drawdown": -0.09439452608239474,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "bh@0.8%": {
+      "ann_return": -0.05042293080631399,
+      "sharpe": -0.2180800025970957,
+      "max_drawdown": -0.1396717431256861,
+      "trades": 46,
+      "assumed_fills": 3,
+      "days": 218
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.050554091546974655,
+      "sharpe": -0.6793122424954843,
+      "max_drawdown": -0.060627713286542595,
+      "trades": 143,
+      "assumed_fills": 0,
+      "days": 218
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": -0.06748256608361414,
+      "sharpe": -0.8763096453868164,
+      "max_drawdown": -0.07513435568180116,
+      "trades": 143,
+      "assumed_fills": 0,
+      "days": 218
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": -0.04858422364140491,
+      "sharpe": -0.21338133936363332,
+      "max_drawdown": -0.13471574354213822,
+      "trades": 45,
+      "assumed_fills": 0,
+      "days": 218
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.059018522389530426,
+      "sharpe": -0.790604737762137,
+      "max_drawdown": -0.06787679889069742,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": -0.07644853204773461,
+      "sharpe": -0.9880376396735364,
+      "max_drawdown": -0.08283199140006803,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": -0.04788236902827547,
+      "sharpe": -0.20288721310410068,
+      "max_drawdown": -0.139589954140949,
+      "trades": 46,
+      "assumed_fills": 3,
+      "days": 218
+     }
+    }
+   }
+  },
+  "pooled": {
+   "model": {
+    "ann_return": 0.050540655203114015,
+    "sharpe": 0.5081230441876811,
+    "max_drawdown": -0.20224743340717488,
+    "days": 2450
+   },
+   "mech": {
+    "ann_return": 0.0439691657957082,
+    "sharpe": 0.4598537502235302,
+    "max_drawdown": -0.20547919458979758,
+    "days": 2450
+   },
+   "dc": {
+    "ann_return": 0.06890765394859844,
+    "sharpe": 0.6263267598328583,
+    "max_drawdown": -0.197746782692518,
+    "days": 2450
+   },
+   "bh": {
+    "ann_return": 0.13889823082855024,
+    "sharpe": 0.6983989468886611,
+    "max_drawdown": -0.45468528765829785,
+    "days": 2450
+   },
+   "model@0.2%": {
+    "ann_return": 0.05876404366071708,
+    "sharpe": 0.5805351279649489,
+    "max_drawdown": -0.1821583974757981,
+    "days": 2450
+   },
+   "mech@0.2%": {
+    "ann_return": 0.0521598072264744,
+    "sharpe": 0.534337174103244,
+    "max_drawdown": -0.1914093745114699,
+    "days": 2450
+   },
+   "dc@0.2%": {
+    "ann_return": 0.077307173668689,
+    "sharpe": 0.6937019378005376,
+    "max_drawdown": -0.18829982111698673,
+    "days": 2450
+   },
+   "bh@0.2%": {
+    "ann_return": 0.1403263796250207,
+    "sharpe": 0.7040592708536034,
+    "max_drawdown": -0.45461173014502276,
+    "days": 2450
+   },
+   "model@0.8%": {
+    "ann_return": 0.034282130663509935,
+    "sharpe": 0.36386577049222985,
+    "max_drawdown": -0.2478434289845275,
+    "days": 2450
+   },
+   "mech@0.8%": {
+    "ann_return": 0.027775901748022802,
+    "sharpe": 0.3114571840705285,
+    "max_drawdown": -0.2510952057983339,
+    "days": 2450
+   },
+   "dc@0.8%": {
+    "ann_return": 0.052301267606135626,
+    "sharpe": 0.49200486442143654,
+    "max_drawdown": -0.2227238416507049,
+    "days": 2450
+   },
+   "bh@0.8%": {
+    "ann_return": 0.13604373004334902,
+    "sharpe": 0.6870348241581048,
+    "max_drawdown": -0.4559460563784288,
+    "days": 2450
+   },
+   "model@skip_unknown_limits": {
+    "ann_return": 0.051935924051446536,
+    "sharpe": 0.5219085212324203,
+    "max_drawdown": -0.20560565464446268,
+    "days": 2450
+   },
+   "dc@skip_unknown_limits": {
+    "ann_return": 0.06830776105345104,
+    "sharpe": 0.6246409456499852,
+    "max_drawdown": -0.20278691698378215,
+    "days": 2450
+   },
+   "bh@skip_unknown_limits": {
+    "ann_return": 0.1302121862201031,
+    "sharpe": 0.6684899345028434,
+    "max_drawdown": -0.45475431359284035,
+    "days": 2450
+   },
+   "model@fail_on_floor_close": {
+    "ann_return": 0.04708775601822768,
+    "sharpe": 0.47628609060379584,
+    "max_drawdown": -0.2115414783896833,
+    "days": 2450
+   },
+   "dc@fail_on_floor_close": {
+    "ann_return": 0.06537515069434319,
+    "sharpe": 0.5964181826668333,
+    "max_drawdown": -0.20826733944590137,
+    "days": 2450
+   },
+   "bh@fail_on_floor_close": {
+    "ann_return": 0.13889823082855024,
+    "sharpe": 0.6983989468886611,
+    "max_drawdown": -0.45468528765829785,
+    "days": 2450
+   }
+  },
+  "dsr": {
+   "model": {
+    "dsr": 0.8154796498434569,
+    "sr_period": 0.032008743103373524,
+    "sr0_period": 0.013563349477372942,
+    "n_trials": 16,
+    "skew": -0.9125073138106854,
+    "kurtosis": 14.40025898999138,
+    "t": 2450
+   },
+   "mech": {
+    "dsr": 0.7742907276784693,
+    "sr_period": 0.028968063394092233,
+    "sr0_period": 0.013563349477372942,
+    "n_trials": 16,
+    "skew": -0.7676036088406808,
+    "kurtosis": 13.298174602544032,
+    "t": 2450
+   }
+  },
+  "sharpe_diffs": {
+   "model-dc": {
+    "point": -0.11820371564517729,
+    "lo": -0.2556192367725102,
+    "hi": 0.01663228774617946,
+    "n": 200
+   },
+   "model-bh": {
+    "point": -0.19027590270098005,
+    "lo": -0.5571349567221915,
+    "hi": 0.31103991441184814,
+    "n": 200
+   },
+   "model-mech": {
+    "point": 0.04826929396415086,
+    "lo": -0.06721804333041831,
+    "hi": 0.12928043327227426,
+    "n": 200
+   },
+   "mech-dc": {
+    "point": -0.16647300960932815,
+    "lo": -0.30138339257979335,
+    "hi": -0.011135891189033402,
+    "n": 200
+   },
+   "dc-bh": {
+    "point": -0.07207218705580276,
+    "lo": -0.443530326860772,
+    "hi": 0.3565526281432192,
+    "n": 200
+   }
+  },
+  "sharpe_diffs_block_sensitivity": {
+   "40": {
+    "model-dc": {
+     "point": -0.11820371564517729,
+     "lo": -0.25139612445248705,
+     "hi": 0.0013161218437353858,
+     "n": 200
+    },
+    "model-bh": {
+     "point": -0.19027590270098005,
+     "lo": -0.6077883677415076,
+     "hi": 0.24814381810151953,
+     "n": 200
+    },
+    "model-mech": {
+     "point": 0.04826929396415086,
+     "lo": -0.03322058772910233,
+     "hi": 0.14337677196398463,
+     "n": 200
+    }
+   },
+   "60": {
+    "model-dc": {
+     "point": -0.11820371564517729,
+     "lo": -0.2763207152122556,
+     "hi": 0.004515117396709661,
+     "n": 200
+    },
+    "model-bh": {
+     "point": -0.19027590270098005,
+     "lo": -0.581718393764359,
+     "hi": 0.22563426168015122,
+     "n": 200
+    },
+    "model-mech": {
+     "point": 0.04826929396415086,
+     "lo": -0.023414829169484286,
+     "hi": 0.13603438022858827,
+     "n": 200
+    }
+   }
+  },
+  "subperiod_sharpe": {
+   "2017-2019": {
+    "model": 0.34632380057933587,
+    "mech": 0.37890175579333363,
+    "dc": 0.4615744881509807,
+    "bh": 0.744031642506583
+   },
+   "2020-2021": {
+    "model": 1.2119069527798747,
+    "mech": 1.1377016999346663,
+    "dc": 1.3456435884869833,
+    "bh": 1.4249204686002341
+   },
+   "2022": {
+    "model": -0.7484202964773458,
+    "mech": -0.8008764283543827,
+    "dc": -0.7692970296196093,
+    "bh": -1.0845294370528338
+   },
+   "2023-2026": {
+    "model": 0.5345306237532182,
+    "mech": 0.4990682368446289,
+    "dc": 0.6612726249715882,
+    "bh": 0.9382885578724963
+   }
+  },
+  "n_trials": 16,
+  "psr": {
+   "model": 0.9404773000565858,
+   "mech": 0.9216254472752746
+  },
+  "trial_sharpes": [
+   0.017186131816091257,
+   0.021165124830491162,
+   0.03027902147672506,
+   0.035105703518286846,
+   0.03652134843200126,
+   0.03586450601337831,
+   0.03707288821948557,
+   0.03824845631418304,
+   0.019993464394653344,
+   0.03059109437431629,
+   0.034516477922621726,
+   0.03946926524269851,
+   0.039526562784945395,
+   0.03945487728530052,
+   0.03945487728530052,
+   0.03945487728530052
+  ],
+  "h5_supported": false,
+  "dsr_n": [
+   {
+    "n": 16,
+    "sr0_period": 0.014807805569185093,
+    "dsr": 0.7988914036901331
+   },
+   {
+    "n": 32,
+    "sr0_period": 0.017270330665181566,
+    "dsr": 0.7635429046600223
+   },
+   {
+    "n": 96,
+    "sr0_period": 0.02069450024404039,
+    "dsr": 0.7091804240149222
+   }
+  ]
+ },
+ "close": {
+  "folds": {
+   "2017": {
+    "tau": {
+     "model": 0.4,
+     "mech": 0.3
+    },
+    "inner_sharpe": {
+     "model": [
+      -0.22083393229212503,
+      0.08066721212932172,
+      0.49292457820984403,
+      0.5389076117127561,
+      0.4084642820474834,
+      0.4442236194472464,
+      0.41675819275675763,
+      0.41675819275675763
+     ],
+     "mech": [
+      0.2558170474856356,
+      0.5838239686706024,
+      0.46563794461959246,
+      0.4256097491463493,
+      0.4256097491463493,
+      0.4256097491463493,
+      0.4256097491463493,
+      0.4256097491463493
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.26406371978941645,
+      "sharpe": 2.8568152338812713,
+      "max_drawdown": -0.0639990639637007,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "mech": {
+      "ann_return": 0.16900994891451382,
+      "sharpe": 2.4082442752699222,
+      "max_drawdown": -0.05639201043551101,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc": {
+      "ann_return": 0.2849811417488486,
+      "sharpe": 2.892116201374392,
+      "max_drawdown": -0.06681228196727673,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh": {
+      "ann_return": 0.4941667849432747,
+      "sharpe": 3.445333761733538,
+      "max_drawdown": -0.06889626782322655,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.27451937339224397,
+      "sharpe": 2.9553572534466825,
+      "max_drawdown": -0.06262759021549624,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "mech@0.2%": {
+      "ann_return": 0.178687059128952,
+      "sharpe": 2.534223943730792,
+      "max_drawdown": -0.05408705210696285,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@0.2%": {
+      "ann_return": 0.2956070422699626,
+      "sharpe": 2.985781261740295,
+      "max_drawdown": -0.06538941326067305,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@0.2%": {
+      "ann_return": 0.4962792115602792,
+      "sharpe": 3.4567788777835404,
+      "max_drawdown": -0.06881396990004962,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@0.8%": {
+      "ann_return": 0.24340520842303937,
+      "sharpe": 2.6587605228616726,
+      "max_drawdown": -0.06673638127879422,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "mech@0.8%": {
+      "ann_return": 0.14989065858595718,
+      "sharpe": 2.1556489893600195,
+      "max_drawdown": -0.06098566598282806,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@0.8%": {
+      "ann_return": 0.2639861877460763,
+      "sharpe": 2.7040072844718765,
+      "max_drawdown": -0.06965194868908964,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@0.8%": {
+      "ann_return": 0.48994619689484487,
+      "sharpe": 3.421669082481178,
+      "max_drawdown": -0.06906086366958064,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.26406371978941645,
+      "sharpe": 2.8568152338812713,
+      "max_drawdown": -0.0639990639637007,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.2849811417488486,
+      "sharpe": 2.892116201374392,
+      "max_drawdown": -0.06681228196727673,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.4941667849432747,
+      "sharpe": 3.445333761733538,
+      "max_drawdown": -0.06889626782322655,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.26406371978941645,
+      "sharpe": 2.8568152338812713,
+      "max_drawdown": -0.0639990639637007,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.2849811417488486,
+      "sharpe": 2.892116201374392,
+      "max_drawdown": -0.06681228196727673,
+      "trades": 135,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.4941667849432747,
+      "sharpe": 3.445333761733538,
+      "max_drawdown": -0.06889626782322655,
+      "trades": 40,
+      "assumed_fills": 0,
+      "days": 249
+     }
+    }
+   },
+   "2018": {
+    "tau": {
+     "model": 0.5,
+     "mech": 0.6
+    },
+    "inner_sharpe": {
+     "model": [
+      2.4180878611863705,
+      2.8138371605216044,
+      2.8682556822028,
+      2.8977162909534138,
+      2.9627317844465733,
+      3.0064220488845894,
+      2.998461783349232,
+      2.892116201374392
+     ],
+     "mech": [
+      1.8747955291500595,
+      2.3953173927121343,
+      2.7964381245079037,
+      2.892116201374392,
+      2.892116201374392,
+      2.892116201374392,
+      2.892116201374392,
+      2.892116201374392
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.1418490216354541,
+      "sharpe": -1.5196818500011207,
+      "max_drawdown": -0.17095087843312584,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "mech": {
+      "ann_return": -0.14094692976914924,
+      "sharpe": -1.5087526359593135,
+      "max_drawdown": -0.17095087843312584,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "dc": {
+      "ann_return": -0.14094692976914924,
+      "sharpe": -1.5087526359593135,
+      "max_drawdown": -0.17095087843312584,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "bh": {
+      "ann_return": -0.10935909507067676,
+      "sharpe": -0.39347844696920575,
+      "max_drawdown": -0.27063828765151665,
+      "trades": 42,
+      "assumed_fills": 2,
+      "days": 247
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": -0.13456112067094117,
+      "sharpe": -1.4303630341039248,
+      "max_drawdown": -0.16834049208566915,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "mech@0.2%": {
+      "ann_return": -0.13365139408534654,
+      "sharpe": -1.4194624306153245,
+      "max_drawdown": -0.16834049208566915,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "dc@0.2%": {
+      "ann_return": -0.13365139408534654,
+      "sharpe": -1.4194624306153245,
+      "max_drawdown": -0.16834049208566915,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "bh@0.2%": {
+      "ann_return": -0.10790123888936387,
+      "sharpe": -0.38631284421587153,
+      "max_drawdown": -0.27061657620490154,
+      "trades": 42,
+      "assumed_fills": 2,
+      "days": 247
+     },
+     "model@0.8%": {
+      "ann_return": -0.15624370749647376,
+      "sharpe": -1.6988782302961232,
+      "max_drawdown": -0.1761479482408459,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "mech@0.8%": {
+      "ann_return": -0.1553566959950785,
+      "sharpe": -1.6878934788690747,
+      "max_drawdown": -0.1761479482408459,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "dc@0.8%": {
+      "ann_return": -0.1553566959950785,
+      "sharpe": -1.6878934788690747,
+      "max_drawdown": -0.1761479482408459,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "bh@0.8%": {
+      "ann_return": -0.11227050085783963,
+      "sharpe": -0.407784744600777,
+      "max_drawdown": -0.2706817105447481,
+      "trades": 42,
+      "assumed_fills": 2,
+      "days": 247
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.1428668899014146,
+      "sharpe": -1.5327595590769345,
+      "max_drawdown": -0.17087337751956033,
+      "trades": 145,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": -0.1428668899014146,
+      "sharpe": -1.5327595590769345,
+      "max_drawdown": -0.17087337751956033,
+      "trades": 145,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": -0.11441703813786452,
+      "sharpe": -0.42046621642519355,
+      "max_drawdown": -0.27063828765151743,
+      "trades": 41,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.1418490216354541,
+      "sharpe": -1.5196818500011207,
+      "max_drawdown": -0.17095087843312584,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": -0.14094692976914924,
+      "sharpe": -1.5087526359593135,
+      "max_drawdown": -0.17095087843312584,
+      "trades": 148,
+      "assumed_fills": 12,
+      "days": 247
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": -0.10935909507067676,
+      "sharpe": -0.39347844696920575,
+      "max_drawdown": -0.27063828765151665,
+      "trades": 42,
+      "assumed_fills": 2,
+      "days": 247
+     }
+    }
+   },
+   "2019": {
+    "tau": {
+     "model": 0.3,
+     "mech": 0.3
+    },
+    "inner_sharpe": {
+     "model": [
+      -1.4162532975895954,
+      -1.1667722902731361,
+      -1.3399670610546406,
+      -1.4738408214190073,
+      -1.5265432471769103,
+      -1.513080226243693,
+      -1.5087526359593135,
+      -1.5087526359593135
+     ],
+     "mech": [
+      -1.4135782731832511,
+      -1.1492074794511253,
+      -1.3562150008227545,
+      -1.5087526359593135,
+      -1.5087526359593135,
+      -1.5087526359593135,
+      -1.5087526359593135,
+      -1.5087526359593135
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.011157762678774663,
+      "sharpe": 0.2634028564931439,
+      "max_drawdown": -0.05118996366453732,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "mech": {
+      "ann_return": 0.014351034145394959,
+      "sharpe": 0.346306071895654,
+      "max_drawdown": -0.04493987208890793,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "dc": {
+      "ann_return": 0.01371781210466727,
+      "sharpe": 0.2658001929571026,
+      "max_drawdown": -0.05758645224801784,
+      "trades": 136,
+      "assumed_fills": 31,
+      "days": 249
+     },
+     "bh": {
+      "ann_return": 0.02043445700267621,
+      "sharpe": 0.25244398984827593,
+      "max_drawdown": -0.07979491236877356,
+      "trades": 44,
+      "assumed_fills": 2,
+      "days": 249
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.01858805305290323,
+      "sharpe": 0.4220812604399875,
+      "max_drawdown": -0.04923277796519976,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "mech@0.2%": {
+      "ann_return": 0.021804797688524724,
+      "sharpe": 0.512197880506175,
+      "max_drawdown": -0.04307590507173864,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "dc@0.2%": {
+      "ann_return": 0.021165332996291752,
+      "sharpe": 0.39306711012652784,
+      "max_drawdown": -0.05565180711965856,
+      "trades": 136,
+      "assumed_fills": 31,
+      "days": 249
+     },
+     "bh@0.2%": {
+      "ann_return": 0.021758940455531173,
+      "sharpe": 0.2654674602548522,
+      "max_drawdown": -0.07972173170475094,
+      "trades": 44,
+      "assumed_fills": 2,
+      "days": 249
+     },
+     "model@0.8%": {
+      "ann_return": -0.003542267365734153,
+      "sharpe": -0.053822599204592925,
+      "max_drawdown": -0.05841261031512801,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "mech@0.8%": {
+      "ann_return": -0.00039530993347547394,
+      "sharpe": 0.012782138370226927,
+      "max_drawdown": -0.049464753148288576,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "dc@0.8%": {
+      "ann_return": -0.0010162555921051641,
+      "sharpe": 0.010893031310967307,
+      "max_drawdown": -0.06144434746665761,
+      "trades": 136,
+      "assumed_fills": 31,
+      "days": 249
+     },
+     "bh@0.8%": {
+      "ann_return": 0.017787464068029557,
+      "sharpe": 0.22633830445206476,
+      "max_drawdown": -0.07994126205851482,
+      "trades": 44,
+      "assumed_fills": 2,
+      "days": 249
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.016921950137869457,
+      "sharpe": 0.390964215170106,
+      "max_drawdown": -0.04675043777079446,
+      "trades": 121,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.01530343447425464,
+      "sharpe": 0.305677270471068,
+      "max_drawdown": -0.05446304217548692,
+      "trades": 122,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.008011881533286802,
+      "sharpe": 0.13032884273160567,
+      "max_drawdown": -0.07913210688248684,
+      "trades": 42,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.011157762678774663,
+      "sharpe": 0.2634028564931439,
+      "max_drawdown": -0.05118996366453732,
+      "trades": 136,
+      "assumed_fills": 29,
+      "days": 249
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.01371781210466727,
+      "sharpe": 0.2658001929571026,
+      "max_drawdown": -0.05758645224801784,
+      "trades": 136,
+      "assumed_fills": 31,
+      "days": 249
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.02043445700267621,
+      "sharpe": 0.25244398984827593,
+      "max_drawdown": -0.07979491236877356,
+      "trades": 44,
+      "assumed_fills": 2,
+      "days": 249
+     }
+    }
+   },
+   "2020": {
+    "tau": {
+     "model": 0.25,
+     "mech": 0.25
+    },
+    "inner_sharpe": {
+     "model": [
+      0.45572250902711553,
+      0.2611786603726316,
+      0.13148815219711993,
+      0.2638094740791781,
+      0.2553233036901451,
+      0.25409335521619497,
+      0.2679213494305948,
+      0.2658001929571026
+     ],
+     "mech": [
+      0.6994025297147103,
+      0.346306071895654,
+      0.37281724196881244,
+      0.2658001929571026,
+      0.2658001929571026,
+      0.2658001929571026,
+      0.2658001929571026,
+      0.2658001929571026
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.1071372586299073,
+      "sharpe": 1.511467551906849,
+      "max_drawdown": -0.053937405986335896,
+      "trades": 155,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "mech": {
+      "ann_return": 0.21038418949571236,
+      "sharpe": 2.1756516206145964,
+      "max_drawdown": -0.06801182723018351,
+      "trades": 158,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "dc": {
+      "ann_return": 0.3520227501089426,
+      "sharpe": 2.2547046927109093,
+      "max_drawdown": -0.11107857086363648,
+      "trades": 159,
+      "assumed_fills": 29,
+      "days": 251
+     },
+     "bh": {
+      "ann_return": 0.26170774449017387,
+      "sharpe": 1.1037755027156007,
+      "max_drawdown": -0.3025957218671822,
+      "trades": 43,
+      "assumed_fills": 3,
+      "days": 251
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.11602983760944885,
+      "sharpe": 1.6265435787602918,
+      "max_drawdown": -0.052014643552939166,
+      "trades": 155,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "mech@0.2%": {
+      "ann_return": 0.22030791598630795,
+      "sharpe": 2.2659357685080983,
+      "max_drawdown": -0.06670512728674483,
+      "trades": 158,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "dc@0.2%": {
+      "ann_return": 0.3631533782400149,
+      "sharpe": 2.3119840457110916,
+      "max_drawdown": -0.10980696507802967,
+      "trades": 159,
+      "assumed_fills": 29,
+      "days": 251
+     },
+     "bh@0.2%": {
+      "ann_return": 0.26324427098796477,
+      "sharpe": 1.1087781018713023,
+      "max_drawdown": -0.30252539214996055,
+      "trades": 43,
+      "assumed_fills": 3,
+      "days": 251
+     },
+     "model@0.8%": {
+      "ann_return": 0.08956080185842485,
+      "sharpe": 1.280237934838373,
+      "max_drawdown": -0.05777241640358577,
+      "trades": 155,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "mech@0.8%": {
+      "ann_return": 0.19077490501961036,
+      "sharpe": 1.9943769548691703,
+      "max_drawdown": -0.07062028595936731,
+      "trades": 158,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "dc@0.8%": {
+      "ann_return": 0.3300260921881,
+      "sharpe": 2.139269686693751,
+      "max_drawdown": -0.11361699571558748,
+      "trades": 159,
+      "assumed_fills": 29,
+      "days": 251
+     },
+     "bh@0.8%": {
+      "ann_return": 0.258636494003333,
+      "sharpe": 1.0937048973254062,
+      "max_drawdown": -0.3027363813016264,
+      "trades": 43,
+      "assumed_fills": 3,
+      "days": 251
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.14328472887664634,
+      "sharpe": 1.9225935904302636,
+      "max_drawdown": -0.0479649099469206,
+      "trades": 142,
+      "assumed_fills": 0,
+      "days": 251
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.3404991759393077,
+      "sharpe": 2.2199271497583903,
+      "max_drawdown": -0.1124183646154081,
+      "trades": 145,
+      "assumed_fills": 0,
+      "days": 251
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.24722622871974886,
+      "sharpe": 1.063734242155242,
+      "max_drawdown": -0.30033824248364227,
+      "trades": 41,
+      "assumed_fills": 0,
+      "days": 251
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.1071372586299073,
+      "sharpe": 1.511467551906849,
+      "max_drawdown": -0.053937405986335896,
+      "trades": 155,
+      "assumed_fills": 30,
+      "days": 251
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.3520227501089426,
+      "sharpe": 2.2547046927109093,
+      "max_drawdown": -0.11107857086363648,
+      "trades": 159,
+      "assumed_fills": 29,
+      "days": 251
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.26170774449017387,
+      "sharpe": 1.1037755027156007,
+      "max_drawdown": -0.3025957218671822,
+      "trades": 43,
+      "assumed_fills": 3,
+      "days": 251
+     }
+    }
+   },
+   "2021": {
+    "tau": {
+     "model": 0.55,
+     "mech": 0.3
+    },
+    "inner_sharpe": {
+     "model": [
+      1.8454986655356889,
+      2.140042482335661,
+      2.159350251138875,
+      1.9922075688324603,
+      2.026065164530767,
+      2.0482149033132138,
+      2.2321585536746595,
+      2.2086406784581047
+     ],
+     "mech": [
+      2.1756516206145964,
+      2.2650119805065523,
+      2.0758033306782275,
+      2.2578085185625687,
+      2.2578085185625687,
+      2.2547046927109093,
+      2.2547046927109093,
+      2.2547046927109093
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.18249060476987422,
+      "sharpe": 1.358039138336543,
+      "max_drawdown": -0.09511117393805812,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "mech": {
+      "ann_return": 0.11454746354570511,
+      "sharpe": 1.1939527576377051,
+      "max_drawdown": -0.09402233441724728,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "dc": {
+      "ann_return": 0.1828446383848954,
+      "sharpe": 1.3600163128915348,
+      "max_drawdown": -0.09511117393805812,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "bh": {
+      "ann_return": 0.5462690499493126,
+      "sharpe": 2.0392014890234074,
+      "max_drawdown": -0.1342579610018645,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 249
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.19256048402728787,
+      "sharpe": 1.4231424821135998,
+      "max_drawdown": -0.093134705882292,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "mech@0.2%": {
+      "ann_return": 0.12407434901268344,
+      "sharpe": 1.2844495994606933,
+      "max_drawdown": -0.09122566947593047,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "dc@0.2%": {
+      "ann_return": 0.19291655854390943,
+      "sharpe": 1.425085757187057,
+      "max_drawdown": -0.093134705882292,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "bh@0.2%": {
+      "ann_return": 0.5483117082903961,
+      "sharpe": 2.0447227497423444,
+      "max_drawdown": -0.1342579610018645,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 249
+     },
+     "model@0.8%": {
+      "ann_return": 0.16260166802234655,
+      "sharpe": 1.2275684508547071,
+      "max_drawdown": -0.0990518896418543,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "mech@0.8%": {
+      "ann_return": 0.09573189597606224,
+      "sharpe": 1.012930788818226,
+      "max_drawdown": -0.1000573573878033,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "dc@0.8%": {
+      "ann_return": 0.16295163693059211,
+      "sharpe": 1.2296098666173736,
+      "max_drawdown": -0.0990518896418543,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "bh@0.8%": {
+      "ann_return": 0.5421871331851162,
+      "sharpe": 2.028030998974892,
+      "max_drawdown": -0.1342579610018645,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 249
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.1857673484206459,
+      "sharpe": 1.3748517850301676,
+      "max_drawdown": -0.09499476795257467,
+      "trades": 162,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.18612218395958546,
+      "sharpe": 1.3768064265489286,
+      "max_drawdown": -0.09499476795257467,
+      "trades": 162,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.5172523941698302,
+      "sharpe": 1.9747156756011284,
+      "max_drawdown": -0.1277297809228073,
+      "trades": 47,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.18249060476987422,
+      "sharpe": 1.358039138336543,
+      "max_drawdown": -0.09511117393805812,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.1828446383848954,
+      "sharpe": 1.3600163128915348,
+      "max_drawdown": -0.09511117393805812,
+      "trades": 166,
+      "assumed_fills": 15,
+      "days": 249
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.5462690499493126,
+      "sharpe": 2.0392014890234074,
+      "max_drawdown": -0.1342579610018645,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 249
+     }
+    }
+   },
+   "2022": {
+    "tau": {
+     "model": 0.4,
+     "mech": 0.6
+    },
+    "inner_sharpe": {
+     "model": [
+      0.8609961173194767,
+      1.1944158099595985,
+      1.20560780832614,
+      1.4100298724664067,
+      1.3682984112868624,
+      1.371928563374999,
+      1.358039138336543,
+      1.3580406748812925
+     ],
+     "mech": [
+      0.9459397285425047,
+      1.1939527576377051,
+      1.3269833725800007,
+      1.3527838691954537,
+      1.3600163128915348,
+      1.3600163128915348,
+      1.3600163128915348,
+      1.3600163128915348
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.10357426525931501,
+      "sharpe": -0.8940864802071361,
+      "max_drawdown": -0.14335685149450728,
+      "trades": 178,
+      "assumed_fills": 29,
+      "days": 248
+     },
+     "mech": {
+      "ann_return": -0.11878347259023758,
+      "sharpe": -1.0066502233442631,
+      "max_drawdown": -0.15575524518516826,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "dc": {
+      "ann_return": -0.11878347259023758,
+      "sharpe": -1.0066502233442631,
+      "max_drawdown": -0.15575524518516826,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "bh": {
+      "ann_return": -0.3530117518400673,
+      "sharpe": -1.4538731323834755,
+      "max_drawdown": -0.4420135677019714,
+      "trades": 47,
+      "assumed_fills": 4,
+      "days": 248
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": -0.09651700239432537,
+      "sharpe": -0.8250723095981393,
+      "max_drawdown": -0.1388917092634443,
+      "trades": 178,
+      "assumed_fills": 29,
+      "days": 248
+     },
+     "mech@0.2%": {
+      "ann_return": -0.11176662632046674,
+      "sharpe": -0.939183025148121,
+      "max_drawdown": -0.15133712351585693,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "dc@0.2%": {
+      "ann_return": -0.11176662632046674,
+      "sharpe": -0.939183025148121,
+      "max_drawdown": -0.15133712351585693,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "bh@0.2%": {
+      "ann_return": -0.35225054603401906,
+      "sharpe": -1.4495570479385778,
+      "max_drawdown": -0.4419899815380578,
+      "trades": 47,
+      "assumed_fills": 4,
+      "days": 248
+     },
+     "model@0.8%": {
+      "ann_return": -0.11752635152978486,
+      "sharpe": -1.0322951920580545,
+      "max_drawdown": -0.15221873408429598,
+      "trades": 178,
+      "assumed_fills": 29,
+      "days": 248
+     },
+     "mech@0.8%": {
+      "ann_return": -0.13265405766997507,
+      "sharpe": -1.1416262100007588,
+      "max_drawdown": -0.16452354598354813,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "dc@0.8%": {
+      "ann_return": -0.13265405766997507,
+      "sharpe": -1.1416262100007588,
+      "max_drawdown": -0.16452354598354813,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "bh@0.8%": {
+      "ann_return": -0.35453346366216965,
+      "sharpe": -1.4624458831614509,
+      "max_drawdown": -0.4420607385345461,
+      "trades": 47,
+      "assumed_fills": 4,
+      "days": 248
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.10869733506906731,
+      "sharpe": -0.9746294402373009,
+      "max_drawdown": -0.15957107269122406,
+      "trades": 170,
+      "assumed_fills": 0,
+      "days": 248
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": -0.11362508214621792,
+      "sharpe": -0.9924374767437493,
+      "max_drawdown": -0.16273777555544222,
+      "trades": 171,
+      "assumed_fills": 0,
+      "days": 248
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": -0.35036459278353116,
+      "sharpe": -1.4410338579091773,
+      "max_drawdown": -0.4416543312471315,
+      "trades": 47,
+      "assumed_fills": 0,
+      "days": 248
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.10357426525931501,
+      "sharpe": -0.8940864802071361,
+      "max_drawdown": -0.14335685149450728,
+      "trades": 178,
+      "assumed_fills": 29,
+      "days": 248
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": -0.11878347259023758,
+      "sharpe": -1.0066502233442631,
+      "max_drawdown": -0.15575524518516826,
+      "trades": 180,
+      "assumed_fills": 31,
+      "days": 248
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": -0.3530117518400673,
+      "sharpe": -1.4538731323834755,
+      "max_drawdown": -0.4420135677019714,
+      "trades": 47,
+      "assumed_fills": 4,
+      "days": 248
+     }
+    }
+   },
+   "2023": {
+    "tau": {
+     "model": 0.25,
+     "mech": 0.3
+    },
+    "inner_sharpe": {
+     "model": [
+      -0.576577681457492,
+      -0.7836580996080048,
+      -0.9176697370415965,
+      -0.9375053874309461,
+      -0.9340075605974898,
+      -1.0280608413415482,
+      -1.0205860665912159,
+      -1.0238025407321851
+     ],
+     "mech": [
+      -0.5895292974941027,
+      -0.5520745845120562,
+      -0.7038107763006994,
+      -1.0476041397392208,
+      -1.0066502233442631,
+      -1.0066502233442631,
+      -1.0066502233442631,
+      -1.0066502233442631
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.04976253770363026,
+      "sharpe": -1.1010433362822887,
+      "max_drawdown": -0.06822771831425856,
+      "trades": 152,
+      "assumed_fills": 29,
+      "days": 243
+     },
+     "mech": {
+      "ann_return": -0.04338442645737883,
+      "sharpe": -0.7642611598316966,
+      "max_drawdown": -0.08136009575303171,
+      "trades": 153,
+      "assumed_fills": 28,
+      "days": 243
+     },
+     "dc": {
+      "ann_return": 0.025748038583061073,
+      "sharpe": 0.3359328694264948,
+      "max_drawdown": -0.10212449314923822,
+      "trades": 154,
+      "assumed_fills": 26,
+      "days": 243
+     },
+     "bh": {
+      "ann_return": 0.12782188567013653,
+      "sharpe": 0.7828493093442407,
+      "max_drawdown": -0.17741747894245896,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 243
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": -0.04308045944703176,
+      "sharpe": -0.9466298597828425,
+      "max_drawdown": -0.06593304413827539,
+      "trades": 152,
+      "assumed_fills": 29,
+      "days": 243
+     },
+     "mech@0.2%": {
+      "ann_return": -0.03661091082830681,
+      "sharpe": -0.6379668871968595,
+      "max_drawdown": -0.07903814895219352,
+      "trades": 153,
+      "assumed_fills": 28,
+      "days": 243
+     },
+     "dc@0.2%": {
+      "ann_return": 0.033076328429724855,
+      "sharpe": 0.41773725923467203,
+      "max_drawdown": -0.09979017224160136,
+      "trades": 154,
+      "assumed_fills": 26,
+      "days": 243
+     },
+     "bh@0.2%": {
+      "ann_return": 0.12919374174755438,
+      "sharpe": 0.7898844157373709,
+      "max_drawdown": -0.17741747894245896,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 243
+     },
+     "model@0.8%": {
+      "ann_return": -0.0629884795171124,
+      "sharpe": -1.4093630720150387,
+      "max_drawdown": -0.07280081425137452,
+      "trades": 152,
+      "assumed_fills": 29,
+      "days": 243
+     },
+     "mech@0.8%": {
+      "ann_return": -0.056790657297844604,
+      "sharpe": -1.016734259990043,
+      "max_drawdown": -0.08598731025585904,
+      "trades": 153,
+      "assumed_fills": 28,
+      "days": 243
+     },
+     "dc@0.8%": {
+      "ann_return": 0.011243653696962896,
+      "sharpe": 0.1722337652930036,
+      "max_drawdown": -0.10677618025131586,
+      "trades": 154,
+      "assumed_fills": 26,
+      "days": 243
+     },
+     "bh@0.8%": {
+      "ann_return": 0.12507962154627683,
+      "sharpe": 0.7686980065526885,
+      "max_drawdown": -0.1774174789424584,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 243
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.05479193103054769,
+      "sharpe": -1.1190609000902385,
+      "max_drawdown": -0.07603296187099529,
+      "trades": 141,
+      "assumed_fills": 0,
+      "days": 243
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.02192573934070241,
+      "sharpe": 0.2898315970864822,
+      "max_drawdown": -0.10525520674231392,
+      "trades": 143,
+      "assumed_fills": 0,
+      "days": 243
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.09957879876225006,
+      "sharpe": 0.6510937943791579,
+      "max_drawdown": -0.1713808533741762,
+      "trades": 46,
+      "assumed_fills": 0,
+      "days": 243
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.04976253770363026,
+      "sharpe": -1.1010433362822887,
+      "max_drawdown": -0.06822771831425856,
+      "trades": 152,
+      "assumed_fills": 29,
+      "days": 243
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.025748038583061073,
+      "sharpe": 0.3359328694264948,
+      "max_drawdown": -0.10212449314923822,
+      "trades": 154,
+      "assumed_fills": 26,
+      "days": 243
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.12782188567013653,
+      "sharpe": 0.7828493093442407,
+      "max_drawdown": -0.17741747894245896,
+      "trades": 47,
+      "assumed_fills": 5,
+      "days": 243
+     }
+    }
+   },
+   "2024": {
+    "tau": {
+     "model": 0.55,
+     "mech": 0.4
+    },
+    "inner_sharpe": {
+     "model": [
+      -1.3441967006366622,
+      -0.5046666812416799,
+      -0.23308694863914023,
+      0.06352072517220635,
+      0.2765689886451095,
+      0.2912218080792247,
+      0.3480200669479251,
+      0.32759381751998556
+     ],
+     "mech": [
+      -1.302725450831638,
+      -0.7642611598316966,
+      -0.10097297724188838,
+      0.3482405719377276,
+      0.3359328694264948,
+      0.3359328694264948,
+      0.3359328694264948,
+      0.3359328694264948
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.005216339551441851,
+      "sharpe": -0.053658589646132064,
+      "max_drawdown": -0.0569107013386857,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "mech": {
+      "ann_return": -0.005653078553598756,
+      "sharpe": -0.0611289711851821,
+      "max_drawdown": -0.056573954713438956,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "dc": {
+      "ann_return": -0.005216339551441851,
+      "sharpe": -0.053658589646132064,
+      "max_drawdown": -0.0569107013386857,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "bh": {
+      "ann_return": 0.15793151290488927,
+      "sharpe": 1.2019227724792605,
+      "max_drawdown": -0.07622245298260466,
+      "trades": 44,
+      "assumed_fills": 4,
+      "days": 249
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.0018542370185503643,
+      "sharpe": 0.060822794717362544,
+      "max_drawdown": -0.05575044034163068,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "mech@0.2%": {
+      "ann_return": 0.0014138209881813246,
+      "sharpe": 0.05368788549503623,
+      "max_drawdown": -0.05541326372438504,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "dc@0.2%": {
+      "ann_return": 0.0018542370185503643,
+      "sharpe": 0.060822794717362544,
+      "max_drawdown": -0.05575044034163068,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "bh@0.2%": {
+      "ann_return": 0.15910992776971433,
+      "sharpe": 1.21018884255129,
+      "max_drawdown": -0.07622245298260466,
+      "trades": 44,
+      "assumed_fills": 4,
+      "days": 249
+     },
+     "model@0.8%": {
+      "ann_return": -0.019210697555393286,
+      "sharpe": -0.2821181687967684,
+      "max_drawdown": -0.06144340709862772,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "mech@0.8%": {
+      "ann_return": -0.01964011718747327,
+      "sharpe": -0.2902638242478897,
+      "max_drawdown": -0.061850549883545436,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "dc@0.8%": {
+      "ann_return": -0.019210697555393286,
+      "sharpe": -0.2821181687967684,
+      "max_drawdown": -0.06144340709862772,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "bh@0.8%": {
+      "ann_return": 0.15557472601965938,
+      "sharpe": 1.1851921224784923,
+      "max_drawdown": -0.07622245298260466,
+      "trades": 44,
+      "assumed_fills": 4,
+      "days": 249
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.005509003202513352,
+      "sharpe": -0.05909486234279623,
+      "max_drawdown": -0.05603659486287915,
+      "trades": 150,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": -0.005509003202513352,
+      "sharpe": -0.05909486234279623,
+      "max_drawdown": -0.05603659486287915,
+      "trades": 150,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.14424936684637957,
+      "sharpe": 1.1377203868776347,
+      "max_drawdown": -0.07612786066593347,
+      "trades": 44,
+      "assumed_fills": 0,
+      "days": 249
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.005216339551441851,
+      "sharpe": -0.053658589646132064,
+      "max_drawdown": -0.0569107013386857,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": -0.005216339551441851,
+      "sharpe": -0.053658589646132064,
+      "max_drawdown": -0.0569107013386857,
+      "trades": 154,
+      "assumed_fills": 14,
+      "days": 249
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.15793151290488927,
+      "sharpe": 1.2019227724792605,
+      "max_drawdown": -0.07622245298260466,
+      "trades": 44,
+      "assumed_fills": 4,
+      "days": 249
+     }
+    }
+   },
+   "2025": {
+    "tau": {
+     "model": 0.6,
+     "mech": 0.6
+    },
+    "inner_sharpe": {
+     "model": [
+      -0.48124382033017654,
+      -0.6347252981958231,
+      -0.17179688557665143,
+      -0.09297585873794968,
+      -0.05407485931876801,
+      -0.05365925610378168,
+      -0.053658589646132064,
+      -0.053658589646132064
+     ],
+     "mech": [
+      -0.3358719010972734,
+      -0.39610260062903924,
+      -0.26307709079471003,
+      -0.0611289711851821,
+      -0.053658589646132064,
+      -0.053658589646132064,
+      -0.053658589646132064,
+      -0.053658589646132064
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": 0.31269315774166584,
+      "sharpe": 2.154594455015167,
+      "max_drawdown": -0.08062751957320458,
+      "trades": 151,
+      "assumed_fills": 19,
+      "days": 247
+     },
+     "mech": {
+      "ann_return": 0.31362890562314183,
+      "sharpe": 2.1563251082005155,
+      "max_drawdown": -0.08264261707153742,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "dc": {
+      "ann_return": 0.31362890562314183,
+      "sharpe": 2.1563251082005155,
+      "max_drawdown": -0.08264261707153742,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "bh": {
+      "ann_return": 0.40955262967463724,
+      "sharpe": 1.6946838393741641,
+      "max_drawdown": -0.1724326877389638,
+      "trades": 45,
+      "assumed_fills": 4,
+      "days": 247
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": 0.3220867957200373,
+      "sharpe": 2.209285726466793,
+      "max_drawdown": -0.07819614843884148,
+      "trades": 151,
+      "assumed_fills": 19,
+      "days": 247
+     },
+     "mech@0.2%": {
+      "ann_return": 0.3230293611903605,
+      "sharpe": 2.2109299699626064,
+      "max_drawdown": -0.07997208880231954,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "dc@0.2%": {
+      "ann_return": 0.3230293611903605,
+      "sharpe": 2.2109299699626064,
+      "max_drawdown": -0.07997208880231954,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "bh@0.2%": {
+      "ann_return": 0.4110860904998843,
+      "sharpe": 1.6996817638485542,
+      "max_drawdown": -0.17243268773896414,
+      "trades": 45,
+      "assumed_fills": 4,
+      "days": 247
+     },
+     "model@0.8%": {
+      "ann_return": 0.29410159938848923,
+      "sharpe": 2.044892600189267,
+      "max_drawdown": -0.08616938127171292,
+      "trades": 151,
+      "assumed_fills": 19,
+      "days": 247
+     },
+     "mech@0.8%": {
+      "ann_return": 0.2950234934569971,
+      "sharpe": 2.046765194007775,
+      "max_drawdown": -0.08796128827525418,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "dc@0.8%": {
+      "ann_return": 0.2950234934569971,
+      "sharpe": 2.046765194007775,
+      "max_drawdown": -0.08796128827525418,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "bh@0.8%": {
+      "ann_return": 0.40648639420783894,
+      "sharpe": 1.6845772603507425,
+      "max_drawdown": -0.17243268773896392,
+      "trades": 45,
+      "assumed_fills": 4,
+      "days": 247
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": 0.31101475206056417,
+      "sharpe": 2.1499869309652206,
+      "max_drawdown": -0.07719811104928076,
+      "trades": 144,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": 0.3121777436969051,
+      "sharpe": 2.1530797262999655,
+      "max_drawdown": -0.078762180201013,
+      "trades": 144,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": 0.39499248775909956,
+      "sharpe": 1.6775116319786534,
+      "max_drawdown": -0.16859222481005065,
+      "trades": 45,
+      "assumed_fills": 0,
+      "days": 247
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": 0.31269315774166584,
+      "sharpe": 2.154594455015167,
+      "max_drawdown": -0.08062751957320458,
+      "trades": 151,
+      "assumed_fills": 19,
+      "days": 247
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": 0.31362890562314183,
+      "sharpe": 2.1563251082005155,
+      "max_drawdown": -0.08264261707153742,
+      "trades": 151,
+      "assumed_fills": 18,
+      "days": 247
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": 0.40955262967463724,
+      "sharpe": 1.6946838393741641,
+      "max_drawdown": -0.1724326877389638,
+      "trades": 45,
+      "assumed_fills": 4,
+      "days": 247
+     }
+    }
+   },
+   "2026": {
+    "tau": {
+     "model": 0.35,
+     "mech": 0.6
+    },
+    "inner_sharpe": {
+     "model": [
+      2.2065675402171134,
+      2.163818185428721,
+      2.2934854798434783,
+      2.1478285270511743,
+      2.1696434067187287,
+      2.166486284095303,
+      2.154594455015167,
+      2.154594455015167
+     ],
+     "mech": [
+      1.8897497033124246,
+      2.031882653138232,
+      1.9852378443285061,
+      2.1563251082005155,
+      2.1563251082005155,
+      2.1563251082005155,
+      2.1563251082005155,
+      2.1563251082005155
+     ]
+    },
+    "strategies": {
+     "model": {
+      "ann_return": -0.05826811859630332,
+      "sharpe": -0.8815835172576477,
+      "max_drawdown": -0.0657702028004491,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "mech": {
+      "ann_return": -0.06678541074901923,
+      "sharpe": -0.9686957997726712,
+      "max_drawdown": -0.07281914533255651,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "dc": {
+      "ann_return": -0.06678541074901923,
+      "sharpe": -0.9686957997726712,
+      "max_drawdown": -0.07281914533255651,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "bh": {
+      "ann_return": -0.0497190332629015,
+      "sharpe": -0.2142569451359257,
+      "max_drawdown": -0.14979932645340543,
+      "trades": 46,
+      "assumed_fills": 3,
+      "days": 218
+     }
+    },
+    "sensitivity": {
+     "model@0.2%": {
+      "ann_return": -0.05060373654699768,
+      "sharpe": -0.7575103227285012,
+      "max_drawdown": -0.06292191135717384,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "mech@0.2%": {
+      "ann_return": -0.05919318327276446,
+      "sharpe": -0.8503417735022113,
+      "max_drawdown": -0.06740987489819983,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "dc@0.2%": {
+      "ann_return": -0.05919318327276446,
+      "sharpe": -0.8503417735022113,
+      "max_drawdown": -0.06740987489819983,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "bh@0.2%": {
+      "ann_return": -0.048413720828845874,
+      "sharpe": -0.2061959516556487,
+      "max_drawdown": -0.14975863341372597,
+      "trades": 46,
+      "assumed_fills": 3,
+      "days": 218
+     },
+     "model@0.8%": {
+      "ann_return": -0.07341394457023676,
+      "sharpe": -1.1298958039189868,
+      "max_drawdown": -0.07782640244002781,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "mech@0.8%": {
+      "ann_return": -0.08178885784455403,
+      "sharpe": -1.2055728585092176,
+      "max_drawdown": -0.0850412777420051,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "dc@0.8%": {
+      "ann_return": -0.08178885784455403,
+      "sharpe": -1.2055728585092176,
+      "max_drawdown": -0.0850412777420051,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "bh@0.8%": {
+      "ann_return": -0.05232760963420158,
+      "sharpe": -0.23035110802265213,
+      "max_drawdown": -0.14988071253276636,
+      "trades": 46,
+      "assumed_fills": 3,
+      "days": 218
+     },
+     "model@skip_unknown_limits": {
+      "ann_return": -0.05397533445880498,
+      "sharpe": -0.8356604616036369,
+      "max_drawdown": -0.06199235249573898,
+      "trades": 143,
+      "assumed_fills": 0,
+      "days": 218
+     },
+     "dc@skip_unknown_limits": {
+      "ann_return": -0.06188597646361127,
+      "sharpe": -0.9159692292396963,
+      "max_drawdown": -0.06848394797290513,
+      "trades": 143,
+      "assumed_fills": 0,
+      "days": 218
+     },
+     "bh@skip_unknown_limits": {
+      "ann_return": -0.051645121057041776,
+      "sharpe": -0.2401708696285948,
+      "max_drawdown": -0.1451273319471409,
+      "trades": 45,
+      "assumed_fills": 0,
+      "days": 218
+     },
+     "model@fail_on_floor_close": {
+      "ann_return": -0.05826811859630332,
+      "sharpe": -0.8815835172576477,
+      "max_drawdown": -0.0657702028004491,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "dc@fail_on_floor_close": {
+      "ann_return": -0.06678541074901923,
+      "sharpe": -0.9686957997726712,
+      "max_drawdown": -0.07281914533255651,
+      "trades": 149,
+      "assumed_fills": 13,
+      "days": 218
+     },
+     "bh@fail_on_floor_close": {
+      "ann_return": -0.0497190332629015,
+      "sharpe": -0.2142569451359257,
+      "max_drawdown": -0.14979932645340543,
+      "trades": 46,
+      "assumed_fills": 3,
+      "days": 218
+     }
+    }
+   }
+  },
+  "pooled": {
+   "model": {
+    "ann_return": 0.04332246507619453,
+    "sharpe": 0.5151924089246956,
+    "max_drawdown": -0.20704707621537966,
+    "days": 2450
+   },
+   "mech": {
+    "ann_return": 0.036823847906781504,
+    "sharpe": 0.45780866574601314,
+    "max_drawdown": -0.22639935485414053,
+    "days": 2450
+   },
+   "dc": {
+    "ann_return": 0.07257128558451997,
+    "sharpe": 0.7348300551499983,
+    "max_drawdown": -0.19978815530043537,
+    "days": 2450
+   },
+   "bh": {
+    "ann_return": 0.11866030375455239,
+    "sharpe": 0.6719160157598228,
+    "max_drawdown": -0.4420135677019712,
+    "days": 2450
+   },
+   "model@0.2%": {
+    "ann_return": 0.051454352595683206,
+    "sharpe": 0.6009809419226391,
+    "max_drawdown": -0.1881759397706526,
+    "days": 2450
+   },
+   "mech@0.2%": {
+    "ann_return": 0.044940973807705786,
+    "sharpe": 0.5468987869876207,
+    "max_drawdown": -0.2073778566768637,
+    "days": 2450
+   },
+   "dc@0.2%": {
+    "ann_return": 0.08097412462587794,
+    "sharpe": 0.8105970262250659,
+    "max_drawdown": -0.18697614650965155,
+    "days": 2450
+   },
+   "bh@0.2%": {
+    "ann_return": 0.1200862647668739,
+    "sharpe": 0.6784123665877846,
+    "max_drawdown": -0.4419899815380587,
+    "days": 2450
+   },
+   "model@0.8%": {
+    "ann_return": 0.02724417868146123,
+    "sharpe": 0.3432932080063208,
+    "max_drawdown": -0.25248275466699577,
+    "days": 2450
+   },
+   "mech@0.8%": {
+    "ann_return": 0.020775595477797948,
+    "sharpe": 0.2793478136676804,
+    "max_drawdown": -0.2706966451520785,
+    "days": 2450
+   },
+   "dc@0.8%": {
+    "ann_return": 0.05595775263740865,
+    "sharpe": 0.5829332096827479,
+    "max_drawdown": -0.22481328574649606,
+    "days": 2450
+   },
+   "bh@0.8%": {
+    "ann_return": 0.11581032954469128,
+    "sharpe": 0.6588680468929923,
+    "max_drawdown": -0.4445685834870292,
+    "days": 2450
+   },
+   "model@skip_unknown_limits": {
+    "ann_return": 0.046635103047901305,
+    "sharpe": 0.551230299126131,
+    "max_drawdown": -0.21168418721941618,
+    "days": 2450
+   },
+   "dc@skip_unknown_limits": {
+    "ann_return": 0.07244545558639448,
+    "sharpe": 0.738903053529609,
+    "max_drawdown": -0.19650251761000126,
+    "days": 2450
+   },
+   "bh@skip_unknown_limits": {
+    "ann_return": 0.10812270171668303,
+    "sharpe": 0.6290592760417509,
+    "max_drawdown": -0.44794818706163375,
+    "days": 2450
+   },
+   "model@fail_on_floor_close": {
+    "ann_return": 0.04332246507619453,
+    "sharpe": 0.5151924089246956,
+    "max_drawdown": -0.20704707621537966,
+    "days": 2450
+   },
+   "dc@fail_on_floor_close": {
+    "ann_return": 0.07257128558451997,
+    "sharpe": 0.7348300551499983,
+    "max_drawdown": -0.19978815530043537,
+    "days": 2450
+   },
+   "bh@fail_on_floor_close": {
+    "ann_return": 0.11866030375455239,
+    "sharpe": 0.6719160157598228,
+    "max_drawdown": -0.4420135677019712,
+    "days": 2450
+   }
+  },
+  "dsr": {
+   "model": {
+    "dsr": 0.8234831040182167,
+    "sr_period": 0.03245407122292948,
+    "sr0_period": 0.01331223408953408,
+    "n_trials": 16,
+    "skew": -1.1344003190968108,
+    "kurtosis": 14.477769579599691,
+    "t": 2450
+   },
+   "mech": {
+    "dsr": 0.7744274683238244,
+    "sr_period": 0.028839235181291552,
+    "sr0_period": 0.01331223408953408,
+    "n_trials": 16,
+    "skew": -1.281481457082676,
+    "kurtosis": 15.123575903703305,
+    "t": 2450
+   }
+  },
+  "sharpe_diffs": {
+   "model-dc": {
+    "point": -0.21963764622530269,
+    "lo": -0.4668774630775885,
+    "hi": 0.018599339050711552,
+    "n": 200
+   },
+   "model-bh": {
+    "point": -0.1567236068351272,
+    "lo": -0.5812507279357043,
+    "hi": 0.4345524350192882,
+    "n": 200
+   },
+   "model-mech": {
+    "point": 0.0573837431786825,
+    "lo": -0.1438635061533603,
+    "hi": 0.23819093020560414,
+    "n": 200
+   },
+   "mech-dc": {
+    "point": -0.2770213894039852,
+    "lo": -0.4589843344877854,
+    "hi": -0.07705862236721965,
+    "n": 200
+   },
+   "dc-bh": {
+    "point": 0.06291403939017548,
+    "lo": -0.321358153630678,
+    "hi": 0.48192173073726674,
+    "n": 200
+   }
+  },
+  "sharpe_diffs_block_sensitivity": {
+   "40": {
+    "model-dc": {
+     "point": -0.21963764622530269,
+     "lo": -0.5098896942613729,
+     "hi": 0.003051468721385517,
+     "n": 200
+    },
+    "model-bh": {
+     "point": -0.1567236068351272,
+     "lo": -0.6582774452675869,
+     "hi": 0.39718119133755125,
+     "n": 200
+    },
+    "model-mech": {
+     "point": 0.0573837431786825,
+     "lo": -0.1487418906965112,
+     "hi": 0.2424827537899818,
+     "n": 200
+    }
+   },
+   "60": {
+    "model-dc": {
+     "point": -0.21963764622530269,
+     "lo": -0.5206657407550616,
+     "hi": -0.018286587919244868,
+     "n": 200
+    },
+    "model-bh": {
+     "point": -0.1567236068351272,
+     "lo": -0.6415106407226521,
+     "hi": 0.3404175079356401,
+     "n": 200
+    },
+    "model-mech": {
+     "point": 0.0573837431786825,
+     "lo": -0.1314898574886966,
+     "hi": 0.22795925927758157,
+     "n": 200
+    }
+   }
+  },
+  "subperiod_sharpe": {
+   "2017-2019": {
+    "model": 0.4353218572141734,
+    "mech": 0.12702745595916987,
+    "dc": 0.497890214962125,
+    "bh": 0.7238132620148026
+   },
+   "2020-2021": {
+    "model": 1.3507525081454101,
+    "mech": 1.6740007749366714,
+    "dc": 1.823185707949533,
+    "bh": 1.5605322791662477
+   },
+   "2022": {
+    "model": -0.8940864802071361,
+    "mech": -1.0066502233442631,
+    "dc": -1.0066502233442631,
+    "bh": -1.4538731323834755
+   },
+   "2023-2026": {
+    "model": 0.5487009005474887,
+    "mech": 0.5329496094492557,
+    "dc": 0.696612776621365,
+    "bh": 0.9209460358554185
+   }
+  },
+  "n_trials": 16,
+  "psr": {
+   "model": 0.942325807576236,
+   "mech": 0.9191736541381017
+  },
+  "trial_sharpes": [
+   0.02303205011766561,
+   0.029244850545416142,
+   0.038859134567689635,
+   0.041718325773460206,
+   0.043496571307085,
+   0.04268568917036691,
+   0.044208854132215814,
+   0.045525563760687796,
+   0.027876504754987905,
+   0.03967445749132721,
+   0.043057530148002676,
+   0.04604162657062358,
+   0.0463177198523949,
+   0.04628994242435175,
+   0.04628994242435175,
+   0.04628994242435175
+  ],
+  "h5_supported": false,
+  "dsr_n": [
+   {
+    "n": 16,
+    "sr0_period": 0.014807805569185093,
+    "dsr": 0.8040450528816581
+   },
+   {
+    "n": 32,
+    "sr0_period": 0.017270330665181566,
+    "dsr": 0.7693422652690055
+   },
+   {
+    "n": 96,
+    "sr0_period": 0.02069450024404039,
+    "dsr": 0.7158473414293708
+   }
+  ]
+ }
+}

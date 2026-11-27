@@ -1,0 +1,33 @@
+{
+  "git_commit": "8807ed112369e2e324afd8f1f48f682d164b3654",
+  "features_run": "20261126T052338Z-features-1f0c80b50427479e-k2",
+  "snapshot_id": "1f0c80b50427479e",
+  "announcement": "2025-10-07",
+  "post_terms": [
+    "spx_ret",
+    "nasdaq_ret",
+    "vix_chg",
+    "ust10_chg",
+    "dxy_ret",
+    "spx_ret_xdir",
+    "nasdaq_ret_xdir",
+    "vix_chg_xdir",
+    "ust10_chg_xdir",
+    "dxy_ret_xdir"
+  ],
+  "ridge_C": 100.0,
+  "placebo_years": [
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "window": "13 months"
+}

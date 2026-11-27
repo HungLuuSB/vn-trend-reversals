@@ -1,0 +1,1 @@
+{"protocol": "D-022 diagnostic (not pre-registered): extra shuffled-label controls, 2016 fold", "script": "scripts/diag_d022_shuffle.py (ran from a scratchpad copy; the committed file is the same logic, reformatted for lint)", "git_commit": "df98d1e363f719e791e4078afce9e01504dd85bf+dirty", "from_run": "20261124T211529Z-devdecompose-D-022", "seeds": "3..14"}

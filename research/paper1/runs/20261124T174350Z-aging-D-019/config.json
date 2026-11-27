@@ -1,0 +1,19 @@
+{
+  "protocol": "D-019 descriptive",
+  "features_run": "20261124T081754Z-features-b536ec69488162e0-k2",
+  "from_run": "20261124T163259Z-devdecompose-D-019",
+  "git_commit": "dad8ea71067be5a85415f889e42ea006038b7950",
+  "params": {
+    "C": 0.01,
+    "l1_ratio": 0.5
+  },
+  "horizon": 5,
+  "age_buckets": [
+    "1-5",
+    "6-10",
+    "11-20",
+    "21-40",
+    "41-80",
+    ">80"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+ "rows": 41437,
+ "stocks": 51,
+ "first": "2012-01-03",
+ "last": "2016-12-30",
+ "results": {
+  "random:next:trend": {
+   "accuracy": 0.6028985507246377,
+   "majority_class": 0.6033816425120773,
+   "n_train": 35192,
+   "n_test": 6210
+  },
+  "random:next:pk": {
+   "accuracy": 0.8347826086956521,
+   "majority_class": 0.7616747181964574,
+   "n_train": 35192,
+   "n_test": 6210
+  },
+  "random:next:ret": {
+   "r2": 0.014137386267337737,
+   "n_train": 35192,
+   "n_test": 6210
+  },
+  "random:same:trend": {
+   "accuracy": 0.999034749034749,
+   "majority_class": 0.5997425997425998,
+   "n_train": 35221,
+   "n_test": 6216
+  },
+  "random:same:pk": {
+   "accuracy": 0.9969433719433719,
+   "majority_class": 0.7697876447876448,
+   "n_train": 35221,
+   "n_test": 6216
+  },
+  "random:same:ret": {
+   "r2": 0.9997387033274722,
+   "n_train": 35221,
+   "n_test": 6216
+  },
+  "chronological:next:trend": {
+   "accuracy": 0.6065390749601276,
+   "majority_class": 0.6076555023923444,
+   "n_train": 35132,
+   "n_test": 6270
+  },
+  "chronological:next:pk": {
+   "accuracy": 0.8365231259968102,
+   "majority_class": 0.7688995215311005,
+   "n_train": 35132,
+   "n_test": 6270
+  },
+  "chronological:next:ret": {
+   "r2": -0.01012199116688084,
+   "n_train": 35132,
+   "n_test": 6270
+  },
+  "chronological:same:trend": {
+   "accuracy": 0.993496192893401,
+   "majority_class": 0.6083439086294415,
+   "n_train": 35133,
+   "n_test": 6304
+  },
+  "chronological:same:pk": {
+   "accuracy": 0.9939720812182741,
+   "majority_class": 0.768242385786802,
+   "n_train": 35133,
+   "n_test": 6304
+  },
+  "chronological:same:ret": {
+   "r2": 0.9995163016965639,
+   "n_train": 35133,
+   "n_test": 6304
+  }
+ }
+}

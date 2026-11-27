@@ -1,0 +1,55 @@
+{
+  "k2": {
+    "rows": 139241,
+    "stocks": 88,
+    "rows_up_share": 0.534002197628572,
+    "outcome_stats_through": "2016-12-31",
+    "dev_rows": 40201,
+    "dev_event_rows": 39808,
+    "dev_censored_rows": 393,
+    "dev_censored_by_reason": {
+      "universe_exit": 295,
+      "halt": 82,
+      "end_of_sample": 16
+    },
+    "dev_reversals": 3656,
+    "dev_median_duration_at_entry_event_rows": 14.0,
+    "dev_median_swing_age_at_reversal": 24.0,
+    "dev_share_rows_reversal_within_5d": 0.26698340837292606
+  },
+  "k1_5": {
+    "rows": 139241,
+    "stocks": 88,
+    "rows_up_share": 0.5196529757758132,
+    "outcome_stats_through": "2016-12-31",
+    "dev_rows": 40201,
+    "dev_event_rows": 40041,
+    "dev_censored_rows": 160,
+    "dev_censored_by_reason": {
+      "universe_exit": 142,
+      "halt": 18
+    },
+    "dev_reversals": 5398,
+    "dev_median_duration_at_entry_event_rows": 9.0,
+    "dev_median_swing_age_at_reversal": 19.0,
+    "dev_share_rows_reversal_within_5d": 0.3714086714260839
+  },
+  "k3": {
+    "rows": 139241,
+    "stocks": 88,
+    "rows_up_share": 0.5752975057633887,
+    "outcome_stats_through": "2016-12-31",
+    "dev_rows": 40201,
+    "dev_event_rows": 39471,
+    "dev_censored_rows": 730,
+    "dev_censored_by_reason": {
+      "universe_exit": 602,
+      "end_of_sample": 69,
+      "halt": 59
+    },
+    "dev_reversals": 1995,
+    "dev_median_duration_at_entry_event_rows": 24.0,
+    "dev_median_swing_age_at_reversal": 41.0,
+    "dev_share_rows_reversal_within_5d": 0.15325489415686178
+  }
+}

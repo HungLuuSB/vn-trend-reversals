@@ -16,8 +16,12 @@
 *.gz
 data/
 raw/
-research/paper*/runs/*/
+research/paper*/runs/*/*
 !research/paper*/runs/.gitkeep
+# Paper 1's run records are public: small aggregate JSON only (no data, no logs)
+!research/paper1/runs/*/config.json
+!research/paper1/runs/*/metrics.json
+!research/paper1/runs/*/summary.json
 
 # --- Exception: curated reference seeds are code (sourced, hand-checked, small) ---
 !dbt/seeds/*.csv

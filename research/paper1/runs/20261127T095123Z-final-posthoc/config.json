@@ -1,0 +1,67 @@
+{
+ "git_commit": "8b5b580fc014235823fbf72387b11a9ccb3cb3d3",
+ "created_at_utc": "2026-11-27T09:51:23.827731+00:00",
+ "decision": "D-031 (post hoc)",
+ "cache": "/root/vnbank/data/final_cache/vnbank/cache/main",
+ "years": [
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022,
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "resamples": 1000,
+ "like_for_like": [
+  [
+   "gbm_ABC",
+   "M_flex"
+  ],
+  [
+   "rsf_ABC",
+   "M_flex"
+  ],
+  [
+   "nn_static_ABCD",
+   "M_flex"
+  ],
+  [
+   "nn_seq_ABC",
+   "M_flex"
+  ],
+  [
+   "nn_seq_ABCD",
+   "M_flex"
+  ],
+  [
+   "gbm_ABCD",
+   "M_flex"
+  ],
+  [
+   "rsf_ABCD",
+   "M_flex"
+  ]
+ ],
+ "decomposition": [
+  [
+   "RW",
+   "km"
+  ],
+  [
+   "M_flex",
+   "RW"
+  ],
+  [
+   "ABCx",
+   "M_flex"
+  ],
+  [
+   "nn_seq_ABC",
+   "M_flex"
+  ]
+ ]
+}

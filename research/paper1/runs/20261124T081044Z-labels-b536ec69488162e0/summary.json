@@ -1,0 +1,50 @@
+{
+  "k2": {
+    "rows": 139241,
+    "stocks": 88,
+    "event_rows": 136976,
+    "censored_rows": 2265,
+    "censored_by_reason": {
+      "universe_exit": 843,
+      "end_of_sample": 784,
+      "halt": 638
+    },
+    "rows_up_share": 0.534002197628572,
+    "reversals_in_study": 13980,
+    "median_duration_at_entry_event_rows": 13.0,
+    "median_swing_age_at_reversal": 26.0,
+    "share_rows_reversal_within_5d": 0.26265970511559095
+  },
+  "k1_5": {
+    "rows": 139241,
+    "stocks": 88,
+    "event_rows": 137829,
+    "censored_rows": 1412,
+    "censored_by_reason": {
+      "end_of_sample": 598,
+      "universe_exit": 414,
+      "halt": 400
+    },
+    "rows_up_share": 0.5196529757758132,
+    "reversals_in_study": 20288,
+    "median_duration_at_entry_event_rows": 9.0,
+    "median_swing_age_at_reversal": 20.0,
+    "share_rows_reversal_within_5d": 0.36211317068966753
+  },
+  "k3": {
+    "rows": 139241,
+    "stocks": 88,
+    "event_rows": 135566,
+    "censored_rows": 3675,
+    "censored_by_reason": {
+      "universe_exit": 1494,
+      "end_of_sample": 1133,
+      "halt": 1048
+    },
+    "rows_up_share": 0.5752975057633887,
+    "reversals_in_study": 7862,
+    "median_duration_at_entry_event_rows": 24.0,
+    "median_swing_age_at_reversal": 42.5,
+    "share_rows_reversal_within_5d": 0.1530870936003045
+  }
+}

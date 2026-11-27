@@ -1,0 +1,46 @@
+{
+  "protocol": "D-019",
+  "features_run": "20261124T081754Z-features-b536ec69488162e0-k2",
+  "snapshot_id": "b536ec69488162e0",
+  "git_commit": "eeca6cc78bdcc3e1a26ddf2e227e0ece22a74207",
+  "specs": {
+    "DIST": [
+      "swing_dist"
+    ],
+    "M": [
+      "swing_age",
+      "log_age",
+      "swing_dist"
+    ],
+    "AGE": [
+      "swing_age",
+      "log_age"
+    ]
+  },
+  "diffs": [
+    [
+      "M",
+      "DIST"
+    ],
+    [
+      "AGE",
+      "km"
+    ],
+    [
+      "DIST",
+      "km"
+    ]
+  ],
+  "folds": [
+    2014,
+    2015,
+    2016
+  ],
+  "horizons": [
+    5,
+    10,
+    20
+  ],
+  "bootstrap": 200,
+  "block": 20
+}
