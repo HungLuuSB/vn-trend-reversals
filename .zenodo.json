@@ -1,0 +1,12 @@
+{
+  "title": "Code for: Predictable but Mostly Mechanical: Survival Forecasts of Trend Reversals in Vietnamese Stocks",
+  "upload_type": "software",
+  "description": "Data pipeline, models, evaluation and paper sources for a study of when price swings of Vietnamese stocks reverse. Swings are volatility-scaled directional-change swings of VN30 members (point in time) and listed banks, 2012-2026; reversal timing is forecast with landmark survival models and tested once, walk-forward, on 2017-2026. The repository holds the code, the dated decision log, the record of every run and the LaTeX sources; it contains no market data. All reported results come from frozen data snapshot 1f0c80b50427479e; research/paper1/COMMIT_MAP.md maps the commit ids recorded in the run folders to this repository. Data are available from the corresponding author on request, subject to the providers' terms.",
+  "creators": [
+    {"name": "Luu, Thai Hung", "orcid": "0009-0004-2909-3359", "affiliation": "Independent Researcher, Vinh Long, Vietnam"},
+    {"name": "Pham Ngo, Nhat Hao", "orcid": "0009-0000-1537-6041", "affiliation": "School of Trade and International Economics, National Economics University, Hanoi, Vietnam"}
+  ],
+  "license": "MIT",
+  "keywords": ["survival analysis", "trend reversal", "directional change", "forecast evaluation", "price limits", "Vietnam"],
+  "access_right": "open"
+}

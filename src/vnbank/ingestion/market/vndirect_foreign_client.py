@@ -1,4 +1,4 @@
-"""VNDirect finfo foreign-flow history (research/paper2/DECISIONS.md P2-018; research use only).
+"""VNDirect finfo foreign-flow history (foreign-flow robustness of Paper 1; research use only).
 
     GET https://api-finfo.vndirect.com.vn/v4/foreigns
         ?q=code:<CODE>~tradingDate:gte:<YYYY-MM-DD>~tradingDate:lte:<YYYY-MM-DD>

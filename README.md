@@ -1,40 +1,65 @@
-# VN Bank Data Platform
+# Predictable but Mostly Mechanical: Survival Forecasts of Trend Reversals in Vietnamese Stocks
 
-Point-in-time, traceable data for listed Vietnamese banks and the VN30, built for two purposes:
+Code, design record and paper sources for the study by Thai Hung Luu and Nhat Hao Pham Ngo.
 
-1. **Research paper:** *When Do Trends Reverse? A Survival Analysis of Price Swings in the Vietnamese Stock Market Under Global Shocks* (VN30 with point-in-time membership, plus all listed banks, 2012–2026). This comes first.
-2. **AI data platform:** market data, a simulated brokerage database (CDC), financial-statement PDFs and news flowing into tested dbt marts, hybrid search and an MCP server. Full plan: [docs/project-summary.md](docs/project-summary.md).
+The paper asks when a price swing of a Vietnamese stock ends, and how much of the answer can be
+forecast with what was public before the market opened. Swings are volatility-scaled
+directional-change swings (threshold 2 × ATR20 / price) of VN30 members, taken as of each date,
+and all listed banks, 2012–2026. Landmark survival models are designed on 2012–2016 and tested
+once, walk-forward, on 2017–2026. Reversal timing is predictable out of sample, but most of the
+skill is mechanical: the distance to the reversal threshold alone accounts for about 88% of the
+gain in the concordance index.
 
-Working rules for humans and AI assistants: [CLAUDE.md](CLAUDE.md).
+## What is here
 
-## Status
+| Path | Contents |
+| --- | --- |
+| `src/vnbank/` | All Python logic: ingestion clients, the directional-change labeller, features, models, evaluation, the final run and the paper-number builder |
+| `dbt/` | ClickHouse models, point-in-time tests (including `no_feature_after_decision_time`) and curated, sourced reference seeds |
+| `research/paper1/DECISIONS.md` | The dated decision log: every design choice, recorded before it was used |
+| `research/paper1/runs/RUNS.md` | Every run, including failed and superseded ones, with its code version and data snapshot |
+| `research/paper1/FINAL_RUN_PROTOCOL.md` | The protocol of the single run on the test years |
+| `research/paper1/COMMIT_MAP.md` | Old → new commit ids (see below) |
+| `papers/paper1/` | LaTeX sources; every number comes from `generated/`, written by code |
+| `tests/` | Unit tests, including hand-built price series with known reversals |
 
-Phase 0 (foundation): project setup, the `research` Docker profile and CI. Data sources are being confirmed in [docs/feasibility-week1.md](docs/feasibility-week1.md).
+## Data
 
-## Quick start
+No market data are in this repository. Daily prices come from CafeF and Yahoo Finance, the VIX and
+US Treasury yields from FRED, and the geopolitical risk index from Caldara and Iacoviello (2022).
+The CafeF and Yahoo Finance data cannot be redistributed; FRED and the risk index are public. All results come from one frozen data
+snapshot, `1f0c80b50427479e`. The data, including the extracted bank ratios, are available from the
+corresponding author on reasonable request, subject to the providers' terms.
 
-Requirements: Linux, Docker with Compose v2, [uv](https://docs.astral.sh/uv/).
+## Reproducing
+
+Requirements: Linux, Docker with Compose v2 and [uv](https://docs.astral.sh/uv/) (Python 3.12).
 
 ```bash
-uv sync                                    # Python 3.12 env + dev tools
-cp .env.example .env                       # then fill in the passwords
-docker compose --profile research up -d    # ClickHouse, SeaweedFS (S3), PostgreSQL
-docker compose ps                          # all three should be "healthy"
-uv run pytest                              # tests
-uv run ruff check . && uv run ruff format .
+uv sync
+cp .env.example .env                        # fill in local passwords
+docker compose --profile research up -d     # ClickHouse, SeaweedFS (S3 raw layer), PostgreSQL
+uv run python -m vnbank.ingestion.market.cafef_ingest   # raw downloads, stored before parsing
+uv run python -m vnbank.ingestion.market.cafef_load
+cd dbt && uv run --env-file ../.env dbt build && cd ..
+uv run python -m vnbank.research.swings.build --snapshot <id>
+uv run python -m vnbank.research.survival.features.assemble --snapshot <id> --labels-run <dir>
+uv run python -m vnbank.research.survival.report         # paper numbers from the logged runs
+uv run pytest
 ```
 
-| Service | Purpose | Local address |
-| --- | --- | --- |
-| ClickHouse | Analytics store: prices, features, marts | `http://localhost:8123` |
-| SeaweedFS | Immutable raw layer (S3 API; replaces MinIO, see [ADR 0001](docs/adr/0001-object-store-seaweedfs.md)) | `http://localhost:8333` |
-| PostgreSQL | Operational metadata, later the Airflow DB | `localhost:5432` |
+Re-downloading gives today's version of the providers' files, which may differ from the frozen
+snapshot. With the snapshot itself, the labels, features and every reported run can be rebuilt
+exactly.
 
-All ports bind to `127.0.0.1`. From another machine, use an SSH tunnel over Tailscale.
+## Commit ids
 
-## Principles
+The history of this repository was rewritten once, on 27 November 2026, to remove material
+belonging to a separate, unpublished paper that shared the repository. The code of this paper was
+not changed, but commit ids were. Run folders and `RUNS.md` record the original ids; look them up in
+`research/paper1/COMMIT_MAP.md`.
 
-- **Raw is immutable.** Every download is stored before it is parsed.
-- **Point in time.** Every observation carries `available_at_utc`. A feature may only use values public before the decision time (09:00 Vietnam time on day t+1).
-- **Chronological evaluation only.** Walk-forward with purging and an embargo. Models read frozen snapshots.
-- **Every number in the paper is generated by code.**
+## Licence and citation
+
+Code: MIT (see `LICENSE`). The paper text in `papers/` and the proposal in `docs/proposals/` are
+© the authors, all rights reserved. To cite the software, see `CITATION.cff`.

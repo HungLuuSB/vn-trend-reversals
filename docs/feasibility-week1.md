@@ -546,4 +546,4 @@ Status 2026-11-25:
 Open, in priority order:
 1. **Neural hazard model** (proposal's fourth model family). It needs a deep-learning dependency (PyTorch), so it waits for the owner's OK.
 2. **Block E**: bank fundamentals (first-released, on `published_at`) and news. This needs the filings and news ingestion.
-4. **Final snapshot freeze** as soon as the pipeline is complete (target early December 2026; D-024 moved it from mid-February 2027), then the single final walk-forward run on 2017–2026. Both need the owner.
+3. **Final snapshot freeze** as soon as the pipeline is complete (target early December 2026; D-024 moved it from mid-February 2027), then the single final walk-forward run on 2017–2026. Both need the owner.
