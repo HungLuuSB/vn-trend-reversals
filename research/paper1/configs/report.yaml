@@ -1,0 +1,19 @@
+# Run folders that feed papers/paper1/generated/ (uv run python -m vnbank.research.survival.report).
+# Every reported number comes from one of these runs or from the frozen snapshot (CLAUDE.md). The
+# final runs are the single walk-forward run on the test years (D-024, D-026, D-027); the builder
+# refuses runs made from uncommitted code.
+snapshot: 1f0c80b50427479e
+labels: 20261126T052329Z-labels-1f0c80b50427479e
+features: 20261126T052338Z-features-1f0c80b50427479e-k2
+evaluate:
+  k2: 20261126T202919Z-final-evaluate-main      # main design (k = 2)
+  k1_5: 20261127T025116Z-final-evaluate-k1_5    # robustness: k = 1.5
+  k3: 20261127T025116Z-final-evaluate-k3        # robustness: k = 3
+backtest:
+  k2: 20261127T071908Z-final-backtest-k2
+  k1_5: 20261127T035918Z-final-backtest-k1_5
+  k3: 20261127T035823Z-final-backtest-k3
+rq4: 20261127T072220Z-final-rq4
+h2: 20261127T072640Z-final-h2
+# development runs end where the final snapshot's labels run begins (counted for Section 4.9)
+dev_runs_before: 20261126T052329Z
