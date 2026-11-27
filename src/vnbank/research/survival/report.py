@@ -584,7 +584,7 @@ def hyper(t: dict[str, str], r: dict) -> None:
                          for a, v in grids[fam].items())  # fmt: skip
         if k:
             lines.append(r"\midrule")
-        # "\\\\*" keeps a family header on the same page as its first model
+        # "\\*" keeps a family header on the same page as its first model
         lines.append(rf"\textbf{{{family_label[fam]}}} & \textit{{Grid: {R.escape(grid)}}} \\*"
                      r" \addlinespace[4pt]")  # fmt: skip
         for m, lab in members:
