@@ -567,30 +567,31 @@ def hyper(t: dict[str, str], r: dict) -> None:
     def fmt(d: dict) -> str:
         return ", ".join(f"{alias.get(k, k)} {v:g}" for k, v in d.items())
 
-    rows = []
-    for m, _, lab in MODELS:
-        if m == "km" or m == "RW":
+    family_label = {"logit": "Logistic hazards", "gbm": "Boosted hazards", "cox": "Cox",
+                    "rsf": "Random survival forests", "nn": "Neural hazards"}  # fmt: skip
+    lines = [
+        r"\begin{longtable}{@{}L{0.36\linewidth}L{0.58\linewidth}@{}}",
+        r"\toprule",
+        r"Model & Chosen setting (number of test years) \\",
+        r"\midrule",
+        r"\endhead",
+    ]
+    for k, fam in enumerate(family_label):
+        members = [(m, lab) for m, _, lab in MODELS if m not in ("km", "RW") and family(m) == fam]
+        if not members:
             continue
-        c = Counter(fmt(r["chosen"][str(y)][m]) for y in YEARS)
-        sel = "; ".join(f"{k} ({v})" for k, v in c.most_common())
-        g = grids[family(m)]
-        grid = "; ".join(
-            f"{alias.get(k, k)} " + "/".join(f"{x:g}" for x in v) for k, v in g.items()
-        )
-        rows.append(
-            {
-                "Model": r"\relax " + lab,
-                "Grid": r"\relax " + R.escape(grid),
-                "Chosen": r"\relax " + R.escape(sel),
-            }
-        )
-    body = R.tabular(
-        pd.DataFrame(rows), align="lll", header=["Model", "Grid", "Chosen (number of test years)"]
-    )
-    # paragraph columns for the long cells (L is defined in the paper's preamble)
-    t["tab_hyper"] = body.replace(
-        "{tabular}{lll}", "{tabular}{L{0.3\\linewidth}L{0.25\\linewidth}L{0.38\\linewidth}}", 1
-    )
+        grid = "; ".join(f"{alias.get(a, a)} " + "/".join(f"{x:g}" for x in v)
+                         for a, v in grids[fam].items())  # fmt: skip
+        if k:
+            lines.append(r"\midrule")
+        lines.append(rf"\multicolumn{{2}}{{@{{}}l}}{{\textbf{{{family_label[fam]}}}"
+                     rf" \quad \textit{{grid: {R.escape(grid)}}}}} \\")  # fmt: skip
+        for m, lab in members:
+            c = Counter(fmt(r["chosen"][str(y)][m]) for y in YEARS)
+            settings = r" \newline ".join(rf"{R.escape(a)} ({v})" for a, v in c.most_common())
+            lines.append(rf"{lab} & {settings} \\ \addlinespace[7pt]")
+    lines += [r"\bottomrule", r"\end{longtable}"]
+    t["tab_hyper"] = "\n".join(lines) + "\n"
 
 
 def fig_peryear(py: dict) -> str:

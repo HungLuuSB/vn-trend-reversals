@@ -10,16 +10,16 @@ test year), by the lowest inner integrated Brier score, and refitted on the full
 Table~\ref{tab:hyper} lists the grids, fixed before the development work, and how often each
 setting was chosen across the 10 test years.
 
-\begin{table}[H]
-\centering
-\caption{Tuning grids and chosen settings, test years 2017--2026. Logistic models: inverse penalty
+{\small
+\begin{center}
+\captionof{table}{Tuning grids and chosen settings, test years 2017--2026. Logistic models: inverse penalty
 (scikit-learn's $C$, not the concordance index) and elastic-net mixing \texttt{l1\_ratio}; boosted models: learning rate and maximum leaf
 nodes; Cox: ridge penalty; random survival forest: minimum leaf size; neural models: hidden units,
 weight decay and epochs. The grids were fixed before development; for the larger logistic
-specifications the strongest penalty, at the edge of the grid, was chosen in most years.}\label{tab:hyper}
-\scriptsize
-\gentable{tab_hyper}
-\end{table}
+specifications the strongest penalty, at the edge of the grid, was chosen in most years.}\label{tab:hyper}\addtocounter{table}{-1}% the longtable below steps the counter
+\end{center}
+\genfile{tab_hyper}
+}
 
 \subsection*{S1.2 Development record}
 All design work used the development years 2012--2016, inside the first training window, and the
