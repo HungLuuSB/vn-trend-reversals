@@ -93,6 +93,15 @@ STRATEGIES = [
     ("dc", "Directional-change exit"),
     ("bh", "Buy-and-hold"),
 ]
+SLICE_LABEL = {
+    "2017-2019": "2017–2019",
+    "2020-2021": "2020–2021",
+    "2023-2026": "2023–2026",
+    "banks": "Banks",
+    "vn30_non_banks": "VN30, non-banks",
+    "no_upcom_banks": "Without UPCoM-only banks",
+    "no_limit_close": "Without closes at the price limit",
+}
 K_LABEL = {"k1_5": "1.5", "k2": "2", "k3": "3"}
 
 
@@ -404,7 +413,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
         ci = s["paired"]["ci"]
         rows.append(
             {
-                "Slice": name.replace("_", " "),
+                "Slice": SLICE_LABEL.get(name, name.replace("_", " ")),
                 "n": R.integer(s["n"]),
                 "CA": R.num(s["metrics"]["ABCDx"]["uno_c_strat"], 3),
                 "CM": R.num(s["metrics"]["M"]["uno_c_strat"], 3),
@@ -1129,6 +1138,25 @@ def main(argv: list[str] | None = None) -> int:
     trading(n, t, bt["k2"])
     insample(n, t, R.Run.load(PAPER, reg["h2"]), R.Run.load(PAPER, reg["rq4"]))
     sample(n, t, reg)
+    dc = R.Run.load(PAPER, reg["data_checks"])
+    m = dc.json("metrics.json")
+    o, b = m["cafef_overlap"], m["block_e_news"]
+    if o["all_five_equal"] != o["overlap_days"]:
+        raise R.ReportError("CafeF sources disagree on some overlap days; the text says they agree")
+    n.add("PriceOverlapDays", R.integer(o["overlap_days"]), dc, "cafef_overlap.overlap_days")
+    n.add("PriceOverlapTickers", R.integer(o["tickers"]), dc, "cafef_overlap.tickers")
+    n.add(
+        "BlockENewsMatched", R.integer(b["with_result_news"]), dc, "block_e_news.with_result_news"
+    )
+    n.add(
+        "BlockENewsLead",
+        R.integer(b["news_before_available"]),
+        dc,
+        "block_e_news.news_before_available",
+    )
+    n.add(
+        "BlockENewsLeadDays", R.num(b["median_lead_days"], 0), dc, "block_e_news.median_lead_days"
+    )
     n.add("SnapshotId", R.escape(reg["snapshot"]), None, "report.yaml snapshot")
     n.add("FinalCommit", R.escape(ev["k2"].commit[:7]), ev["k2"], "config git_commit")
     commit = code_version()

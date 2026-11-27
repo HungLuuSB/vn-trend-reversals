@@ -17,3 +17,4 @@ rq4: 20261127T072220Z-final-rq4
 h2: 20261127T072640Z-final-h2
 # development runs end where the final snapshot's labels run begins (counted for Section 4.9)
 dev_runs_before: 20261126T052329Z
+data_checks: 20261127T082424Z-datachecks   # CafeF overlap and block E news timing (data section)
