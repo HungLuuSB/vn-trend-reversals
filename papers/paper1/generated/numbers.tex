@@ -1,6 +1,6 @@
 % GENERATED FILE: do not edit by hand (CLAUDE.md: every number comes from code).
 % generator: vnbank.research.survival.report
-% generated at commit bebc2699bfe237f5b52ff33cfdcee7843869e84c on 2026-11-27 08:29 UTC
+% generated at commit 0707ede4080ae488812312f624768b7ab4acc354 on 2026-11-27 09:55 UTC
 % source runs:
 %   20261126T052329Z-labels-1f0c80b50427479e (commit 2d9966b5501a)
 %   20261126T052338Z-features-1f0c80b50427479e-k2 (commit 2d9966b5501a)
@@ -13,6 +13,9 @@
 %   20261127T072220Z-final-rq4 (commit 8807ed112369)
 %   20261127T072640Z-final-h2 (commit 8807ed112369)
 %   20261127T082424Z-datachecks (commit 9ea82ce434b8)
+%   20261127T084000Z-abolmakarem-dev (commit 04e47f2c50b5)
+%   20261127T091116Z-final-shap (commit 8b5b580fc014)
+%   20261127T095123Z-final-posthoc (commit 8b5b580fc014)
 
 \newcommand{\ShuffledABCD}{\ensuremath{0.502}} % 20261126T202919Z-final-evaluate-main: stop\_checks.shuffled.shuffled:ABCD.mean
 \newcommand{\ShuffledABCDx}{\ensuremath{0.503}} % 20261126T202919Z-final-evaluate-main: stop\_checks.shuffled.shuffled:ABCDx.mean
@@ -788,5 +791,76 @@
 \newcommand{\BlockENewsMatched}{\ensuremath{1\,057}} % 20261127T082424Z-datachecks: block\_e\_news.with\_result\_news
 \newcommand{\BlockENewsLead}{\ensuremath{1\,056}} % 20261127T082424Z-datachecks: block\_e\_news.news\_before\_available
 \newcommand{\BlockENewsLeadDays}{\ensuremath{36}} % 20261127T082424Z-datachecks: block\_e\_news.median\_lead\_days
+\newcommand{\AbolRandomNextTrend}{\ensuremath{0.603}} % 20261127T084000Z-abolmakarem-dev: results.random:next:trend.accuracy
+\newcommand{\AbolRandomNextPk}{\ensuremath{0.835}} % 20261127T084000Z-abolmakarem-dev: results.random:next:pk.accuracy
+\newcommand{\AbolRandomNextRet}{\ensuremath{0.0141}} % 20261127T084000Z-abolmakarem-dev: results.random:next:ret.r2
+\newcommand{\AbolRandomNextTrendBase}{\ensuremath{0.603}} % 20261127T084000Z-abolmakarem-dev: results.random:next:trend.majority\_class
+\newcommand{\AbolRandomNextPkBase}{\ensuremath{0.762}} % 20261127T084000Z-abolmakarem-dev: results.random:next:pk.majority\_class
+\newcommand{\AbolRandomSameTrend}{\ensuremath{0.999}} % 20261127T084000Z-abolmakarem-dev: results.random:same:trend.accuracy
+\newcommand{\AbolRandomSamePk}{\ensuremath{0.997}} % 20261127T084000Z-abolmakarem-dev: results.random:same:pk.accuracy
+\newcommand{\AbolRandomSameRet}{\ensuremath{0.9997}} % 20261127T084000Z-abolmakarem-dev: results.random:same:ret.r2
+\newcommand{\AbolRandomSameTrendBase}{\ensuremath{0.600}} % 20261127T084000Z-abolmakarem-dev: results.random:same:trend.majority\_class
+\newcommand{\AbolRandomSamePkBase}{\ensuremath{0.770}} % 20261127T084000Z-abolmakarem-dev: results.random:same:pk.majority\_class
+\newcommand{\AbolChronologicalNextTrend}{\ensuremath{0.607}} % 20261127T084000Z-abolmakarem-dev: results.chronological:next:trend.accuracy
+\newcommand{\AbolChronologicalNextPk}{\ensuremath{0.837}} % 20261127T084000Z-abolmakarem-dev: results.chronological:next:pk.accuracy
+\newcommand{\AbolChronologicalNextRet}{\ensuremath{-0.0101}} % 20261127T084000Z-abolmakarem-dev: results.chronological:next:ret.r2
+\newcommand{\AbolChronologicalNextTrendBase}{\ensuremath{0.608}} % 20261127T084000Z-abolmakarem-dev: results.chronological:next:trend.majority\_class
+\newcommand{\AbolChronologicalNextPkBase}{\ensuremath{0.769}} % 20261127T084000Z-abolmakarem-dev: results.chronological:next:pk.majority\_class
+\newcommand{\AbolChronologicalSameTrend}{\ensuremath{0.993}} % 20261127T084000Z-abolmakarem-dev: results.chronological:same:trend.accuracy
+\newcommand{\AbolChronologicalSamePk}{\ensuremath{0.994}} % 20261127T084000Z-abolmakarem-dev: results.chronological:same:pk.accuracy
+\newcommand{\AbolChronologicalSameRet}{\ensuremath{0.9995}} % 20261127T084000Z-abolmakarem-dev: results.chronological:same:ret.r2
+\newcommand{\AbolChronologicalSameTrendBase}{\ensuremath{0.608}} % 20261127T084000Z-abolmakarem-dev: results.chronological:same:trend.majority\_class
+\newcommand{\AbolChronologicalSamePkBase}{\ensuremath{0.768}} % 20261127T084000Z-abolmakarem-dev: results.chronological:same:pk.majority\_class
+\newcommand{\AbolRows}{\ensuremath{41\,437}} % 20261127T084000Z-abolmakarem-dev: rows
+\newcommand{\AbolStocks}{\ensuremath{51}} % 20261127T084000Z-abolmakarem-dev: stocks
+\newcommand{\PHDCGbmABCMFlex}{\ensuremath{[0.002, 0.026]}} % 20261127T095123Z-final-posthoc: gbm\_ABC-M\_flex.c
+\newcommand{\PHDIBSGbmABCMFlex}{\ensuremath{[-0.0035, -0.0003]}} % 20261127T095123Z-final-posthoc: gbm\_ABC-M\_flex.ibs
+\newcommand{\PHImprovesGbmABCMFlex}{Yes} % 20261127T095123Z-final-posthoc: gbm\_ABC-M\_flex.improves
+\newcommand{\PHDCRsfABCMFlex}{\ensuremath{[0.000, 0.024]}} % 20261127T095123Z-final-posthoc: rsf\_ABC-M\_flex.c
+\newcommand{\PHDIBSRsfABCMFlex}{\ensuremath{[-0.0040, -0.0008]}} % 20261127T095123Z-final-posthoc: rsf\_ABC-M\_flex.ibs
+\newcommand{\PHImprovesRsfABCMFlex}{No} % 20261127T095123Z-final-posthoc: rsf\_ABC-M\_flex.improves
+\newcommand{\PHDCNnStaticABCDMFlex}{\ensuremath{[0.004, 0.028]}} % 20261127T095123Z-final-posthoc: nn\_static\_ABCD-M\_flex.c
+\newcommand{\PHDIBSNnStaticABCDMFlex}{\ensuremath{[-0.0036, -0.0005]}} % 20261127T095123Z-final-posthoc: nn\_static\_ABCD-M\_flex.ibs
+\newcommand{\PHImprovesNnStaticABCDMFlex}{Yes} % 20261127T095123Z-final-posthoc: nn\_static\_ABCD-M\_flex.improves
+\newcommand{\PHDCNnSeqABCMFlex}{\ensuremath{[0.007, 0.029]}} % 20261127T095123Z-final-posthoc: nn\_seq\_ABC-M\_flex.c
+\newcommand{\PHDIBSNnSeqABCMFlex}{\ensuremath{[-0.0048, -0.0016]}} % 20261127T095123Z-final-posthoc: nn\_seq\_ABC-M\_flex.ibs
+\newcommand{\PHImprovesNnSeqABCMFlex}{Yes} % 20261127T095123Z-final-posthoc: nn\_seq\_ABC-M\_flex.improves
+\newcommand{\PHDCNnSeqABCDMFlex}{\ensuremath{[0.004, 0.027]}} % 20261127T095123Z-final-posthoc: nn\_seq\_ABCD-M\_flex.c
+\newcommand{\PHDIBSNnSeqABCDMFlex}{\ensuremath{[-0.0039, -0.0003]}} % 20261127T095123Z-final-posthoc: nn\_seq\_ABCD-M\_flex.ibs
+\newcommand{\PHImprovesNnSeqABCDMFlex}{Yes} % 20261127T095123Z-final-posthoc: nn\_seq\_ABCD-M\_flex.improves
+\newcommand{\PHDCGbmABCDMFlex}{\ensuremath{[-0.012, 0.010]}} % 20261127T095123Z-final-posthoc: gbm\_ABCD-M\_flex.c
+\newcommand{\PHDIBSGbmABCDMFlex}{\ensuremath{[-0.0002, 0.0043]}} % 20261127T095123Z-final-posthoc: gbm\_ABCD-M\_flex.ibs
+\newcommand{\PHImprovesGbmABCDMFlex}{No} % 20261127T095123Z-final-posthoc: gbm\_ABCD-M\_flex.improves
+\newcommand{\PHDCRsfABCDMFlex}{\ensuremath{[-0.007, 0.021]}} % 20261127T095123Z-final-posthoc: rsf\_ABCD-M\_flex.c
+\newcommand{\PHDIBSRsfABCDMFlex}{\ensuremath{[-0.0023, 0.0010]}} % 20261127T095123Z-final-posthoc: rsf\_ABCD-M\_flex.ibs
+\newcommand{\PHImprovesRsfABCDMFlex}{No} % 20261127T095123Z-final-posthoc: rsf\_ABCD-M\_flex.improves
+\newcommand{\PHDCRWKm}{\ensuremath{[0.075, 0.101]}} % 20261127T095123Z-final-posthoc: RW-km.c
+\newcommand{\PHDIBSRWKm}{\ensuremath{[-0.0100, -0.0028]}} % 20261127T095123Z-final-posthoc: RW-km.ibs
+\newcommand{\PHImprovesRWKm}{Yes} % 20261127T095123Z-final-posthoc: RW-km.improves
+\newcommand{\PHDCMFlexRW}{\ensuremath{[-0.004, 0.025]}} % 20261127T095123Z-final-posthoc: M\_flex-RW.c
+\newcommand{\PHDIBSMFlexRW}{\ensuremath{[-0.0094, -0.0024]}} % 20261127T095123Z-final-posthoc: M\_flex-RW.ibs
+\newcommand{\PHImprovesMFlexRW}{No} % 20261127T095123Z-final-posthoc: M\_flex-RW.improves
+\newcommand{\PHDCABCxMFlex}{\ensuremath{[0.009, 0.030]}} % 20261127T095123Z-final-posthoc: ABCx-M\_flex.c
+\newcommand{\PHDIBSABCxMFlex}{\ensuremath{[-0.0020, 0.0015]}} % 20261127T095123Z-final-posthoc: ABCx-M\_flex.ibs
+\newcommand{\PHImprovesABCxMFlex}{No} % 20261127T095123Z-final-posthoc: ABCx-M\_flex.improves
+\newcommand{\PHLikePass}{\ensuremath{4}} % 20261127T095123Z-final-posthoc: like-for-like pairs that improve
+\newcommand{\PHLikeCount}{\ensuremath{7}} % 20261127T095123Z-final-posthoc: like-for-like pairs
+\newcommand{\PHResamples}{\ensuremath{1\,000}} % 20261127T095123Z-final-posthoc: resamples
+\newcommand{\ShapGbmBlockA}{\ensuremath{72.2}} % 20261127T091116Z-final-shap: gbm\_ABCD.block\_share.A x100
+\newcommand{\ShapNnBlockA}{\ensuremath{68.5}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.block\_share.A x100
+\newcommand{\ShapGbmBlockB}{\ensuremath{12.3}} % 20261127T091116Z-final-shap: gbm\_ABCD.block\_share.B x100
+\newcommand{\ShapNnBlockB}{\ensuremath{13.4}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.block\_share.B x100
+\newcommand{\ShapGbmBlockC}{\ensuremath{5.6}} % 20261127T091116Z-final-shap: gbm\_ABCD.block\_share.C x100
+\newcommand{\ShapNnBlockC}{\ensuremath{11.5}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.block\_share.C x100
+\newcommand{\ShapGbmBlockD}{\ensuremath{9.8}} % 20261127T091116Z-final-shap: gbm\_ABCD.block\_share.D x100
+\newcommand{\ShapNnBlockD}{\ensuremath{6.6}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.block\_share.D x100
+\newcommand{\ShapGbmAdditivity}{\ensuremath{0.000009}} % 20261127T091116Z-final-shap: gbm\_ABCD.additivity\_max\_abs\_error
+\newcommand{\ShapGbmMeanPred}{\ensuremath{0.271}} % 20261127T091116Z-final-shap: gbm\_ABCD.mean\_prediction
+\newcommand{\ShapGbmTopShare}{\ensuremath{55.1}} % 20261127T091116Z-final-shap: gbm\_ABCD: top feature share
+\newcommand{\ShapNnAdditivity}{\ensuremath{0.000000}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.additivity\_max\_abs\_error
+\newcommand{\ShapNnMeanPred}{\ensuremath{0.267}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.mean\_prediction
+\newcommand{\ShapNnTopShare}{\ensuremath{46.1}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD: top feature share
+\newcommand{\ShapRows}{\ensuremath{5\,000}} % 20261127T091116Z-final-shap: config rows
+\newcommand{\ShapBackground}{\ensuremath{100}} % 20261127T091116Z-final-shap: config background\_rows
 \newcommand{\SnapshotId}{1f0c80b50427479e} % report.yaml snapshot
 \newcommand{\FinalCommit}{8807ed1} % 20261126T202919Z-final-evaluate-main: config git\_commit

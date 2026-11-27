@@ -49,7 +49,7 @@ procedure is described in Section~\ref{sec:data}).
 
 During an up-swing ($\delta_{i,t}=+1$) the running extreme $E_{i,t}$ is the highest close since the
 swing's starting trough. The up-swing is confirmed as reversed on the first session $t$ on which
-the close does not set a new high and
+
 \begin{equation}\label{eq:confirm}
   P_{i,t} \le E_{i,t}\,(1-\theta_{i,t}).
 \end{equation}
@@ -104,7 +104,7 @@ swing. A first implementation advanced only the age and held the distance $d_{i,
 20 sessions. That chained hazard exaggerated both high and low risk and was worse calibrated than
 Kaplan--Meier on the development folds. Estimating the hazard at each step after the decision, as
 in equation~\eqref{eq:hazard}, removes the problem and matches how the prediction is used. The
-correction was made on development data only and is logged (D-013).
+correction was made on development data only and is logged.
 
 \subsection{Features}\label{sec:features}
 
@@ -160,7 +160,7 @@ recognition. Where the scan defeated it, the table was transcribed from the page
 assistant, under a stricter rule: the groups must equal the printed total exactly, in both columns.
 Block E results are also reported without these transcribed values. A statement becomes usable at
 09:00 on the fifth session after the later of its legal filing deadline and the PDF's creation
-date. This rule is conservative by construction. We checked it against the news: of the \BlockENewsMatched{} first-release statements whose result
+date. The rule is meant to be conservative (but see the disclosure in Section~\ref{sec:datalimits}). We checked it against the news: of the \BlockENewsMatched{} first-release statements whose result
 could be matched to a news article, \BlockENewsLead{} were reported in the news before the statement's
 usable time (median lead \BlockENewsLeadDays{} days). News counts are articles mentioning the bank published from 09:00 on $t$
 to 09:00 on the next session. Section~\ref{sec:data} gives the sources.
@@ -202,7 +202,8 @@ We fit six model families, from no features to a sequence model.
 \item \textbf{Logistic landmark hazard}, the main interpretable model: a logistic regression of
   the step target on step indicators and the features \citep{SingerWillett1993}, with an
   elastic-net penalty \citep{ZouHastie2005}. The main specification is \texttt{ABCDx}.
-\item \textbf{Cox regression} \citep{Cox1972} with a ridge penalty on time since the decision.
+\item \textbf{Cox regression} \citep{Cox1972} with a ridge penalty, fitted to each row's time to
+  reversal from the decision.
 \item \textbf{Gradient-boosted landmark hazard}: histogram gradient boosting \citep{Friedman2001}
   on the same landmark expansion (300 iterations, L2 penalty 1).
 \item \textbf{Random survival forest} \citep{Ishwaran2008}: 100 trees, square-root feature
@@ -271,18 +272,21 @@ same horizons by deciles of predicted risk, with Kaplan--Meier observed rates in
 \paragraph{Paired block bootstrap} Rows of the same swing and the same date are dependent. We
 resample test dates in moving blocks of 20 sessions \citep{Kunsch1989}, with every model scored on
 the same resamples, and recompute each metric on each resample. Differences between models are
-therefore paired. Intervals are 95\% percentile intervals. Blocks of 40 and 60 sessions are a
+therefore paired. Blocks are drawn from the pooled test dates and may span the turn of a year;
+each resampled row keeps its own year's censoring weights. Intervals are 95\% percentile intervals. Blocks of 40 and 60 sessions are a
 sensitivity check, since many swings last longer than 20 sessions.
 
 \paragraph{Decision rule} A model counts as an improvement over another only if the interval of the
 C difference lies above zero \emph{and} the interval of the IBS difference lies below zero. The
 rule asks for better ranking and a better curve at the same time. As a conjunction of one-sided
-tests it is an intersection--union test, valid at the nominal level without adjustment
+tests it is an intersection--union test, valid at the nominal level, and conservative, without adjustment
 \citep{Berger1982}.
 
 \paragraph{One primary test per question} Table~\ref{tab:primary} lists the primary tests. Each
 uses 1,000 paired resamples. We report its Monte Carlo error as the spread of the interval endpoints
-between the two halves of the resamples. Holm-adjusted bootstrap $p$-values across the
+between the two halves of the resamples. The bootstrap $p$-value of a primary is the larger of
+two one-sided shares: the resamples in which C does not rise, and those in which the IBS does not
+fall. Holm-adjusted bootstrap $p$-values across the
 confirmatory primaries are reported as a sensitivity \citep{Holm1979}. Every
 other comparison is secondary or descriptive and is labelled so.
 
@@ -401,12 +405,21 @@ configuration actually computed in the run.
 \subsection{Pre-registration and number of configurations}\label{sec:prereg}
 
 Every design decision is recorded in a dated log before it was used, with the state of the
-evidence at that moment; the record is released with the code (see the data availability
-statement). The development
-period produced \gen{DevRunCount} logged runs, all reported in Appendix S1. One
+evidence at that moment; the record is available with the code (see the data availability
+statement). The log is kept by the authors and is not time-stamped by a third party. The development
+period produced \gen{DevRunCount} logged runs, summarised in Appendix S1; the full run log is available with the code. One
 change to the evaluation came from development results: the mechanical baseline was added after
 the distance to the threshold alone was found to carry most of the ranking skill. A second change,
 direction-specific effects, followed from the stated direction of H2. After a design review and
 before any test-year output, the mechanical nulls \texttt{M\_flex} and \texttt{RW}, the year-stratified primary
 metrics and the stricter H5 rule were added. None of these changes could use test-year
 information, because the test years had not been evaluated.
+
+Four entries were made after the final per-year fits. The first fixed a crash in the evaluation code:
+a secondary metric, the C-index within dates, failed on a date with no reversal before $\tau$. The
+crash stopped the run before any metric was written, when only the shuffled-label controls of the
+stop rules had been read; the fix changed no primary metric. Two recorded checks of the
+legal sources of the market rules and the disclosure of Section~\ref{sec:datalimits}; they changed
+no input of the frozen snapshot. The last added the analyses marked \emph{post hoc} in
+Section~\ref{sec:results}, which re-score the cached test-year predictions without refitting any
+model and change no pre-registered decision.

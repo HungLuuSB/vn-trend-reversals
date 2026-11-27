@@ -33,15 +33,25 @@ the 09:00 open. Models are fitted on an expanding window, refitted each year, an
 model with two mechanical benchmarks: a flexible model of swing age and distance to the threshold,
 and a random-walk null that rolls the stock's own recent returns through the labelling rule.
 
+We ask five research questions. RQ1: is the timing of a swing's reversal predictable out of
+sample, and beyond what the labelling rule implies? RQ2: does overnight global information add to
+local information? RQ3: do trends age, that is, does a swing's age matter once its distance to the
+threshold is known? RQ4: did the sensitivity to global shocks rise after the announcement of
+Vietnam's market upgrade? RQ5: are the forecasts worth anything to a trader after costs? Each has a
+pre-registered hypothesis, H1 to H5 (Table~\ref{tab:primary}), and banks get a further test of
+their fundamentals and news.
+
 The results separate what is predictable from what is mechanical. Reversal timing is predictable:
 the main model reaches a year-stratified C-index of \CABCDx{} against 0.5 for Kaplan--Meier, with a
 lower integrated Brier score, and its C-index stays between \YearMinABCDx{} and \YearMaxABCDx{} in
 every test year. But the distance to the threshold alone delivers
 \MechShareDIST\% of that gain. Beyond the mechanics, the stock's own recent behaviour and the local
-market improve the ranking of swings in \YearsAboveABCxMFlex{} of 10 years, by \GainOverMFlex{} in C,
-but they do not improve the predicted probabilities, so the pre-registered test of predictability
-beyond the mechanics fails. Overnight global information, bank fundamentals and news add nothing;
-swing age adds nothing once the distance is known; no change in global sensitivity is detected
+market improve the ranking of swings in \YearsAboveABCxMFlex{} of 10 years, by \GainOverMFlex{} in C.
+In the pre-registered linear model they do not improve the predicted probabilities, so the
+pre-registered test of predictability beyond the mechanics fails; post hoc, non-linear models of the
+same features improve both ranking and probabilities by small margins. Overnight global information,
+bank fundamentals and news bring no detectable improvement; nor does swing age once the distance is
+known; no change in global sensitivity is detected
 after the market-upgrade announcement of October 2025; and an exit rule based on the forecasts
 earns a Sharpe ratio of \BtOpenSharpeModel, below that of buy-and-hold (\BtOpenSharpeBh) and of
 simply following the swings.
@@ -55,16 +65,18 @@ The paper makes four contributions.
   as the benchmark that such forecasts should beat.
 \item \emph{Out-of-sample evidence where earlier work found none.} Unlike daily runs of index changes
   \citep{Yao2005}, volatility-scaled swings of individual stocks are predictable out of sample over
-  ten years, and the reason is the unit of analysis: the distance to the threshold is an informative
-  state that a daily run lacks.
+  ten years. We conjecture that the unit of analysis is the reason: the distance to the threshold
+  is an informative state that a daily run lacks.
 \item \emph{Age versus distance.} Age-only duration dependence of the kind estimated for index phases
   \citep{LundeTimmermann2004,Zakamulin2023} disappears once the distance to the threshold is known.
 \item \emph{Global shocks in a frontier market, timed point in time.} With every global, fundamental
-  and news input timed to when it was public, overnight shocks, bank fundamentals and news add
-  nothing to the timing of reversals in Vietnam, before or after its market-upgrade announcement.
+  and news input timed to when it was public, overnight shocks, bank fundamentals and news bring no
+  detectable improvement to the timing of reversals in Vietnam, and no change is detected after its
+  market-upgrade announcement, a test with low power.
 \end{enumerate}
 The whole design was fixed in a dated decision log before the test years were used, and every
-result comes from one run on a frozen data snapshot.
+pre-registered result comes from one run on a frozen data snapshot; the few later entries of the
+log, and the post-hoc analyses, are listed in Section~\ref{sec:prereg}.
 
 Section~\ref{sec:lit} reviews the literature, Section~\ref{sec:data} describes the market and the
 data, Section~\ref{sec:method} the method, Section~\ref{sec:results} the results and

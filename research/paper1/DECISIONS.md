@@ -450,7 +450,7 @@ Each set is tuned separately and reported against KM, with Uno C (τ = 20), IBS 
 - Descriptive follow-up: each block-A feature used alone as a raw risk score, with no fitting. Report the 5-day td-AUC on the pooled development validation rows (2014–2016); a feature scoring below 0.5 is flipped and its sign reported.
 - This only describes where the signal sits. It does not change the model or the feature sets.
 
-## D-016 — Mechanical baseline for incremental claims (approved by the user 2026-11-24)
+## D-016 — Mechanical baseline for incremental claims (approved by the first author 2026-11-24)
 
 - **Date:** 2026-11-24
 - **Type:** change to how the pre-specified design is evaluated. Labels, features, splits, test years and the main model are unchanged.
@@ -1041,3 +1041,21 @@ The model-shape table and the test results do not change.
 - **Dating correction (seed `reference_price_rule.csv`):** a new rule first governs the base price computed at the end of its first session, so it first appears in the reference one session after its effective date. On 2012-03-26 the reference was still the full-day VWAP of 2012-03-23; on 2013-07-29 it was the old-rule base price of 2013-07-26 (ACB: 15.8, not the previous close 15.9). The seed now dates each rule by the sessions whose reference used it: `vwap_session` to 2012-03-26, `vwap_last_15min` 2012-03-27 to 2013-07-29, `prev_close` from 2013-07-30. Effect: the 153 HNX rows of 2013-07-29 become `ref_not_reconstructable` (previously computed with a reference one tick off for ACB); 3 rows of 2012-03-26 become computable. The only universe rows affected that day (ACB, SHB) had no limit hit under either reference. **Post freeze:** the snapshot `1f0c80b50427479e` and every final-run result are unchanged; the corrected seed applies to builds after this date.
 - Tick seed: the HNX row at 2016-09-12 is kept (it marks the change of legal source to QĐ 529) and now says that the tick did not change.
 - **New open finding (ex-date reference rounding):** on ex-dates the pipeline divides the previous close by the corporate-action ratio but does not round the result to the tick (ACB 2014-05-13: 14,931 computed vs 14,900 per CafeF; SHB 2014-07-04: 9,162 vs 9,200), which suggests the exchange rounds to the nearest tick. The universe has 622 ex-date rows with computed limits; a flag can change only on a subset. To count exactly and to find the rule in the exchange regulations (co-author asked) before any change; any change is post freeze and would not alter the reported results.
+
+## D-030 — Block E deadline finding disclosed; data available on request (owner decisions)
+
+- **Date:** 2026-11-27
+- **Status:** after the final run; no result changes.
+- **Block E filing deadlines (open finding of D-029):** the owner chose disclosure only. The paper's data-limitations list states that some statements could enter block E a few sessions early under the longer legal limits (60-day consolidated half-year reports of parent companies; 60/100-day extensions on request). No re-analysis: block E adds nothing in any variant, including publication margins of 0 and 20 sessions, and any check now would be post hoc.
+- **Data availability:** code, decision log, run configurations and extracted NPL ratios are "available from the corresponding author upon reasonable request"; no public repository for now. Price data are third-party (CafeF, Yahoo Finance) and are not redistributed.
+- **Manuscript language check:** Wiley's Manuscript Language Checker rejected the Word file twice ("word count could not be calculated"); skipped for now.
+
+## D-031 — Post-hoc analyses after the referee-style review (labelled post hoc)
+
+- **Date:** 2026-11-27
+- **Status:** after the final run and after an independent referee-style review of the manuscript. Nothing here changes a pre-registered test or decision; every result is reported as post hoc.
+- **Why:** the pre-registered H1-mech pair is the linear `ABCx` against the boosted `M_flex`. The review noted that the non-linear models of the same blocks beat `M_flex` on both metrics in point estimates, so the paper's general statement "better ranking, not better probabilities" may reflect the linear hazard's form (feature effects constant across horizon steps) rather than the features.
+- **What:** re-score the cached final-run predictions (no refit) with the final evaluation code, 1,000 paired moving-block resamples, the same decision rule: (a) every non-linear model of blocks A–C or A–D minus `M_flex`; (b) the decomposition KM → RW → `M_flex` → `ABCx` / `nn_seq_ABC` on C and IBS. Module `vnbank.research.survival.final.posthoc`.
+- **How it is used:** the paper keeps the pre-registered H1-mech verdict and narrows its general wording to what (a) shows.
+- **Result (run `20261127T095123Z-final-posthoc`):** 4 of the 7 non-linear models beat `M_flex` on both metrics (boosted A–C, neural static A–D, neural sequence A–C and A–D); the boosted and forest models on A–D do not, and the forest on A–C misses on C. RW improves on KM on both metrics; `M_flex` improves on RW in IBS only. The paper keeps the pre-registered H1-mech verdict (not supported) and reports these as exploratory, unadjusted for multiplicity; its general claim is narrowed to the linear model.
+

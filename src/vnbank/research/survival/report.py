@@ -100,7 +100,7 @@ SLICE_LABEL = {
     "banks": "Banks",
     "vn30_non_banks": "VN30, non-banks",
     "no_upcom_banks": "Without UPCoM-only banks",
-    "no_limit_close": "Without closes at the price limit",
+    "no_limit_close": "Known limits, no close at the limit",
 }
 K_LABEL = {"k1_5": "1.5", "k2": "2", "k3": "3"}
 
@@ -112,6 +112,15 @@ def registry() -> dict:
 def tok(model: str) -> str:
     """Macro-safe token for a model or pair id ("nn_seq_ABCD-M" -> "NnSeqABCDM")."""
     return R.macro(*[p for p in model.replace("-", "_").split("_") if p])
+
+
+def model_label(m: str) -> str:
+    """Kaplan-Meier prints as KM, every other specification in typewriter type."""
+    return "KM" if m in ("km", "bank_km") else rf"\texttt{{{R.escape(m)}}}"
+
+
+def pair_label(a: str, b: str) -> str:
+    return r"\relax " + model_label(a) + " $-$ " + model_label(b)
 
 
 def pval(p: float) -> str:
@@ -211,7 +220,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
             rows.append(
                 {
                     "Hypothesis": lab if i == 0 else "",
-                    "Comparison": rf"\texttt{{{R.escape(a)}}} $-$ \texttt{{{R.escape(b)}}}",
+                    "Comparison": pair_label(a, b),
                     "dC": ci_c(d["c"]),
                     "dIBS": ci_ibs(d["ibs"]),
                     "p": pval(d["p"]),
@@ -281,22 +290,23 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
     )
 
     # secondary comparisons
-    cw, rows = r["pooled"]["clark_west"], []
+    cw, dm, rows = r["pooled"]["clark_west"], r["pooled"]["diebold_mariano"], []
     for pair, lab in SECONDARY:
         a, b = pair.split("-")
         rows.append(
             {
                 "Comparison": lab,
-                "Models": rf"\texttt{{{R.escape(a)}}} $-$ \texttt{{{R.escape(b)}}}",
+                "Models": pair_label(a, b),
                 "dC": ci_c(paired["ci"][f"{pair}:uno_c"]),
                 "dIBS": ci_ibs(paired["ci"][f"{pair}:ibs"]),
                 "Imp": yes(paired["improves"][pair]),
                 "CW": pval(cw[pair]["p_one_sided"]) if pair in cw else r"\textemdash{}",
+                "DM": pval(dm[pair]["p"]) if pair in dm else r"\textemdash{}",
             }
         )
     t["tab_secondary"] = R.tabular(
         pd.DataFrame(rows),
-        align="llcccc",
+        align="llccccc",
         header=[
             "Comparison",
             "Models",
@@ -304,6 +314,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
             r"$\Delta$IBS (95\% CI)",
             "Improves",
             "Clark--West $p$",
+            "Diebold--Mariano $p$",
         ],
     )
     for pair, v in cw.items():
@@ -454,7 +465,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
         rows.append(
             {
                 "Variant": variant.replace("_", " "),
-                "Comparison": rf"\texttt{{{R.escape(a)}}} $-$ \texttt{{{R.escape(b)}}}",
+                "Comparison": pair_label(a, b),
                 "dC": ci_c(be["paired"]["ci"][f"{pair}:uno_c"]),
                 "dIBS": ci_ibs(be["paired"]["ci"][f"{pair}:ibs"]),
                 "imp": yes(ok),
@@ -484,7 +495,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
     for k, v in sorted(a["leave_one_out"].items(), key=lambda kv: -kv[1]["d_ibs"]):
         rows.append(
             {
-                "Dropped": R.escape(k.removeprefix("loo-")),
+                "Dropped": k.removeprefix("loo-"),
                 "d": R.num(1e4 * v["d_ibs"], 2, signed=True),
                 "ci": R.interval(1e4 * v["d_ibs_lo"], 1e4 * v["d_ibs_hi"], 2),
                 "p": pval(v["p_ibs_holm"]),
@@ -551,31 +562,37 @@ def hyper(t: dict[str, str], r: dict) -> None:
                 return f
         return "logit"
 
-    def fmt(d: dict) -> str:
-        return ", ".join(f"{k} {v:g}" for k, v in d.items())
+    alias = {"C": "inverse penalty"}  # not to be confused with the concordance index C
 
-    rows = []
-    for m, _, lab in MODELS:
-        if m == "km" or m == "RW":
+    def fmt(d: dict) -> str:
+        return ", ".join(f"{alias.get(k, k)} {v:g}" for k, v in d.items())
+
+    family_label = {"logit": "Logistic hazards", "gbm": "Boosted hazards", "cox": "Cox",
+                    "rsf": "Random survival forests", "nn": "Neural hazards"}  # fmt: skip
+    lines = [
+        r"\begin{longtable}{@{}L{0.36\linewidth}L{0.58\linewidth}@{}}",
+        r"\toprule",
+        r"Model & Chosen setting (number of test years) \\",
+        r"\midrule",
+        r"\endhead",
+    ]
+    for k, fam in enumerate(family_label):
+        members = [(m, lab) for m, _, lab in MODELS if m not in ("km", "RW") and family(m) == fam]
+        if not members:
             continue
-        c = Counter(fmt(r["chosen"][str(y)][m]) for y in YEARS)
-        sel = "; ".join(f"{k} ({v})" for k, v in c.most_common())
-        g = grids[family(m)]
-        grid = "; ".join(f"{k} " + "/".join(f"{x:g}" for x in v) for k, v in g.items())
-        rows.append(
-            {
-                "Model": r"\relax " + lab,
-                "Grid": r"\relax " + R.escape(grid),
-                "Chosen": r"\relax " + R.escape(sel),
-            }
-        )
-    body = R.tabular(
-        pd.DataFrame(rows), align="lll", header=["Model", "Grid", "Chosen (number of test years)"]
-    )
-    # paragraph columns for the long cells (L is defined in the paper's preamble)
-    t["tab_hyper"] = body.replace(
-        "{tabular}{lll}", "{tabular}{L{0.3\\linewidth}L{0.25\\linewidth}L{0.38\\linewidth}}", 1
-    )
+        grid = "; ".join(f"{alias.get(a, a)} " + "/".join(f"{x:g}" for x in v)
+                         for a, v in grids[fam].items())  # fmt: skip
+        if k:
+            lines.append(r"\midrule")
+        # "\\*" keeps a family header on the same page as its first model
+        lines.append(rf"\textbf{{{family_label[fam]}}} & \textit{{Grid: {R.escape(grid)}}} \\*"
+                     r" \addlinespace[4pt]")  # fmt: skip
+        for m, lab in members:
+            c = Counter(fmt(r["chosen"][str(y)][m]) for y in YEARS)
+            settings = r" \newline ".join(rf"{R.escape(a)} ({v})" for a, v in c.most_common())
+            lines.append(rf"{lab} & {settings} \\ \addlinespace[7pt]")
+    lines += [r"\bottomrule", r"\end{longtable}"]
+    t["tab_hyper"] = "\n".join(lines) + "\n"
 
 
 def fig_peryear(py: dict) -> str:
@@ -590,7 +607,7 @@ def fig_peryear(py: dict) -> str:
     lines = [
         r"\begin{tikzpicture}",
         r"\begin{axis}[width=0.95\linewidth,height=6.2cm,xlabel={Test year},"
-        r"ylabel={Uno's $C$ (within year)},xtick={2017,...,2026},"
+        r"ylabel={Year-stratified $C$},xtick={2017,...,2026},"
         r"x tick label style={/pgf/number format/1000 sep={}},"
         r"legend style={at={(0.5,1.03)},anchor=south,legend columns=3,font=\small},"
         r"ymajorgrids,grid style={gray!25}]",
@@ -1128,6 +1145,309 @@ def sample(n: R.Numbers, t: dict[str, str], reg: dict) -> None:
     n.add("DevRunCount", R.integer(len(dev)), None, "run folders before the final snapshot")
 
 
+def _md(text: str) -> str:
+    """Markdown cell -> LaTeX text (bold and code marks dropped, special characters escaped)."""
+    import re
+
+    return R.escape(re.sub(r"\*\*|`", "", text).strip())
+
+
+def records(n: R.Numbers, t: dict[str, str], reg: dict) -> None:
+    """Supporting information: the development runs (RUNS.md), grouped by purpose."""
+    import re
+
+    dev = {p.name for p in paths.runs_dir(PAPER).iterdir()
+           if p.is_dir() and p.name < reg["dev_runs_before"]}  # fmt: skip
+    rows = []
+    for line in (paths.runs_dir(PAPER) / "RUNS.md").read_text().splitlines():
+        cells = [c for c in line.split("|")[1:-1]]
+        if len(cells) < 5:
+            continue
+        name = cells[0].strip().strip("`")
+        if name in dev:
+            rows.append(
+                {
+                    "Run": r"\relax\nolinkurl{" + name + "}",  # breakable (xurl)
+                    "What": r"\relax " + _md(cells[3]),
+                    "Status": r"\relax " + _md(cells[4]),
+                }
+            )
+    if {r["Run"] for r in rows} and len(rows) != len(dev):
+        missing = dev - {re.sub(r".*nolinkurl\{|\}$", "", r["Run"]) for r in rows}
+        raise R.ReportError(f"development runs missing from RUNS.md: {sorted(missing)}")
+    # grouped summary (no run identifiers): purpose, number of runs, decisions, main finding,
+    # from the run index entries; the full log is available with the code
+    groups = [
+        (
+            ("labels-", "features-"),
+            "Swing labels and feature datasets",
+            "D-009, D-011",
+            "Builds of the labels and the development dataset; superseded builds differed only in "
+            "metadata.",
+        ),
+        (
+            ("walkforward-dev", "devcompare"),
+            "Walk-forward runner and model families",
+            "D-013, D-014",
+            "The first hazard specification was badly calibrated and was replaced by landmark "
+            "hazards. Every model family beat Kaplan--Meier, shuffled-label controls stayed at "
+            "chance, and the global block did not improve on blocks A--C.",
+        ),
+        (
+            ("devdecompose-D-022", "devdecompose-D-023"),
+            "Neural hazard and block E",
+            "D-022, D-023",
+            "The neural hazard improved the IBS but not the ranking. Bank fundamentals and news "
+            "improved on the mechanical baseline but added nothing beyond blocks A--D.",
+        ),
+        (
+            ("devdecompose",),
+            "Nested feature sets and the mechanical baseline",
+            "D-015 to D-017, D-019, D-020",
+            "Most of the ranking skill sat in the swing state, mainly the distance to the "
+            "threshold, which led to the mechanical baseline. Direction-specific terms, bank "
+            "interactions and swing age added nothing beyond it.",
+        ),
+        (
+            ("devattribution", "aging"),
+            "Attribution and the shape of age effects",
+            "D-018, D-019",
+            "No single global feature was informative; within distance groups the reversal rate "
+            "was nearly flat in age.",
+        ),
+        (
+            ("diag-", "devcheck-"),
+            "Controls and checks",
+            "D-022, D-027",
+            "The neural model's shuffled-label control sat at chance; the random-walk null ranked "
+            "about as well as the linear mechanical baseline.",
+        ),
+        (
+            ("devbacktest",),
+            "Trading test",
+            "D-021",
+            "The model exit did not beat the benchmarks (H5 not supported in development).",
+        ),
+    ]
+    count = {g[1]: 0 for g in groups}
+    for name in dev:
+        kind = name.split("-", 1)[1]  # drop the timestamp
+        for prefixes, lab, _, _ in groups:  # first match wins (specific prefixes come first)
+            if kind.startswith(prefixes):
+                count[lab] += 1
+                break
+        else:
+            raise R.ReportError(f"development run {name} fits no group")
+    if sum(count.values()) != len(dev):
+        raise R.ReportError("development run groups do not add up")
+    order = [
+        "Swing labels and feature datasets",
+        "Walk-forward runner and model families",
+        "Nested feature sets and the mechanical baseline",
+        "Neural hazard and block E",
+        "Attribution and the shape of age effects",
+        "Controls and checks",
+        "Trading test",
+    ]
+    info = {g[1]: g for g in groups}
+    lines = [r"\begin{longtable}{@{}L{0.30\linewidth}cL{0.56\linewidth}@{}}",
+             r"\toprule", r"Purpose & Runs & Main development finding \\",
+             r"\midrule", r"\endhead"]  # fmt: skip
+    for lab in order:
+        _, _, _, finding = info[lab]
+        lines.append(rf"{lab} & {count[lab]} & {finding} \\ \addlinespace[5pt]")
+    lines += [r"\midrule", rf"Total & {len(dev)} & \\", r"\bottomrule", r"\end{longtable}"]
+    t["tab_devruns"] = "\n".join(lines) + "\n"
+
+
+def abolmakarem(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
+    """Supporting information: their design on our development years (protocol 5d)."""
+    m = run.json("metrics.json")
+    res = m["results"]
+    rows = []
+    for how, hl in (("random", "Random"), ("chronological", "Chronological")):
+        for al, alab in (("next", "next day (correct)"), ("same", "same day")):
+            g = lambda k, how=how, al=al: res[f"{how}:{al}:{k}"]  # noqa: E731
+            rows.append(
+                {
+                    "Split": hl,
+                    "Target": alab,
+                    "tr": R.num(g("trend")["accuracy"], 3),
+                    "trb": R.num(g("trend")["majority_class"], 3),
+                    "pk": R.num(g("pk")["accuracy"], 3),
+                    "pkb": R.num(g("pk")["majority_class"], 3),
+                    "r2": R.num(g("ret")["r2"], 4),
+                }
+            )
+            for k, key in (("trend", "accuracy"), ("pk", "accuracy"), ("ret", "r2")):
+                n.add(
+                    R.macro("Abol", how, al, k),
+                    R.num(g(k)[key], 3 if key == "accuracy" else 4),
+                    run,
+                    f"results.{how}:{al}:{k}.{key}",
+                )
+            n.add(
+                R.macro("Abol", how, al, "TrendBase"),
+                R.num(g("trend")["majority_class"], 3),
+                run,
+                f"results.{how}:{al}:trend.majority_class",
+            )
+            n.add(
+                R.macro("Abol", how, al, "PkBase"),
+                R.num(g("pk")["majority_class"], 3),
+                run,
+                f"results.{how}:{al}:pk.majority_class",
+            )
+    t["tab_abol"] = R.tabular(
+        pd.DataFrame(rows),
+        align="llccccc",
+        header=[
+            "Split",
+            "Inputs of day $t$ predict the target of",
+            "Trend: accuracy",
+            "majority class",
+            "Peak: accuracy",
+            "majority class",
+            r"Return: $R^2$",
+        ],
+    )
+    n.add("AbolRows", R.integer(m["rows"]), run, "rows")
+    n.add("AbolStocks", R.integer(m["stocks"]), run, "stocks")
+
+
+def posthoc(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
+    """D-031, post hoc: like-for-like comparisons with M_flex and the stepwise decomposition."""
+    m = run.json("metrics.json")
+    cfg = run.config
+    groups = [
+        (
+            "Like for like: non-linear models of the same blocks against \\texttt{M\\_flex}",
+            cfg["like_for_like"],
+        ),
+        ("Decomposition: each step against the previous one", cfg["decomposition"]),
+    ]
+    rows, passed, seen = [], 0, set()
+    for title, pairs in groups:
+        rows.append({"c": rf"\multicolumn{{5}}{{@{{}}l}}{{\textit{{{title}}}}}"})
+        for a, b in pairs:
+            k = f"{a}-{b}"
+            d = m[k]["pairs"][k]
+            tk = tok(k)
+            if k not in seen:  # a pair can appear in both groups
+                seen.add(k)
+                n.add(R.macro("PH", "DC", tk), ci_c(d["c"]), run, f"{k}.c")
+                n.add(R.macro("PH", "DIBS", tk), ci_ibs(d["ibs"]), run, f"{k}.ibs")
+                n.add(R.macro("PH", "Improves", tk), yes(d["improves"]), run, f"{k}.improves")
+            if title.startswith("Like"):  # count each like-for-like pair once
+                passed += d["improves"]
+            rows.append(
+                {
+                    "c": r"\quad " + pair_label(a, b),
+                    "dc": ci_c(d["c"]),
+                    "di": ci_ibs(d["ibs"]),
+                    "p": pval(d["p"]),
+                    "imp": yes(d["improves"]),
+                }
+            )
+    n.add("PHLikePass", R.integer(passed), run, "like-for-like pairs that improve")
+    n.add("PHLikeCount", R.integer(len(cfg["like_for_like"])), run, "like-for-like pairs")
+    n.add("PHResamples", R.integer(cfg["resamples"]), run, "resamples")
+    body = R.tabular(pd.DataFrame(rows).fillna(""), align="lcccc",
+                     header=["Comparison", r"$\Delta C$ (95\% CI)", r"$\Delta$IBS (95\% CI)",
+                             "$p$", "Improves"])  # fmt: skip
+    t["tab_posthoc"] = "\n".join(
+        ln.split(" & ")[0] + r" \\" if ln.startswith(r"\multicolumn") else ln
+        for ln in body.splitlines()) + "\n"  # fmt: skip
+
+
+SHAP_BLOCK_LABEL = {
+    "A": "A. Swing state",
+    "B": "B. Stock technicals",
+    "C": "C. Local market",
+    "D": "D. Global, overnight",
+}
+
+
+def shap_table(n: R.Numbers, t: dict[str, str], run: R.Run, top: int = 12) -> None:
+    """Supporting information: descriptive SHAP for the 2026 models (protocol 5e)."""
+    from vnbank.research.survival.final.shap_explain import BLOCKS
+
+    m = run.json("metrics.json")
+    cfg = run.config
+    block_of = {c: b for b, cs in BLOCKS.items() for c in cs}
+    rows = []
+    for b, lab in SHAP_BLOCK_LABEL.items():
+        rows.append(
+            {
+                "f": r"\relax\textit{" + lab + "}",
+                "g": R.num(100 * m["gbm_ABCD"]["block_share"][b], 1),
+                "nn": R.num(100 * m["nn_seq_ABCD"]["block_share"][b], 1),
+            }
+        )
+        for key, mod in (("Gbm", "gbm_ABCD"), ("Nn", "nn_seq_ABCD")):
+            n.add(
+                R.macro("Shap", key, "Block", b),
+                R.num(100 * m[mod]["block_share"][b], 1),
+                run,
+                f"{mod}.block_share.{b} x100",
+            )
+    t["tab_shap_blocks"] = R.tabular(
+        pd.DataFrame(rows),
+        align="lcc",
+        header=["Feature block", r"Boosted hazard (\% of total)", r"Sequence neural (\% of total)"],
+    )
+    rank = {
+        mod: sorted(m[mod]["mean_abs_shap"].items(), key=lambda kv: -kv[1])
+        for mod in ("gbm_ABCD", "nn_seq_ABCD")
+    }
+    rows = []
+    for i in range(top):
+        row = {"r": str(i + 1)}
+        for mod, k in (("gbm_ABCD", "g"), ("nn_seq_ABCD", "n")):
+            f, v = rank[mod][i]
+            d = m[mod]["direction_corr"].get(f)
+            sign = "" if d is None else ("$+$" if d > 0 else "$-$")
+            row[k] = rf"\relax\texttt{{{R.escape(f)}}} ({block_of[f]})"
+            row[k + "v"] = R.num(100 * v, 2)
+            row[k + "d"] = r"\relax " + sign if sign else r"\textemdash{}"
+        rows.append(row)
+    t["tab_shap_top"] = R.tabular(
+        pd.DataFrame(rows),
+        align="rlcclcc",
+        header=[
+            "Rank",
+            "Boosted hazard",
+            "Mean $|\\phi|$",
+            "Dir.",
+            "Sequence neural",
+            "Mean $|\\phi|$",
+            "Dir.",
+        ],
+    )
+    for mod, key in (("gbm_ABCD", "Gbm"), ("nn_seq_ABCD", "Nn")):
+        n.add(
+            R.macro("Shap", key, "Additivity"),
+            R.num(m[mod]["additivity_max_abs_error"], 6),
+            run,
+            f"{mod}.additivity_max_abs_error",
+        )
+        n.add(
+            R.macro("Shap", key, "MeanPred"),
+            R.num(m[mod]["mean_prediction"], 3),
+            run,
+            f"{mod}.mean_prediction",
+        )
+        f, v = rank[mod][0]
+        n.add(
+            R.macro("Shap", key, "TopShare"),
+            R.num(100 * v / sum(x for _, x in rank[mod]), 1),
+            run,
+            f"{mod}: top feature share",
+        )
+    n.add("ShapRows", R.integer(cfg["rows"]), run, "config rows")
+    n.add("ShapBackground", R.integer(cfg["background_rows"]), run, "config background_rows")
+
+
 def main(argv: list[str] | None = None) -> int:
     reg = registry()
     n, t = R.Numbers(PAPER), {}
@@ -1157,6 +1477,12 @@ def main(argv: list[str] | None = None) -> int:
     n.add(
         "BlockENewsLeadDays", R.num(b["median_lead_days"], 0), dc, "block_e_news.median_lead_days"
     )
+    records(n, t, reg)
+    abolmakarem(n, t, R.Run.load(PAPER, reg["abolmakarem"]))
+    if "posthoc" in reg:
+        posthoc(n, t, R.Run.load(PAPER, reg["posthoc"]))
+    if "shap" in reg:
+        shap_table(n, t, R.Run.load(PAPER, reg["shap"]))
     n.add("SnapshotId", R.escape(reg["snapshot"]), None, "report.yaml snapshot")
     n.add("FinalCommit", R.escape(ev["k2"].commit[:7]), ev["k2"], "config git_commit")
     commit = code_version()

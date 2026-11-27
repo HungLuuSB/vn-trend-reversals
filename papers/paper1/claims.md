@@ -12,7 +12,7 @@ Status codes:
 |---|---|---|---|
 | C1 | Reversal timing of volatility-scaled swings is predictable out of sample beyond Kaplan–Meier (H1). | Pooled and per-year Uno C, IBS, td-AUC with paired bootstrap CIs; shuffled-label control ≈ 0.5 | final: supported (H1; Table 6, macros PrimDCABCDxKm, PrimDIBSABCDxKm) |
 | C2 | Most of that predictability comes from swing mechanics and local market features. | M vs A–C vs A–D; D-015 decomposition | final: DIST alone carries MechShareDIST % of the gain over KM (Table 7) |
-| C3 | Features beyond the mechanical baseline improve ranking, but not on both metrics. | ABC − M: C and IBS intervals (D-016 rule) | final: ABCx − M_flex improves C only; ABCx − RW both; H1-mech not supported (Table 6) |
+| C3 | Features beyond the mechanical baseline improve ranking, but not on both metrics. | ABC − M: C and IBS intervals (D-016 rule) | final: ABCx − M_flex improves C only; ABCx − RW both; H1-mech not supported (Table 6). Post hoc: 4 of 7 non-linear models beat M_flex on both metrics (Table 12) |
 | C4 | Overnight global information does not improve reversal timing (H2 not supported). | Block-D ablations: additive, direction-specific, trees, per feature, bank-specific | final: H2 not supported in every family; signs as predicted but not significant (Tables 8, 9) |
 | C5 | Swing age adds nothing once the distance to the threshold is known; age-only duration dependence reflects distance. | D-019 nested comparison; life table by direction | final: H3 not supported (M_s − DIST_s; Section 5.3) |
 | C6 | Global sensitivity did not rise after the upgrade announcement (H4). | Post-2025-10-07 interaction, placebo dates | final: not detected, rank 4 of 9 among placebos (Table 10) |

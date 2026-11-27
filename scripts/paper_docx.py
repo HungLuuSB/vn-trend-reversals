@@ -149,6 +149,75 @@ def flatten(figdir: Path) -> str:
     )
 
 
+APP_XML = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" \
+xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">\
+<Template>Normal.dotm</Template><Application>Microsoft Office Word</Application>\
+<Pages>{pages}</Pages><Words>{words}</Words><Characters>{chars}</Characters>\
+<Paragraphs>{paras}</Paragraphs><CharactersWithSpaces>{chars_sp}</CharactersWithSpaces>\
+<DocSecurity>0</DocSecurity><ScaleCrop>false</ScaleCrop><SharedDoc>false</SharedDoc>\
+<LinksUpToDate>false</LinksUpToDate><HyperlinksChanged>false</HyperlinksChanged>\
+<AppVersion>16.0000</AppVersion></Properties>"""
+
+
+def fix_properties(path: Path) -> int:
+    """Pandoc copies document statistics from its template (e.g. Words = 83), and stores the
+    bibliography path as a custom property. Write the real counts (some submission checkers
+    read them) and drop the custom properties. Returns the word count."""
+    import zipfile
+
+    with zipfile.ZipFile(path) as z:
+        items = {n: z.read(n) for n in z.namelist()}
+    xml = items["word/document.xml"].decode()
+    paras = re.findall(r"<w:p[ >].*?</w:p>", xml, flags=re.S)
+    texts = [" ".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", p)) for p in paras]
+    texts = [t for t in texts if t.strip()]
+    body = " ".join(texts)
+    words = len(body.split())
+    items["docProps/app.xml"] = APP_XML.format(
+        pages=max(1, words // 450),
+        words=words,
+        chars=len(body.replace(" ", "")),
+        paras=len(texts),
+        chars_sp=len(body),
+    ).encode()
+    if "docProps/custom.xml" in items:
+        del items["docProps/custom.xml"]
+        items["[Content_Types].xml"] = re.sub(
+            rb'<Override PartName="/docProps/custom.xml"[^>]*/>', b"", items["[Content_Types].xml"]
+        )
+        items["_rels/.rels"] = re.sub(
+            rb'<Relationship [^>]*Target="docProps/custom.xml"[^>]*/>', b"", items["_rels/.rels"]
+        )
+    tmp = path.with_suffix(".tmp")
+    with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("[Content_Types].xml", items.pop("[Content_Types].xml"))
+        for n, b in items.items():
+            z.writestr(n, b)
+    tmp.replace(path)
+    return words
+
+
+def language_copy(flat: Path, out: Path, extra: list[str]) -> None:
+    """Text-only Word copy for language checkers: prose and references, maths as plain text, no
+    tables or figures (pandoc plain text, then each paragraph as a Word paragraph)."""
+    import pypandoc
+
+    src = flat.read_text()
+    src = re.sub(r"\\begin\{table\}.*?\\end\{table\}", "", src, flags=re.S)
+    src = re.sub(r"\\begin\{figure\}.*?\\end\{figure\}", "", src, flags=re.S)
+    # display equations are not prose: left out of the language copy
+    src = re.sub(r"\\begin\{(equation|align)\*?\}.*?\\end\{\1\*?\}", " ", src, flags=re.S)
+    flat2 = flat.with_name("flat_text.tex")
+    flat2.write_text(src)
+    text = pypandoc.convert_file(str(flat2), "plain", extra_args=["--wrap=none", *extra])
+    paras = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    md = flat.with_name("language.md")
+    # each paragraph verbatim (escape markdown syntax so nothing is reinterpreted)
+    md.write_text("\n\n".join(re.sub(r"([\\`*_{}\[\]<>#+|!])", r"\\\1", p) for p in paras))
+    pypandoc.convert_file(str(md), "docx", format="markdown_strict", outputfile=str(out))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(PAPER / "main.docx"))
@@ -160,19 +229,22 @@ def main() -> int:
         render_figures(figdir)
         flat = figdir / "flat.tex"
         flat.write_text(flatten(figdir))
+        cite = [
+            "--citeproc",
+            f"--bibliography={PAPER / 'refs.bib'}",
+            f"--csl={PAPER / 'apa.csl'}",
+        ]  # APA 7 (CSL project, CC BY-SA 3.0)
         pypandoc.convert_file(
             str(flat),
             "docx",
             outputfile=args.out,
-            extra_args=[
-                "--citeproc",
-                f"--bibliography={PAPER / 'refs.bib'}",
-                f"--csl={PAPER / 'apa.csl'}",  # APA 7 (CSL project, CC BY-SA 3.0)
-                f"--resource-path={figdir}",
-                "--metadata=link-citations:true",
-            ],
+            extra_args=[*cite, f"--resource-path={figdir}", "--metadata=link-citations:true"],
         )
-    print(f"wrote {args.out}")
+        words = fix_properties(Path(args.out))
+        lang = Path(args.out).with_name(Path(args.out).stem + "_language.docx")
+        language_copy(flat, lang, cite)
+        lwords = fix_properties(lang)
+    print(f"wrote {args.out} ({words} words) and {lang} ({lwords} words, text only)")
     return 0
 
 

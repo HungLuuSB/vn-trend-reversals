@@ -3,8 +3,11 @@
 \paragraph{What is predictable} The timing of a swing's end is predictable out of sample, and most
 of what is predictable follows from how a swing is defined. A swing that has retraced most of the
 way to its threshold is close to being confirmed, whatever happens in the economy. The distance to
-the threshold carries \MechShareDIST\% of the gain over Kaplan--Meier, and a flexible function of
-age and distance matches the probability accuracy of every richer linear model. We read this as a
+the threshold carries \MechShareDIST\% of the gain over Kaplan--Meier in C, and a flexible function of
+age and distance matches the probability accuracy of every richer linear model. We call the
+age--distance models mechanical because they use nothing but the swing's own position relative to
+its threshold; they are fitted, however, and the random-walk null, which fits nothing, captures less
+of the calibration gain (Section~\ref{sec:posthoc}). We read this as a
 warning for the literature on predicting turning points: an accuracy figure says little unless it
 is compared with what the labelling rule implies by itself. The random-walk null makes the same
 point from another side. Rolling a stock's own recent returns through the rule, in random order,
@@ -12,28 +15,31 @@ already gives C~=~\CRW.
 
 \paragraph{What the features add} Beyond the mechanics, the stock's recent returns, volatility,
 price-limit hits and the state of the local market improve the ranking of swings consistently,
-in \YearsAboveABCxMFlex{} of 10 test years against the flexible baseline. They do not make the
-predicted probabilities more accurate. A trader who only needs to know which open swings are the
-most fragile gains a little; a risk manager who needs calibrated probabilities gains nothing that
-age and distance do not already give. This difference between ranking and calibration is why we
-required both metrics to improve before counting a gain.
+in \YearsAboveABCxMFlex{} of 10 test years against the flexible baseline. In the pre-registered
+linear model they do not make the predicted probabilities more accurate; post hoc, non-linear models
+of the same features do (\PHLikePass{} of \PHLikeCount{}). The gain is small, a few thousandths in
+the integrated Brier score, and it depends on a model flexible enough to let the effects change
+with the horizon. Requiring both metrics to improve is what exposed this difference.
 
 \paragraph{Why outside information does not help} Overnight US returns, volatility, rates,
-currencies, commodities and geopolitical risk add nothing to the timing of reversals, and neither
-do bank fundamentals or news attention. The signs are often as expected: a fall in US technology
-stocks overnight raises the hazard that a Vietnamese up-swing ends in every yearly fit. The
-effects are small and, we think, already in the prices that our features use. Foreign information
-is priced at the open \citep{HamaoMasulisNg1990}, so by the time a swing's state is measured, the
-global news of the night is part of it. News reports a bank's results before its statement becomes usable
-under our timing rule, and the news count itself is mostly attention that the price already
-reflects. The null result for block E holds when the statements are dated with margins of 0 or 20
-sessions, so it does not come from our conservative timing rule.
+currencies, commodities and geopolitical risk bring no detectable improvement to the timing of
+reversals, and neither do bank fundamentals or news attention. The signs are often as expected: a
+fall in US technology stocks overnight raises the hazard that a Vietnamese up-swing ends in every
+yearly fit, and a nested-model test finds a very small reduction in the five-session Brier loss.
+The effects are small, and we can only conjecture why. Foreign information is priced at the next
+open \citep{HamaoMasulisNg1990}, and a single day's move is small next to a threshold of twice the
+average daily range, so overnight news rarely decides whether a swing is confirmed. For banks, news
+reports a bank's results a median of \BlockENewsLeadDays{} days before its statement becomes usable
+under our timing rule, so by then the content of the statement may already be in prices. Our test
+therefore concerns the statement as dated, not the information it contains; the null result holds
+with publication margins of 0 and 20 sessions.
 
-\paragraph{Why our result differs from earlier survival studies} \citet{Yao2005} found no out-of-sample skill in
-runs of daily index changes. Their unit ends on the first opposite day, so most of its variation is
-daily noise. A volatility-scaled swing ends only after a move that is large for the stock, and the
-distance to that threshold is an informative state variable that a daily run does not have. The
-gain we find is real, but it comes from the unit of analysis as much as from the models.
+\paragraph{Why our result differs from earlier survival studies} \citet{Yao2005} found no
+out-of-sample skill in runs of daily index changes. Their unit ends on the first opposite day, so
+most of its variation is daily noise. A volatility-scaled swing ends only after a move that is large
+for the stock, and the distance to that threshold is an informative state variable that a daily run
+does not have. We conjecture that the gain we find comes from this choice of unit as much as from
+the models; we did not test the daily-run unit on our data.
 
 \paragraph{No trading value} The ranking gain does not survive the frictions of the Vietnamese
 market. Long-only trading, settlement delays and price limits leave little room for an exit rule to
