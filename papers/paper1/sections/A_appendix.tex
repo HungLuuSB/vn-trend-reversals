@@ -3,6 +3,7 @@
 \section*{Appendix S1. Design details and further results}
 \setcounter{table}{0}
 \renewcommand{\thetable}{S\arabic{table}}
+\providecommand{\theHtable}{}\renewcommand{\theHtable}{S\arabic{table}} % unique link targets
 
 \subsection*{S1.1 Hyperparameters}
 Each model is tuned in each test year on the inner validation year (the last full year before the
@@ -25,10 +26,9 @@ specifications the strongest penalty, at the edge of the grid, was chosen in mos
 \subsection*{S1.2 Development record}
 All design work used the development years 2012--2016, inside the first training window, and the
 test years were used once, by the final run. Table~\ref{tab:devruns} summarises all \DevRunCount{} development runs logged before the final
-snapshot was frozen, grouped by purpose, including runs that were superseded or failed; the full
-run log, with each run's configuration and code version, is available with the code.
-Every design decision is recorded in a dated decision log, with the evidence available when it was
-made; the log is available with the code.
+snapshot was frozen, grouped by purpose, including runs that were superseded or failed. The full run log, with each run's configuration
+and code version, and the dated decision log, with the evidence available when each decision was
+made, are available from the corresponding author with the code.
 
 {\small
 \setlength{\LTpre}{0pt}
@@ -44,7 +44,7 @@ recorded at the time.}\label{tab:devruns}\addtocounter{table}{-1}% the longtable
 Table~\ref{tab:featdefs} defines every feature. Row $(i,t)$ describes stock $i$ after the close of
 session $t$ and is used at 09:00 on session $t+1$. Prices are adjusted prices, used only in returns
 and ratios; price limits use raw prices and the exchange reference price. Global series enter with
-the last value public before 09:00 on $t+1$, as a change since the previous Vietnamese session.
+the last value public before 09:00 on $t+1$, with returns and changes measured since the previous Vietnamese session.
 
 {\small
 \setlength{\tabcolsep}{4pt}
@@ -104,8 +104,9 @@ which \BlockECoverage{} yield a ratio: \BlockEOCR{} read by optical character re
 \centering
 \caption{Attribution within the global block. Each feature is dropped from \texttt{ABCDx}
 in turn and the model refitted; $\Delta$IBS is the IBS without the feature minus the IBS with it
-($>0$ means the feature helps), with 95\% intervals from \AttribResamples{} resamples and Holm
-adjustment across the \AttribCount{} features.}\label{tab:attribution}
+($>0$ means the feature helps), with unadjusted 95\% intervals from \AttribResamples{} resamples.
+Holm $p$: two-sided bootstrap $p$-value, adjusted across the \AttribCount{} features. Informative:
+the adjusted $p$ is below 0.05 and the feature helps.}\label{tab:attribution}
 \footnotesize
 \gentable{tab_attribution}
 \end{table}
@@ -113,8 +114,8 @@ adjustment across the \AttribCount{} features.}\label{tab:attribution}
 \begin{table}[H]
 \centering
 \caption{Share of test rows whose swing reverses within five sessions, by swing age and by the
-distance to the threshold (at the extreme: $d=0$; near and far: the upper and lower halves of the
-remaining rows). Only rows whose outcome within five sessions is known (not censored earlier) are
+distance to the threshold (at the extreme: $d=0$; the remaining rows are split at their median
+$d$ into those nearer the extreme and those nearer the threshold, $d=-1$). Only rows whose outcome within five sessions is known (not censored earlier) are
 counted. Row counts in parentheses.}\label{tab:shape}
 \footnotesize
 \gentable{tab_shape}
@@ -132,8 +133,9 @@ sessions: ``Yes'' if the C interval lies above zero and the IBS interval below z
 \centering
 \caption{Block E on bank rows, main comparison and variants: values read by optical character
 recognition only, publication margins of 0 and 20 sessions, and news counted with all
-aliases. Intervals from 200 resamples; the primary test of Table 6 uses 1,000, so its bounds differ
-slightly.}\label{tab:blocke}
+aliases. Intervals from 200 resamples; the primary test of Table~\ref{tab:primaryres} uses 1\,000, so its
+bounds differ slightly. Bounds that print as 0.0000 may lie on either side of zero before
+rounding.}\label{tab:blocke}
 \footnotesize
 \gentable{tab_blocke}
 \end{table}
@@ -143,6 +145,19 @@ slightly.}\label{tab:blocke}
 \caption{Year-stratified C-index by test year, selected models.}\label{tab:peryear}
 \footnotesize
 \gentable{tab_peryear}
+\end{table}
+
+Table~\ref{tab:calibration} extends Figure~\ref{fig:calibration} to the baselines and the other
+model families. Each model's test rows are split into ten deciles of predicted reversal probability,
+and each decile's mean prediction is compared with its Kaplan--Meier reversal rate.
+
+\begin{table}[H]
+\centering
+\caption{Decile calibration by model, test years 2017--2026: the mean and the largest absolute gap
+between the predicted and the observed (Kaplan--Meier) probability of reversal within 5, 10 and 20
+sessions, over ten deciles of predicted probability.}\label{tab:calibration}
+\footnotesize
+\gentable{tab_calibration}
 \end{table}
 
 \subsection*{S1.6 Random versus chronological splits}

@@ -5,12 +5,18 @@
 
 The run passed both stop rules before any other output was read. Models trained on permuted
 outcomes ranked the test rows at chance: the mean shuffled C ranged from \ShuffledMin{} to
-\ShuffledMax{} across the four controls. No model came near the leakage threshold of 0.70; the
+\ShuffledMax{} across the four controls. The lowest, the sequence neural hazard, ranges from
+\ShuffledNnYearMin{} to \ShuffledNnYearMax{} across years and is below 0.5 in
+\ShuffledNnYearsBelow{} of the 10; a flexible model fitted to permuted outcomes can learn a
+spurious pattern that runs slightly against the true one, and leakage would push C above 0.5, not
+below it. No model came near the leakage threshold of 0.70; the
 highest year-stratified C of any model was \MaxModelC. Table~\ref{tab:primaryres} reports the
 \PrimCount{} pre-registered primary tests, each with \PrimResamples{} paired resamples (Monte Carlo
-error of the interval endpoints at most \PrimMCError). Table~\ref{tab:models} reports every model.
-Of the \PrimCount{} primaries, \PrimSupportedCount{} is supported: reversal timing is predictable
-against Kaplan--Meier, but no primary test beyond that passes the decision rule.
+error of the interval endpoints at most \PrimMCErrorC{} for C and \PrimMCErrorIBS{} for the IBS). Table~\ref{tab:models} reports every model.
+Of the \PrimCount{} primaries that share this decision rule, \PrimSupportedCount{} is supported:
+reversal timing is predictable against Kaplan--Meier, but no primary test beyond that passes the
+rule. H4 and H5 have their own pre-specified rules (Sections~\ref{sec:rq4} and~\ref{sec:rq5}), and
+neither is supported.
 
 \begin{table}[!htbp]
 \centering
@@ -19,8 +25,8 @@ paired differences of the first model over the second in the year-stratified C-i
 integrated Brier score (IBS), with 95\% moving-block bootstrap intervals (blocks of 20 sessions).
 A hypothesis is supported only if the $\Delta C$ interval lies above zero and the $\Delta$IBS
 interval lies below zero; H1-mech requires both of its comparisons. $p$: the larger of the two
-one-sided bootstrap shares in which C does not rise or the IBS does not fall; Holm $p$-values adjust
-across the primaries. KM: Kaplan--Meier.}\label{tab:primaryres}
+one-sided bootstrap shares in which C does not rise or the IBS does not fall, so the rule requires
+$p<0.025$; Holm $p$-values adjust across the five tests of this table. KM: Kaplan--Meier.}\label{tab:primaryres}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \gentable{tab_primary}
@@ -42,14 +48,20 @@ dates.
 C: Uno's concordance index truncated at 20 sessions, computed within each test year and summed
 (primary). IBS: integrated Brier score over days 1--20, row-weighted mean of the yearly scores
 (primary; lower is better). C within dates: concordance over pairs from the same date only.
-AUC($h$): time-dependent area under the ROC curve at $h$ sessions, pooled. Specification names:
-blocks A--E as in Table~\ref{tab:features}; ``x'' adds direction-specific terms.}\label{tab:models}
+AUC($h$): time-dependent area under the ROC curve at $h$ sessions, pooled. Pooled C and IBS:
+the same metrics computed once over all test rows (secondary). Specification names: blocks A--E as
+in Table~\ref{tab:features}; ``x'' adds direction-specific terms; \texttt{MBCx} and
+\texttt{MBCDx} replace block A with the age and distance terms of \texttt{M}. Other tables use
+short names: prefixes \texttt{cox\_}, \texttt{gbm\_} (boosted hazard), \texttt{rsf\_} (random
+survival forest), \texttt{nn\_static\_} and \texttt{nn\_seq\_} (neural, static or sequence);
+suffixes \texttt{\_ff} (foreign flows), \texttt{\_bank} (bank rows) and \texttt{\_E} (block
+E); KM is Kaplan--Meier.}\label{tab:models}
 \footnotesize
 \gentable{tab_models}
 \end{table}
 
 \paragraph{Most of the skill is mechanical} The distance to the threshold alone (\texttt{DIST})
-reaches C~=~\CDIST. That single variable delivers \MechShareDIST\% of the gain of \texttt{ABCDx}
+reaches C~=~\CDIST. That single variable delivers about \MechShareDIST\% of the gain of \texttt{ABCDx}
 over Kaplan--Meier (\GainOverKM{} in C). A swing whose price has already retraced most of the way
 to its threshold needs only a small further move to be confirmed, and every model sees this. The
 random-walk null, which fits nothing and only rolls each stock's own recent returns through the
@@ -63,16 +75,23 @@ interval is \PrimDIBSABCxMFlex{} and contains zero. Against the random-walk null
 exclude zero ($\Delta C$ \PrimDCABCxRW, $\Delta$IBS \PrimDIBSABCxRW), so the first of the two
 conditions holds and the second fails. The comparison with the linear baseline \texttt{M} shows
 where the calibration gap comes from: \texttt{ABCx} beats \texttt{M} on both metrics ($\Delta C$
-\DCABCxM, $\Delta$IBS \DIBSABCxM), but \texttt{M\_flex} alone has a lower IBS than \texttt{M}
-($\Delta$IBS of \texttt{M} over \texttt{M\_flex} \DIBSMMFlex). Letting age and distance enter
-non-linearly gives the same calibration gain as the linear features. Section~\ref{sec:posthoc}
-shows that non-linear models of the same features do improve on \texttt{M\_flex} in both respects.
+\DCABCxM, $\Delta$IBS \DIBSABCxM), but \texttt{M\_flex} alone also has a lower IBS than
+\texttt{M}: the IBS of \texttt{M} minus that of \texttt{M\_flex} lies in \DIBSMMFlex. Letting age and distance enter
+non-linearly gives the same calibration gain as the linear features. In post-hoc comparisons
+(Section~\ref{sec:posthoc}), some non-linear models do improve on \texttt{M\_flex} in both
+respects.
 
 \paragraph{Calibration} Figure~\ref{fig:calibration} plots the observed reversal rate against the
 predicted probability by decile. At ten sessions the deciles lie close to the diagonal (largest
 gap \CalMaxGapTen). At five sessions the predictions are too compressed: the riskiest decile
 reverses at a rate of \CalTopObsFive, while its mean prediction is lower by \CalMaxGapFive. At 20
-sessions the least risky decile still reverses at \CalBottomObsTwenty.
+sessions the least risky decile still reverses at \CalBottomObsTwenty. Table~\ref{tab:calibration} in Appendix S1 gives
+the same comparison for the baselines and the other model families. Among the fitted
+models, the linear logits are the least well calibrated at five sessions: the mean decile gap is
+\CalMeanGapFiveM{} for \texttt{M}, \CalMeanGapFiveABCx{} for \texttt{ABCx} and
+\CalMeanGapFiveABCDx{} for \texttt{ABCDx}, against \CalMeanGapFiveMFlex{} for \texttt{M\_flex}
+and \CalMeanGapFiveNnSeqABCD{} for the sequence neural hazard. This is
+consistent with the linear model's failure to improve the IBS over \texttt{M\_flex}.
 
 \begin{figure}[!htbp]
 \centering
@@ -112,15 +131,16 @@ gives $p=\HTwoPNasdaqRetXdir$ (Holm $p=\HTwoHolmNasdaqRetXdir$), and neither the
 VIX term is significant. These in-sample standard errors are, if anything, too small (see the
 placebo dispersion in Section~\ref{sec:rq4}), so the signs are best read as descriptive. The Clark--West test, which allows for the
 noise of estimating nested models, finds a small reduction in the five-session Brier loss from
-block D ($p=\CWPABCDxABCx$, one-sided). This is a descriptive test, and the gain is too small to
-show in either primary metric.
+block D in the main model ($p=\CWPABCDxABCx$, one-sided), but at $p<0.05$ only in
+\CWBlockDBelow{} of the \CWBlockDCount{} nested block D comparisons of Table~\ref{tab:secondary}.
+This is a descriptive test, and the gain is too small to show in either primary metric.
 
 \begin{table}[!htbp]
 \centering
 \caption{Secondary paired comparisons, test years 2017--2026, with 95\% intervals from
 \PairedResamples{} moving-block resamples. ``Improves'' applies the decision rule of the primary
-tests; with 200 resamples, interval bounds that print as 0.000 lie on the stated side of zero before
-rounding. Clark--West: one-sided test on the daily five-session Brier loss for nested pairs;
+tests; with 200 resamples, interval bounds that print as 0.000 may lie on either side of zero
+before rounding, and decisions this close to the boundary are indicative only. Clark--West: one-sided test on the daily five-session Brier loss for nested pairs;
 Diebold--Mariano: two-sided test on the same loss, with Newey--West variances.}\label{tab:secondary}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
@@ -182,9 +202,10 @@ below the mechanical exit (\BtOpenSharpeMech), the plain directional-change exit
 (\BtOpenSharpeDc) and buy-and-hold (\BtOpenSharpeBh; Table~\ref{tab:trading}). None of the
 differences is significant: the interval of the model's Sharpe ratio minus that of the
 directional-change exit is \BtOpenSDModelDc, and minus buy-and-hold \BtOpenSDModelBh. H5 is not
-supported. The deflated Sharpe ratio of the model exit is \BtOpenDSRModel{} with the
+supported. The deflated Sharpe ratio, the probability that the true Sharpe ratio is positive
+after allowing for the number of trials, is \BtOpenDSRModel{} for the model exit with the
 pre-registered \BtOpenDSRTrials{} trials, and \BtOpenDSRNNineSix{} when every trading configuration
-computed in the run is counted. The exit
+computed in the run is counted; both are far below the usual 0.95. The exit
 strategies halve the maximum drawdown (\BtOpenMDDModel\% against \BtOpenMDDBh\% for
 buy-and-hold), but only because they are out of the market much of the time; their returns fall by
 more. The ranking is the same at the close (\BtCloseSharpeModel{} against \BtCloseSharpeBh) and at
@@ -195,7 +216,9 @@ costs of 0.20\% and 0.80\%.
 \caption{Trading test, test years 2017--2026, long-only, equal-weighted across the day's
 universe, executed at the next open with T+2 settlement and price limits. Return: annualised; the
 Sharpe ratio uses a zero risk-free rate. Columns 5--6 vary the round-trip cost (main: 0.40\%);
-column 7 executes at the close of the session after the signal.}\label{tab:trading}
+column 7 executes at the close of the session after the signal; column 8 forbids trades on days
+whose price limit cannot be computed; column 9 assumes that a sell at a close on the floor never
+fills (not computed for the mechanical exit).}\label{tab:trading}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \gentable{tab_trading}
@@ -225,17 +248,21 @@ the random survival forest on blocks A--C reach C of \CGbmABC{} and \CRsfABC.
 
 The pre-registered test of predictability beyond the mechanics compares a linear model with a
 non-linear baseline. Its feature effects are the same at every horizon step, which may limit its
-calibration rather than the features. After the final run, and labelled as post hoc, we compared
-every non-linear model of the same feature blocks with \texttt{M\_flex}, re-scoring the cached
-test-year predictions without refitting, with \PHResamples{} paired resamples and the same decision
-rule (Table~\ref{tab:posthoc}). Of the \PHLikeCount{} non-linear models, \PHLikePass{} improve on
-\texttt{M\_flex} on both metrics, among them the sequence neural model on blocks A--C ($\Delta C$
-\PHDCNnSeqABCMFlex, $\Delta$IBS \PHDIBSNnSeqABCMFlex) and the boosted hazard on the same blocks
-($\Delta C$ \PHDCGbmABCMFlex, $\Delta$IBS \PHDIBSGbmABCMFlex). The boosted hazard and the random
-survival forest on blocks A--D do not. These comparisons are exploratory and not adjusted for
-multiplicity, but they indicate that stock and local market features carry information about
-reversal timing beyond the swing's age and distance, and that a flexible model is needed to turn it
-into better probabilities.
+calibration rather than the features. These analyses were added after the final run had shown
+that H1-mech fails, so they are exploratory: the choice to run them was made with the result in
+view. We compared every non-linear model in the final run with \texttt{M\_flex}, re-scoring the
+cached test-year predictions without refitting, with \PHResamples{} paired resamples and the same
+decision rule (Table~\ref{tab:posthoc}). Of the \PHLikeCount{} non-linear models, \PHLikePass{}
+improve on \texttt{M\_flex} on both metrics: the boosted hazard on blocks A--C ($\Delta C$
+\PHDCGbmABCMFlex, $\Delta$IBS \PHDIBSGbmABCMFlex), the sequence neural model on the same blocks
+($\Delta C$ \PHDCNnSeqABCMFlex, $\Delta$IBS \PHDIBSNnSeqABCMFlex), and the two neural models on
+blocks A--D. Only the boosted hazard uses no input beyond blocks A--C; the sequence models also read
+each stock's 60-session price path, and two of the four add the global block. After a Holm
+adjustment across the \PHLikeCount{} comparisons, \PHHolmPass{} remains. The random survival forest
+on blocks A--C narrowly fails, and the boosted hazard and the random survival forest on blocks A--D
+do not come close. The evidence is therefore suggestive, not confirmatory: stock and local market
+features may carry information about reversal timing beyond the swing's age and distance, and a
+flexible model appears to be needed to turn it into better probabilities.
 
 The decomposition in the same table separates what is mechanical from what is fitted. The
 random-walk null, which fits nothing, already improves on Kaplan--Meier on both metrics ($\Delta C$
@@ -249,8 +276,10 @@ labelling rule alone.
 \centering
 \caption{Post-hoc comparisons, test years 2017--2026, from the cached predictions of the final
 run (no refitting). Paired differences with 95\% intervals from \PHResamples{} moving-block
-resamples; ``Improves'' applies the decision rule of the primary tests. Not adjusted for
-multiplicity.}\label{tab:posthoc}
+resamples; ``Improves'' applies the decision rule of the primary tests, which requires
+$p<0.025$ (both one-sided shares below 2.5\%). Interval bounds that print as 0.000 may lie on
+either side of zero before rounding. $p$ is unadjusted; Holm $p$ adjusts across the \PHLikeCount{}
+like-for-like comparisons.}\label{tab:posthoc}
 \footnotesize
 \gentable{tab_posthoc}
 \end{table}

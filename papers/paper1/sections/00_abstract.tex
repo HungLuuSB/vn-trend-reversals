@@ -1,17 +1,17 @@
 % Written last, from the results. 150-250 words, no citations, no undefined acronyms.
-Forecasts of when a price trend will end are widely used by investors, but their skill is rarely
-compared with what the definition of a trend implies by itself. We forecast the end of price swings
+Forecasts of when a price trend will end are widely used, but their skill is rarely compared with
+what the definition of a trend implies by itself. We forecast the end of price swings
 of Vietnamese stocks, defined by a directional-change rule whose threshold scales with each stock's
 volatility, using landmark survival models and features timed to what was public before the market
-opened. Models were designed on 2012--2016 and tested once, on 2017--2026, for the members of the VN30
-index and all listed banks. Reversal timing is predictable out of sample: the main model reaches a
+opened. Models were designed on 2012--2016 and tested once, on 2017--2026, for VN30 members and listed
+banks. Reversal timing is predictable out of sample: the main model reaches a
 concordance index of \CABCDx{} against 0.5 for the Kaplan--Meier benchmark and \CRW{} for a
-random-walk null, with a lower integrated Brier score. Most of this skill is mechanical. The distance to the reversal
-threshold alone accounts for \MechShareDIST\% of the gain, and a flexible model of swing age and
-distance is as well calibrated as the richer linear models. In the pre-registered linear test,
+random-walk null, with a lower integrated Brier score. Most of this skill is mechanical: the distance to the reversal
+threshold alone accounts for about \MechShareDIST\% of the gain in the concordance index. In the pre-registered linear test,
 stock and local market features improve the ranking of swings by \GainOverMFlex{} in the
-concordance index but not their predicted probabilities; post hoc, non-linear models of the same
-features improve both, by small margins. Overnight global markets, bank fundamentals and news bring
-no detectable improvement, nor does swing age once the distance is known, and an exit rule based on the forecasts earns a lower Sharpe
-ratio than buy-and-hold after costs. Turning-point forecasts should be judged against a mechanical
+concordance index but not their predicted probabilities; in post-hoc comparisons, \PHLikePass{} of
+\PHLikeCount{} non-linear models improve both, by small margins, and \PHHolmPass{} does so after a
+multiplicity adjustment. Overnight global markets, bank fundamentals and news bring
+no detectable improvement, nor does swing age once the distance is known, and an exit rule based
+on the forecasts adds no value over simpler exits after costs. Turning-point forecasts should be judged against a mechanical
 benchmark built from the labelling rule.

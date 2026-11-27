@@ -1,6 +1,6 @@
 % GENERATED FILE: do not edit by hand (CLAUDE.md: every number comes from code).
 % generator: vnbank.research.survival.report
-% generated at commit 0707ede4080ae488812312f624768b7ab4acc354 on 2026-11-27 09:55 UTC
+% generated at commit 81275dcacb88269a8a6c0e6d35677b1db21644e8 on 2026-11-27 10:53 UTC
 % source runs:
 %   20261126T052329Z-labels-1f0c80b50427479e (commit 2d9966b5501a)
 %   20261126T052338Z-features-1f0c80b50427479e-k2 (commit 2d9966b5501a)
@@ -23,6 +23,9 @@
 \newcommand{\ShuffledNnSeqABCD}{\ensuremath{0.489}} % 20261126T202919Z-final-evaluate-main: stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.mean
 \newcommand{\ShuffledMax}{\ensuremath{0.503}} % 20261126T202919Z-final-evaluate-main: max shuffled mean
 \newcommand{\ShuffledMin}{\ensuremath{0.489}} % 20261126T202919Z-final-evaluate-main: min shuffled mean
+\newcommand{\ShuffledNnYearMin}{\ensuremath{0.470}} % 20261126T202919Z-final-evaluate-main: min of stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.per\_year\_mean
+\newcommand{\ShuffledNnYearMax}{\ensuremath{0.522}} % 20261126T202919Z-final-evaluate-main: max of stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.per\_year\_mean
+\newcommand{\ShuffledNnYearsBelow}{\ensuremath{8}} % 20261126T202919Z-final-evaluate-main: count < 0.5 in stop\_checks.shuffled.shuffled:nn\_seq\_ABCD.per\_year\_mean
 \newcommand{\MaxModelC}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: max pooled uno\_c\_strat over models
 \newcommand{\CABC}{\ensuremath{0.620}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.uno\_c\_strat
 \newcommand{\IBSABC}{\ensuremath{0.1975}} % 20261126T202919Z-final-evaluate-main: pooled.metrics.ABC.ibs\_strat
@@ -352,6 +355,8 @@
 \newcommand{\PrimPBankABCDxEBankABCDx}{\ensuremath{0.985}} % 20261126T202919Z-final-evaluate-main: primary.E.pairs.bank\_ABCDx\_E-bank\_ABCDx.p
 \newcommand{\PrimResamples}{\ensuremath{1\,000}} % 20261126T202919Z-final-evaluate-main: primary.H1.pairs.*.c.n
 \newcommand{\PrimMCError}{\ensuremath{0.0011}} % 20261126T202919Z-final-evaluate-main: max primary mc\_error
+\newcommand{\PrimMCErrorC}{\ensuremath{0.0011}} % 20261126T202919Z-final-evaluate-main: max primary mc\_error.c\_lo
+\newcommand{\PrimMCErrorIBS}{\ensuremath{0.00037}} % 20261126T202919Z-final-evaluate-main: max primary mc\_error.ibs\_hi
 \newcommand{\PrimCount}{\ensuremath{5}} % 20261126T202919Z-final-evaluate-main: number of primary tests
 \newcommand{\PrimSupportedCount}{\ensuremath{1}} % 20261126T202919Z-final-evaluate-main: primaries supported
 \newcommand{\CWABCDxKm}{\ensuremath{29.66}} % 20261126T202919Z-final-evaluate-main: clark\_west.ABCDx-km.cw
@@ -430,6 +435,8 @@
 \newcommand{\CWPNnSeqABCKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_seq\_ABC-km.p\_one\_sided
 \newcommand{\CWNnStaticABCDKm}{\ensuremath{39.23}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_static\_ABCD-km.cw
 \newcommand{\CWPNnStaticABCDKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: clark\_west.nn\_static\_ABCD-km.p\_one\_sided
+\newcommand{\CWBlockDCount}{\ensuremath{7}} % 20261126T202919Z-final-evaluate-main: nested block-D pairs with Clark-West
+\newcommand{\CWBlockDBelow}{\ensuremath{2}} % 20261126T202919Z-final-evaluate-main: nested block-D pairs with Clark-West p < 0.05
 \newcommand{\DMABCDxKm}{\ensuremath{-20.72}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-km.dm
 \newcommand{\DMPABCDxKm}{\ensuremath{<0.001}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCDx-km.p
 \newcommand{\DMABCxM}{\ensuremath{-4.02}} % 20261126T202919Z-final-evaluate-main: diebold\_mariano.ABCx-M.dm
@@ -551,12 +558,19 @@
 \newcommand{\CalMaxGapTwenty}{\ensuremath{0.075}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d max |pred - obs|
 \newcommand{\CalTopObsTwenty}{\ensuremath{0.862}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d top decile observed
 \newcommand{\CalBottomObsTwenty}{\ensuremath{0.595}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_20d bottom decile observed
+\newcommand{\CalMeanGapFiveM}{\ensuremath{0.062}} % 20261126T202919Z-final-evaluate-main: M calibration\_5d mean |pred - obs|
+\newcommand{\CalMeanGapFiveMFlex}{\ensuremath{0.010}} % 20261126T202919Z-final-evaluate-main: M\_flex calibration\_5d mean |pred - obs|
+\newcommand{\CalMeanGapFiveABCx}{\ensuremath{0.050}} % 20261126T202919Z-final-evaluate-main: ABCx calibration\_5d mean |pred - obs|
+\newcommand{\CalMeanGapFiveABCDx}{\ensuremath{0.046}} % 20261126T202919Z-final-evaluate-main: ABCDx calibration\_5d mean |pred - obs|
+\newcommand{\CalMeanGapFiveNnSeqABCD}{\ensuremath{0.010}} % 20261126T202919Z-final-evaluate-main: nn\_seq\_ABCD calibration\_5d mean |pred - obs|
 \newcommand{\BoundaryABCDxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCDx-boundary:km
 \newcommand{\BoundaryABCxM}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCx-boundary:M
 \newcommand{\BoundaryABCDxM}{No} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCDx-boundary:M
 \newcommand{\BoundaryABCDxABCx}{No} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCDx-boundary:ABCx
 \newcommand{\BoundaryMKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:M-boundary:km
 \newcommand{\BoundaryABCxKm}{Yes} % 20261126T202919Z-final-evaluate-main: paired\_boundary\_censoring.improves.boundary:ABCx-boundary:km
+\newcommand{\SliceTwoZeroTwoTwoDCKm}{\ensuremath{[0.060, 0.134]}} % 20261126T202919Z-final-evaluate-main: pooled.slices.2022.paired.ci.ABCDx-km:uno\_c
+\newcommand{\SliceTwoZeroTwoTwoDIBSKm}{\ensuremath{[-0.0181, 0.0012]}} % 20261126T202919Z-final-evaluate-main: pooled.slices.2022.paired.ci.ABCDx-km:ibs
 \newcommand{\SlicesBeatKM}{\ensuremath{7}} % 20261126T202919Z-final-evaluate-main: slices where ABCDx beats KM
 \newcommand{\SlicesCount}{\ensuremath{8}} % 20261126T202919Z-final-evaluate-main: number of slices
 \newcommand{\BEBankABCDxEBankABCDx}{No} % 20261126T202919Z-final-evaluate-main: block\_e.improves.bank\_ABCDx\_E-bank\_ABCDx
@@ -844,6 +858,7 @@
 \newcommand{\PHDIBSABCxMFlex}{\ensuremath{[-0.0020, 0.0015]}} % 20261127T095123Z-final-posthoc: ABCx-M\_flex.ibs
 \newcommand{\PHImprovesABCxMFlex}{No} % 20261127T095123Z-final-posthoc: ABCx-M\_flex.improves
 \newcommand{\PHLikePass}{\ensuremath{4}} % 20261127T095123Z-final-posthoc: like-for-like pairs that improve
+\newcommand{\PHHolmPass}{\ensuremath{1}} % 20261127T095123Z-final-posthoc: like-for-like pairs with Holm p < 0.025
 \newcommand{\PHLikeCount}{\ensuremath{7}} % 20261127T095123Z-final-posthoc: like-for-like pairs
 \newcommand{\PHResamples}{\ensuremath{1\,000}} % 20261127T095123Z-final-posthoc: resamples
 \newcommand{\ShapGbmBlockA}{\ensuremath{72.2}} % 20261127T091116Z-final-shap: gbm\_ABCD.block\_share.A x100
@@ -854,10 +869,10 @@
 \newcommand{\ShapNnBlockC}{\ensuremath{11.5}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.block\_share.C x100
 \newcommand{\ShapGbmBlockD}{\ensuremath{9.8}} % 20261127T091116Z-final-shap: gbm\_ABCD.block\_share.D x100
 \newcommand{\ShapNnBlockD}{\ensuremath{6.6}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.block\_share.D x100
-\newcommand{\ShapGbmAdditivity}{\ensuremath{0.000009}} % 20261127T091116Z-final-shap: gbm\_ABCD.additivity\_max\_abs\_error
+\newcommand{\ShapGbmAdditivity}{\ensuremath{8.6\times 10^{-6}}} % 20261127T091116Z-final-shap: gbm\_ABCD.additivity\_max\_abs\_error
 \newcommand{\ShapGbmMeanPred}{\ensuremath{0.271}} % 20261127T091116Z-final-shap: gbm\_ABCD.mean\_prediction
 \newcommand{\ShapGbmTopShare}{\ensuremath{55.1}} % 20261127T091116Z-final-shap: gbm\_ABCD: top feature share
-\newcommand{\ShapNnAdditivity}{\ensuremath{0.000000}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.additivity\_max\_abs\_error
+\newcommand{\ShapNnAdditivity}{\ensuremath{6.4\times 10^{-10}}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.additivity\_max\_abs\_error
 \newcommand{\ShapNnMeanPred}{\ensuremath{0.267}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD.mean\_prediction
 \newcommand{\ShapNnTopShare}{\ensuremath{46.1}} % 20261127T091116Z-final-shap: nn\_seq\_ABCD: top feature share
 \newcommand{\ShapRows}{\ensuremath{5\,000}} % 20261127T091116Z-final-shap: config rows

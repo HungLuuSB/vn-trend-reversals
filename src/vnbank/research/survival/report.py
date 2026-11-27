@@ -22,6 +22,7 @@ import yaml
 from vnbank.common import paths
 from vnbank.research.shared import report as R
 from vnbank.research.shared.run_meta import code_version
+from vnbank.research.survival.dev_attribution import holm
 
 PAPER = 1
 REGISTRY = paths.paper_dir(PAPER) / "configs" / "report.yaml"
@@ -75,6 +76,7 @@ SECONDARY = [  # paired comparisons shown in the secondary table, in this order
     ("DIST-km", "Distance only vs Kaplan--Meier"),
     ("AGE-km", "Age only vs Kaplan--Meier"),
     ("M-DIST", "Age added to distance (linear)"),
+    ("ABCDx-ABCx", "Global block, main model"),
     ("MBCDx-MBCx", "Global block, mechanical base"),
     ("ABCD-ABC", "Global block, no direction terms"),
     ("cox_ABCDx-cox_ABCx", "Global block, Cox"),
@@ -86,6 +88,8 @@ SECONDARY = [  # paired comparisons shown in the secondary table, in this order
     ("nn_seq_ABCD-ABCDx", "Neural vs main model"),
     ("ABCDx_ff-ABCDx", "Foreign flows added"),
 ]
+BLOCK_D_NESTED = {"ABCDx-ABCx", "MBCDx-MBCx", "ABCD-ABC", "cox_ABCDx-cox_ABCx",
+                  "gbm_ABCD-gbm_ABC", "rsf_ABCD-rsf_ABC", "nn_seq_ABCD-nn_seq_ABC"}  # fmt: skip
 YEARS = list(range(2017, 2027))
 STRATEGIES = [
     ("model", r"\relax Model exit (\texttt{ABCDx})"),
@@ -159,6 +163,13 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
         )
     n.add("ShuffledMax", R.num(max(v["mean"] for v in sh.values()), 3), run, "max shuffled mean")
     n.add("ShuffledMin", R.num(min(v["mean"] for v in sh.values()), 3), run, "min shuffled mean")
+    # the neural control sits a little below 0.5: report its per-year spread (no new estimate)
+    py = sh["shuffled:nn_seq_ABCD"]["per_year_mean"]
+    src = "stop_checks.shuffled.shuffled:nn_seq_ABCD.per_year_mean"
+    n.add("ShuffledNnYearMin", R.num(min(py.values()), 3), run, f"min of {src}")
+    n.add("ShuffledNnYearMax", R.num(max(py.values()), 3), run, f"max of {src}")
+    below = sum(v < 0.5 for v in py.values())
+    n.add("ShuffledNnYearsBelow", R.integer(below), run, f"count < 0.5 in {src}")
     n.add(
         "MaxModelC",
         R.num(max(m["uno_c_strat"] for m in pm.values()), 3),
@@ -202,7 +213,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
 
     # pre-registered primaries (1,000 resamples)
     rows, holm = [], r["primary_holm"]
-    mc = 0.0
+    mc = mc_c = mc_ibs = 0.0
     for key, lab in PRIMARY:
         v = r["primary"][key]
         n.add(
@@ -216,6 +227,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
             n.add(R.macro("PrimDIBS", tk), ci_ibs(d["ibs"]), run, f"primary.{key}.pairs.{pair}.ibs")
             n.add(R.macro("PrimP", tk), pval(d["p"]), run, f"primary.{key}.pairs.{pair}.p")
             mc = max(mc, *d["mc_error"].values())
+            mc_c, mc_ibs = max(mc_c, d["mc_error"]["c_lo"]), max(mc_ibs, d["mc_error"]["ibs_hi"])
             a, b = pair.split("-")
             rows.append(
                 {
@@ -235,6 +247,8 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
         "primary.H1.pairs.*.c.n",
     )
     n.add("PrimMCError", R.num(mc, 4), run, "max primary mc_error")
+    n.add("PrimMCErrorC", R.num(mc_c, 4), run, "max primary mc_error.c_lo")
+    n.add("PrimMCErrorIBS", R.num(mc_ibs, 5), run, "max primary mc_error.ibs_hi")
     n.add("PrimCount", R.integer(len(PRIMARY)), run, "number of primary tests")
     n.add(
         "PrimSupportedCount",
@@ -261,7 +275,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
     for m, g, lab in MODELS:
         v = pm[m]
         if g != last:
-            rows.append({"Model": rf"\multicolumn{{7}}{{l}}{{\textit{{{g}}}}}"})
+            rows.append({"Model": rf"\multicolumn{{9}}{{l}}{{\textit{{{g}}}}}"})
             last = g
         rows.append(
             {
@@ -272,14 +286,17 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
                 "A5": R.num(v["td_auc"]["5"], 3),
                 "A10": R.num(v["td_auc"]["10"], 3),
                 "A20": R.num(v["td_auc"]["20"], 3),
+                "Cp": R.num(v["uno_c"], 3),
+                "Ip": R.num(v["ibs"], 4),
             }
         )
     df = pd.DataFrame(rows).fillna("")
     body = R.tabular(
         df,
-        align="lcccccc",
-        header=["Model", "C", "IBS", "C within dates", "AUC(5)", "AUC(10)", "AUC(20)"],
-    )
+        align="lcccccccc",
+        header=["Model", "C", "IBS", "C within dates", "AUC(5)", "AUC(10)", "AUC(20)",
+                "Pooled C", "Pooled IBS"],
+    )  # fmt: skip
     # a group row is one multicolumn cell: drop the empty cells tabular() appended to it
     t["tab_models"] = (
         "\n".join(
@@ -322,6 +339,11 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
         n.add(
             R.macro("CWP", tok(pair)), pval(v["p_one_sided"]), run, f"clark_west.{pair}.p_one_sided"
         )
+    # how many of the nested block-D pairs the Clark-West test finds (B6 of the second review)
+    d_pairs = [k for k, _ in SECONDARY if k in BLOCK_D_NESTED]
+    below = sum(cw[k]["p_one_sided"] < 0.05 for k in d_pairs)
+    n.add("CWBlockDCount", R.integer(len(d_pairs)), run, "nested block-D pairs with Clark-West")
+    n.add("CWBlockDBelow", R.integer(below), run, "nested block-D pairs with Clark-West p < 0.05")
     for pair, v in r["pooled"]["diebold_mariano"].items():
         n.add(R.macro("DM", tok(pair)), R.num(v["dm"], 2), run, f"diebold_mariano.{pair}.dm")
         n.add(R.macro("DMP", tok(pair)), pval(v["p"]), run, f"diebold_mariano.{pair}.p")
@@ -390,6 +412,8 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
             f"ABCDx calibration_{h}d bottom decile observed",
         )
 
+    calibration_table(t, n, pm, run)
+
     # sensitivities: bootstrap block length and censoring at the fold boundary
     sens = r["pooled"]["paired_block_sensitivity"]
     rows = []
@@ -431,12 +455,18 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
                 "dC": ci_c(ci["ABCDx-M:uno_c"]),
                 "dIBS": ci_ibs(ci["ABCDx-M:ibs"]),
                 "imp": yes(s["paired"]["improves"]["ABCDx-M"]),
+                "dIBSkm": ci_ibs(ci["ABCDx-km:ibs"]),
                 "km": yes(s["paired"]["improves"]["ABCDx-km"]),
             }
         )
+    for name in ("2022",):  # the slice where ABCDx fails against KM: name the failing metric
+        ci = r["pooled"]["slices"][name]["paired"]["ci"]
+        src = f"pooled.slices.{name}.paired.ci.ABCDx-km"
+        n.add(R.macro("Slice", name, "DCKm"), ci_c(ci["ABCDx-km:uno_c"]), run, f"{src}:uno_c")
+        n.add(R.macro("Slice", name, "DIBSKm"), ci_ibs(ci["ABCDx-km:ibs"]), run, f"{src}:ibs")
     t["tab_slices"] = R.tabular(
         pd.DataFrame(rows),
-        align="lrcccccc",
+        align="lrccccccc",
         header=[
             "Test rows",
             "Rows",
@@ -445,6 +475,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
             r"$\Delta C$ vs \texttt{M}",
             r"$\Delta$IBS vs \texttt{M}",
             r"Beats \texttt{M}",
+            r"$\Delta$IBS vs KM",
             "Beats KM",
         ],
     )
@@ -530,7 +561,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
     cnt = sh.pivot_table(index="age_bucket", columns="dist_group", values="n").reindex(order)
     rows = [
         {
-            "Age": R.escape(ab),
+            "Age": R.escape(ab).replace("-", "--"),  # en dash in ranges
             **{
                 g: R.num(piv.loc[ab, g], 3) + rf" ({R.integer(cnt.loc[ab, g])})"
                 for g in piv.columns
@@ -541,7 +572,7 @@ def evaluation(n: R.Numbers, t: dict[str, str], run: R.Run) -> dict:
     t["tab_shape"] = R.tabular(
         pd.DataFrame(rows),
         align="lccc",
-        header=["Swing age (sessions)", "At the extreme", "Near", "Far"],
+        header=["Swing age (sessions)", "At the extreme", "Near the extreme", "Near the threshold"],
     )
     return r
 
@@ -620,6 +651,36 @@ def fig_peryear(py: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+CAL_MODELS = ["km", "RW", "M", "M_flex", "ABCx", "ABCDx", "gbm_ABC", "gbm_ABCD", "rsf_ABCD",
+              "nn_seq_ABC", "nn_seq_ABCD"]  # fmt: skip
+
+
+def calibration_table(t: dict, n: R.Numbers, pm: dict, run: R.Run) -> None:
+    """Decile calibration of the baselines and each model family: the mean and the largest absolute
+    gap between predicted and observed (Kaplan-Meier) reversal probability over the ten deciles."""
+    rows = []
+    for m in CAL_MODELS:
+        row = {"Model": model_label(m)}
+        for h in (5, 10, 20):
+            v = pm[m][f"calibration_{h}d"]
+            gap = np.abs(np.array(v["predicted"]) - np.array(v["observed"]))
+            row[f"mean{h}"] = R.num(float(gap.mean()), 3)
+            row[f"max{h}"] = R.num(float(gap.max()), 3)
+            if h == 5 and m in ("M", "ABCx", "ABCDx", "M_flex", "nn_seq_ABCD"):
+                n.add(
+                    R.macro("CalMeanGapFive", tok(m)),
+                    R.num(float(gap.mean()), 3),
+                    run,
+                    f"{m} calibration_5d mean |pred - obs|",
+                )
+        rows.append(row)
+    t["tab_calibration"] = R.tabular(
+        pd.DataFrame(rows),
+        align="lrrrrrr",
+        header=["Model", "Mean, 5", "Max, 5", "Mean, 10", "Max, 10", "Mean, 20", "Max, 20"],
+    )
+
+
 def fig_calibration(cal: dict) -> str:
     """pgfplots body: decile calibration of ABCDx at 5, 10 and 20 sessions."""
     lines = [
@@ -668,8 +729,10 @@ def k_robustness(
                 "dcm": ci_c(pi["ci"]["ABCDx-M:uno_c"]),
                 "dim": ci_ibs(pi["ci"]["ABCDx-M:ibs"]),
                 "imp": yes(pi["improves"]["ABCDx-M"]),
+                "ikm": yes(pi["improves"]["ABCDx-km"]),
                 "sh": R.num(sh, 3),
                 "sm": R.num(b["model"]["sharpe"], 2),
+                "sd": R.num(b["dc"]["sharpe"], 2),
                 "sb": R.num(b["bh"]["sharpe"], 2),
             }
         )
@@ -709,7 +772,7 @@ def k_robustness(
         )
     t["tab_k"] = R.tabular(
         pd.DataFrame(rows),
-        align="l" + "c" * 10,
+        align="l" + "c" * 12,
         header=[
             "$k$",
             "KM",
@@ -719,8 +782,10 @@ def k_robustness(
             r"$\Delta C$ vs \texttt{M}",
             r"$\Delta$IBS vs \texttt{M}",
             r"Beats \texttt{M}",
+            "Beats KM",
             "Shuffled",
             "Model",
+            "DC exit",
             r"B\&H",
         ],
     )
@@ -804,11 +869,17 @@ def trading(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
                 "lo": R.num(o["pooled"][f"{s}@0.2%"]["sharpe"], 2),
                 "hi": R.num(o["pooled"][f"{s}@0.8%"]["sharpe"], 2),
                 "cl": R.num(c["pooled"][s]["sharpe"], 2),
+                **{
+                    w: R.num(o["pooled"][f"{s}@{v}"]["sharpe"], 2)
+                    if f"{s}@{v}" in o["pooled"]
+                    else r"\textemdash{}"
+                    for v, w in (("skip_unknown_limits", "skip"), ("fail_on_floor_close", "floor"))
+                },
             }
         )
     t["tab_trading"] = R.tabular(
         pd.DataFrame(rows),
-        align="lcccccc",
+        align="lcccccccc",
         header=[
             "Strategy",
             r"Return (\% p.a.)",
@@ -817,6 +888,8 @@ def trading(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
             r"Sharpe, 0.2\%",
             r"Sharpe, 0.8\%",
             "Sharpe, close",
+            "Sharpe, known limits",
+            "Sharpe, floor",
         ],
     )
     taus = sorted({f["tau"]["model"] for f in o["folds"].values()})
@@ -1321,14 +1394,17 @@ def posthoc(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
     cfg = run.config
     groups = [
         (
-            "Like for like: non-linear models of the same blocks against \\texttt{M\\_flex}",
+            "Like for like: non-linear models against \\texttt{M\\_flex}",
             cfg["like_for_like"],
         ),
         ("Decomposition: each step against the previous one", cfg["decomposition"]),
     ]
+    # Holm across the like-for-like family, at the decision rule's one-sided level of 2.5%
+    like = [f"{a}-{b}" for a, b in cfg["like_for_like"]]
+    adj = dict(zip(like, holm(np.array([m[k]["pairs"][k]["p"] for k in like])), strict=True))
     rows, passed, seen = [], 0, set()
     for title, pairs in groups:
-        rows.append({"c": rf"\multicolumn{{5}}{{@{{}}l}}{{\textit{{{title}}}}}"})
+        rows.append({"c": rf"\multicolumn{{6}}{{@{{}}l}}{{\textit{{{title}}}}}"})
         for a, b in pairs:
             k = f"{a}-{b}"
             d = m[k]["pairs"][k]
@@ -1346,15 +1422,18 @@ def posthoc(n: R.Numbers, t: dict[str, str], run: R.Run) -> None:
                     "dc": ci_c(d["c"]),
                     "di": ci_ibs(d["ibs"]),
                     "p": pval(d["p"]),
+                    "ph": pval(adj[k]) if title.startswith("Like") else "",
                     "imp": yes(d["improves"]),
                 }
             )
     n.add("PHLikePass", R.integer(passed), run, "like-for-like pairs that improve")
+    holm_pass = sum(adj[k] < 0.025 and m[k]["pairs"][k]["improves"] for k in like)
+    n.add("PHHolmPass", R.integer(holm_pass), run, "like-for-like pairs with Holm p < 0.025")
     n.add("PHLikeCount", R.integer(len(cfg["like_for_like"])), run, "like-for-like pairs")
     n.add("PHResamples", R.integer(cfg["resamples"]), run, "resamples")
-    body = R.tabular(pd.DataFrame(rows).fillna(""), align="lcccc",
+    body = R.tabular(pd.DataFrame(rows).fillna(""), align="lccccc",
                      header=["Comparison", r"$\Delta C$ (95\% CI)", r"$\Delta$IBS (95\% CI)",
-                             "$p$", "Improves"])  # fmt: skip
+                             "$p$", "Holm $p$", "Improves"])  # fmt: skip
     t["tab_posthoc"] = "\n".join(
         ln.split(" & ")[0] + r" \\" if ln.startswith(r"\multicolumn") else ln
         for ln in body.splitlines()) + "\n"  # fmt: skip
@@ -1366,6 +1445,12 @@ SHAP_BLOCK_LABEL = {
     "C": "C. Local market",
     "D": "D. Global, overnight",
 }
+
+
+def _sci(x: float) -> str:
+    """Small positive number in scientific notation: 8.6e-06 -> 8.6 x 10^{-6}, in maths mode."""
+    mant, exp = f"{x:.1e}".split("e")
+    return f"\\ensuremath{{{mant}\\times 10^{{{int(exp)}}}}}"
 
 
 def shap_table(n: R.Numbers, t: dict[str, str], run: R.Run, top: int = 12) -> None:
@@ -1427,7 +1512,7 @@ def shap_table(n: R.Numbers, t: dict[str, str], run: R.Run, top: int = 12) -> No
     for mod, key in (("gbm_ABCD", "Gbm"), ("nn_seq_ABCD", "Nn")):
         n.add(
             R.macro("Shap", key, "Additivity"),
-            R.num(m[mod]["additivity_max_abs_error"], 6),
+            _sci(m[mod]["additivity_max_abs_error"]),
             run,
             f"{mod}.additivity_max_abs_error",
         )

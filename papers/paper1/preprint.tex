@@ -1,0 +1,123 @@
+% Paper 1 -- neutral preprint (e.g. SSRN). Same sections and generated numbers as main.tex, in a
+% plain layout with no journal name, no line numbers, and the supporting information appended as
+% Appendix S1. Compile: tectonic -X compile preprint.tex. Post only after both authors approve.
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=2.6cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\usepackage{stix2} % maths in STIX Two
+\usepackage[no-math]{fontspec} % Unicode text, so Vietnamese names keep their diacritics
+\setmainfont{STIXTwoText}[Extension=.otf,UprightFont=*-Regular,BoldFont=*-Bold,
+  ItalicFont=*-Italic,BoldItalicFont=*-BoldItalic]
+\usepackage{microtype}
+\usepackage{setspace}
+\setstretch{1.15}
+\usepackage{booktabs,array,longtable}
+\usepackage{adjustbox}
+\usepackage{float}
+\usepackage[section]{placeins}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf,singlelinecheck=false}
+\usepackage{enumitem}
+\setlist{itemsep=2pt,parsep=0pt,topsep=4pt}
+\usepackage[natbibapa]{apacite}
+\usepackage{xcolor}
+\usepackage{xurl}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+% no running head: page numbers only (plain style)
+\usepackage{titlesec}
+\titleformat*{\section}{\large\bfseries}
+\titleformat*{\subsection}{\normalsize\bfseries}
+\titleformat{\paragraph}[runin]{\normalfont\bfseries}{}{0pt}{}[.]
+\titlespacing*{\paragraph}{0pt}{1.4ex plus .4ex minus .2ex}{0.6em}
+\setlength{\marginparwidth}{2cm}
+\usepackage[textsize=footnotesize]{todonotes}
+
+% the macros the sections use (as in main.tex)
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newif\ifshowplans \showplansfalse
+\newcommand{\plan}[1]{\ifshowplans{\par\noindent\color{gray}\small\textit{Plan:} #1\par}\fi}
+\IfFileExists{generated/numbers.tex}{\input{generated/numbers.tex}}{}
+\newcommand{\gen}[1]{\ifcsname #1\endcsname\csname #1\endcsname\else\textbf{\textcolor{red}{[#1]}}\fi}
+\input{sections/00_legends}
+\newcommand{\genfile}[1]{\IfFileExists{generated/#1.tex}{\input{generated/#1.tex}}{\gen{#1}}}
+\newcommand{\gentable}[1]{\adjustbox{max width=\linewidth}{\genfile{#1}}}
+
+\begin{document}
+
+\thispagestyle{plain}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\begin{center}
+{\LARGE\bfseries Predictable but Mostly Mechanical:\\[0.3ex] Survival Forecasts of Trend Reversals\\[0.3ex]
+in Vietnamese Stocks\par}
+\vspace{1.4em}
+{\large Thai Hung Luu\textsuperscript{a,}\footnotemark[1] \qquad Nhat Hao Pham Ngo\textsuperscript{b,}\footnotemark[2]\par}
+\vspace{0.8em}
+{\small\textsuperscript{a}Independent Researcher, Vinh Long, Vietnam\\
+\textsuperscript{b}School of Trade and International Economics, National Economics University,
+Hanoi, Vietnam\par}
+\vspace{0.8em}
+{\small Preprint, November 2026. This version: 27 November 2026.\par}
+\end{center}
+
+\footnotetext[1]{Corresponding author. Email:
+\href{mailto:hung.luu.research@gmail.com}{hung.luu.research@gmail.com}. ORCID:
+\href{https://orcid.org/0009-0004-2909-3359}{0009-0004-2909-3359}.}
+\footnotetext[2]{Email: \href{mailto:nhathao.research@gmail.com}{nhathao.research@gmail.com}.
+ORCID: \href{https://orcid.org/0009-0000-1537-6041}{0009-0000-1537-6041}.}
+
+\vspace{1em}
+\begin{abstract}
+\noindent\input{sections/00_abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} directional change; forecast evaluation; price limits; survival
+analysis; trend reversal; Vietnam\\
+\noindent\textbf{JEL classification:} C41, C53, G12, G14, G17
+
+\clearpage
+\setcounter{footnote}{0}
+\renewcommand{\thefootnote}{\arabic{footnote}}
+
+\input{sections/01_introduction}
+\input{sections/02_literature}
+\input{sections/03_market_data}
+\input{sections/04_method}
+\input{sections/05_results}
+\input{sections/06_robustness}
+\input{sections/07_discussion}
+\input{sections/08_conclusion}
+
+\section*{Funding}
+This research did not receive any specific grant from funding agencies in the public, commercial,
+or not-for-profit sectors.
+
+\section*{Author contributions}
+\textbf{Thai Hung Luu:} Conceptualization, Methodology, Software, Data curation, Formal analysis,
+Investigation, Validation, Visualization, Writing -- original draft, Writing -- review \& editing.
+\textbf{Nhat Hao Pham Ngo:} Methodology, Validation, Data curation.
+
+\section*{Conflict of interest}
+The authors declare no conflicts of interest.
+
+\section*{Data availability}
+\input{sections/00_statements_data}
+
+\section*{Use of generative artificial intelligence}
+During the preparation of this work the authors used Claude (Anthropic), an AI assistant, to write
+and test the data-processing and estimation code, check bibliographic references against their
+DOIs, and draft and edit text. After using this tool, the authors reviewed and edited the content
+as needed and take full responsibility for the content of the article.
+
+\bibliographystyle{apacite}
+{\raggedright\bibliography{refs}} % ragged right: long URLs are not stretched
+
+\clearpage
+\appendix
+\input{sections/A_appendix}
+
+\end{document}

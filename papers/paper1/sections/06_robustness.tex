@@ -20,8 +20,9 @@ does not change: the model exit never beats the plain directional-change exit (S
 \caption{Robustness to the threshold multiple $k$ in $\theta=k\,\mathrm{ATR}_{20}/P$, test years
 2017--2026. Columns 2--5: year-stratified C. $\Delta C$ and $\Delta$IBS: \texttt{ABCDx} over
 \texttt{M}, 95\% intervals from \PairedResamples{} resamples. Shuffled: highest mean C of the
-shuffled-outcome controls. Last two columns: Sharpe ratios of the model exit and of buy-and-hold
-(B\&H) at 0.40\% costs.}\label{tab:k}
+shuffled-outcome controls. Beats KM: \texttt{ABCDx} against Kaplan--Meier under the decision rule.
+Last three columns: Sharpe ratios of the model exit, the plain directional-change (DC) exit and
+buy-and-hold (B\&H) at 0.40\% costs.}\label{tab:k}
 \footnotesize
 \setlength{\tabcolsep}{3.5pt}
 \gentable{tab_k}
@@ -38,8 +39,9 @@ are unchanged: \texttt{ABCDx} beats Kaplan--Meier (\BoundaryABCDxKm), \texttt{AB
 \texttt{ABCx} (\BoundaryABCDxABCx).
 
 \paragraph{Sub-periods and subsamples} Table~\ref{tab:slices} splits the test rows. \texttt{ABCDx}
-beats Kaplan--Meier in \SlicesBeatKM{} of the \SlicesCount{} slices; the exception is 2022, a year of
-steep market decline, when \texttt{M} ranked better than the full model.
+beats Kaplan--Meier in \SlicesBeatKM{} of the \SlicesCount{} slices. The exception is 2022, a year of
+steep market decline: the ranking gain is clear ($\Delta C$ \SliceTwoZeroTwoTwoDCKm), but the IBS
+interval includes zero (\SliceTwoZeroTwoTwoDIBSKm), so the second condition of the rule fails.
 \texttt{ABCDx} beats \texttt{M} under the decision rule in 2017--2019 and in 2020--2021, but not
 in 2022 or 2023--2026. Results for banks and for other VN30 stocks are similar; dropping banks
 registered only on UPCoM, or rows that closed at the price limit, changes nothing.
