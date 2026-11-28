@@ -382,3 +382,94 @@ Files are in `trend-duration/` and `methods/`. A search tool's descriptions of s
 |---|---|---|
 | Zhou (2026), J. Forecasting 45(8), 3403–3426, doi 10.1002/for.70191, open access; read in full (`methods/`) | DCC-GNGARCH: a GARCH whose variance also depends on neighbouring stocks in a network, with higher-order neighbours and DCC covariances. 75 active US stocks; network built from stock characteristics over a formation window (Apr–Dec 2022) before the training data, to avoid look-ahead; training Jan 2023–Jul 2025, test Aug 2025–Feb 2026; one-step-ahead forecasts; DM tests per stock (significant for about half the stocks). | Volatility forecasting, not reversal timing. No citation needed. At most a pointer for the DM-test framing (in-sample comparison by information criteria, DM only for out-of-sample forecasts, after Diebold 2015). |
 | Xiang & Borjigin (2026), J. Forecasting 45(8), 3427–3446, doi 10.1002/for.70195; **abstract only**, no full text (earlier SSRN versions: 10.2139/ssrn.4518360, 4617071 "Evidence from China", 4724650) | Splits returns into good and bad parts (Cholesky decomposition), builds Elastic-Net-VAR spillover networks per layer, uses network features to forecast stock return direction; random forest best, "statistically significant and economically valuable"; connectedness rises in stress. | Direction forecasting from spillovers among stocks, apparently Chinese stocks (SSRN title). Not global overnight information or reversal timing, so it does not touch the novelty claim. Possible one-clause citation in strand 4 (spillovers) or in the discussion of direction-accuracy red flags, **only after reading the full text**: accuracy level, split design and costs unknown. |
+
+## Geopolitical risk, policy uncertainty and Vietnamese stocks; forecasting benchmarks (2026-11-28)
+
+Four papers sent by the author; each read in full and its DOI checked on Crossref (authors, title,
+year and venue match). Numbers below are from the papers' own tables.
+
+**Synthesis.** The three Vietnam papers all find that some foreign uncertainty "influences" the
+Vietnamese market, but none is a forecasting test: every estimate is in sample, contemporaneous or
+built on overlapping windows, and none times its inputs to when they were public. Where they test
+geopolitical risk (GPR) directly at daily frequency, it is either insignificant (Vo, Tran & Cao 2024)
+or economically tiny (Truong et al. 2026). This is consistent with Paper 1, where `gpr_level` and
+`gpr_chg` add no detectable skill for reversal timing and are not informative in the block D
+attribution. None of the three contradicts Paper 1; they answer a different question
+(co-movement of returns or spillover indices, not the timing of swing reversals).
+
+### Cao & Vo (2025): market responses to GPR and EPU, Vietnam
+Cao, P. T.-H., & Vo, D. H. (2025). Market responses to geopolitical risk and economic policy
+uncertainty: Evidence from Vietnam. *Heliyon, 11*(4), e42703. doi:10.1016/j.heliyon.2025.e42703
+(DOI verified).
+
+- **Design:** monthly, August 2000 to June 2023 (275 months); GPR and EPU indices of ten trade
+  partners; VN-Index log return and TGARCH volatility; TVP-VAR frequency connectedness
+  (Antonakakis et al. 2020).
+- **Findings:** share of forecast-error variance of VN-Index returns "from" foreign EPU 20.61% and
+  from foreign GPR 29.62% (Table 4); of volatility, 42.45% (EPU) and 18.80% (GPR) (Table 5).
+  Spillovers were largest in 2001–2002 and have fallen as the market matured; spikes at COVID-19
+  (EPU) and the Russia–Ukraine war (GPR).
+- **Limits:** variance-decomposition shares are in-sample descriptions, not causal effects or
+  forecasts; no significance tests or intervals for the shares; a large VAR (20 uncertainty indices
+  plus the market) on 275 monthly observations, so each partner's 1–4% share may be partly noise;
+  no publication-lag treatment for monthly GPR or EPU. Some paragraphs are duplicated in the text.
+- **For Paper 1:** different frequency and question. Its declining recent spillovers fit our daily
+  null.
+
+### Vo, Tran & Cao (2024): sector return spillovers and US uncertainty
+Vo, D. H., Tran, M. P.-B., & Cao, P. T.-H. (2024). Return spillover of Vietnam's sectors in response
+to US uncertainties. *Heliyon, 10*(3), e25143. doi:10.1016/j.heliyon.2024.e25143 (DOI verified).
+
+- **Design:** daily returns of 24 sector indices, 13 April 2017 to 8 April 2022; Diebold–Yilmaz
+  VAR(4) connectedness on 200-day rolling windows (10-day horizon); the total spillover index (TSI)
+  regressed on daily global GPR, US EPU, the interbank rate, USD/VND and gold returns with
+  Newey–West errors, also split by low, normal and high EPU.
+- **Findings:** TSI 69.71% (79.59% in COVID-19 vs 61.91% before); banking is the largest net
+  transmitter (NET 37.39%); US EPU raises the TSI (0.018 per index point), only in high-EPU periods;
+  **GPR has no significant effect** in any specification (Tables 6–7).
+- **Limits:** the dependent variable is a 200-day rolling index, so consecutive observations share
+  199 days and the effective sample is very small; Newey–West does not fix that persistence;
+  contemporaneous regressors; spillover of co-movement, not prediction.
+- **For Paper 1:** supports banks as a distinct, central group (our block E and bank rows); its GPR
+  null matches ours.
+
+### Truong, Friday & Nguyen (2026): GPR acts and threats and HOSE returns
+Truong, L. D., Friday, H. S., & Nguyen, A. T. K. (2026). The effects of geopolitical risks on market
+returns in a frontier market: Evidence from Ho Chi Minh Stock Exchange. *Asia-Pacific Financial
+Markets, 33*(2), 737–757 (online 5 March 2025). doi:10.1007/s10690-025-09518-6 (DOI verified).
+
+- **Design:** daily VN30 log returns, 6 February 2012 to 29 December 2023 (2,955 days), on the logs
+  of the daily GPR Acts and GPR Threats indices; ARDL(2,0,0) with bounds test and error correction,
+  White standard errors.
+- **Findings:** GPR Threats has a negative coefficient (short run −0.00135, t = −3.07; long run
+  −0.00146, t = −3.03); GPR Acts is insignificant (Table 6).
+- **Limits:**
+  - *Magnitude.* The text reads the coefficient as "a 1% increase in GPRT … 0.135% decrease in
+    returns". With returns in decimals (sd 0.0053, Table 2) and GPRT in logs, a 1% rise implies
+    about −0.0014 percentage points, a hundred times smaller; even a doubling of GPRT implies about
+    −0.09 percentage points, small next to the daily standard deviation of 0.53 percentage points.
+  - *Timing.* Day-t GPR is built from US newspapers of day t, written after the Vietnamese close of
+    day t, so a same-day regression cannot be used to forecast that session.
+  - *Method.* All variables are I(0); "cointegration" between a stationary return and stationary
+    log indices, and an ECM coefficient of −0.92, mostly restate that daily returns have little
+    autocorrelation. In sample only; no out-of-sample or economic test, despite the conclusion that
+    investors "can use the GPRT index to forecast stock prices".
+- **For Paper 1:** the closest daily test of GPR on VN30. Its effect, if real, is tiny and same-day,
+  consistent with our finding that lagged GPR does not improve reversal forecasts. A useful citation
+  if a referee asks about GPR and Vietnam.
+
+### Saly-Kaufmann, Wood, Calliess & Zohren (2026): forecasting benchmarks in finance
+Saly-Kaufmann, A., Wood, K., Calliess, J.-P., & Zohren, S. (2026). How do standard time series
+forecasting benchmarks translate to finance? A broad study of risk adjusted performance. *Journal
+of Forecasting*. doi:10.1002/for.70233 (DOI verified; early view, open access).
+PDF: `methods/Saly-Kaufmann-et-al-2026_benchmarks-translate-to-finance-JoF.pdf`.
+
+- **Design:** 16 deep-learning architectures (Transformers, state-space models, xLSTM, recurrent
+  hybrids) on daily futures and FX, trained end to end for a volatility-targeted Sharpe ratio;
+  walk-forward, initial training 1990–2010, test 2010–2024.
+- **Findings:** generic Transformers and state-space models underperform a simple AR(1) benchmark;
+  a variable-selection network with an LSTM gives the highest gross Sharpe ratio (about 2.4).
+- **Limits (parts read):** the top 10 of 50 seeds by validation loss are averaged; pairwise t-tests
+  across 16 models without a visible multiple-testing correction; costs assessed as break-even levels.
+- **For Paper 1:** same message in the same journal: apparent skill must be judged against the right
+  simple benchmark. Candidate citation for Section 2.5 at revision.
